@@ -377,6 +377,7 @@ public class LightManager : MonoBehaviour, ISaveable
     }
 
     // Data class to hold the save information
+    // WHY NO TRANSFORMS
     [System.Serializable]
     public class LightManagerData
     {
@@ -407,8 +408,16 @@ public class LightManager : MonoBehaviour, ISaveable
         }
     }
 
+    //BUG____the lights in the Dining room are not working
+    //intensity not saved correctly
+    //check organization of the lights in the project
+    /// <summary>
+    /// Create save file information for the lights
+    /// </summary>
+    /// <param name="fileName"></param>
     public void CreateSaveFile(string fileName)
     {
+        //establish
         LightManagerData _lightManagerData = new LightManagerData(new List<float>());
 
         // Get all lights in consistent order
