@@ -13,6 +13,7 @@ using static UnityEngine.Rendering.DebugUI.Table;
 
 public class ZeroGravity : MonoBehaviour, ISaveable
 {
+    #region Inspector Variables
     [Header("== Player Elements ==")]
     [SerializeField]
     private Rigidbody rb;
@@ -207,7 +208,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     [SerializeField]
     private Animator animator;
 
-
+    [Header("== PLayer Movement Restriction Bools ==")]
     //used for freezing the camera movement while completing the puzzle.
     private bool canMove = true;
 
@@ -230,9 +231,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     //determines if the player is able to roll mid air or not
     [SerializeField]
     private bool onlyRollOnGrab = false;
-
     private bool hasUsedStim = false;
-
     private float totalRotation;
 
     // these will prevent rapid door collisions by providing a delay
@@ -242,11 +241,15 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     // for storing the respawn information
     public PlayerData playerData;
+#endregion 
 
-    #region properties
+    #region Properties
     //Properties
     //this property allows showTutorialMessages to be assigned outside of the script. Needed for the tutorial mission
 
+    #region devToolsProperties
+    public bool GodMode { get; set; } = false;
+    #endregion
     public float GrabPadding
     {
         get { return grabPadding; }
@@ -1324,6 +1327,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     //decreases the health of the player
     private void DecreaseHealth(int i)
     {
+        //if we are in GodMode
+        if (GodMode)
+        { //exit the method, we will not be taking damage
+            return;
+        }
+        
         //decrease the player health by however many is inputted
         if(playerHealth - i < 0)
         {
