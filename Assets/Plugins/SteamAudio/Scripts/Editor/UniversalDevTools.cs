@@ -18,10 +18,10 @@ public class UniversalDevTools : EditorWindow
     private float noClipMoveSpeed = 10f;
 
     // Gizmo toggles (static so DrawGizmo can read them)
-    private static bool drawGrabRange = true;
+    private static bool drawGrabRange = false;
     private static bool drawBarLines = true;
-    private static bool drawLaunchDirection = true;
-    private static bool drawBoundingSphere = true;
+    private static bool drawLaunchDirection = false;
+    private static bool drawBoundingSphere = false;
 
 
     [MenuItem("Tools/UniversalDevTools")]
@@ -201,6 +201,7 @@ public class UniversalDevTools : EditorWindow
                     "Controls:\n" +
                     "W/S -> Forward & Back\n" +
                     "A/D -> Left & Right\n" +
+                    "Q/E -> Roll" +
                     "Space -> Up\n" +
                     "C -> Down",
                     MessageType.None
@@ -371,7 +372,7 @@ public class UniversalDevTools : EditorWindow
                 }
             }
         }
-
+        //need to repaint the scene view to ensure the gizmos update in real time as we change values in the dev tools
         sceneView.Repaint();
     }
     #endregion
