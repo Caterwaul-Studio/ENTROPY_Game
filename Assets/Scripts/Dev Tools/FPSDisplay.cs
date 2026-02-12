@@ -11,6 +11,9 @@ public class FPSDisplay : MonoBehaviour
     private int frameCount;
     private float fps;
 
+    //public getter create for FPS so we can reference it in the dev tools. therefore remove the p key stuff here. need to calculate here tho as the Universal Dev tools run as a GUI and therefore can't make these calcs
+    public float FPS {  get { return fps; } }
+
     void Start()
     {
         if (fpsText == null)

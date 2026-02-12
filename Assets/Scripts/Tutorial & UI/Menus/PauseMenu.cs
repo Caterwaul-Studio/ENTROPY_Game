@@ -113,7 +113,7 @@ public class PauseMenu : MonoBehaviour
         Resume();
 
         // Call the Respawn method on the playerController to respawn the player
-        playerController.Respawn(respawnLoc);
+        playerController.Respawn();
 
         // Fade the screen back in after the player has respawned
         yield return StartCoroutine(cameraFade.FadeIn(1f));  // 1f is the duration for fade-in
