@@ -12,7 +12,17 @@ public class UniversalDevTools : EditorWindow
     //booleans for the all toggleable elements
     private bool god;
     private bool playerFreeMoveNoClip;
+
+    // A float created to store the value of the no clip move speed, this is used for the slider in the dev tools
+    // and also set the value in ZeroGravity.cs through reflection
     private float noClipMoveSpeed = 10f;
+
+    // Gizmo toggles (static so DrawGizmo can read them)
+    private static bool drawGrabRange = true;
+    private static bool drawBarLines = true;
+    private static bool drawLaunchDirection = true;
+    private static bool drawBoundingSphere = true;
+
 
     [MenuItem("Tools/UniversalDevTools")]
     public static void ShowWidow()
@@ -24,8 +34,13 @@ public class UniversalDevTools : EditorWindow
     private void OnEnable()
     {
         FindPlayer();
+        SceneView.duringSceneGui += OnSceneGUI;
     }
 
+    private void OnDisable()
+    {
+        SceneView.duringSceneGui -= OnSceneGUI;
+    }
     public void OnGUI()
     {
         // Get a reference to the player
@@ -36,23 +51,33 @@ public class UniversalDevTools : EditorWindow
             FindPlayer();
         }
 
-        //creat a label for the window also bold it so we can see it
+        //create a label for the window also bold it so we can see it
         GUILayout.Label("Player Controller Tools", EditorStyles.boldLabel);
 
         // Create a toggle to allow the player to go into god mode
         // While in god mode, the bool will block the Health related methods inside of ZeroGravity.cs
         // Therefore, we cannot die
         god = EditorGUILayout.Toggle("->God Mode", god);
-        playerFreeMoveNoClip = EditorGUILayout.Toggle("->Free Move with No Clip",  playerFreeMoveNoClip); 
-
-
+        playerFreeMoveNoClip = EditorGUILayout.Toggle("->Free Move with No Clip",  playerFreeMoveNoClip);
         //method calls to set up each section of the dev tools window
-        PLayerControlsTools();
+        PlayerControlsTools();
+        // Gizmo toggles section
+        GizmoToggles();
     }
 
     #region Helper Methods
+    private void GizmoToggles()
+    {
+        // Gizmo toggles
+        EditorGUILayout.Space();
+        GUILayout.Label("Gizmos (Viewable in Scene View)", EditorStyles.boldLabel);
+        drawGrabRange = EditorGUILayout.ToggleLeft("Draw Grab Range (grabRange)", drawGrabRange);
+        drawBarLines = EditorGUILayout.ToggleLeft("Draw Bar Lines (potential / grabbed)", drawBarLines);
+        drawLaunchDirection = EditorGUILayout.ToggleLeft("Draw Launch Direction (when grabbing)", drawLaunchDirection);
+        drawBoundingSphere = EditorGUILayout.ToggleLeft("Draw Bounding Sphere (collision)", drawBoundingSphere);
+    }
 
-    private void PLayerControlsTools()
+    private void PlayerControlsTools()
     {
         //ensure that we have a player reference
         if (player != null)
@@ -205,8 +230,7 @@ public class UniversalDevTools : EditorWindow
         //display current status
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Status:", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField("FPS: " + Mathf.Round((float)fpsProp.GetValue(fpsCounter)), EditorStyles.boldLabel);
-        EditorGUILayout.LabelField("God Mode: " + (god ? "ENABLED" : "Disabled"));
+        EditorGUILayout.LabelField("FPS: " + Mathf.Round((float)fpsProp.GetValue(fpsCounter)) + " also view in game - 'P' key", EditorStyles.boldLabel);
 
         if (healthProp != null)
         {
@@ -220,5 +244,135 @@ public class UniversalDevTools : EditorWindow
         }
     }
 
+    #endregion
+
+    #region Gizmo Draw Methods
+    /// <summary>
+    /// Handles custom scene view rendering for visualizing player-related gizmos in the Unity Editor.
+    /// </summary>
+    /// <remarks>This method is intended to be used within the Unity Editor to provide visual debugging aids,
+    /// such as grab ranges, bounding spheres, and directional indicators for the player. It should be called from an
+    /// editor script's scene GUI event handler. The method does not execute in play mode or in builds.</remarks>
+    /// <param name="sceneView">The SceneView instance in which the custom gizmos are drawn.</param>
+    private void OnSceneGUI(SceneView sceneView)
+    {
+        // ensure the player reference is valid
+        if (player == null) return;
+
+        // find ZeroGravity component
+        Component zeroGravity = null;
+        foreach (Component comp in player.GetComponentsInChildren<Component>())
+        {
+            // check for ZeroGravity component by name
+            if (comp != null && comp.GetType().Name == "ZeroGravity")
+            {
+                // set the component reference
+                zeroGravity = comp;
+                //break the loop once found
+                break;
+            }
+        }
+        //ensure we found the ZeroGravity component
+        if (zeroGravity == null) return;
+
+        // use reflection to access necessary fields and properties
+        System.Type zgType = zeroGravity.GetType();
+        //store player position
+        Vector3 playerPos = zeroGravity.transform.position;
+
+        // grab range
+        if (drawGrabRange)
+        {
+            PropertyInfo grabRangeProp = zgType.GetProperty("GrabRange");
+            if (grabRangeProp != null)
+            {
+                float grabRange = (float)grabRangeProp.GetValue(zeroGravity);
+                Handles.color = Color.cyan;
+                Handles.DrawWireDisc(playerPos, Vector3.up, grabRange);
+                Handles.DrawWireDisc(playerPos, Vector3.right, grabRange);
+                Handles.DrawWireDisc(playerPos, Vector3.forward, grabRange);
+            }
+        }
+
+        // bounding sphere
+        if (drawBoundingSphere)
+        {
+            FieldInfo boundingSphereField = zgType.GetField("boundingSphere", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (boundingSphereField != null)
+            {
+                CapsuleCollider bs = boundingSphereField.GetValue(zeroGravity) as CapsuleCollider;
+                if (bs != null)
+                {
+                    Handles.color = new Color(0f, 0.5f, 1f, 0.8f);
+                    Handles.DrawWireDisc(playerPos, Vector3.up, bs.radius + 0.01f);
+                    Handles.DrawWireDisc(playerPos, Vector3.right, bs.radius + 0.01f);
+                    Handles.DrawWireDisc(playerPos, Vector3.forward, bs.radius + 0.01f);
+                }
+            }
+        }
+
+        // bar lines
+        if (drawBarLines)
+        {
+            // potential bar - yellow line
+            FieldInfo potentialBarField = zgType.GetField("potentialGrabbedBar", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (potentialBarField != null)
+            {
+                Collider potentialBar = potentialBarField.GetValue(zeroGravity) as Collider;
+                if (potentialBar != null)
+                {
+                    Handles.color = Color.yellow;
+                    Handles.DrawLine(playerPos, potentialBar.transform.position);
+                    Handles.Label(potentialBar.transform.position, "Potential Bar");
+                }
+            }
+
+            // grabbed bar - green line
+            PropertyInfo grabbedProp = zgType.GetProperty("GrabbedBar");
+            if (grabbedProp != null)
+            {
+                Collider grabbedBar = grabbedProp.GetValue(zeroGravity) as Collider;
+                if (grabbedBar != null)
+                {
+                    Handles.color = Color.green;
+                    Handles.DrawLine(playerPos, grabbedBar.transform.position);
+                    Handles.Label(grabbedBar.transform.position, "Grabbed Bar");
+                }
+            }
+        }
+
+        // launch direction
+        if (drawLaunchDirection)
+        {
+            FieldInfo camField = zgType.GetField("cam", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo thrustField = zgType.GetField("thrust1D", BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo strafeField = zgType.GetField("strafe1D", BindingFlags.NonPublic | BindingFlags.Instance);
+            PropertyInfo isGrabbingProp = zgType.GetProperty("IsGrabbing");
+
+            if (camField != null && thrustField != null && strafeField != null && isGrabbingProp != null)
+            {
+                bool isGrabbing = (bool)isGrabbingProp.GetValue(zeroGravity);
+                if (isGrabbing)
+                {
+                    Camera cam = camField.GetValue(zeroGravity) as Camera;
+                    float thrust = (float)thrustField.GetValue(zeroGravity);
+                    float strafe = (float)strafeField.GetValue(zeroGravity);
+
+                    if (cam != null)
+                    {
+                        Vector3 launchDir = (cam.transform.forward * thrust + cam.transform.right * strafe).normalized;
+                        if (launchDir.magnitude > 0.01f)
+                        {
+                            Handles.color = Color.red;
+                            Handles.DrawLine(playerPos, playerPos + launchDir * 3f);
+                            Handles.Label(playerPos + launchDir * 3f, "Launch");
+                        }
+                    }
+                }
+            }
+        }
+
+        sceneView.Repaint();
+    }
     #endregion
 }
