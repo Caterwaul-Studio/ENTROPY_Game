@@ -602,7 +602,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             {
                 cam.transform.Rotate(Vector3.forward, currentRollSpeed * Time.deltaTime);
             }
-            if (tutorialManager != null && tutorialManager.inTutorial)
+            if (tutorialManager.inTutorial)
             {
                 // inside RotateCam, after applying roll
                 float deltaRoll = currentRollSpeed * Time.deltaTime;
