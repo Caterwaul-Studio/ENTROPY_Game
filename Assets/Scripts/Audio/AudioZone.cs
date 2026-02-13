@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class AudioZone : MonoBehaviour
@@ -43,7 +44,10 @@ public class AudioZone : MonoBehaviour
     {
         for (int i = 0; i < audioObjects.Count; i++)
         {
-            audioObjects[i].SetActive(true);
+            if (!cullingManager.exempt.Contains<AudioSource>(audioObjects[i].GetComponent<AudioSource>())) //make sure it isnt on the exemption list
+            {
+                audioObjects[i].SetActive(true);
+            }
         }
     }
 
@@ -51,7 +55,10 @@ public class AudioZone : MonoBehaviour
     {
         for (int i = 0; i < audioObjects.Count; i++)
         {
-            audioObjects[i].SetActive(false);
+            if (!cullingManager.exempt.Contains<AudioSource>(audioObjects[i].GetComponent<AudioSource>())) //make sure it isnt on the exemption list
+            {
+                audioObjects[i].SetActive(false);
+            }
         }
     }
 

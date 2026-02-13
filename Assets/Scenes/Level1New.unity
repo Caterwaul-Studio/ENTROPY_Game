@@ -5061,10 +5061,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 177a6086ca4dd0247b7af5d76d54e699, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  exempt:
+  - {fileID: 8012120107294812507}
   cullable: []
   audioZones: []
   player: {fileID: 2677586050311584025}
   cullDistance: 5
+  currentZone: {fileID: 0}
 --- !u!4 &370420547
 Transform:
   m_ObjectHideFlags: 0
@@ -52391,6 +52394,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2c010e61a32f7c459d12ddb06d9d37a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!82 &8012120107294812507 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 2780931090084870024, guid: d85d2de73afa837409f59fdc7310d96f, type: 3}
+  m_PrefabInstance: {fileID: 4078429741530275399}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8012622270692632074
 GameObject:
   m_ObjectHideFlags: 0

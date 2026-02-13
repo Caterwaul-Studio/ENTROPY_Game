@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class AudioCulling : MonoBehaviour
 {
+    public AudioSource[] exempt;
     public AudioSource[] cullable;
     [SerializeField] private AudioZone[] audioZones;
     [SerializeField] private GameObject player;
@@ -19,7 +20,6 @@ public class AudioCulling : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        print(currentZone);
         for (int i = 0; i < audioZones.Length; i++)
         { //for every audio zone...
             if (audioZones[i].bounds.Contains(player.transform.position))
