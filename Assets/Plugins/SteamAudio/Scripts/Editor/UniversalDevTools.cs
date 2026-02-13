@@ -201,7 +201,7 @@ public class UniversalDevTools : EditorWindow
                     "Controls:\n" +
                     "W/S -> Forward & Back\n" +
                     "A/D -> Left & Right\n" +
-                    "Q/E -> Roll" +
+                    "Q/E -> Roll\n" +
                     "Space -> Up\n" +
                     "C -> Down",
                     MessageType.None
