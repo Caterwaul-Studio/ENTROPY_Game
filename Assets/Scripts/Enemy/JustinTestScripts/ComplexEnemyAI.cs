@@ -5,6 +5,21 @@ using UnityEngine;
 
 public class ComplexEnemyAI : MonoBehaviour
 {
+    public static ComplexEnemyAI Instance { get; private set; }
+
+    public void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+    }
+
     [Header("Movement")]
     public float speed = 3.0f;
     public float chaseDistance = 15.0f;
@@ -33,6 +48,7 @@ public class ComplexEnemyAI : MonoBehaviour
     public Transform waypointGroup;
     //public DoorScript door;
 
+    /*
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioSource audioSource2;
@@ -40,6 +56,7 @@ public class ComplexEnemyAI : MonoBehaviour
     public AudioClip chargingSound;
     public AudioClip lungeSound;
     public AudioClip takeDamage;
+    */
 
     [Header("Tendril Settings")]
     public GameObject tendrilPrefab;
@@ -117,9 +134,9 @@ public class ComplexEnemyAI : MonoBehaviour
 
         playerController = player.GetComponent<ZeroGravity>();
 
-        audioSource.clip = alienSfx;
-        audioSource.loop = true;
-        audioSource.Stop();
+        //audioSource.clip = alienSfx;
+        //audioSource.loop = true;
+        //audioSource.Stop();
 
         // Rigidbody must exist and start in kinematic mode
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -242,7 +259,7 @@ public class ComplexEnemyAI : MonoBehaviour
         //if chasing player, check for line of sight.
         if (isChasingPlayer)
         {
-            if (!audioSource.isPlaying) audioSource.Play();
+            //if (!audioSource.isPlaying) audioSource.Play();
 
             clearPathCheckTimer += Time.deltaTime;
 
@@ -323,7 +340,7 @@ public class ComplexEnemyAI : MonoBehaviour
                     RoamLimited();
                 }
                 isChasingPlayer = false;
-                if (audioSource.isPlaying) audioSource.Stop();
+                //if (audioSource.isPlaying) audioSource.Stop();
             }
         }
     }
@@ -420,9 +437,9 @@ public class ComplexEnemyAI : MonoBehaviour
         }
 
         //sfx
-        audioSource.Stop();
-        audioSource2.Stop();
-        audioSource2.PlayOneShot(takeDamage);
+        //audioSource.Stop();
+        //audioSource2.Stop();
+        //audioSource2.PlayOneShot(takeDamage);
 
 
         // Wait for stun duration
@@ -537,8 +554,8 @@ public class ComplexEnemyAI : MonoBehaviour
         isChasingPlayer = false;
         ricochetCount = 0;
 
-        audioSource2.clip = chargingSound;
-        audioSource2.Play();
+        //audioSource2.clip = chargingSound;
+        //audioSource2.Play();
 
         // Retract ALL current tendrils
         foreach (TendrilOrigin origin in tendrilOrigins)
@@ -619,9 +636,9 @@ public class ComplexEnemyAI : MonoBehaviour
                 origin.activeTendril.Retract();
             }
         }
-        audioSource2.Stop();
-        audioSource2.clip = lungeSound;
-        audioSource2.Play();
+        //audioSource2.Stop();
+        //audioSource2.clip = lungeSound;
+        //audioSource2.Play();
 
         // Finish charging → launch the lunge
         Vector3 dir = (player.transform.position - transform.position).normalized;
@@ -914,8 +931,8 @@ public class ComplexEnemyAI : MonoBehaviour
         availableOrigins.Clear();
         availableOrigins.AddRange(tendrilOrigins);
 
-        audioSource.Stop();
-        audioSource2.Stop();
+        //audioSource.Stop();
+        //audioSource2.Stop();
 
         // Start line of sight tracking after a short delay
         StartCoroutine(DelayedWake());
