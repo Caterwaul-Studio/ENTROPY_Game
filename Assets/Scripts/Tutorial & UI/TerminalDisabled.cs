@@ -61,7 +61,10 @@ public class TerminalDisabled : MonoBehaviour
             if (disabledScreen == null) continue;
             disabledScreen.SetActive(true);
             screenLight.intensity = lightIntensity;
-            offBeepSource.PlayOneShot(terminalAudio.offBeepClip);
+            if (offBeepSource.isActiveAndEnabled)
+            {
+                offBeepSource.PlayOneShot(terminalAudio.offBeepClip);
+            }
 
             yield return new WaitForSeconds(1f);
 

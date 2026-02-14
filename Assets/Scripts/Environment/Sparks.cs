@@ -37,10 +37,13 @@ public class Sparks : MonoBehaviour
                 
                 spark.Emit(Random.Range(5, 12));
                 StartCoroutine(LightFlash());
-                audio.PlayOneShot(sparkSFX);
-                
-                
-            }
+                if (audio.isActiveAndEnabled)
+                {
+                    audio.PlayOneShot(sparkSFX);
+                }
+
+
+                }
             else
             {
                 yield return new WaitForSeconds(0.1f); // Prevent CPU spin
