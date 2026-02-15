@@ -7,8 +7,6 @@ public enum SpecificEnemyState
     Investigate,
     Patrol,
     Idle,
-    Charge,
-    Lunge,
     Kill,
     Retreat,
     Stunned,
@@ -235,15 +233,21 @@ public class EnemyStateMachine : MonoBehaviour
     //with the player move through the walls or some 
     private void RetreatStates()
     {
-        if (true)
-        {
-
-        }
+        
     }
 
     private void LeavePlayerLOS()
     {
-
+        RaycastHit hit;
+        //This should allow the Geist to detect the player only and only if it's directly in the LOS and area of detection
+        if (Physics.Raycast(transform.position, player.transform.position, out hit, detectionRadius, playerLayer))
+        {
+            canDetectPlayer = true;
+        }
+        else
+        {
+            canDetectPlayer = false;
+        }
     }
 
     private void MoveToRandomPoint()
@@ -350,9 +354,6 @@ public class EnemyStateMachine : MonoBehaviour
     #endregion
 
     #endregion
-
-
-
 
     void OnDrawGizmosSelected()
     {
