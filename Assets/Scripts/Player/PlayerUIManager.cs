@@ -408,12 +408,12 @@ public class PlayerUIManager : MonoBehaviour
                     stim.CanRefill = false;
                 }
             }
-            if (dormHallEvent != null && dormHallEvent.CanGrab)
+            if (dormHallEvent.CanGrab)
             {
                 dormHallEvent.CanGrab = false;
             }
-            
-            if (lockdownEvent != null && lockdownEvent.CanPull)
+
+            if (lockdownEvent.CanPull)
             {
                 lockdownEvent.CanPull = false;
             }
@@ -1016,30 +1016,30 @@ public class PlayerUIManager : MonoBehaviour
         inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
     }
 
-    void OnDrawGizmos()
-    {
-        // Visualize the crosshair padding as a box in front of the camera
-        if (player.cam != null && crosshairRectTransform != null)
-        {
-            Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(null, crosshairRectTransform.position);
+    //void OnDrawGizmos()
+    //{
+    //    // Visualize the crosshair padding as a box in front of the camera
+    //    if (player.cam != null && crosshairRectTransform != null)
+    //    {
+    //        Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(null, crosshairRectTransform.position);
 
-            // Define padded bounds
-            float screenWidth = Screen.width;
-            float screenHeight = Screen.height;
-            Vector2 paddedMin = new Vector2(screenPoint.x - player.GrabPadding, screenPoint.y - player.GrabPadding);
-            Vector2 paddedMax = new Vector2(screenPoint.x + player.GrabPadding, screenPoint.y + player.GrabPadding);
+    //        // Define padded bounds
+    //        float screenWidth = Screen.width;
+    //        float screenHeight = Screen.height;
+    //        Vector2 paddedMin = new Vector2(screenPoint.x - player.GrabPadding, screenPoint.y - player.GrabPadding);
+    //        Vector2 paddedMax = new Vector2(screenPoint.x + player.GrabPadding, screenPoint.y + player.GrabPadding);
 
-            // Draw a box at the grab range with padding
-            Gizmos.color = Color.green;
-            for (float x = paddedMin.x; x <= paddedMax.x; x += player.GrabPadding / 4f)
-            {
-                for (float y = paddedMin.y; y <= paddedMax.y; y += player.GrabPadding / 4f)
-                {
-                    Ray ray = player.cam.ScreenPointToRay(new Vector3(x, y, 0));
-                    Gizmos.DrawRay(ray.origin, ray.direction * player.GrabRange);
-                }
-            }
-        }
-    }
+    //        // Draw a box at the grab range with padding
+    //        Gizmos.color = Color.green;
+    //        for (float x = paddedMin.x; x <= paddedMax.x; x += player.GrabPadding / 4f)
+    //        {
+    //            for (float y = paddedMin.y; y <= paddedMax.y; y += player.GrabPadding / 4f)
+    //            {
+    //                Ray ray = player.cam.ScreenPointToRay(new Vector3(x, y, 0));
+    //                Gizmos.DrawRay(ray.origin, ray.direction * player.GrabRange);
+    //            }
+    //        }
+    //    }
+    //}
 
 }

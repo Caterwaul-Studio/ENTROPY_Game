@@ -13,6 +13,7 @@ using static UnityEngine.Rendering.DebugUI.Table;
 
 public class ZeroGravity : MonoBehaviour, ISaveable
 {
+    #region Inspector Variables
     [Header("== Player Elements ==")]
     [SerializeField]
     private Rigidbody rb;
@@ -61,15 +62,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     private float justHitCoolDown = .6f;
     private float justHitTimeStamp = 0f;
 
-    //health indicator cooldown
-    [SerializeField]
-    private bool hurt = false;
+    //health indicator
     private bool prevHurt = false;
     [SerializeField]
     private float hurtCoolDown = 3.5f;
     [SerializeField]
     private float highDangerCoolDown = 5.0f;
-    private float hurtTimeStamp = 0f;
 
     //access permissions
     [SerializeField]
@@ -180,6 +178,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     private InputActionReference pushOffWall;
     private float thrust1D;
     private float strafe1D;
+    private float upandDown1D;
 
 
     [Header("== World Element Managers ==")]
@@ -207,7 +206,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     [SerializeField]
     private Animator animator;
 
-
+    [Header("== PLayer Movement Restriction Bools ==")]
     //used for freezing the camera movement while completing the puzzle.
     private bool canMove = true;
 
@@ -230,9 +229,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     //determines if the player is able to roll mid air or not
     [SerializeField]
     private bool onlyRollOnGrab = false;
-
     private bool hasUsedStim = false;
-
     private float totalRotation;
 
     // these will prevent rapid door collisions by providing a delay
@@ -242,11 +239,50 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     // for storing the respawn information
     public PlayerData playerData;
+    #endregion 
 
-    #region properties
+    #region Properties
     //Properties
     //this property allows showTutorialMessages to be assigned outside of the script. Needed for the tutorial mission
 
+    #region devToolsProperties
+    public bool GodMode { get; set; } = false;
+
+    private bool playerFreeMoveNoClip = false;
+    public bool PlayerFreeMoveNoClip
+    {
+        get { return playerFreeMoveNoClip; }
+        set
+        {
+            if (playerFreeMoveNoClip == value) return;
+            playerFreeMoveNoClip = value;
+
+            if (value)
+            {
+                //Debug.Log("NOCLIP ON - isKinematic before: " + rb.isKinematic);
+                ReleaseBar(); // ensure we clean up any grabbed bar states/ break those dependencies
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.isKinematic = true;
+                boundingSphere.enabled = false;
+                //Debug.Log("NOCLIP ON - isKinematic after: " + rb.isKinematic);
+            }
+            else
+            {
+                //Debug.Log("NOCLIP OFF - isKinematic before: " + rb.isKinematic);
+                rb.isKinematic = false;
+                boundingSphere.enabled = true;
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                //Debug.Log("NOCLIP OFF - isKinematic after: " + rb.isKinematic);
+            }
+        }
+    }
+    public float NoClipMoveSpeed { get; set; } = 10f;
+
+    #endregion
+
+    #region Other Properties
     public float GrabPadding
     {
         get { return grabPadding; }
@@ -377,6 +413,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     // getter for isGrabbing
     public bool IsGrabbing => isGrabbing;
+    #endregion
 
     #endregion
 
@@ -417,7 +454,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
         justHit = false;
         prevJustHit = false;
-        hurt = false;
         prevHurt = false;
 
 
@@ -441,7 +477,13 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     #region Update Methods
     void FixedUpdate()
     {
-        if (canMove)
+        if (PlayerFreeMoveNoClip)
+        {
+            FreeMoveNoClip();
+            return;
+        }
+        // if the player is allowed to move
+        if (canMove && !PlayerFreeMoveNoClip)
         {
             //handle grabber icon logic
             if (canGrab)
@@ -467,8 +509,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             {
                 doorCollisionCooldownFrames -= 1;
             }
-            //manage the cooldowns  
-            //HurtCoolDown();
             JustHitCoolDown();
 
             if (isDead)
@@ -486,37 +526,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             RotateCam();
         }
     }
-    #endregion 
+    #endregion
 
     #region Player Control Methods
-    public void PlayerCutSceneHandler(bool inCutScene)
-    {
-        if (inCutScene)
-        {
-            uiManager.HideInteractables();
-            uiManager.HideGrabber();
-            ReleaseBar();
-            rb.linearVelocity = Vector3.zero;
-            canGrab = false;
-            canPushOff = false;
-            canPropel = false;
-            //canRoll = false;
-            uiManager.Crosshair.sprite = null;
-            uiManager.Crosshair.color = new Color(0f, 0f, 0f, 0f);
-        }
-        else if (!inCutScene && uiManager.Crosshair.sprite == null)
-        {
-            //Debug.Log("running player cutscene handler");
-            canGrab = true;
-            canPushOff = true;
-            canPropel = true;
-            canRoll = true;
-            uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
-            uiManager.Crosshair.color = new Color(1f, 1f, 1f, .5f);
 
-        }
-    }
-
+    #region Camera Methods
     private void RotateCam()
     {
 
@@ -528,7 +542,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         cam.transform.Rotate(Vector3.right, rotateAngleY * Time.deltaTime);
         //Debug.Log("previous rotation: " + prevRotZ);
         //Debug.Log("rotationZ " + rotationZ + "// PrevRotZ" + prevRotZ);
-        
+
 
         // Apply roll rotation (Z-axis)
         if (canRoll)
@@ -581,11 +595,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             //Debug.Log(currentRollSpeed);
 
             //ensure the roll is capped at 100 and -100 so the player doesn't gain speed past this in the roll
-            if(currentRollSpeed > maxRollSpeed)
+            if (currentRollSpeed > maxRollSpeed)
             {
                 currentRollSpeed = maxRollSpeed;
             }
-            else if(currentRollSpeed < -maxRollSpeed)
+            else if (currentRollSpeed < -maxRollSpeed)
             {
                 currentRollSpeed = -maxRollSpeed;
             }
@@ -595,11 +609,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             {
                 cam.transform.Rotate(Vector3.forward, currentRollSpeed * Time.deltaTime);
             }
-            else if(onlyRollOnGrab && isGrabbing)
+            else if (onlyRollOnGrab && isGrabbing)
             {
                 cam.transform.Rotate(Vector3.forward, currentRollSpeed * Time.deltaTime);
             }
-            if (tutorialManager != null && tutorialManager.inTutorial)
+            if (tutorialManager.inTutorial)
             {
                 // inside RotateCam, after applying roll
                 float deltaRoll = currentRollSpeed * Time.deltaTime;
@@ -614,26 +628,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 }
                 //Debug.Log(totalRotation);
             }
-            
-            
-            
         }
     }
-
-    /// <summary>
-    /// This method will be used to create logic to automatically roll the player to be parralel or perpindicular
-    /// to the bar depending on approach when grabbing
-    /// 
-    /// too difficult to implement rn
-    /// </summary>
-    //private void rotateOnGrab(Transform bar)
-    //{
-    //    //establish z rotation values
-    //    //curent z rotation
-
-    //    //make the grab automatically rotate the camera until it goes vertical
-    //    cam.transform.rotation = Quaternion.RotateTowards()
-    //}
 
     public void StopRollingQuickly()
     {
@@ -654,178 +650,65 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
         currentRollSpeed = 0f; // Snap to 0 at the end
     }
+    #endregion
 
-    private void DetectBarrierAndBounce()
+    #region Dev Tool Methods
+    /// <summary>
+    /// This is a dev tool that switches the player from gameplay, grab and pull movement -> free movement with no clip
+    /// Allowing for devs to freely move within the scene without needing to use the mechanics,
+    /// just clean WASD ; forward, left, back, right
+    /// SPACE, up
+    /// C, down
+    /// </summary>
+    private void FreeMoveNoClip()
     {
-        float detectionRadius = boundingSphere.radius + .01f; // Slightly larger for early detection
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, detectionRadius, uiManager.BarrierLayer);
+        //ensure we can't use this logic if the PlayerFreeMoveNoClip boolean is not set to true
+        if (!PlayerFreeMoveNoClip) return;
 
-        //if the player is grabbing on a bar and going slower than walking speed
-        if(!useManualPullIn)
-        {
-            if (isGrabbing && rb.linearVelocity.magnitude < zeroGWalkSpeed)
-            {
-                //ignore bouncing
-                return;
-            }
-        }
+        //establish the forward vector
+        Vector3 moveDirection = Vector3.zero;
 
-        //Debug.Log(hitColliders.Length);
+        // Forward and back leveraging the thrust1D we alr created for the zero-g movement
+        moveDirection += cam.transform.forward * thrust1D;
+        // Left and Right leveraging strafe1D
+        moveDirection += cam.transform.right * strafe1D;
+        // Up and Down leverage upandDown1D
+        moveDirection += cam.transform.up * upandDown1D;
 
-        if (hitColliders.Length == 0)
-        {
-            return; //no collision, no bounce 
-        }
-
-        Vector3 avgBounceDirection = Vector3.zero;
-        int bounceCount = 0;
-        float ogSpeed = rb.linearVelocity.magnitude; //store initial velocity magnitude
-        Vector3 impactPoint = transform.position;
-
-        //Debug.Log(ogSpeed);
-
-        foreach (Collider barrier in hitColliders)
-        {
-            //Debug.Log("colliding");
-            Vector3 closestPoint = barrier.ClosestPoint(transform.position);
-            impactPoint = closestPoint; // Store most recent impact
-            Vector3 wallNormal = (transform.position - closestPoint).normalized;
-            Vector3 reflectDirection = Vector3.Reflect(rb.linearVelocity.normalized, wallNormal);
-
-            //push the player away slighly so they won't be stuck colliding with the wall.
-            Vector3 pushAway = wallNormal * 0.05f; // small offset to prevent overlap
-            transform.position += pushAway;
-
-            //get bounce directions
-            avgBounceDirection += reflectDirection;
-            bounceCount++;
-            //early exit if multiple bounces aren't needed
-            if (bounceCount > 1)
-            {
-                break;
-            }
-        }
-
-        if (bounceCount > 0)
-        {
-            avgBounceDirection.Normalize(); // average direction of the bounce
-            float bounceSpeed = ogSpeed * .75f; // keep 75% of initial speed so it doesn't gain velocity on bounces
-
-            //Debug.Log("BounceSpeed: " + bounceSpeed);
-
-            //we want to make sure that all bounces off the wall while traversing are set to  minimum speed
-            //however, if the player is grabbing we dont want these reset bounces as they jolt the player while grabbing
-            if (!isGrabbing)
-            {
-                //verify the bounce is faster than minimum speed
-                if (bounceSpeed <= minimumSpeed)
-                {
-                    //reset the bounce speed to be the minimum, ensuring constant bounces
-                    bounceSpeed = minimumSpeed;
-                }
-            }
-
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-
-            //rb.linearVelocity = avgBounceDirection * bounceSpeed;
-            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, avgBounceDirection * bounceSpeed, bounceAcc);
-        }
-
-        //check if the bounce is a hard bounce and we haven't been previously hit in the last 1.5 seconds  
-        if (ogSpeed >= dangerSpeed && !justHit && !isDead)
-        {
-            //decrease the player's health by 3
-            DecreaseHealth(2);
-            justHit = true;
-            //hurt = true;
-            playerAudio.PlayFatalBounce(impactPoint);
-        }
-        else if (ogSpeed >= mediumSpeed && !justHit && !isDead)
-        {
-            //decrease the player's health by 1
-            DecreaseHealth(1);
-            justHit = true;;
-            //hurt = true;
-            playerAudio.PlayHardBounce(impactPoint);
-        }
-        else
-        {
-            playerAudio.PlaySoftBounce(impactPoint);
-        }
+        // directly set the position based on the moveDirection we calculated
+        transform.position += moveDirection.normalized * NoClipMoveSpeed * Time.fixedDeltaTime;
     }
 
-    private void DetectClosingDoorTakeDamageAndBounce()
+    #endregion
+
+    #region Zero-Gravity Methods
+
+    #region Grab and Propel Movement
+    public void PlayerCutSceneHandler(bool inCutScene)
     {
-        float detectionRadius = boundingSphere.radius + 0.1f; // slightly larger for early detection
-        Collider[] hitDoors = Physics.OverlapSphere(transform.position, detectionRadius, uiManager.DoorLayer);
-
-        if (hitDoors.Length == 0)
+        if (inCutScene)
         {
-            return; //no collision, no bounce 
-        }
-
-        Vector3 avgBounceDirection = Vector3.zero;
-        Vector3 impactPoint = transform.position; // default
-        int bounceCount = 0;
-        float ogSpeed = rb.linearVelocity.magnitude; //store initial velocity magnitude
-
-        foreach (Collider door in hitDoors)
-        {
-            //get the doorscript of the parent object of the door collider
-            DoorScript doorScript = door.GetComponentInParent<DoorScript>();
-
-            if (doorScript != null && doorScript.IsClosing)
-            {
-                //check that the state is a broken door
-                if (doorScript.DoorState == DoorScript.States.Broken)
-                { 
-                    bounceCount++;
-                    //Debug.Log("bounce count" + bounceCount);
-
-                    //calculate bounce direction away from the door
-                    Vector3 bounceDirection = (transform.position - door.bounds.center).normalized;
-
-                    impactPoint = door.bounds.center;
-
-                    avgBounceDirection += bounceDirection;
-
-                    //early exit if multiple bounces aren't needed
-                    if (bounceCount >= 1)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-        //if we have a bounce to calculate, and we haven't been hit
-        if (bounceCount > 0)
-        {
-            //set velocity to zero
+            uiManager.HideInteractables();
+            uiManager.HideGrabber();
+            ReleaseBar();
             rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+            canGrab = false;
+            canPushOff = false;
+            canPropel = false;
+            //canRoll = false;
+            uiManager.Crosshair.sprite = null;
+            uiManager.Crosshair.color = new Color(0f, 0f, 0f, 0f);
+        }
+        else if (!inCutScene && uiManager.Crosshair.sprite == null)
+        {
+            //Debug.Log("running player cutscene handler");
+            canGrab = true;
+            canPushOff = true;
+            canPropel = true;
+            canRoll = true;
+            uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
+            uiManager.Crosshair.color = new Color(1f, 1f, 1f, .5f);
 
-            //only normalize if avgBounceDirection is valid
-            if (avgBounceDirection != Vector3.zero)
-            {
-                avgBounceDirection.Normalize();
-            }
-
-            //Debug.Log("Avg Bounce Direction: " + avgBounceDirection);
-
-            float bounceSpeed = ogSpeed * .75f; // keep 30% of initial speed so it doesn't gain 
-
-            //calculate the direction of the bounce
-            Vector3 propelDirection = avgBounceDirection * ogSpeed * (propelThrust * .50f) * 0.07f;
-            //Debug.Log("propel direction: " + propelDirection);
-            rb.AddForce(propelDirection, ForceMode.VelocityChange);
-            playerAudio.PlayFatalBounce(impactPoint);
-
-            //decrease the player health after they have collided with the closing door
-            if (!isDead) isDead = true;
-
-            //set door cooldown so the collisions do not spam
-            doorCollisionCooldownFrames = maxDoorCollisionCooldownFrames;
         }
     }
 
@@ -844,119 +727,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             uiManager.UpdateGrabberPosition(bar);
         }
     }
-
-    /// <summary>
-    /// IK arms start
-    /// </summary>
-    //private void GetBarGrabbers()
-    //{
-    //    grabHolder = grabbedBar.parent.Find("Grab");
-    //    initGrabRotation = new Quaternion[2];
-    //    initGrabPosition = new Vector3[2];
-    //    initUpVector = new Vector3[2];
-
-    //    for (int i = 0; i < grabHolder.childCount; i++)
-    //    {
-    //        Transform grab = grabHolder.GetChild(i);
-    //        initGrabRotation[i] = grab.rotation;
-    //        initGrabPosition[i] = grab.position;
-    //        initUpVector[i] = grab.up;
-    //    }
-    //}
-
-    //private void MoveArmsToBar()
-    //{
-    //    if (grabHolder != null)
-    //    {
-    //        //Debug.Log(hands[0].gameObject);
-    //        hands[0].data.target = grabHolder.GetChild(0).transform;
-    //        hands[1].data.target = grabHolder.GetChild(1).transform;
-
-    //        rigBuilder.Build();
-    //        animator.Rebind();
-    //    }
-    //}
-
-    //public void MoveHandsTo(Transform left, Transform right)
-    //{
-    //    if (left == null)
-    //        hands[0].data.target = defaultHandPosition[0];
-    //    else
-    //        hands[0].data.target = left;
-
-    //    if (right == null)
-    //        hands[1].data.target = defaultHandPosition[1];
-    //    else
-    //        hands[1].data.target = right;
-
-
-    //    rigBuilder.Build();
-    //    animator.Rebind();
-    //}
-
-    //private void ResetBarGrabbers()
-    //{
-    //    if (grabHolder != null)
-    //    {
-    //        for (int i = 0; i < grabHolder.childCount; i++)
-    //        {
-    //            Transform grab = grabHolder.GetChild(i).transform;
-
-    //            //Debug.Log(i + " + " + initGrabRotation[i]);
-    //            grab.rotation = initGrabRotation[i];
-    //            grab.position = initGrabPosition[i];
-    //            grab.up = initUpVector[i];
-    //        }
-
-    //        hands[0].data.target = defaultHandPosition[0];
-    //        hands[1].data.target = defaultHandPosition[1];
-
-    //        rigBuilder.Build();
-    //        animator.Rebind();
-
-    //        initGrabRotation = null;
-    //        initGrabPosition = null;
-    //        initUpVector = null;
-    //        grabHolder = null;
-    //    }
-
-
-    //}
-
-    //private void AdjustBarGrabbers()
-    //{
-    //    Transform grabCollider = grabbedBar.parent.Find("Grabbable");
-
-
-
-    //    float roll = cam.transform.localEulerAngles.z;
-    //    if (roll > 180f) roll -= 360f;
-
-    //    // calculate angle around bar to the player
-    //    Vector3 toTarget = cam.transform.position - grabCollider.position;
-    //    Vector3 projected = Vector3.ProjectOnPlane(toTarget, grabCollider.up);
-    //    float angle = Vector3.SignedAngle(grabCollider.forward, projected, grabCollider.up);
-
-    //    //Debug.Log(roll);
-
-    //    for (int i = 0; i < grabHolder.childCount; i++)
-    //    {
-    //        Transform grab = grabHolder.GetChild(i).transform;
-
-    //        // zero out transform for uniform translation
-    //        grab.rotation = initGrabRotation[i];
-    //        grab.position = initGrabPosition[i];
-
-    //        grab.RotateAround(grabCollider.position, grabCollider.up, angle);
-
-    //        //grab.position = initGrabPosition[i];
-    //        Quaternion rollRotation = Quaternion.AngleAxis(roll, grab.up);
-    //        grab.rotation = rollRotation * grab.rotation;
-
-    //    }
-
-
-    //}
 
     public void GrabBar()
     {
@@ -1151,10 +921,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     /// This method will take the joint created by the Swing method and will incrimentally 
     /// shrink it as the player continues to hold onto one bar. This will eventually get short enough to 
     /// where the player is able to stop themself, and then propel with no swing affecting their trajectory
-    /// </summary>
-    /// 
-
     ///try to make the target point calculated in front of the player to the bar. therefore won't have issues with collisions too close to the wall 
+    /// </summary>
     private void PullToBar(float multiplier, Transform bar)
     {
         //Debug.Log(bar.gameObject.name);
@@ -1321,134 +1089,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     }
 
-    //decreases the health of the player
-    private void DecreaseHealth(int i)
-    {
-        //decrease the player health by however many is inputted
-        if(playerHealth - i < 0)
-        {
-            playerHealth = 0;
-        }
-        else
-        {
-            playerHealth -= i;
-            //make a call to update the cooldown
-            //HurtCoolDown();
-        }
-
-        //check for if the player is dead or not
-        if (playerHealth <= 0)
-        {
-            //set isDead as true
-            isDead = true;
-        }
-    }
-
-    private void IncreaseHealth(int i)
-    {
-        playerHealth += i;
-        if (playerHealth > 4)
-        {
-            playerHealth = 4;
-            return;
-        }
-        prevHurt = false;
-    }
-
-    //this controls logic for the stim charges to be used
-    public void UseStimCharge()
-    {
-        if(playerHealth < 4 && numStims > 0)
-        {
-            if (!usingStimCharge)
-            {
-                usingStimCharge = true;
-                StartCoroutine(UseStim());
-            }
-            
-        }
-    }
-    /// <summary>
-    /// logic that allows you to add stims to the inventory. the integer inputed is added to the current stim inventory. however, if the added amt goes over the max, it sets it only to the max
-    /// </summary>
-    /// <param name="i"></param>
-    public void AddStimsToInv(int i)
-    {
-        if(numStims < maxNumStim)
-        {
-            numStims += i;
-            if(numStims > maxNumStim)
-            {
-                numStims = maxNumStim;
-            }
-        }
-    }
-
-    private void JustHitCoolDown()
-    {
-        if (justHit && !prevJustHit)
-        {
-            //create a timestamp representing the end of the cooldown
-            justHitTimeStamp = Time.time + justHitCoolDown;
-
-            //Debug.Log("timestamp for cooldown: " + justHitTimeStamp);
-            prevJustHit = justHit;
-        }
-
-        //if the timestamp is less than or equal to the current time
-        if (Time.time >= justHitTimeStamp)
-        {
-            //set justHit to false, allowing player to take damage again
-            justHit = false;
-            prevJustHit = justHit;
-        }
-    }
-
-    private void HurtCoolDown()
-    {
-
-        //Debug.Log("hurt cooldown called :Hurt: " + hurt + " :prevHurt:" + prevHurt);
-        //if the player is currently hurt, with confirmation this happened once, and their health is less than 4
-        if (hurt && playerHealth < 4 && !prevHurt)
-        {
-            //if the player health is 1
-            if (playerHealth == 1)
-            {
-                //create a timestamp representing the end of the cooldown
-                //this is the closest to death so it will have a longer cooldown
-                hurtTimeStamp = Time.time + highDangerCoolDown;
-            }
-            //if the player health is greater than 1
-            else if(playerHealth > 1)
-            {
-                //create a timestamp representing the end of the cooldown
-                //this is the higher healths so the cool down will be shorter
-                hurtTimeStamp = Time.time + hurtCoolDown;
-            }
-            //Debug.Log("timestamp for cooldown: " + hurtTimeStamp);
-            prevHurt = hurt;
-            //Debug.Log(":Hurt:" + hurt + ":prevHurt:" + prevHurt);
-        }
-
-        if (Time.time >= hurtTimeStamp && hurt && prevHurt)
-        {
-            //Debug.Log("Cooldown done");
-            IncreaseHealth(1);
-
-            if(playerHealth >= 4) 
-            {
-                playerHealth = maxHealth;
-                hurt = false;
-                prevHurt = false;
-            }
-        }
-
-        if (!hurt)
-        {
-            prevHurt = false;
-        }
-    }
-
     /// <summary>
     /// player uses the space bar to push off the wall when they are stuck
     /// </summary>
@@ -1474,7 +1114,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         float initialVelocityMagnitude = rb.linearVelocity.magnitude * .35f;
 
         //ensure the velocity is 1 no matter what
-        if(initialVelocityMagnitude < 1)
+        if (initialVelocityMagnitude < 1)
         {
             initialVelocityMagnitude = 1;
         }
@@ -1519,7 +1159,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 //add the propel force to the rigid body
                 rb.linearVelocity *= .5f;
                 rb.AddForce(propelDirection * initialVelocityMagnitude, ForceMode.VelocityChange);
-                
+
                 // Set the flag to false since keys are now pressed
                 movementKeysReleased = false;
             }
@@ -1530,6 +1170,285 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             }
         }
     }
+
+    #endregion
+
+    #region Collision Detection and Health Handling
+    private void DetectBarrierAndBounce()
+    {
+        float detectionRadius = boundingSphere.radius + .01f; // Slightly larger for early detection
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, detectionRadius, uiManager.BarrierLayer);
+
+        //if the player is grabbing on a bar and going slower than walking speed
+        if (!useManualPullIn)
+        {
+            if (isGrabbing && rb.linearVelocity.magnitude < zeroGWalkSpeed)
+            {
+                //ignore bouncing
+                return;
+            }
+        }
+
+        //Debug.Log(hitColliders.Length);
+
+        if (hitColliders.Length == 0)
+        {
+            return; //no collision, no bounce 
+        }
+
+        Vector3 avgBounceDirection = Vector3.zero;
+        int bounceCount = 0;
+        float ogSpeed = rb.linearVelocity.magnitude; //store initial velocity magnitude
+        Vector3 impactPoint = transform.position;
+
+        //Debug.Log(ogSpeed);
+
+        foreach (Collider barrier in hitColliders)
+        {
+            //Debug.Log("colliding");
+            Vector3 closestPoint = barrier.ClosestPoint(transform.position);
+            impactPoint = closestPoint; // Store most recent impact
+            Vector3 wallNormal = (transform.position - closestPoint).normalized;
+            Vector3 reflectDirection = Vector3.Reflect(rb.linearVelocity.normalized, wallNormal);
+
+            //push the player away slighly so they won't be stuck colliding with the wall.
+            Vector3 pushAway = wallNormal * 0.05f; // small offset to prevent overlap
+            transform.position += pushAway;
+
+            //get bounce directions
+            avgBounceDirection += reflectDirection;
+            bounceCount++;
+            //early exit if multiple bounces aren't needed
+            if (bounceCount > 1)
+            {
+                break;
+            }
+        }
+
+        if (bounceCount > 0)
+        {
+            avgBounceDirection.Normalize(); // average direction of the bounce
+            float bounceSpeed = ogSpeed * .75f; // keep 75% of initial speed so it doesn't gain velocity on bounces
+
+            //Debug.Log("BounceSpeed: " + bounceSpeed);
+
+            //we want to make sure that all bounces off the wall while traversing are set to  minimum speed
+            //however, if the player is grabbing we dont want these reset bounces as they jolt the player while grabbing
+            if (!isGrabbing)
+            {
+                //verify the bounce is faster than minimum speed
+                if (bounceSpeed <= minimumSpeed)
+                {
+                    //reset the bounce speed to be the minimum, ensuring constant bounces
+                    bounceSpeed = minimumSpeed;
+                }
+            }
+
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+
+            //rb.linearVelocity = avgBounceDirection * bounceSpeed;
+            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, avgBounceDirection * bounceSpeed, bounceAcc);
+        }
+
+        //check if the bounce is a hard bounce and we haven't been previously hit in the last 1.5 seconds  
+        if (ogSpeed >= dangerSpeed && !justHit && !isDead)
+        {
+            //decrease the player's health by 3
+            DecreaseHealth(2);
+            justHit = true;
+            playerAudio.PlayFatalBounce(impactPoint);
+        }
+        else if (ogSpeed >= mediumSpeed && !justHit && !isDead)
+        {
+            //decrease the player's health by 1
+            DecreaseHealth(1);
+            justHit = true; ;
+            playerAudio.PlayHardBounce(impactPoint);
+        }
+        else
+        {
+            playerAudio.PlaySoftBounce(impactPoint);
+        }
+    }
+
+    private void DetectClosingDoorTakeDamageAndBounce()
+    {
+        float detectionRadius = boundingSphere.radius + 0.1f; // slightly larger for early detection
+        Collider[] hitDoors = Physics.OverlapSphere(transform.position, detectionRadius, uiManager.DoorLayer);
+
+        if (hitDoors.Length == 0)
+        {
+            return; //no collision, no bounce 
+        }
+
+        Vector3 avgBounceDirection = Vector3.zero;
+        Vector3 impactPoint = transform.position; // default
+        int bounceCount = 0;
+        float ogSpeed = rb.linearVelocity.magnitude; //store initial velocity magnitude
+
+        foreach (Collider door in hitDoors)
+        {
+            //get the doorscript of the parent object of the door collider
+            DoorScript doorScript = door.GetComponentInParent<DoorScript>();
+
+            if (doorScript != null && doorScript.IsClosing)
+            {
+                //check that the state is a broken door
+                if (doorScript.DoorState == DoorScript.States.Broken)
+                {
+                    bounceCount++;
+                    //Debug.Log("bounce count" + bounceCount);
+
+                    //calculate bounce direction away from the door
+                    Vector3 bounceDirection = (transform.position - door.bounds.center).normalized;
+
+                    impactPoint = door.bounds.center;
+
+                    avgBounceDirection += bounceDirection;
+
+                    //early exit if multiple bounces aren't needed
+                    if (bounceCount >= 1)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+        //if we have a bounce to calculate, and we haven't been hit
+        if (bounceCount > 0)
+        {
+            //set velocity to zero
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+
+            //only normalize if avgBounceDirection is valid
+            if (avgBounceDirection != Vector3.zero)
+            {
+                avgBounceDirection.Normalize();
+            }
+
+            //Debug.Log("Avg Bounce Direction: " + avgBounceDirection);
+
+            float bounceSpeed = ogSpeed * .75f; // keep 30% of initial speed so it doesn't gain 
+
+            //calculate the direction of the bounce
+            Vector3 propelDirection = avgBounceDirection * ogSpeed * (propelThrust * .50f) * 0.07f;
+            //Debug.Log("propel direction: " + propelDirection);
+            rb.AddForce(propelDirection, ForceMode.VelocityChange);
+            playerAudio.PlayFatalBounce(impactPoint);
+
+            //decrease the player health after they have collided with the closing door
+            if (!isDead) isDead = true;
+
+            //set door cooldown so the collisions do not spam
+            doorCollisionCooldownFrames = maxDoorCollisionCooldownFrames;
+        }
+    }
+    //decreases the health of the player
+    private void DecreaseHealth(int i)
+    {
+        //if we are in GodMode
+        if (GodMode)
+        { //exit the method, we will not be taking damage
+            return;
+        }
+        
+        //decrease the player health by however many is inputted
+        if(playerHealth - i < 0)
+        {
+            playerHealth = 0;
+        }
+        else
+        {
+            playerHealth -= i;
+        }
+
+        //check for if the player is dead or not
+        if (playerHealth <= 0)
+        {
+            //set isDead as true
+            isDead = true;
+        }
+    }
+
+    private void IncreaseHealth(int i)
+    {
+        playerHealth += i;
+        if (playerHealth > 4)
+        {
+            playerHealth = 4;
+            return;
+        }
+        prevHurt = false;
+    }
+
+    //this controls logic for the stim charges to be used
+    public void UseStimCharge()
+    {
+        if(playerHealth < 4 && numStims > 0)
+        {
+            if (!usingStimCharge)
+            {
+                usingStimCharge = true;
+                StartCoroutine(UseStim());
+            }
+            
+        }
+    }
+
+    //dependent of UseStimeCharge
+    private IEnumerator UseStim()
+    {
+        if (hasUsedStim == false)
+        {
+            hasUsedStim = true;
+        }
+
+        playerAudio.PlayUseStim();
+        yield return new WaitForSeconds(1.8f);
+        IncreaseHealth(2);
+        numStims--;
+        usingStimCharge = false;
+
+    }
+    /// <summary>
+    /// logic that allows you to add stims to the inventory. the integer inputed is added to the current stim inventory. however, if the added amt goes over the max, it sets it only to the max
+    /// </summary>
+    /// <param name="i"></param>
+    public void AddStimsToInv(int i)
+    {
+        if(numStims < maxNumStim)
+        {
+            numStims += i;
+            if(numStims > maxNumStim)
+            {
+                numStims = maxNumStim;
+            }
+        }
+    }
+
+    private void JustHitCoolDown()
+    {
+        if (justHit && !prevJustHit)
+        {
+            //create a timestamp representing the end of the cooldown
+            justHitTimeStamp = Time.time + justHitCoolDown;
+
+            //Debug.Log("timestamp for cooldown: " + justHitTimeStamp);
+            prevJustHit = justHit;
+        }
+
+        //if the timestamp is less than or equal to the current time
+        if (Time.time >= justHitTimeStamp)
+        {
+            //set justHit to false, allowing player to take damage again
+            justHit = false;
+            prevJustHit = justHit;
+        }
+    }
+
+    #endregion
 
     /// <summary>
     /// This method is used to set movement of the player to restrcited as the player is now dead
@@ -1543,74 +1462,14 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         canGrab = false;
     }
 
-    public void Respawn(GameObject? respawnOverride = null)
+    public void Respawn()
     {
-        // replacing this logic with save loading
-        //GameObject targetLoc = respawnOverride ?? respawnLoc;
-
-        //if(enemyManager != null)
-        //{
-        //    enemyManager.ResetAliens();
-        //}
-
-        //transform.position = targetLoc.transform.position;
-        //cam.transform.rotation = targetLoc.transform.rotation;
-        //isDead = false;
-        //if(hasUsedStim)
-        //{
-        //    playerHealth = maxHealth;
-        //}
-        //else
-        //{
-        //    playerHealth = 3;
-        //}
-
-
-        ////stop rolling
-        //rotationZ = 0;
-        //currentRollSpeed = 0;
-
-        ////reset all actions
-        //if(tutorialManager.inTutorial)
-        //{
-        //    tutorialManager.RestartTutorial();
-        //}
-        //else
-        //{
-        //    canGrab = true;
-        //    canMove = true;
-        //    canPropel = true;
-        //    canRoll = true;
-        //    canPushOff = true;
-        //}
-
-        //Rigidbody rb = GetComponent<Rigidbody>();
-        //if (rb != null)
-        //{
-        //    rb.linearVelocity = Vector3.zero; // Reset velocity to prevent unwanted movement
-        //    rb.angularVelocity = Vector3.zero;
-        //}
-
         // whether or not we load from save depends on whether temp data exists
         GlobalSaveManager.LoadFromSave = GlobalSaveManager.TempDataExists();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    private IEnumerator UseStim()
-    {
-        if(hasUsedStim == false)
-        {
-            hasUsedStim = true;
-        }
-
-        playerAudio.PlayUseStim();
-        yield return new WaitForSeconds(1.8f);
-        IncreaseHealth(2);
-        numStims--;
-        usingStimCharge = false;
-        
-    }
-
+    #endregion
     #endregion
 
     #region Input Methods
@@ -1626,16 +1485,21 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         rotationVert = context.ReadValue<float>();
     }
 
-    public void OnThrust(InputAction.CallbackContext context)
+    public void OnForwardandBack(InputAction.CallbackContext context)
     {
         /*once the button, Keyboard or Controller, that is passed through the
          Player Input event to this value of thrust1D*/
         thrust1D = context.ReadValue<float>();
     }
 
-    public void OnStrafe(InputAction.CallbackContext context)
+    public void OnLeftandRight(InputAction.CallbackContext context)
     {
         strafe1D = context.ReadValue<float>();
+    }
+
+    public void OnUpandDown(InputAction.CallbackContext context)
+    {
+        upandDown1D = context.ReadValue<float>();
     }
     public void OffWall(InputAction.CallbackContext context)
     {
@@ -1697,6 +1561,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         }
     }
     #endregion
+
+    #region Global Save Manager Integration
 
     // backs up player data for saving
     public void StorePlayerData(Vector3 _position) // takes the checkpoints respawn point
@@ -1767,4 +1633,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         string path = Application.persistentDataPath;
         GlobalSaveManager.SaveTextToFile(path, fileName, json);
     }
+    #endregion
+
 }
