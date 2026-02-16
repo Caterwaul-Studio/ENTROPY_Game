@@ -103,11 +103,15 @@ public class PickupScript : MonoBehaviour
                     canPickUp = true;
                     uiManager.InputIndicator.sprite = uiManager.KeyFIndicator;
                     uiManager.InputIndicator.color = indicatorColor;
+
+                    uiManager.ShowBillboardUI(uiManager.KeyFIndicator, hitObj.transform);
                 }
                 else
                 {
                     current = null;
                     canPickUp = false;
+
+                    uiManager.HideBillboardUI();
                     //uiManager.InputIndicator.sprite = null;
                     //uiManager.InputIndicator.color = emptyColor;
                 }

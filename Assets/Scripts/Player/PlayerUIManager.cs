@@ -42,6 +42,10 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI grabUIText;
 
+    [SerializeField]
+    private GameObject billboardPrefab;
+    private GameObject billboardObject;
+
 
     //canvas elements
     [SerializeField]
@@ -189,6 +193,12 @@ public class PlayerUIManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // create the billboardPrefab. Not hardcoded.
+        billboardObject = GameObject.Instantiate(billboardPrefab);
+        billboardObject.SetActive(false);
+
+
+
         //set the crosshair and grabber sprites accordingly;
         crosshair.sprite = crosshairIcon;
         //set bar in view intially as false
@@ -437,7 +447,13 @@ public class PlayerUIManager : MonoBehaviour
 
         if (wallHit != null && !barInPeripheral && !barInRaycast && player.CanPushOff && !player.IsGrabbing)
         {
-            RayCastHandlePushOffWall(wallHit);
+            // Center raycast for visual consistancy. Shotgun handles functionality, this single ray is purely aesthetic.
+            Ray centerRay = player.cam.ScreenPointToRay(new Vector2(Screen.width / 2f, Screen.height / 2f));
+            RaycastHit centerHit;
+            if (Physics.Raycast(centerRay, out centerHit, player.GrabRange, barrierLayer) && centerHit.transform.CompareTag("Barrier"))
+            {
+                RayCastHandlePushOffWall(centerHit);
+            }
             return;
         }
     }
@@ -508,6 +524,13 @@ public class PlayerUIManager : MonoBehaviour
                             inputIndicator.sprite = spaceIndicator;
                             inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
                         }
+
+                    
+                    
+                        ShowBillboardUI(spaceIndicator);
+
+                        billboardObject.transform.position = hit.Value.point;
+                        
 
                     }
                 }
@@ -675,6 +698,8 @@ public class PlayerUIManager : MonoBehaviour
             grabUIText.text = "";
             floatingObjInRaycast = false;
             /*doorManager.DoorUI.SetActive(false);*/
+
+   
         }
     }
     /// <summary>
@@ -695,6 +720,7 @@ public class PlayerUIManager : MonoBehaviour
         {
             inputIndicator.sprite = null;
             inputIndicator.color = new Color(0, 0, 0, 0);
+
         }
     }
 
@@ -974,6 +1000,7 @@ public class PlayerUIManager : MonoBehaviour
 
                     //grabber.transform.localRotation = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg);
                     HidePushIndicator();
+
                 }
             }
         }
@@ -983,6 +1010,57 @@ public class PlayerUIManager : MonoBehaviour
             HideGrabber();
         }
     }
+
+    // billboard UI interactions
+    public void ShowBillboardUI(Sprite icon, Transform parent = null, String text = "")
+    {
+        if (billboardObject != null)
+        {
+            TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
+            Image image = billboardObject.GetComponentInChildren<Image>(true);
+
+
+            // only change things if they are different
+            if (image.sprite != icon ||
+                tmp.text != text ||
+                billboardObject.transform.parent != parent)
+            {
+
+                Debug.Log("changing billboard");
+
+                // set display settings
+                image.sprite = icon;
+                tmp.text = text;
+
+                billboardObject.transform.parent = parent;
+                billboardObject.transform.localPosition = Vector3.zero;
+
+                billboardObject.SetActive(true);
+
+            }
+        }
+
+    }
+
+    public void HideBillboardUI()
+    {
+        if (billboardObject != null)
+        {
+            billboardObject.SetActive(false);
+            billboardObject.transform.parent = null;
+
+            TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
+            Image image = billboardObject.GetComponentInChildren<Image>(true);
+
+            // clear display settings
+            tmp.text = "";
+            image.sprite = null;
+
+        }
+
+    }
+
+
     //Health Methods
     //controls the UI for the Player Health
     public void HandleHealthUI()
