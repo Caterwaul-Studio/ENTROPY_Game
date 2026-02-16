@@ -662,7 +662,7 @@ public class PlayerUIManager : MonoBehaviour
                 if (!wristMonitor.HasWristMonitor)
                 {
 
-                    ShowBillboardUI(null, null, "requires wrist monitor", true);
+                    ShowBillboardUI(null, new Color(1f,1f,1f,0f), null, "requires wrist monitor", true);
                     billboardObject.transform.position = hit.Value.point;
                     return;
                 }
@@ -1031,6 +1031,11 @@ public class PlayerUIManager : MonoBehaviour
     // billboard UI interactions
     public void ShowBillboardUI(Sprite icon, Transform parent = null, String text = "", bool hideCursor = false)
     {
+        ShowBillboardUI(icon, new Color(1f, 1f, 1f, 1f), parent, text, hideCursor);
+    }
+
+    public void ShowBillboardUI(Sprite icon, Color color, Transform parent = null, String text = "", bool hideCursor = false)
+    {
         if (billboardObject != null)
         {
             TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
@@ -1047,6 +1052,7 @@ public class PlayerUIManager : MonoBehaviour
 
                 // set display settings
                 image.sprite = icon;
+                image.color = color;
                 tmp.text = text;
 
                 billboardObject.transform.SetParent(parent,true);
