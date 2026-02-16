@@ -101,8 +101,6 @@ public class PickupScript : MonoBehaviour
                 {
                     current = hitObj;
                     canPickUp = true;
-                    uiManager.InputIndicator.sprite = uiManager.KeyFIndicator;
-                    uiManager.InputIndicator.color = indicatorColor;
 
                     uiManager.ShowBillboardUI(uiManager.KeyFIndicator, hitObj.transform);
                 }
@@ -112,8 +110,6 @@ public class PickupScript : MonoBehaviour
                     canPickUp = false;
 
                     uiManager.HideBillboardUI();
-                    //uiManager.InputIndicator.sprite = null;
-                    //uiManager.InputIndicator.color = emptyColor;
                 }
             }
             else
@@ -127,8 +123,8 @@ public class PickupScript : MonoBehaviour
                     {
                         current = col.gameObject;
                         canPickUp = true;
-                        uiManager.InputIndicator.sprite = uiManager.KeyFIndicator;
-                        uiManager.InputIndicator.color = indicatorColor;
+
+                        uiManager.ShowBillboardUI(uiManager.KeyFIndicator, col.transform);
                         found = true;
                         break;
                     }
@@ -138,10 +134,14 @@ public class PickupScript : MonoBehaviour
                 {
                     current = null;
                     canPickUp = false;
-                    //uiManager.InputIndicator.sprite = null;
-                    //uiManager.InputIndicator.color = emptyColor;
+
+                    uiManager.HideBillboardUI();
                 }
             }
+        }
+        else
+        {
+            canPickUp = false;
         }
 
         //Debug.DrawRay(cam.transform.position, cam.transform.forward * pickUpRange, Color.blue);
@@ -196,7 +196,9 @@ public class PickupScript : MonoBehaviour
     {
         if (pickUpObj.GetComponent<Rigidbody>()) //make sure the object has a RigidBody
         {
+            canPickUp = false;
             heldObj = pickUpObj; //assign heldObj to the object that was hit by the raycast (no longer == null)
+            uiManager.HideBillboardUI();
             heldObjRb = pickUpObj.GetComponent<Rigidbody>(); //assign Rigidbody
             heldObjRb.isKinematic = true;
             heldObjRb.transform.parent = holdPos.transform; //parent object to holdposition

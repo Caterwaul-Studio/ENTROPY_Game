@@ -30,6 +30,9 @@ public class PlayerUIManager : MonoBehaviour
     private bool barInRaycast;
     private bool barInPeripheral;
     private bool floatingObjInRaycast;
+
+    private bool canPushOffWall;
+
     [SerializeField]
     TerminalManager terminalManager;
     [SerializeField]
@@ -155,7 +158,7 @@ public class PlayerUIManager : MonoBehaviour
 
     public bool CanPushOffNow
     {
-        get { return InputIndicator.sprite == SpaceIndicator; }
+        get { return canPushOffWall; }
     }
 
     public Sprite CrosshairIcon { get { return crosshairIcon; } }
@@ -205,6 +208,8 @@ public class PlayerUIManager : MonoBehaviour
         barInRaycast = false;
         barInPeripheral = false;
         floatingObjInRaycast = false;
+        // default false
+        canPushOffWall = false;
         //erase the grabber
         grabber.sprite = null;
         grabber.color = new Color(0, 0, 0, 0); //transparent
@@ -445,7 +450,9 @@ public class PlayerUIManager : MonoBehaviour
             barInRaycast = false;
         }
 
-        if (wallHit != null && !barInPeripheral && !barInRaycast && player.CanPushOff && !player.IsGrabbing)
+        // Had to add a ton of else statements here to reset the UI. I wanted to get this into the RayCastHandlePushOffWall function, but couldn't find a workaround in time.
+        // This works, just doesn't feel the most organized.
+        if (wallHit != null && !barInPeripheral && !barInRaycast && player.CanPushOff && !player.IsGrabbing && terminalManager.currentTerminal == null)
         {
             // Center raycast for visual consistancy. Shotgun handles functionality, this single ray is purely aesthetic.
             Ray centerRay = player.cam.ScreenPointToRay(new Vector2(Screen.width / 2f, Screen.height / 2f));
@@ -454,7 +461,23 @@ public class PlayerUIManager : MonoBehaviour
             {
                 RayCastHandlePushOffWall(centerHit);
             }
+            else
+            {
+                if (canPushOffWall)
+                {
+                    canPushOffWall = false;
+                    HideBillboardUI();
+                }
+            }
             return;
+        }
+        else
+        {
+            if (canPushOffWall)
+            {
+                canPushOffWall = false;
+                HideBillboardUI();
+            }
         }
     }
 
@@ -517,27 +540,23 @@ public class PlayerUIManager : MonoBehaviour
                 {
                     if (player.CanPushOff)
                     {
-                        //grabUIText.text = "'SPACEBAR'";
-                        //set the sprite for the space bar indicator
-                        if (inputIndicator.sprite == null && grabUIText.text == "")
-                        {
-                            inputIndicator.sprite = spaceIndicator;
-                            inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
-                        }
-
+                        Debug.Log("movin!");
                     
-                    
-                        ShowBillboardUI(spaceIndicator);
-
+                        ShowBillboardUI(spaceIndicator, null, "", true);
                         billboardObject.transform.position = hit.Value.point;
-                        
+
+                        canPushOffWall = true;
 
                     }
                 }
             }
             else
             {
+
+                Debug.Log("trying to hide");
+                canPushOffWall = false;
                 HidePushIndicator();
+
             }
         }
     }
@@ -550,9 +569,8 @@ public class PlayerUIManager : MonoBehaviour
             if (lockdownEvent.IsActive)
             {
                 lockdownEvent.CanPull = true;
-                grabUIText.text = "deactivate manual lockdown";
-                inputIndicator.sprite = keyFIndicator;
-                inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
+
+                ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "deactivate manual lockdown");
             }
             else if (!lockdownEvent.IsActive)
             {
@@ -565,9 +583,8 @@ public class PlayerUIManager : MonoBehaviour
             if (inputIndicator.sprite == null)
             {
                 lockdownEvent.CanPull = true;
-                grabUIText.text = "Initiate Lever Release";
-                inputIndicator.sprite = keyFIndicator;
-                inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
+
+                ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "Initiate Lever Release");
             }
         }
         else if (hit.Value.transform.CompareTag("WristGrab") && dormHallEvent && dormHallEvent.IsGrabbable)
@@ -575,9 +592,8 @@ public class PlayerUIManager : MonoBehaviour
             if (dormHallEvent.IsGrabbable)
             {
                 dormHallEvent.CanGrab = true;
-                grabUIText.text = "take wrist monitor";
-                inputIndicator.sprite = keyFIndicator;
-                inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
+                ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "take wrist monitor");
+       
             }
             else if (!dormHallEvent.IsGrabbable)
             {
@@ -601,25 +617,22 @@ public class PlayerUIManager : MonoBehaviour
             {
                 if (stim.IsUsable)
                 {
+                    lookingAtStim = true; 
+                    stim.CanRefill = true;
+
                     //check to see if the player's stims aren't full
                     if (player.NumStims < 3)
                     {
                         //Debug.Log("I see a stim dispenser");
 
-
-                        lookingAtStim = true;
-                        stim.CanRefill = true;
-                        grabUIText.text = "hold to refill e-stims";
-                        inputIndicator.sprite = keyFIndicator;
-                        inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
+                        ShowBillboardUI(keyFIndicator, null, "refill e-stims");
+                        billboardObject.transform.position = hit.Value.point;
 
                     }
                     else
                     {
-                        stim.CanRefill = false;
-                        grabUIText.text = "e-stims full";
-                        inputIndicator.sprite = null;
-                        inputIndicator.color = new Color(0, 0, 0, 0);
+                        ShowBillboardUI(keyFIndicator, null, "estims full");
+                        billboardObject.transform.position = hit.Value.point;
                     }
                 }
                 else //if the stim dispenser is out of order
@@ -648,23 +661,25 @@ public class PlayerUIManager : MonoBehaviour
                 terminalManager.CurrentTerminal = terminal;
                 if (!wristMonitor.HasWristMonitor)
                 {
-                    grabUIText.text = "requires wrist monitor";
-                    inputIndicator.sprite = null;
-                    inputIndicator.color = new Color(0, 0, 0, 0);
+
+                    ShowBillboardUI(null, null, "requires wrist monitor", true);
+                    billboardObject.transform.position = hit.Value.point;
                     return;
                 }
                 if (terminal.isActivated)
                 {
-                    inputIndicator.sprite = null;
-                    inputIndicator.color = new Color(0, 0, 0, 0);
+
+                    HideBillboardUI();
                     return;
                 }
                 else
                 {
-                    grabUIText.text = @"press to reconnect alan:\";
+
                     terminal.isLookedAt = true;
-                    inputIndicator.sprite = keyFIndicator;
-                    inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
+                    ShowBillboardUI(keyFIndicator, null, "press to reconnect alan", true);
+                    billboardObject.transform.position = hit.Value.point;
+
+
                     //Debug.Log("Deactivated TERMINAL HIT");
                 }
             }
@@ -699,7 +714,7 @@ public class PlayerUIManager : MonoBehaviour
             floatingObjInRaycast = false;
             /*doorManager.DoorUI.SetActive(false);*/
 
-   
+            HideBillboardUI();
         }
     }
     /// <summary>
@@ -722,6 +737,8 @@ public class PlayerUIManager : MonoBehaviour
             inputIndicator.color = new Color(0, 0, 0, 0);
 
         }
+
+        HideBillboardUI();
     }
 
     public void ReleaseGrabber()
@@ -1012,7 +1029,7 @@ public class PlayerUIManager : MonoBehaviour
     }
 
     // billboard UI interactions
-    public void ShowBillboardUI(Sprite icon, Transform parent = null, String text = "")
+    public void ShowBillboardUI(Sprite icon, Transform parent = null, String text = "", bool hideCursor = false)
     {
         if (billboardObject != null)
         {
@@ -1025,14 +1042,14 @@ public class PlayerUIManager : MonoBehaviour
                 tmp.text != text ||
                 billboardObject.transform.parent != parent)
             {
-
-                Debug.Log("changing billboard");
+                if (hideCursor)
+                    crosshair.color = crosshair.color = new Color(1f, 1f, 1f, 0f);
 
                 // set display settings
                 image.sprite = icon;
                 tmp.text = text;
 
-                billboardObject.transform.parent = parent;
+                billboardObject.transform.SetParent(parent,true);
                 billboardObject.transform.localPosition = Vector3.zero;
 
                 billboardObject.SetActive(true);
@@ -1046,15 +1063,27 @@ public class PlayerUIManager : MonoBehaviour
     {
         if (billboardObject != null)
         {
-            billboardObject.SetActive(false);
-            billboardObject.transform.parent = null;
+            // make sure nothing currently needs the billboard
+            if (!pickupScript.CanPickUp &&
+                !CanPushOffNow &&
+                (terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated) &&
+                !dormHallEvent.CanGrab &&
+                !lockdownEvent.CanPull &&
+                !lookingAtStim)
+            {
+                crosshair.color = crosshair.color = new Color(1f, 1f, 1f, 1f);
 
-            TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
-            Image image = billboardObject.GetComponentInChildren<Image>(true);
+                billboardObject.SetActive(false);
+                billboardObject.transform.SetParent(null,true);
 
-            // clear display settings
-            tmp.text = "";
-            image.sprite = null;
+                TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
+                Image image = billboardObject.GetComponentInChildren<Image>(true);
+
+                // clear display settings
+                tmp.text = "";
+                image.sprite = null;
+            }
+            
 
         }
 
