@@ -80,6 +80,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
     private List<Waypoint> allWaypoints = new List<Waypoint>();
     private List<Waypoint> roamingWaypoints = new List<Waypoint>();
+    private List<Waypoint> SpawnWaypoints = new List<Waypoint>();
     private Waypoint goalWaypoint;
 
 
@@ -227,7 +228,7 @@ public class ComplexEnemyAI : MonoBehaviour
             if (!Physics.SphereCast(transform.position, sphereRadius, direction, out RaycastHit hit, 5f, barrierLayer))
             {
                 isCharging = true;
-                StartCoroutine(ChargeAndLunge());
+                //StartCoroutine(ChargeAndLunge());
                 return;
             }
             else
@@ -545,6 +546,7 @@ public class ComplexEnemyAI : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position, currentWaypoint.transform.position, speed * Time.deltaTime);
     }
 
+    /*
     private IEnumerator ChargeAndLunge()
     {
         Debug.Log("Charging Coroutine called");
@@ -650,6 +652,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
 
     }
+    */
 
     private void EndLunge()
     {
@@ -682,6 +685,11 @@ public class ComplexEnemyAI : MonoBehaviour
                 path = BFS(currentWaypoint, playerWaypoint);
             }
         }
+
+    }
+
+    void FindRetreatPath()
+    {
 
     }
 

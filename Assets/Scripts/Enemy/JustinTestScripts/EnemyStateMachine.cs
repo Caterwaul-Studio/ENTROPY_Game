@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum SpecificEnemyState
@@ -48,7 +49,7 @@ public class EnemyStateMachine : MonoBehaviour
     public SpecificEnemyState currentSpecificState;
     public SpecificEnemyState pastSpecificState;
 
-    [SerializeField] private ComplexEnemyAI ComplexEnemyAI;
+    //[SerializeField] private ComplexEnemyAI ComplexEnemyAI;
 
     [Header("References")]
     public GameObject player;
@@ -63,6 +64,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     public LayerMask playerLayer;
     public LayerMask barrierLayer; // Set this to "Barrier"
+    public LayerMask doorLayer;
     public float detectionRadius = 5f;
     public float wakeLossCooldown = 10f;
     private float timeSinceLastSeenPlayer = 0f;
@@ -78,7 +80,21 @@ public class EnemyStateMachine : MonoBehaviour
     private Coroutine investingTimerCoroutine;
 
     [Header("Retreat")]
+    public float retreatDuration = 3f;
+    [SerializeField] private float retreatTimer;
+    private Coroutine retreatingTimerCoroutine;
     [SerializeField] private float test;
+    private bool playerCanSeeEnemy;
+    private bool canRetreat; // This is to see if the Geist can run by moving away or does it have to move through the wall and teleport
+    private float retreatDistanceCheck;
+    private float randomPointRetreatDistanceMin;
+    private float randomPointRetreatDistanceMax;
+    public Vector3 retreatWaypoint;
+    [SerializeField] private LayerMask waypointLayer;
+    public float minRadius = 3f;
+    public float maxRadius = 7f;
+    private float maxRadiusAdd;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -151,14 +167,14 @@ public class EnemyStateMachine : MonoBehaviour
      */
     private void ChaseStates()
     {
-        if (canDetectPlayer == true)
+        if (canDetectPlayer)
         {
             ChangeSpecificState(SpecificEnemyState.Chase);
 
 
             //--Chase--
         }
-        else if (canDetectPlayer == false && currentSpecificState == SpecificEnemyState.Chase)
+        else if (!canDetectPlayer && currentSpecificState == SpecificEnemyState.Chase)
         {
             //Changes to Specific State of Investigate
             ChangeSpecificState(SpecificEnemyState.Investigate);
@@ -173,7 +189,7 @@ public class EnemyStateMachine : MonoBehaviour
             }
 
             //If the player is detected again, within the time limit start chasing again
-            if (canDetectPlayer == true)
+            if (canDetectPlayer)
             {
                 StopTimer(investingTimerCoroutine);
 
@@ -213,8 +229,11 @@ public class EnemyStateMachine : MonoBehaviour
     private void EnemyDetection()
     {
         RaycastHit hit;
+
+        Vector3 playerDetection = player.transform.position - transform.position;
+
         //This should allow the Geist to detect the player only and only if it's directly in the LOS and area of detection
-        if (Physics.Raycast(transform.position,player.transform.position,out hit,detectionRadius, playerLayer))
+        if (Physics.Raycast(transform.position, playerDetection, out hit,detectionRadius, playerLayer))
         {
             canDetectPlayer = true;
         }
@@ -233,26 +252,93 @@ public class EnemyStateMachine : MonoBehaviour
     //with the player move through the walls or some 
     private void RetreatStates()
     {
-        
+        if (currentGeneralState == GeneralEnemyState.Retreat)
+        {
+            if (playerCanSeeEnemy)
+            {
+                StartTimer(retreatDuration, retreatTimer, retreatingTimerCoroutine);
+            }
+
+            if (!playerCanSeeEnemy) 
+            {
+                
+            }
+        }
     }
 
-    private void LeavePlayerLOS()
+    private void DeterminePlayerLOS()
     {
         RaycastHit hit;
-        //This should allow the Geist to detect the player only and only if it's directly in the LOS and area of detection
-        if (Physics.Raycast(transform.position, player.transform.position, out hit, detectionRadius, playerLayer))
+
+        Vector3 playerDetection = player.transform.position - transform.position;
+        //This should detect if the player can see the geist, by mainly seeing if there's a door or a wall between the
+        //
+        if (Physics.Raycast(transform.position, playerDetection, out hit, retreatDistanceCheck, barrierLayer) || Physics.Raycast(transform.position, playerDetection, out hit, retreatDistanceCheck, barrierLayer))
         {
-            canDetectPlayer = true;
+            playerCanSeeEnemy = true;
         }
         else
         {
-            canDetectPlayer = false;
+            playerCanSeeEnemy = false;
         }
+    }
+
+    private void MoveAwayFromPlayer()
+    {
+        if (playerCanSeeEnemy)
+        {
+
+        }
+    }
+
+
+    private List<Collider> DetermineRandomPoint()
+    {
+        Collider[] allWithinMax = Physics.OverlapSphere(transform.position, maxRadius + maxRadiusAdd, waypointLayer);
+        if (maxRadiusAdd >= 20)
+        {
+            return null;
+        }
+
+        if (allWithinMax.Length == 0)
+        {
+            //Change
+            maxRadiusAdd += 5;
+            return DetermineRandomPoint();
+        }
+
+        List<Collider> results = new List<Collider>();
+        float minRadiusSquared = minRadius * minRadius; 
+
+        foreach (var col in allWithinMax)
+        {
+            float distSq = (col.transform.position - transform.position).sqrMagnitude;
+
+            if (distSq >= minRadiusSquared)
+            {
+                results.Add(col);
+            }
+        }
+
+        return results;
     }
 
     private void MoveToRandomPoint()
     {
 
+        List<Collider> TempList = DetermineRandomPoint();
+
+        maxRadiusAdd = 0;
+
+        if (TempList == null)
+        {
+            return;
+        }
+
+        retreatWaypoint = TempList[Random.Range(0, TempList.Count)].transform.position;
+
+        //this will most likely be changed or done in Complex enemy AI
+        transform.position = retreatWaypoint;
     }
 
     #endregion
