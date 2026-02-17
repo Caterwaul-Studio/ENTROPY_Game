@@ -38,7 +38,10 @@ public class AlienSFXTrigger : MonoBehaviour
             else
             {
                 source.clip = alienSFXClip;
-                source.Play();
+                if (source.isActiveAndEnabled)
+                {
+                    source.Play();
+                }
             }
             
         }
@@ -50,7 +53,10 @@ public class AlienSFXTrigger : MonoBehaviour
             yield break;
 
         source.clip = alienSFXClip;
-        source.Play();
+        if (source.isActiveAndEnabled)
+        {
+            source.Play();
+        }
 
         Vector3 startPos = source.transform.position;
         float elapsed = 0f;

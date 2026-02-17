@@ -206,7 +206,10 @@ public class AirBreachScript : MonoBehaviour
         int index = Random.Range(0, breachLeadupSFX.Length);
         crackAudio.clip = breachLeadupSFX[index];
         crackAudio.pitch = Random.Range(0.8f, 1.2f);
-        crackAudio.Play();
+        if (crackAudio.isActiveAndEnabled)
+        {
+            crackAudio.Play();
+        }
         shortPuff.Play();
         yield return new WaitForSeconds(1.5f);
 
@@ -219,7 +222,10 @@ public class AirBreachScript : MonoBehaviour
         {
             pipeBurstAudio.clip = pipeBurstSFX;
             pipeBurstAudio.pitch = Random.Range(0.7f, 1.1f);
-            pipeBurstAudio.Play();
+            if (pipeBurstAudio.isActiveAndEnabled)
+            {
+                pipeBurstAudio.Play();
+            }
         }
     }
 }
