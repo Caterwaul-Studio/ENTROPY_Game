@@ -3765,7 +3765,6 @@ MonoBehaviour:
   brokenCloseDuration: 1
   brokenDoorPause: 2
   openSize: 2
-  closedReference: {fileID: 0}
   shortReference: {fileID: 2005419113153089071}
   midReference: {fileID: 553760244177355210}
   bodyOpenReference: {fileID: 5692720679732511029}
@@ -4304,30 +4303,7 @@ Transform:
   - {fileID: 5762555415331069031}
   - {fileID: 8515215607867144238}
   m_Father: {fileID: 837202706440837240}
-  m_Children: []
-  m_Father: {fileID: 210773860215438444}
   m_LocalEulerAnglesHint: {x: -20.463, y: -131.949, z: 158.641}
---- !u!65 &322930275687232797
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8251491251943623423}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8261474425568553251
 GameObject:
   m_ObjectHideFlags: 0
@@ -4839,6 +4815,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8191963069630705094, guid: adc5b86b83d49b04a9fc99abe896f85e, type: 3}
+      propertyPath: MaxDistance
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8191963069630705094, guid: adc5b86b83d49b04a9fc99abe896f85e, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.data[1].time
+      value: 0.54818726
+      objectReference: {fileID: 0}
+    - target: {fileID: 8191963069630705094, guid: adc5b86b83d49b04a9fc99abe896f85e, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.data[1].value
+      value: 0.1666565
+      objectReference: {fileID: 0}
     - target: {fileID: 8251244556969653171, guid: adc5b86b83d49b04a9fc99abe896f85e, type: 3}
       propertyPath: m_Name
       value: PS_Sparks
@@ -4911,6 +4899,18 @@ PrefabInstance:
     - target: {fileID: 3590177709521069958, guid: adc5b86b83d49b04a9fc99abe896f85e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8191963069630705094, guid: adc5b86b83d49b04a9fc99abe896f85e, type: 3}
+      propertyPath: MaxDistance
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8191963069630705094, guid: adc5b86b83d49b04a9fc99abe896f85e, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.data[1].time
+      value: 0.55101013
+      objectReference: {fileID: 0}
+    - target: {fileID: 8191963069630705094, guid: adc5b86b83d49b04a9fc99abe896f85e, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.data[1].value
+      value: 0.1708374
       objectReference: {fileID: 0}
     - target: {fileID: 8251244556969653171, guid: adc5b86b83d49b04a9fc99abe896f85e, type: 3}
       propertyPath: m_Name
