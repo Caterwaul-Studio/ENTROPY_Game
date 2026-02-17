@@ -18,6 +18,7 @@ public enum GeneralEnemyState
     Pause,
     Active,
     Retreat,
+    Idle, // Special State for certain circumstances
 }
 
 public enum EnemyVersion
@@ -123,7 +124,7 @@ public class EnemyStateMachine : MonoBehaviour
 
      */
 
-    private void EnemyStateHandler()
+    public void EnemyStateHandler()
     {
         if (currentGeneralState == GeneralEnemyState.Pause)
         {
@@ -140,10 +141,12 @@ public class EnemyStateMachine : MonoBehaviour
         //Retreating
         else if (currentGeneralState == GeneralEnemyState.Retreat)
         {
+            DeterminePlayerLOS();
 
+            RetreatStates();
         }
-        //idle
-        else if (currentGeneralState != GeneralEnemyState.Active && currentGeneralState != GeneralEnemyState.Retreat)
+        //idle/roaming
+        else if (currentGeneralState == GeneralEnemyState.)
         {
 
         }
@@ -170,7 +173,7 @@ public class EnemyStateMachine : MonoBehaviour
         {
             ChangeSpecificState(SpecificEnemyState.Chase);
 
-
+            ComplexEnemyAI.Instance.IsChasingPlayer();
             //--Chase--
         }
         else if (!canDetectPlayer && currentSpecificState == SpecificEnemyState.Chase)
@@ -253,14 +256,16 @@ public class EnemyStateMachine : MonoBehaviour
     {
         if (currentGeneralState == GeneralEnemyState.Retreat)
         {
-            if (playerCanSeeEnemy)
-            {
-                StartTimer(retreatDuration, retreatTimer, retreatingTimerCoroutine);
-            }
+            //This limits how long the retreat timer is
+            StartTimer(retreatDuration, retreatTimer, retreatingTimerCoroutine);
+
+
 
             if (!playerCanSeeEnemy) 
             {
-                
+                StopTimer(retreatingTimerCoroutine);
+
+                TeleportToRandomPoint();
             }
         }
     }
@@ -282,7 +287,7 @@ public class EnemyStateMachine : MonoBehaviour
         }
     }
 
-    private List<Collider> DetermineRandomPoint()
+    private List<Collider> DetermineRandomPoints()
     {
         Collider[] allWithinMax = Physics.OverlapSphere(transform.position, maxRadius + maxRadiusAdd, waypointLayer);
         if (maxRadiusAdd >= 20)
@@ -294,7 +299,7 @@ public class EnemyStateMachine : MonoBehaviour
         {
             //Change
             maxRadiusAdd += 5;
-            return DetermineRandomPoint();
+            return DetermineRandomPoints();
         }
 
         List<Collider> results = new List<Collider>();
@@ -315,8 +320,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void TeleportToRandomPoint()
     {
-
-        List<Collider> TempList = DetermineRandomPoint();
+        List<Collider> TempList = DetermineRandomPoints();
 
         maxRadiusAdd = 0;
 

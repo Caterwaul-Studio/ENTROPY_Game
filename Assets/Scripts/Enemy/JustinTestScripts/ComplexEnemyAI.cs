@@ -199,6 +199,7 @@ public class ComplexEnemyAI : MonoBehaviour
         if (isStunned) return;
 
         // 3) If mid-lunge, track timeout
+        /*
         if (isLunging)
         {
             lungeTimer += Time.deltaTime;
@@ -240,9 +241,11 @@ public class ComplexEnemyAI : MonoBehaviour
                 //Debug.Log("Lunge blocked by: " + hit.collider.name);
             }
         }
+        */
 
         // 6) Otherwise, run normal AI (chase/roam/track)
-        RunNormalAIBehavior();
+        EnemyStateMachine.Instance.EnemyStateHandler();
+        //RunNormalAIBehavior();
 
         CalculateDirection();
         RotateTowardsDirection();
@@ -255,6 +258,99 @@ public class ComplexEnemyAI : MonoBehaviour
 
     }
 
+    public void IsChasingPlayer()
+    {
+        if (!audioSource.isPlaying) audioSource.Play();
+
+        clearPathCheckTimer += Time.deltaTime;
+
+        if (clearPathCheckTimer >= clearPathCheckCooldown)
+        {
+            Vector3 direction = (player.transform.position - transform.position).normalized;
+            hasClearPath = HasClearPath(direction, Vector3.Distance(player.transform.position, transform.position)); // Or some distance like 5f
+            clearPathCheckTimer = 0f;
+        }
+
+        if (hasClearPath)
+        {
+            ChasePlayer(); // Direct chase
+        }
+        //if line of sight is lost, go back to waypoint tracking
+        else
+        {
+            // LOS lost, fall back to pathfinding
+            FindPlayerPath();
+            /*
+            if(path.Count > 0)
+            {
+                Waypoint nextWaypoint = path.Peek();
+                if (nextWaypoint != null)
+                {
+                    // Check if we are between currentWaypoint and nextWaypoint
+                    if (IsBetweenWaypoints(currentWaypoint.transform.position, nextWaypoint.transform.position, transform.position))
+                    {
+                        Vector3 directionToNext = (nextWaypoint.transform.position - transform.position).normalized;
+
+                        // Check clear path to next waypoint
+                        if (HasClearPath(directionToNext, Vector3.Distance(transform.position, nextWaypoint.transform.position)))
+                        {
+                            currentWaypoint = nextWaypoint;
+                            path.Dequeue(); // Move along path
+                        }
+                    }
+                }
+            }
+            */
+            TrackPlayer();
+            //isChasingPlayer = false;
+
+        }
+
+        float sqrDist = (transform.position - player.transform.position).sqrMagnitude;
+        if (sqrDist >= escapeDistance * escapeDistance && timeSinceLastSeenPlayer >= wakeLossCooldown)
+        {
+            isChasingPlayer = false;
+        }
+    }
+
+    public void isPatroling()
+    {
+        float sqrDist = (transform.position - player.transform.position).sqrMagnitude;
+
+        //if we have line of sight and we are within chase distance, start chasing
+        if (hasLineOfSight && sqrDist <= chaseDistance * chaseDistance)
+        {
+            isChasingPlayer = true;
+            ChasePlayer();
+        }
+        else if (sqrDist <= chaseDistance * chaseDistance)
+        {
+            //FindPlayerPath();
+
+        }
+        else
+        {
+            //simply roam the full area if we have escaped the limited roaming area
+            if (currentWaypoint.type == Waypoint.WaypointType.General)
+            {
+                RoamArea();
+
+            }
+            else
+            {
+                RoamLimited();
+            }
+            isChasingPlayer = false;
+            if (audioSource.isPlaying) audioSource.Stop();
+        }
+    }
+
+    private void IsInvestigating()
+    {
+        
+    }
+
+    /*
     void RunNormalAIBehavior()
     {
         //if chasing player, check for line of sight.
@@ -280,27 +376,6 @@ public class ComplexEnemyAI : MonoBehaviour
             {
                 // LOS lost, fall back to pathfinding
                 FindPlayerPath();
-                /*
-                if(path.Count > 0)
-                {
-                    Waypoint nextWaypoint = path.Peek();
-                    if (nextWaypoint != null)
-                    {
-                        // Check if we are between currentWaypoint and nextWaypoint
-                        if (IsBetweenWaypoints(currentWaypoint.transform.position, nextWaypoint.transform.position, transform.position))
-                        {
-                            Vector3 directionToNext = (nextWaypoint.transform.position - transform.position).normalized;
-
-                            // Check clear path to next waypoint
-                            if (HasClearPath(directionToNext, Vector3.Distance(transform.position, nextWaypoint.transform.position)))
-                            {
-                                currentWaypoint = nextWaypoint;
-                                path.Dequeue(); // Move along path
-                            }
-                        }
-                    }
-                }
-                */
                 TrackPlayer();
                 //isChasingPlayer = false;
 
@@ -345,6 +420,7 @@ public class ComplexEnemyAI : MonoBehaviour
             }
         }
     }
+    */
 
     // Called by Unity when this collider hits another collider
     private void OnCollisionEnter(Collision collision)
@@ -382,6 +458,7 @@ public class ComplexEnemyAI : MonoBehaviour
             }
 
         }
+        /*
         else if (isLunging)
         {
             if (other.CompareTag("Barrier"))
@@ -410,6 +487,7 @@ public class ComplexEnemyAI : MonoBehaviour
                 }
             }
         }
+        */
     }
 
     private IEnumerator StunCoroutine()
