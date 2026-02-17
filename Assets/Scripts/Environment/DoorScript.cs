@@ -324,7 +324,8 @@ public class DoorScript : MonoBehaviour
 
 
         startAudioSource.clip = doorOpenStart;
-        startAudioSource.Play();
+        if (startAudioSource.isActiveAndEnabled)
+            startAudioSource.Play();
 
         DoorState = States.Opening;
         SetButtonColor(greenBase, greenEmis);
@@ -332,7 +333,8 @@ public class DoorScript : MonoBehaviour
 
         StartCoroutine(FadeOutAndStop(startAudioSource, 0.3f));
         middleAudioSource.clip = doorOpenMiddle;
-        middleAudioSource.Play();
+        if (middleAudioSource.isActiveAndEnabled)
+            middleAudioSource.Play();
 
         yield return MoveDoor(closedPos, openPos, openDuration, () =>
         {
@@ -343,7 +345,8 @@ public class DoorScript : MonoBehaviour
         StartCoroutine(FadeOutAndStop(middleAudioSource, 0.3f));
 
         endAudioSource.clip = doorOpenEnd;
-        endAudioSource.Play();
+        if (endAudioSource.isActiveAndEnabled)
+            endAudioSource.Play();
     }
 
     private IEnumerator CloseDoor()
@@ -351,7 +354,8 @@ public class DoorScript : MonoBehaviour
         StartCoroutine(FadeOutAndStop(endAudioSource, 0.3f));
 
         startAudioSource.clip = doorCloseStart;
-        startAudioSource.Play();
+        if (startAudioSource.isActiveAndEnabled)
+            startAudioSource.Play();
 
         DoorState = States.Closing;
         SetButtonColor(greenBase, greenEmis);
@@ -360,7 +364,8 @@ public class DoorScript : MonoBehaviour
 
         StartCoroutine(FadeOutAndStop(startAudioSource, 0.3f));
         middleAudioSource.clip = doorCloseMiddle;
-        middleAudioSource.Play();
+        if (middleAudioSource.isActiveAndEnabled)
+            middleAudioSource.Play();
 
         yield return MoveDoor(openPos, closedPos, closeDuration, () =>
         {
@@ -372,7 +377,8 @@ public class DoorScript : MonoBehaviour
         StartCoroutine(FadeOutAndStop(middleAudioSource, 0.3f));
 
         endAudioSource.clip = doorCloseEnd;
-        endAudioSource.Play();
+        if (endAudioSource.isActiveAndEnabled)
+            endAudioSource.Play();
     }
 
     private IEnumerator HandleBrokenDoorLoop()
@@ -381,7 +387,8 @@ public class DoorScript : MonoBehaviour
         {
             // Play opening start sound
             startAudioSource.clip = doorBrokenStart;
-            startAudioSource.Play();
+            if (startAudioSource.isActiveAndEnabled)
+                startAudioSource.Play();
 
             // Wait for door to fully open
             StartFade(1.0f, lightOff, 0.1f);
@@ -393,7 +400,8 @@ public class DoorScript : MonoBehaviour
 
             // Play slam SFX
             middleAudioSource.clip = doorBrokenSlam;
-            middleAudioSource.Play();
+            if (middleAudioSource.isActiveAndEnabled)
+                middleAudioSource.Play();
 
             isClosing = true;
 
@@ -416,7 +424,8 @@ public class DoorScript : MonoBehaviour
 
             // Play opening start sound
             startAudioSource.clip = doorBrokenStart;
-            startAudioSource.Play();
+            if (startAudioSource.isActiveAndEnabled)
+                startAudioSource.Play();
 
             // Wait for door to fully open
             yield return MoveDoor(closedPos, midPos, 0.4f, null);
@@ -428,7 +437,8 @@ public class DoorScript : MonoBehaviour
 
             // Play slam SFX
             middleAudioSource.clip = doorBrokenSlamShort;
-            middleAudioSource.Play();
+            if (middleAudioSource.isActiveAndEnabled)
+                middleAudioSource.Play();
 
             isClosing = true;
             // Wait for door to fully close
@@ -447,7 +457,8 @@ public class DoorScript : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         endAudioSource.clip = doorStuck;
-        endAudioSource.Play();
+        if (endAudioSource.isActiveAndEnabled) 
+            endAudioSource.Play();
 
         yield return MoveDoor(closedPos, shortPos, 1.4f, null);
 
@@ -465,7 +476,8 @@ public class DoorScript : MonoBehaviour
 
 
         startAudioSource.clip = doorBrokenJolt;
-        startAudioSource.Play();
+        if (startAudioSource.isActiveAndEnabled)
+            startAudioSource.Play();
 
         aboutToJolt = true;
 
@@ -912,7 +924,8 @@ public class DoorScript : MonoBehaviour
     public IEnumerator PlayDoorAlarm(float duration)
     {
         endAudioSource.clip = doorAlarm;
-        endAudioSource.Play();
+        if (endAudioSource.isActiveAndEnabled)
+            endAudioSource.Play();
         yield return new WaitForSeconds(duration);
         StartCoroutine(FadeOutAndStop(endAudioSource, 0.3f));
     }
