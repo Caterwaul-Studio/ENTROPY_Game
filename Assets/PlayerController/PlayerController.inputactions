@@ -6,7 +6,7 @@
             "id": "c5c2d747-86e5-436e-beda-87de5475b966",
             "actions": [
                 {
-                    "name": "Thrust",
+                    "name": "Forward&Back",
                     "type": "Value",
                     "id": "288b4cfb-fe3c-4d7e-9807-d97ddecd251a",
                     "expectedControlType": "",
@@ -15,9 +15,18 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Strafe",
+                    "name": "Left&Right",
                     "type": "PassThrough",
                     "id": "bb9cf557-ba1b-42af-b5e9-68e04f2d77d3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Up&Down",
+                    "type": "PassThrough",
+                    "id": "261e9b89-727d-4707-80df-01b3eef10705",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -99,7 +108,7 @@
                     "name": "OffWall",
                     "type": "Button",
                     "id": "b5d2d613-ece4-400e-9f1b-e83d6c87dc27",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -116,13 +125,13 @@
             ],
             "bindings": [
                 {
-                    "name": "ThrustKeyboard",
+                    "name": "Keyboard",
                     "id": "3dd2daa7-7cdc-443a-87bd-3ce73c4605f3",
                     "path": "1DAxis",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Thrust",
+                    "action": "Forward&Back",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -133,7 +142,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Thrust",
+                    "action": "Forward&Back",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -144,18 +153,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Thrust",
+                    "action": "Forward&Back",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "ThrustController",
+                    "name": "Controller",
                     "id": "d68996e6-a252-4f35-aee0-3e0f14dd2d8a",
                     "path": "1DAxis",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Thrust",
+                    "action": "Forward&Back",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -166,7 +175,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Thrust",
+                    "action": "Forward&Back",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -177,18 +186,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Thrust",
+                    "action": "Forward&Back",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "StrafeKeyboard",
+                    "name": "Keyboard",
                     "id": "51a6a490-bf26-4ae6-9cc1-08418b52a0f1",
                     "path": "1DAxis",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Strafe",
+                    "action": "Left&Right",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -199,7 +208,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Strafe",
+                    "action": "Left&Right",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -210,18 +219,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Strafe",
+                    "action": "Left&Right",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "StrafeController",
+                    "name": "Controller",
                     "id": "d6cdab2a-df17-4996-a1f2-8ece2f66799f",
                     "path": "1DAxis",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Strafe",
+                    "action": "Left&Right",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -232,7 +241,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Strafe",
+                    "action": "Left&Right",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -243,7 +252,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Strafe",
+                    "action": "Left&Right",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -499,6 +508,72 @@
                     "action": "Stim",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "Keyboard",
+                    "id": "9ba37f93-e983-4366-a075-317869920683",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Up&Down",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "74ba6e85-fee3-4c52-9c8d-7450c7a04279",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Up&Down",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "30de1c02-64f3-406a-abff-7665bb2c2993",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Up&Down",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "Controller",
+                    "id": "c5dee03e-a4f0-4278-955f-50ae7ee36295",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Up&Down",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "cedd90ac-86f1-441e-9171-9cf932f6afb7",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Up&Down",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "0c78c397-8d4d-4902-8bf6-274417ac205e",
+                    "path": "<Gamepad>/dpad/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Up&Down",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         },
