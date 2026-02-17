@@ -7,7 +7,6 @@ public class AudioCulling : MonoBehaviour
     public AudioSource[] cullable;
     [SerializeField] private AudioZone[] audioZones;
     [SerializeField] private GameObject player;
-    [SerializeField] private float cullDistance = 50;
 
     public AudioZone currentZone;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
