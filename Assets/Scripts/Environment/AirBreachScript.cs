@@ -180,7 +180,10 @@ public class AirBreachScript : MonoBehaviour
         if (fadeIn && !breachAudio.isPlaying)
         {
             breachAudio.volume = 0f;
-            breachAudio.Play();
+            if (breachAudio.isActiveAndEnabled)
+            {
+                breachAudio.Play();
+            }
         }
 
         double startTime = AudioSettings.dspTime;
