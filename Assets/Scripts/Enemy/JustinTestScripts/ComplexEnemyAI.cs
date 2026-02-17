@@ -78,6 +78,8 @@ public class ComplexEnemyAI : MonoBehaviour
     public Waypoint playerWaypoint;
     public Waypoint targetWaypoint;
 
+    public Waypoint retreatWaypoint;
+
     private List<Waypoint> allWaypoints = new List<Waypoint>();
     private List<Waypoint> roamingWaypoints = new List<Waypoint>();
     private List<Waypoint> SpawnWaypoints = new List<Waypoint>();
@@ -690,7 +692,41 @@ public class ComplexEnemyAI : MonoBehaviour
 
     void FindRetreatPath()
     {
+        if (retreatWaypoint == null)
+        {
+            retreatWaypoint = FindClosestWaypoint(player.transform.position);
 
+            CheckIfPlayerInWay();
+
+            path = BFS(currentWaypoint, retreatWaypoint);
+        }
+        else
+        {
+            Waypoint testWaypoint = FindClosestWaypoint(player.transform.position);
+            //only do a new BFS if the player waypoint is new.
+            if (retreatWaypoint != testWaypoint)
+            {
+                retreatWaypoint = testWaypoint;
+                path = BFS(currentWaypoint, retreatWaypoint);
+            }
+        }
+    }
+
+    private bool CheckIfPlayerInWay()
+    {
+        Waypoint tempPlayerWaypoint = FindClosestWaypoint(player.transform.position);
+
+        Queue<Waypoint> tempPath = BFS(currentWaypoint, retreatWaypoint);
+
+        foreach (Waypoint temp in tempPath)
+        {
+            if (temp == tempPlayerWaypoint)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     Queue<Waypoint> BFS(Waypoint start, Waypoint goal)

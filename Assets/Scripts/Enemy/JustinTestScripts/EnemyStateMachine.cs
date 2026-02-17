@@ -89,7 +89,6 @@ public class EnemyStateMachine : MonoBehaviour
     private float retreatDistanceCheck;
     private float randomPointRetreatDistanceMin;
     private float randomPointRetreatDistanceMax;
-    public Vector3 retreatWaypoint;
     [SerializeField] private LayerMask waypointLayer;
     public float minRadius = 3f;
     public float maxRadius = 7f;
@@ -283,15 +282,6 @@ public class EnemyStateMachine : MonoBehaviour
         }
     }
 
-    private void MoveAwayFromPlayer()
-    {
-        if (playerCanSeeEnemy)
-        {
-
-        }
-    }
-
-
     private List<Collider> DetermineRandomPoint()
     {
         Collider[] allWithinMax = Physics.OverlapSphere(transform.position, maxRadius + maxRadiusAdd, waypointLayer);
@@ -323,7 +313,7 @@ public class EnemyStateMachine : MonoBehaviour
         return results;
     }
 
-    private void MoveToRandomPoint()
+    private void TeleportToRandomPoint()
     {
 
         List<Collider> TempList = DetermineRandomPoint();
@@ -335,10 +325,7 @@ public class EnemyStateMachine : MonoBehaviour
             return;
         }
 
-        retreatWaypoint = TempList[Random.Range(0, TempList.Count)].transform.position;
-
-        //this will most likely be changed or done in Complex enemy AI
-        transform.position = retreatWaypoint;
+        transform.position = TempList[Random.Range(0, TempList.Count)].transform.position;
     }
 
     #endregion
