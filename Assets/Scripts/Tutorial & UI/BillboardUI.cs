@@ -13,6 +13,8 @@ public class BillboardUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        //Creates billboarding effect (looking at camera)
         Quaternion rotation = mainCamera.transform.rotation;
         transform.LookAt(worldPosition: transform.position + rotation * Vector3.forward, worldUp: rotation * Vector3.up);
     }

@@ -542,7 +542,7 @@ public class PlayerUIManager : MonoBehaviour
                     {
                         Debug.Log("movin!");
                     
-                        ShowBillboardUI(spaceIndicator, null, "", true);
+                        ShowBillboardUI(spaceIndicator, null, "SPACE", true);
                         billboardObject.transform.position = hit.Value.point;
 
                         canPushOffWall = true;
@@ -1029,12 +1029,12 @@ public class PlayerUIManager : MonoBehaviour
     }
 
     // billboard UI interactions
-    public void ShowBillboardUI(Sprite icon, Transform parent = null, String text = "", bool hideCursor = false)
+    public void ShowBillboardUI(Sprite icon, Transform parent = null, String text = "", bool hideCrosshair = false)
     {
-        ShowBillboardUI(icon, new Color(1f, 1f, 1f, 1f), parent, text, hideCursor);
+        ShowBillboardUI(icon, new Color(1f, 1f, 1f, 1f), parent, text, hideCrosshair);
     }
 
-    public void ShowBillboardUI(Sprite icon, Color color, Transform parent = null, String text = "", bool hideCursor = false)
+    public void ShowBillboardUI(Sprite icon, Color color, Transform parent = null, String text = "", bool hideCrosshair = false)
     {
         if (billboardObject != null)
         {
@@ -1047,7 +1047,7 @@ public class PlayerUIManager : MonoBehaviour
                 tmp.text != text ||
                 billboardObject.transform.parent != parent)
             {
-                if (hideCursor)
+                if (hideCrosshair)
                     crosshair.color = crosshair.color = new Color(1f, 1f, 1f, 0f);
 
                 // set display settings
