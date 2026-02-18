@@ -696,18 +696,18 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             canPushOff = false;
             canPropel = false;
             //canRoll = false;
-            uiManager.Crosshair.sprite = null;
+            //uiManager.Crosshair.sprite = null;
             uiManager.Crosshair.color = new Color(0f, 0f, 0f, 0f);
         }
-        else if (!inCutScene && uiManager.Crosshair.sprite == null)
+        else if (!inCutScene)
         {
             //Debug.Log("running player cutscene handler");
             canGrab = true;
             canPushOff = true;
             canPropel = true;
             canRoll = true;
-            uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
-            uiManager.Crosshair.color = new Color(1f, 1f, 1f, .5f);
+            //uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
+            uiManager.Crosshair.color = new Color(1f, 1f, 1f, 1f);
 
         }
     }

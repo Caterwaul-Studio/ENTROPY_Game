@@ -540,8 +540,6 @@ public class PlayerUIManager : MonoBehaviour
                 {
                     if (player.CanPushOff)
                     {
-                        Debug.Log("movin!");
-                    
                         ShowBillboardUI(spaceIndicator, null, "SPACE", true);
                         billboardObject.transform.position = hit.Value.point;
 
@@ -552,8 +550,6 @@ public class PlayerUIManager : MonoBehaviour
             }
             else
             {
-
-                Debug.Log("trying to hide");
                 canPushOffWall = false;
                 HidePushIndicator();
 
@@ -563,29 +559,20 @@ public class PlayerUIManager : MonoBehaviour
 
     public void RayCastHandleManualLockdown(RaycastHit? hit)
     {
+        // lever has been pulled, manual terminal is "active" to be used
         if (hit.Value.transform.CompareTag("LockdownLever") && lockdownEvent && lockdownEvent.LeverPulled && !lockdownEvent.IsComplete && lockdownEvent.IsActive)
         {
-            //Debug.Log("lockdown lever hit by raycast");
-            if (lockdownEvent.IsActive)
-            {
-                lockdownEvent.CanPull = true;
+            lockdownEvent.CanPull = true;
 
-                ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "deactivate manual lockdown");
-            }
-            else if (!lockdownEvent.IsActive)
-            {
-                lockdownEvent.CanPull = false;
-                HideInteractables();
-            }
+            ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "deactivate manual lockdown");
+           
         }
+        // manual terminal still needs lever pulled first
         else if (hit.Value.transform.CompareTag("LockdownLever") && lockdownEvent && !lockdownEvent.LeverPulled && !lockdownEvent.IsComplete && !lockdownEvent.IsActive)
         {
-            if (inputIndicator.sprite == null)
-            {
-                lockdownEvent.CanPull = true;
+            lockdownEvent.CanPull = true;
 
-                ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "Initiate Lever Release");
-            }
+            ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "Initiate Lever Release");
         }
         else if (hit.Value.transform.CompareTag("WristGrab") && dormHallEvent && dormHallEvent.IsGrabbable)
         {
@@ -603,6 +590,9 @@ public class PlayerUIManager : MonoBehaviour
         }
         else
         {
+
+            lockdownEvent.CanPull = false;
+            dormHallEvent.CanGrab = false;
             HideInteractables();
         }
     }
@@ -666,9 +656,9 @@ public class PlayerUIManager : MonoBehaviour
                     billboardObject.transform.position = hit.Value.point;
                     return;
                 }
+
                 if (terminal.isActivated)
                 {
-
                     HideBillboardUI();
                     return;
                 }
@@ -1041,12 +1031,13 @@ public class PlayerUIManager : MonoBehaviour
             TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
             Image image = billboardObject.GetComponentInChildren<Image>(true);
 
-
             // only change things if they are different
+            // only allows change if sprite, text, or parent is different from what it currently is
             if (image.sprite != icon ||
                 tmp.text != text ||
                 billboardObject.transform.parent != parent)
             {
+                // hides crosshair while billboard visible
                 if (hideCrosshair)
                     crosshair.color = crosshair.color = new Color(1f, 1f, 1f, 0f);
 
@@ -1055,9 +1046,12 @@ public class PlayerUIManager : MonoBehaviour
                 image.color = color;
                 tmp.text = text;
 
+                // sets parent, defaults to null if no parent is provided
                 billboardObject.transform.SetParent(parent,true);
+                // resets position to center on the parent
                 billboardObject.transform.localPosition = Vector3.zero;
 
+                // make visible
                 billboardObject.SetActive(true);
 
             }
@@ -1070,6 +1064,7 @@ public class PlayerUIManager : MonoBehaviour
         if (billboardObject != null)
         {
             // make sure nothing currently needs the billboard
+            // fence that prevents hiding the billboard if its currently being used by one of these said properties
             if (!pickupScript.CanPickUp &&
                 !CanPushOffNow &&
                 (terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated) &&
@@ -1077,17 +1072,34 @@ public class PlayerUIManager : MonoBehaviour
                 !lockdownEvent.CanPull &&
                 !lookingAtStim)
             {
+                // returns crosshair to full opacity
                 crosshair.color = crosshair.color = new Color(1f, 1f, 1f, 1f);
 
+                // deactivates billboard while not needed
                 billboardObject.SetActive(false);
+                // removes itself as child of a parent
                 billboardObject.transform.SetParent(null,true);
 
                 TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
                 Image image = billboardObject.GetComponentInChildren<Image>(true);
 
                 // clear display settings
+                // text - empty
+                // sprite - empty
                 tmp.text = "";
                 image.sprite = null;
+            }
+            else
+            {
+                // debug for billboard UI hiding
+                //Debug.Log("prevented hiding");
+                //Debug.Log(!pickupScript.CanPickUp);
+                //Debug.Log(!CanPushOffNow);
+                //Debug.Log(terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated);
+                //Debug.Log(!dormHallEvent.CanGrab);
+                //Debug.Log(!lockdownEvent.CanPull);
+                //Debug.Log(!lookingAtStim);
+
             }
             
 

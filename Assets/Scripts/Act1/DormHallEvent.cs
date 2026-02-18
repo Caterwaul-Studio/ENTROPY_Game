@@ -9,6 +9,7 @@ public class DormHallEvent : MonoBehaviour, ISaveable
 
     // wrist monitor
     //whether or not player is within grab distance of the wrist monitor
+    [SerializeField]
     private bool canGrab;
     //can the wrist monitor be picked up yet?
     private bool isGrabbable;
@@ -68,6 +69,7 @@ public class DormHallEvent : MonoBehaviour, ISaveable
             player.AccessPermissions[0] = true;
 
             isGrabbable = false;
+            canGrab = false;
 
             audioManager.playMonitorPickup();
 

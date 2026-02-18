@@ -2167,6 +2167,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 8012120107294812505}
+  canGrab: 0
   wristMonitor: {fileID: 373523040}
   medDoor: {fileID: 1868875138}
   audioManager: {fileID: 1165611646}
@@ -20255,6 +20256,18 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 790749829}
+    - target: {fileID: 2644970656882135392, guid: d8a361e3ff0668249880a10347498854, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.003
+      objectReference: {fileID: 0}
+    - target: {fileID: 2644970656882135392, guid: d8a361e3ff0668249880a10347498854, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 24.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2644970656882135392, guid: d8a361e3ff0668249880a10347498854, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3.1
+      objectReference: {fileID: 0}
     - target: {fileID: 3602920009842252665, guid: d8a361e3ff0668249880a10347498854, type: 3}
       propertyPath: m_Name
       value: NewDormHall
@@ -53140,6 +53153,10 @@ PrefabInstance:
       propertyPath: terminalText
       value: 
       objectReference: {fileID: 1446543901}
+    - target: {fileID: 2794779087383563332, guid: 616add3819cdd5b46a1291d2ced0e588, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.381
+      objectReference: {fileID: 0}
     - target: {fileID: 6191496428440110369, guid: 616add3819cdd5b46a1291d2ced0e588, type: 3}
       propertyPath: ALANScreen
       value: 
@@ -53158,11 +53175,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7246255901168601041, guid: 616add3819cdd5b46a1291d2ced0e588, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.0576601
+      value: 0.95579356
+      objectReference: {fileID: 0}
+    - target: {fileID: 7246255901168601041, guid: 616add3819cdd5b46a1291d2ced0e588, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.579159
+      objectReference: {fileID: 0}
+    - target: {fileID: 7246255901168601041, guid: 616add3819cdd5b46a1291d2ced0e588, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.393
       objectReference: {fileID: 0}
     - target: {fileID: 7246255901168601041, guid: 616add3819cdd5b46a1291d2ced0e588, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.687
+      value: 0.726
       objectReference: {fileID: 0}
     - target: {fileID: 7600216769679215684, guid: 616add3819cdd5b46a1291d2ced0e588, type: 3}
       propertyPath: m_LocalPosition.x
