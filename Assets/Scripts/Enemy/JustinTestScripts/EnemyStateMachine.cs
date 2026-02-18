@@ -263,14 +263,14 @@ public class EnemyStateMachine : MonoBehaviour
             {
                 StopTimer(retreatingTimerCoroutine);
 
-                ComplexEnemyAI.Instance.
+                ComplexEnemyAI.Instance.FindRetreatPath();
             }
 
             if (!playerCanSeeEnemy) 
             {
                 StopTimer(retreatingTimerCoroutine);
 
-                ComplexEnemyAI.Instance.retreatWaypoint = GetRandomValidPoint();
+                ComplexEnemyAI.Instance.FindRetreatPath();
             }
         }
     }
