@@ -254,9 +254,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4898631929126189236}
     m_Modifications:
+    - target: {fileID: 995872560590924846, guid: d85d2de73afa837409f59fdc7310d96f, type: 3}
+      propertyPath: keyFIndicator
+      value: 
+      objectReference: {fileID: 21300000, guid: 76c1a58dbe266f2458a3692003433182, type: 3}
+    - target: {fileID: 995872560590924846, guid: d85d2de73afa837409f59fdc7310d96f, type: 3}
+      propertyPath: spaceIndicator
+      value: 
+      objectReference: {fileID: 21300000, guid: 3f6c989156bc9a6468e7448c184a23af, type: 3}
+    - target: {fileID: 995872560590924846, guid: d85d2de73afa837409f59fdc7310d96f, type: 3}
+      propertyPath: billboardPrefab
+      value: 
+      objectReference: {fileID: 6611770611460363364, guid: 220b2b321a232e54482fd6f3efed05eb, type: 3}
     - target: {fileID: 5123641840224760907, guid: d85d2de73afa837409f59fdc7310d96f, type: 3}
       propertyPath: m_Name
       value: Zero G Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 6295447251686130663, guid: d85d2de73afa837409f59fdc7310d96f, type: 3}
+      propertyPath: m_IsKinematic
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6339900385928999169, guid: d85d2de73afa837409f59fdc7310d96f, type: 3}
       propertyPath: m_Cameras.Array.size
@@ -304,7 +320,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8419782395961459690, guid: d85d2de73afa837409f59fdc7310d96f, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8614314432512130424, guid: d85d2de73afa837409f59fdc7310d96f, type: 3}
       propertyPath: respawnLoc

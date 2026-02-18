@@ -461,6 +461,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         rb.useGravity = false;
+        //hard code isKinematic is false to ensure the No-Clip logic works and doesn't force the player into kinematic when they shouldn't be
+        rb.isKinematic = false;
         cam = Camera.main;
 
         if(useManualPullIn)
