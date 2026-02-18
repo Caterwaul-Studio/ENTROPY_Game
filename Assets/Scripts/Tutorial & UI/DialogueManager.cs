@@ -348,7 +348,8 @@ public class DialogueManager : MonoBehaviour
         if (d.audioClip != null && audioSource != null)
         {
             audioSource.clip = d.audioClip;
-            audioSource.Play();
+            if (audioSource.isActiveAndEnabled)
+                audioSource.Play();
             playFillerBeep = false;
         }
         else
@@ -416,7 +417,8 @@ public class DialogueManager : MonoBehaviour
         }
 
         if (sfxSource && skipSfxClip)
-            sfxSource.PlayOneShot(skipSfxClip);
+            if (sfxSource.isActiveAndEnabled)
+                sfxSource.PlayOneShot(skipSfxClip);
 
         // Check if this is the last dialogue in the sequence
         bool isLastDialogue = false;
