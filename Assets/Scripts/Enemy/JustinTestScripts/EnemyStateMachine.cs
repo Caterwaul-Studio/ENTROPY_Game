@@ -145,8 +145,8 @@ public class EnemyStateMachine : MonoBehaviour
 
             RetreatStates();
         }
-        //idle/roaming
-        else if (currentGeneralState == GeneralEnemyState.)
+        //idle - special 
+        else if (currentGeneralState == GeneralEnemyState.Idle)
         {
 
         }
@@ -259,13 +259,18 @@ public class EnemyStateMachine : MonoBehaviour
             //This limits how long the retreat timer is
             StartTimer(retreatDuration, retreatTimer, retreatingTimerCoroutine);
 
+            if (retreatTimer <= 0)
+            {
+                StopTimer(retreatingTimerCoroutine);
 
+                ComplexEnemyAI.Instance.
+            }
 
             if (!playerCanSeeEnemy) 
             {
                 StopTimer(retreatingTimerCoroutine);
 
-                TeleportToRandomPoint();
+                ComplexEnemyAI.Instance.retreatWaypoint = GetRandomValidPoint();
             }
         }
     }
@@ -287,11 +292,12 @@ public class EnemyStateMachine : MonoBehaviour
         }
     }
 
-    private List<Collider> DetermineRandomPoints()
+    private List<Waypoint> DetermineRandomPoints()
     {
         Collider[] allWithinMax = Physics.OverlapSphere(transform.position, maxRadius + maxRadiusAdd, waypointLayer);
         if (maxRadiusAdd >= 20)
         {
+            maxRadiusAdd = 0;
             return null;
         }
 
@@ -302,7 +308,7 @@ public class EnemyStateMachine : MonoBehaviour
             return DetermineRandomPoints();
         }
 
-        List<Collider> results = new List<Collider>();
+        List<Waypoint> results = new List<Waypoint>();
         float minRadiusSquared = minRadius * minRadius; 
 
         foreach (var col in allWithinMax)
@@ -311,25 +317,31 @@ public class EnemyStateMachine : MonoBehaviour
 
             if (distSq >= minRadiusSquared)
             {
-                results.Add(col);
+                // FIX: Added <Waypoint>() and null check
+                Waypoint wp = col.GetComponent<Waypoint>();
+                if (wp != null)
+                {
+                    results.Add(wp);
+                }
             }
         }
 
+        maxRadiusAdd = 0;
         return results;
     }
 
-    private void TeleportToRandomPoint()
+    public Waypoint GetRandomValidPoint()
     {
-        List<Collider> TempList = DetermineRandomPoints();
+        List<Waypoint> TempList = DetermineRandomPoints();
 
         maxRadiusAdd = 0;
 
         if (TempList == null)
         {
-            return;
+            return null;
         }
 
-        transform.position = TempList[Random.Range(0, TempList.Count)].transform.position;
+        return TempList[Random.Range(0, TempList.Count)];
     }
 
     #endregion

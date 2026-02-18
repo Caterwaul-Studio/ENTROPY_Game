@@ -446,7 +446,7 @@ public class ComplexEnemyAI : MonoBehaviour
                 Debug.Log("Player killed by alien");
                 playerController.IsDead = true;
                 isChasingPlayer = false;
-                EndLunge();
+                //EndLunge();
             }
             Rigidbody playerRb = other.GetComponent<Rigidbody>();
             if (playerRb != null)
@@ -496,6 +496,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
         // Cancel any ongoing charge or lunge
         isStunned = true;
+        /*
         if (isCharging)
         {
             isCharging = false;
@@ -505,7 +506,7 @@ public class ComplexEnemyAI : MonoBehaviour
         {
             EndLunge();
         }
-
+        */
         // Retract ALL current tendrils
         foreach (var origin in tendrilOrigins)
         {
@@ -734,6 +735,7 @@ public class ComplexEnemyAI : MonoBehaviour
     }
     */
 
+    /*
     private void EndLunge()
     {
         if (!isLunging) return;
@@ -747,7 +749,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
         FindPlayerPath();
     }
-
+    */
     void FindPlayerPath()
     {
         if (playerWaypoint == null)
@@ -768,11 +770,11 @@ public class ComplexEnemyAI : MonoBehaviour
 
     }
 
-    void FindRetreatPath()
+    public void FindRetreatPath()
     {
         if (retreatWaypoint == null)
         {
-            retreatWaypoint = FindClosestWaypoint(player.transform.position);
+            retreatWaypoint = EnemyStateMachine.Instance.GetRandomValidPoint();
 
             CheckIfPlayerInWay();
 
@@ -788,6 +790,11 @@ public class ComplexEnemyAI : MonoBehaviour
                 path = BFS(currentWaypoint, retreatWaypoint);
             }
         }
+    }
+
+    private void MoveInRetreatPointDirection()
+    {
+
     }
 
     private bool CheckIfPlayerInWay()
