@@ -461,6 +461,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         rb.useGravity = false;
+        //hard code isKinematic is false to ensure the No-Clip logic works and doesn't force the player into kinematic when they shouldn't be
+        rb.isKinematic = false;
         cam = Camera.main;
 
         if(useManualPullIn)
@@ -696,18 +698,18 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             canPushOff = false;
             canPropel = false;
             //canRoll = false;
-            uiManager.Crosshair.sprite = null;
+            //uiManager.Crosshair.sprite = null;
             uiManager.Crosshair.color = new Color(0f, 0f, 0f, 0f);
         }
-        else if (!inCutScene && uiManager.Crosshair.sprite == null)
+        else if (!inCutScene)
         {
             //Debug.Log("running player cutscene handler");
             canGrab = true;
             canPushOff = true;
             canPropel = true;
             canRoll = true;
-            uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
-            uiManager.Crosshair.color = new Color(1f, 1f, 1f, .5f);
+            //uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
+            uiManager.Crosshair.color = new Color(1f, 1f, 1f, 1f);
 
         }
     }
