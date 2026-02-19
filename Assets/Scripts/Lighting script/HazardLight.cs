@@ -92,7 +92,7 @@ public class HazardLight : MonoBehaviour
 
     public void StopHazardAlarm()
     {
-        Debug.Log("Stopping hazard alarm sound");
+        //Debug.Log("Stopping hazard alarm sound");
         hazardLightSource.Stop();
     }
 }

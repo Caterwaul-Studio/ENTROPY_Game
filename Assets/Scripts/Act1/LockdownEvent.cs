@@ -289,7 +289,7 @@ public class LockdownEvent : MonoBehaviour
 
         if (context.performed)
         {
-            Debug.Log(isActive);
+            //Debug.Log(isActive);
             //Handle lockdown lever
             if (canPull && isActive && !isComplete)
             {

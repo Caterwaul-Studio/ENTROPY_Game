@@ -71,7 +71,9 @@ public class LightManager : MonoBehaviour, ISaveable
 
     public IEnumerator FlickerLights(LightLocation lightEnum, float totalDuration, float singleLightDuration, bool randomSequence)
     {
-        Transform[] lightGroup = lightData[lightEnum].lightGroup;
+        //must clone the light group and intensity data so that we can modify it for the flicker without affecting the original data stored in the light manager,
+        //which is used for saving/loading and other light control tasks
+        Transform[] lightGroup = (Transform[])lightData[lightEnum].lightGroup.Clone();
         Dictionary<Light, float> initLightIntensity = lightData[lightEnum].initLightIntensity;
 
         if (randomSequence)
@@ -377,15 +379,16 @@ public class LightManager : MonoBehaviour, ISaveable
     }
 
     // Data class to hold the save information
-    // WHY NO TRANSFORMS
     [System.Serializable]
     public class LightManagerData
     {
         public List<float> lightIntensities;
+        public List<float> meshEmissionIntensities;
 
-        public LightManagerData(List<float> intensities)
+        public LightManagerData(List<float> intensities, List<float> emissions)
         {
             lightIntensities = intensities;
+            meshEmissionIntensities = emissions;
         }
     }
 
@@ -394,16 +397,45 @@ public class LightManager : MonoBehaviour, ISaveable
     {
         string path = Application.persistentDataPath;
         string loadedData = GlobalSaveManager.LoadTextFromFile(path, fileName);
-        if (loadedData != null && loadedData != "")
+        //catch if no save data exists, this can happen if player tries to load a save before saving for the first time, or if save data is deleted
+        if (loadedData == null || loadedData == "") return;
+
+        LightManagerData _lightManagerData = JsonUtility.FromJson<LightManagerData>(loadedData);
+
+        // Get all lights in the same order as when we saved
+        List<Light> allLights = GetAllLightsInOrder();
+
+        // Load the light intensities in the same order they were saved
+        for (int i = 0; i < _lightManagerData.lightIntensities.Count && i < allLights.Count; i++)
         {
-            LightManagerData _lightManagerData = JsonUtility.FromJson<LightManagerData>(loadedData);
-
-            // Get all lights in the same order as when we saved
-            List<Light> allLights = GetAllLightsInOrder();
-
-            for (int i = 0; i < _lightManagerData.lightIntensities.Count && i < allLights.Count; i++)
+            allLights[i].intensity = _lightManagerData.lightIntensities[i];
+        }
+        // create this integer j to keep track of the order of the mesh emission intensities in the save data,
+        // which should correspond to the order of the meshes in the light groups for loading correctly
+        int j = 0;
+        //cycle through the light groups of the light manager and save the current intensity of each light in the same order for loading later
+        foreach (LightLocation loc in new[] { LightLocation.Dining, LightLocation.EscapePod })
+        {
+            //cycle through the transforms so we can directly access the meshes in the same order for loading later
+            foreach (Transform t in lightData[loc].lightGroup)
             {
-                allLights[i].intensity = _lightManagerData.lightIntensities[i];
+                //cycle through the mesh renderers in the current transform and load the emission intensity values in the same order they were saved using int j to keep track of the order
+                foreach (MeshRenderer mesh in t.GetComponentsInChildren<MeshRenderer>())
+                {
+                    if (j < _lightManagerData.meshEmissionIntensities.Count)
+                    {
+                        // load the saved emission intensity value into the mesh in the order they were saved, using int j, and multiply by lightColor to get the correct emission color
+                        float emissionIntensity = _lightManagerData.meshEmissionIntensities[j] * lightColor.r; // Assuming lightColor is the base color for emission
+                        // set the emission color of the mesh material to the loaded intensity value multiplied by the light color
+                        mesh.material.SetColor("_EmissionColor", lightColor * emissionIntensity);
+                        j++;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Not enough emission intensity values in save data for all meshes.");
+                        return;
+                    }
+                }
             }
         }
     }
@@ -418,14 +450,30 @@ public class LightManager : MonoBehaviour, ISaveable
     public void CreateSaveFile(string fileName)
     {
         //establish
-        LightManagerData _lightManagerData = new LightManagerData(new List<float>());
+        LightManagerData _lightManagerData = new LightManagerData(new List<float>(), new List<float>());
 
         // Get all lights in consistent order
         List<Light> allLights = GetAllLightsInOrder();
-
-        foreach (Light light in allLights)
+        foreach(Light light in allLights)
         {
             _lightManagerData.lightIntensities.Add(light.intensity);
+            //debug to verify the light names and intensities are being saved in the correct order
+            //Debug.Log("Create Save File " + light.gameObject.name + " | " + light.intensity);
+        }
+
+        //cycle through the light groups of the light manager and save the current intensity of each light in the same order for loading later
+        foreach (LightLocation loc in new[] {LightLocation.Dining, LightLocation.EscapePod})
+        {
+            //cycle through the transforms so we can directly access the lights in the same order for loading later
+            foreach (Transform t in lightData[loc].lightGroup)
+            {
+                foreach(MeshRenderer mesh in t.GetComponentsInChildren<MeshRenderer>())
+                {
+                    //save the emission intensity of the mesh in the same order for loading later
+                    Color emissionColor = mesh.material.GetColor("_EmissionColor");
+                    _lightManagerData.meshEmissionIntensities.Add(emissionColor.r / lightColor.r);
+                }
+            }
         }
 
         string json = JsonUtility.ToJson(_lightManagerData);
@@ -443,6 +491,11 @@ public class LightManager : MonoBehaviour, ISaveable
         {
             Light[] lights = transform.GetComponentsInChildren<Light>();
             allLights.AddRange(lights);
+            // Debug the light names and intensities to verify correct order
+            //foreach (Light light in lights)
+            //{
+            //    Debug.Log("Load Save File " + light.gameObject.name + " | " + light.intensity);
+            //}
         }
 
         // Add escape pod lights
@@ -450,8 +503,14 @@ public class LightManager : MonoBehaviour, ISaveable
         {
             Light[] lights = transform.GetComponentsInChildren<Light>();
             allLights.AddRange(lights);
+            // Debug the light names and intensities to verify correct order
+            //foreach (Light light in lights)
+            //{
+            //    Debug.Log("Load Save File " + light.gameObject.name + " | " + light.intensity);
+            //}
         }
 
         return allLights;
     }
+
 }
