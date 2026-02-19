@@ -7,13 +7,16 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 public class ObjectiveUpdate : MonoBehaviour
 {
-    public TextMeshProUGUI objectiveUpdatedText;
+    public List<TextMeshProUGUI> objectiveTexts;
+    public Image objectiveIcon;
+
     public float blinkDuration = 1.5f;     // Total blink time
     public float blinkInterval = 0.2f;     // How fast it blinks
-    public float fadeDuration = 1f;        // How long to fade out
+    public float fadeDuration = 6f;        // How long to fade out
 
-    public void TextFade()
+    public void TextFade(string objectiveDescription)
     {
+        objectiveTexts[0].text = $"[{objectiveDescription}]";
         StartCoroutine(Fade());
     }
     public IEnumerator Fade()
@@ -49,11 +52,19 @@ public class ObjectiveUpdate : MonoBehaviour
 
     void SetAlpha(float alpha)
     {
-        if (objectiveUpdatedText != null)
+        foreach (TextMeshProUGUI tmp in objectiveTexts)
         {
-            Color color = objectiveUpdatedText.color;
-            color.a = alpha;
-            objectiveUpdatedText.color = color;
+            if (tmp == null) continue;
+            Color c = tmp.color;
+            c.a = alpha;
+            tmp.color = c;
+        }
+
+        if (objectiveIcon != null)
+        {
+            Color c = objectiveIcon.color;
+            c.a = alpha;
+            objectiveIcon.color = c;
         }
     }
 }

@@ -282,7 +282,8 @@ public class WristMonitor : MonoBehaviour
         {
             mainObjectives[0].IsCompleted = true;
             CheckObjectives();
-            objectiveUpdator.TextFade();
+            objectiveUpdator.TextFade(mainObjectives[0].ObjectiveName);
+            
 
             //Debug.Log(mainObjectives[0].ObjectiveDescription);
         }
