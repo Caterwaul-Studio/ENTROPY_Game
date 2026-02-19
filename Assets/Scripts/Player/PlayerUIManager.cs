@@ -30,6 +30,9 @@ public class PlayerUIManager : MonoBehaviour
     private bool barInRaycast;
     private bool barInPeripheral;
     private bool floatingObjInRaycast;
+
+    private bool canPushOffWall;
+
     [SerializeField]
     TerminalManager terminalManager;
     [SerializeField]
@@ -41,6 +44,10 @@ public class PlayerUIManager : MonoBehaviour
     private CameraFade cameraFade;
     [SerializeField]
     private TextMeshProUGUI grabUIText;
+
+    [SerializeField]
+    private GameObject billboardPrefab;
+    private GameObject billboardObject;
 
 
     //canvas elements
@@ -151,7 +158,7 @@ public class PlayerUIManager : MonoBehaviour
 
     public bool CanPushOffNow
     {
-        get { return InputIndicator.sprite == SpaceIndicator; }
+        get { return canPushOffWall; }
     }
 
     public Sprite CrosshairIcon { get { return crosshairIcon; } }
@@ -189,12 +196,20 @@ public class PlayerUIManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // create the billboardPrefab. Not hardcoded.
+        billboardObject = GameObject.Instantiate(billboardPrefab);
+        billboardObject.SetActive(false);
+
+
+
         //set the crosshair and grabber sprites accordingly;
         crosshair.sprite = crosshairIcon;
         //set bar in view intially as false
         barInRaycast = false;
         barInPeripheral = false;
         floatingObjInRaycast = false;
+        // default false
+        canPushOffWall = false;
         //erase the grabber
         grabber.sprite = null;
         grabber.color = new Color(0, 0, 0, 0); //transparent
@@ -408,12 +423,12 @@ public class PlayerUIManager : MonoBehaviour
                     stim.CanRefill = false;
                 }
             }
-            if (dormHallEvent != null && dormHallEvent.CanGrab)
+            if (dormHallEvent.CanGrab)
             {
                 dormHallEvent.CanGrab = false;
             }
-            
-            if (lockdownEvent != null && lockdownEvent.CanPull)
+
+            if (lockdownEvent.CanPull)
             {
                 lockdownEvent.CanPull = false;
             }
@@ -435,10 +450,34 @@ public class PlayerUIManager : MonoBehaviour
             barInRaycast = false;
         }
 
-        if (wallHit != null && !barInPeripheral && !barInRaycast && player.CanPushOff && !player.IsGrabbing)
+        // Had to add a ton of else statements here to reset the UI. I wanted to get this into the RayCastHandlePushOffWall function, but couldn't find a workaround in time.
+        // This works, just doesn't feel the most organized.
+        if (wallHit != null && !barInPeripheral && !barInRaycast && player.CanPushOff && !player.IsGrabbing && terminalManager.currentTerminal == null)
         {
-            RayCastHandlePushOffWall(wallHit);
+            // Center raycast for visual consistancy. Shotgun handles functionality, this single ray is purely aesthetic.
+            Ray centerRay = player.cam.ScreenPointToRay(new Vector2(Screen.width / 2f, Screen.height / 2f));
+            RaycastHit centerHit;
+            if (Physics.Raycast(centerRay, out centerHit, player.GrabRange, barrierLayer) && centerHit.transform.CompareTag("Barrier"))
+            {
+                RayCastHandlePushOffWall(centerHit);
+            }
+            else
+            {
+                if (canPushOffWall)
+                {
+                    canPushOffWall = false;
+                    HideBillboardUI();
+                }
+            }
             return;
+        }
+        else
+        {
+            if (canPushOffWall)
+            {
+                canPushOffWall = false;
+                HideBillboardUI();
+            }
         }
     }
 
@@ -501,60 +540,47 @@ public class PlayerUIManager : MonoBehaviour
                 {
                     if (player.CanPushOff)
                     {
-                        //grabUIText.text = "'SPACEBAR'";
-                        //set the sprite for the space bar indicator
-                        if (inputIndicator.sprite == null && grabUIText.text == "")
-                        {
-                            inputIndicator.sprite = spaceIndicator;
-                            inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
-                        }
+                        ShowBillboardUI(spaceIndicator, null, "SPACE", true);
+                        billboardObject.transform.position = hit.Value.point;
+
+                        canPushOffWall = true;
 
                     }
                 }
             }
             else
             {
+                canPushOffWall = false;
                 HidePushIndicator();
+
             }
         }
     }
 
     public void RayCastHandleManualLockdown(RaycastHit? hit)
     {
+        // lever has been pulled, manual terminal is "active" to be used
         if (hit.Value.transform.CompareTag("LockdownLever") && lockdownEvent && lockdownEvent.LeverPulled && !lockdownEvent.IsComplete && lockdownEvent.IsActive)
         {
-            //Debug.Log("lockdown lever hit by raycast");
-            if (lockdownEvent.IsActive)
-            {
-                lockdownEvent.CanPull = true;
-                grabUIText.text = "deactivate manual lockdown";
-                inputIndicator.sprite = keyFIndicator;
-                inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
-            }
-            else if (!lockdownEvent.IsActive)
-            {
-                lockdownEvent.CanPull = false;
-                HideInteractables();
-            }
+            lockdownEvent.CanPull = true;
+
+            ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "deactivate manual lockdown");
+           
         }
+        // manual terminal still needs lever pulled first
         else if (hit.Value.transform.CompareTag("LockdownLever") && lockdownEvent && !lockdownEvent.LeverPulled && !lockdownEvent.IsComplete && !lockdownEvent.IsActive)
         {
-            if (inputIndicator.sprite == null)
-            {
-                lockdownEvent.CanPull = true;
-                grabUIText.text = "Initiate Lever Release";
-                inputIndicator.sprite = keyFIndicator;
-                inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
-            }
+            lockdownEvent.CanPull = true;
+
+            ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "Initiate Lever Release");
         }
         else if (hit.Value.transform.CompareTag("WristGrab") && dormHallEvent && dormHallEvent.IsGrabbable)
         {
             if (dormHallEvent.IsGrabbable)
             {
                 dormHallEvent.CanGrab = true;
-                grabUIText.text = "take wrist monitor";
-                inputIndicator.sprite = keyFIndicator;
-                inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
+                ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "take wrist monitor");
+       
             }
             else if (!dormHallEvent.IsGrabbable)
             {
@@ -564,6 +590,9 @@ public class PlayerUIManager : MonoBehaviour
         }
         else
         {
+
+            lockdownEvent.CanPull = false;
+            dormHallEvent.CanGrab = false;
             HideInteractables();
         }
     }
@@ -578,25 +607,22 @@ public class PlayerUIManager : MonoBehaviour
             {
                 if (stim.IsUsable)
                 {
+                    lookingAtStim = true; 
+                    stim.CanRefill = true;
+
                     //check to see if the player's stims aren't full
                     if (player.NumStims < 3)
                     {
                         //Debug.Log("I see a stim dispenser");
 
-
-                        lookingAtStim = true;
-                        stim.CanRefill = true;
-                        grabUIText.text = "hold to refill e-stims";
-                        inputIndicator.sprite = keyFIndicator;
-                        inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
+                        ShowBillboardUI(keyFIndicator, null, "refill e-stims");
+                        billboardObject.transform.position = hit.Value.point;
 
                     }
                     else
                     {
-                        stim.CanRefill = false;
-                        grabUIText.text = "e-stims full";
-                        inputIndicator.sprite = null;
-                        inputIndicator.color = new Color(0, 0, 0, 0);
+                        ShowBillboardUI(keyFIndicator, null, "estims full");
+                        billboardObject.transform.position = hit.Value.point;
                     }
                 }
                 else //if the stim dispenser is out of order
@@ -625,23 +651,25 @@ public class PlayerUIManager : MonoBehaviour
                 terminalManager.CurrentTerminal = terminal;
                 if (!wristMonitor.HasWristMonitor)
                 {
-                    grabUIText.text = "requires wrist monitor";
-                    inputIndicator.sprite = null;
-                    inputIndicator.color = new Color(0, 0, 0, 0);
+
+                    ShowBillboardUI(null, new Color(1f,1f,1f,0f), null, "requires wrist monitor", true);
+                    billboardObject.transform.position = hit.Value.point;
                     return;
                 }
+
                 if (terminal.isActivated)
                 {
-                    inputIndicator.sprite = null;
-                    inputIndicator.color = new Color(0, 0, 0, 0);
+                    HideBillboardUI();
                     return;
                 }
                 else
                 {
-                    grabUIText.text = @"press to reconnect alan:\";
+
                     terminal.isLookedAt = true;
-                    inputIndicator.sprite = keyFIndicator;
-                    inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
+                    ShowBillboardUI(keyFIndicator, null, "press to reconnect alan", true);
+                    billboardObject.transform.position = hit.Value.point;
+
+
                     //Debug.Log("Deactivated TERMINAL HIT");
                 }
             }
@@ -675,6 +703,8 @@ public class PlayerUIManager : MonoBehaviour
             grabUIText.text = "";
             floatingObjInRaycast = false;
             /*doorManager.DoorUI.SetActive(false);*/
+
+            HideBillboardUI();
         }
     }
     /// <summary>
@@ -695,7 +725,10 @@ public class PlayerUIManager : MonoBehaviour
         {
             inputIndicator.sprite = null;
             inputIndicator.color = new Color(0, 0, 0, 0);
+
         }
+
+        HideBillboardUI();
     }
 
     public void ReleaseGrabber()
@@ -974,6 +1007,7 @@ public class PlayerUIManager : MonoBehaviour
 
                     //grabber.transform.localRotation = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg);
                     HidePushIndicator();
+
                 }
             }
         }
@@ -983,6 +1017,97 @@ public class PlayerUIManager : MonoBehaviour
             HideGrabber();
         }
     }
+
+    // billboard UI interactions
+    public void ShowBillboardUI(Sprite icon, Transform parent = null, String text = "", bool hideCrosshair = false)
+    {
+        ShowBillboardUI(icon, new Color(1f, 1f, 1f, 1f), parent, text, hideCrosshair);
+    }
+
+    public void ShowBillboardUI(Sprite icon, Color color, Transform parent = null, String text = "", bool hideCrosshair = false)
+    {
+        if (billboardObject != null)
+        {
+            TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
+            Image image = billboardObject.GetComponentInChildren<Image>(true);
+
+            // only change things if they are different
+            // only allows change if sprite, text, or parent is different from what it currently is
+            if (image.sprite != icon ||
+                tmp.text != text ||
+                billboardObject.transform.parent != parent)
+            {
+                // hides crosshair while billboard visible
+                if (hideCrosshair)
+                    crosshair.color = crosshair.color = new Color(1f, 1f, 1f, 0f);
+
+                // set display settings
+                image.sprite = icon;
+                image.color = color;
+                tmp.text = text;
+
+                // sets parent, defaults to null if no parent is provided
+                billboardObject.transform.SetParent(parent,true);
+                // resets position to center on the parent
+                billboardObject.transform.localPosition = Vector3.zero;
+
+                // make visible
+                billboardObject.SetActive(true);
+
+            }
+        }
+
+    }
+
+    public void HideBillboardUI()
+    {
+        if (billboardObject != null)
+        {
+            // make sure nothing currently needs the billboard
+            // fence that prevents hiding the billboard if its currently being used by one of these said properties
+            if (!pickupScript.CanPickUp &&
+                !CanPushOffNow &&
+                (terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated) &&
+                !dormHallEvent.CanGrab &&
+                !lockdownEvent.CanPull &&
+                !lookingAtStim)
+            {
+                // returns crosshair to full opacity
+                crosshair.color = crosshair.color = new Color(1f, 1f, 1f, 1f);
+
+                // deactivates billboard while not needed
+                billboardObject.SetActive(false);
+                // removes itself as child of a parent
+                billboardObject.transform.SetParent(null,true);
+
+                TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
+                Image image = billboardObject.GetComponentInChildren<Image>(true);
+
+                // clear display settings
+                // text - empty
+                // sprite - empty
+                tmp.text = "";
+                image.sprite = null;
+            }
+            else
+            {
+                // debug for billboard UI hiding
+                //Debug.Log("prevented hiding");
+                //Debug.Log(!pickupScript.CanPickUp);
+                //Debug.Log(!CanPushOffNow);
+                //Debug.Log(terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated);
+                //Debug.Log(!dormHallEvent.CanGrab);
+                //Debug.Log(!lockdownEvent.CanPull);
+                //Debug.Log(!lookingAtStim);
+
+            }
+            
+
+        }
+
+    }
+
+
     //Health Methods
     //controls the UI for the Player Health
     public void HandleHealthUI()
@@ -1016,30 +1141,30 @@ public class PlayerUIManager : MonoBehaviour
         inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
     }
 
-    void OnDrawGizmos()
-    {
-        // Visualize the crosshair padding as a box in front of the camera
-        if (player.cam != null && crosshairRectTransform != null)
-        {
-            Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(null, crosshairRectTransform.position);
+    //void OnDrawGizmos()
+    //{
+    //    // Visualize the crosshair padding as a box in front of the camera
+    //    if (player.cam != null && crosshairRectTransform != null)
+    //    {
+    //        Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(null, crosshairRectTransform.position);
 
-            // Define padded bounds
-            float screenWidth = Screen.width;
-            float screenHeight = Screen.height;
-            Vector2 paddedMin = new Vector2(screenPoint.x - player.GrabPadding, screenPoint.y - player.GrabPadding);
-            Vector2 paddedMax = new Vector2(screenPoint.x + player.GrabPadding, screenPoint.y + player.GrabPadding);
+    //        // Define padded bounds
+    //        float screenWidth = Screen.width;
+    //        float screenHeight = Screen.height;
+    //        Vector2 paddedMin = new Vector2(screenPoint.x - player.GrabPadding, screenPoint.y - player.GrabPadding);
+    //        Vector2 paddedMax = new Vector2(screenPoint.x + player.GrabPadding, screenPoint.y + player.GrabPadding);
 
-            // Draw a box at the grab range with padding
-            Gizmos.color = Color.green;
-            for (float x = paddedMin.x; x <= paddedMax.x; x += player.GrabPadding / 4f)
-            {
-                for (float y = paddedMin.y; y <= paddedMax.y; y += player.GrabPadding / 4f)
-                {
-                    Ray ray = player.cam.ScreenPointToRay(new Vector3(x, y, 0));
-                    Gizmos.DrawRay(ray.origin, ray.direction * player.GrabRange);
-                }
-            }
-        }
-    }
+    //        // Draw a box at the grab range with padding
+    //        Gizmos.color = Color.green;
+    //        for (float x = paddedMin.x; x <= paddedMax.x; x += player.GrabPadding / 4f)
+    //        {
+    //            for (float y = paddedMin.y; y <= paddedMax.y; y += player.GrabPadding / 4f)
+    //            {
+    //                Ray ray = player.cam.ScreenPointToRay(new Vector3(x, y, 0));
+    //                Gizmos.DrawRay(ray.origin, ray.direction * player.GrabRange);
+    //            }
+    //        }
+    //    }
+    //}
 
 }
