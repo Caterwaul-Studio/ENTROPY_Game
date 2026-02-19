@@ -92,7 +92,7 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
             ""id"": ""c5c2d747-86e5-436e-beda-87de5475b966"",
             ""actions"": [
                 {
-                    ""name"": ""Thrust"",
+                    ""name"": ""Forward&Back"",
                     ""type"": ""Value"",
                     ""id"": ""288b4cfb-fe3c-4d7e-9807-d97ddecd251a"",
                     ""expectedControlType"": """",
@@ -101,9 +101,18 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Strafe"",
+                    ""name"": ""Left&Right"",
                     ""type"": ""PassThrough"",
                     ""id"": ""bb9cf557-ba1b-42af-b5e9-68e04f2d77d3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Up&Down"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""261e9b89-727d-4707-80df-01b3eef10705"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -185,7 +194,7 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""name"": ""OffWall"",
                     ""type"": ""Button"",
                     ""id"": ""b5d2d613-ece4-400e-9f1b-e83d6c87dc27"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -202,13 +211,13 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
             ],
             ""bindings"": [
                 {
-                    ""name"": ""ThrustKeyboard"",
+                    ""name"": ""Keyboard"",
                     ""id"": ""3dd2daa7-7cdc-443a-87bd-3ce73c4605f3"",
                     ""path"": ""1DAxis"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Thrust"",
+                    ""action"": ""Forward&Back"",
                     ""isComposite"": true,
                     ""isPartOfComposite"": false
                 },
@@ -219,7 +228,7 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Thrust"",
+                    ""action"": ""Forward&Back"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -230,18 +239,18 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Thrust"",
+                    ""action"": ""Forward&Back"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": ""ThrustController"",
+                    ""name"": ""Controller"",
                     ""id"": ""d68996e6-a252-4f35-aee0-3e0f14dd2d8a"",
                     ""path"": ""1DAxis"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Thrust"",
+                    ""action"": ""Forward&Back"",
                     ""isComposite"": true,
                     ""isPartOfComposite"": false
                 },
@@ -252,7 +261,7 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Thrust"",
+                    ""action"": ""Forward&Back"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -263,18 +272,18 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Thrust"",
+                    ""action"": ""Forward&Back"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": ""StrafeKeyboard"",
+                    ""name"": ""Keyboard"",
                     ""id"": ""51a6a490-bf26-4ae6-9cc1-08418b52a0f1"",
                     ""path"": ""1DAxis"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Strafe"",
+                    ""action"": ""Left&Right"",
                     ""isComposite"": true,
                     ""isPartOfComposite"": false
                 },
@@ -285,7 +294,7 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Strafe"",
+                    ""action"": ""Left&Right"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -296,18 +305,18 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Strafe"",
+                    ""action"": ""Left&Right"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": ""StrafeController"",
+                    ""name"": ""Controller"",
                     ""id"": ""d6cdab2a-df17-4996-a1f2-8ece2f66799f"",
                     ""path"": ""1DAxis"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Strafe"",
+                    ""action"": ""Left&Right"",
                     ""isComposite"": true,
                     ""isPartOfComposite"": false
                 },
@@ -318,7 +327,7 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Strafe"",
+                    ""action"": ""Left&Right"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -329,7 +338,7 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Strafe"",
+                    ""action"": ""Left&Right"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -585,6 +594,72 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""action"": ""Stim"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""Keyboard"",
+                    ""id"": ""9ba37f93-e983-4366-a075-317869920683"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Up&Down"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""74ba6e85-fee3-4c52-9c8d-7450c7a04279"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Up&Down"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""30de1c02-64f3-406a-abff-7665bb2c2993"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Up&Down"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""Controller"",
+                    ""id"": ""c5dee03e-a4f0-4278-955f-50ae7ee36295"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Up&Down"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""cedd90ac-86f1-441e-9171-9cf932f6afb7"",
+                    ""path"": ""<Gamepad>/dpad/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Up&Down"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""0c78c397-8d4d-4902-8bf6-274417ac205e"",
+                    ""path"": ""<Gamepad>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Up&Down"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -717,8 +792,9 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
 }");
         // PlayerControls
         m_PlayerControls = asset.FindActionMap("PlayerControls", throwIfNotFound: true);
-        m_PlayerControls_Thrust = m_PlayerControls.FindAction("Thrust", throwIfNotFound: true);
-        m_PlayerControls_Strafe = m_PlayerControls.FindAction("Strafe", throwIfNotFound: true);
+        m_PlayerControls_ForwardBack = m_PlayerControls.FindAction("Forward&Back", throwIfNotFound: true);
+        m_PlayerControls_LeftRight = m_PlayerControls.FindAction("Left&Right", throwIfNotFound: true);
+        m_PlayerControls_UpDown = m_PlayerControls.FindAction("Up&Down", throwIfNotFound: true);
         m_PlayerControls_Roll = m_PlayerControls.FindAction("Roll", throwIfNotFound: true);
         m_PlayerControls_Grab = m_PlayerControls.FindAction("Grab", throwIfNotFound: true);
         m_PlayerControls_Stim = m_PlayerControls.FindAction("Stim", throwIfNotFound: true);
@@ -823,8 +899,9 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
     // PlayerControls
     private readonly InputActionMap m_PlayerControls;
     private List<IPlayerControlsActions> m_PlayerControlsActionsCallbackInterfaces = new List<IPlayerControlsActions>();
-    private readonly InputAction m_PlayerControls_Thrust;
-    private readonly InputAction m_PlayerControls_Strafe;
+    private readonly InputAction m_PlayerControls_ForwardBack;
+    private readonly InputAction m_PlayerControls_LeftRight;
+    private readonly InputAction m_PlayerControls_UpDown;
     private readonly InputAction m_PlayerControls_Roll;
     private readonly InputAction m_PlayerControls_Grab;
     private readonly InputAction m_PlayerControls_Stim;
@@ -847,13 +924,17 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
         /// </summary>
         public PlayerControlsActions(@PlayerController wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "PlayerControls/Thrust".
+        /// Provides access to the underlying input action "PlayerControls/ForwardBack".
         /// </summary>
-        public InputAction @Thrust => m_Wrapper.m_PlayerControls_Thrust;
+        public InputAction @ForwardBack => m_Wrapper.m_PlayerControls_ForwardBack;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerControls/Strafe".
+        /// Provides access to the underlying input action "PlayerControls/LeftRight".
         /// </summary>
-        public InputAction @Strafe => m_Wrapper.m_PlayerControls_Strafe;
+        public InputAction @LeftRight => m_Wrapper.m_PlayerControls_LeftRight;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerControls/UpDown".
+        /// </summary>
+        public InputAction @UpDown => m_Wrapper.m_PlayerControls_UpDown;
         /// <summary>
         /// Provides access to the underlying input action "PlayerControls/Roll".
         /// </summary>
@@ -920,12 +1001,15 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_PlayerControlsActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_PlayerControlsActionsCallbackInterfaces.Add(instance);
-            @Thrust.started += instance.OnThrust;
-            @Thrust.performed += instance.OnThrust;
-            @Thrust.canceled += instance.OnThrust;
-            @Strafe.started += instance.OnStrafe;
-            @Strafe.performed += instance.OnStrafe;
-            @Strafe.canceled += instance.OnStrafe;
+            @ForwardBack.started += instance.OnForwardBack;
+            @ForwardBack.performed += instance.OnForwardBack;
+            @ForwardBack.canceled += instance.OnForwardBack;
+            @LeftRight.started += instance.OnLeftRight;
+            @LeftRight.performed += instance.OnLeftRight;
+            @LeftRight.canceled += instance.OnLeftRight;
+            @UpDown.started += instance.OnUpDown;
+            @UpDown.performed += instance.OnUpDown;
+            @UpDown.canceled += instance.OnUpDown;
             @Roll.started += instance.OnRoll;
             @Roll.performed += instance.OnRoll;
             @Roll.canceled += instance.OnRoll;
@@ -967,12 +1051,15 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
         /// <seealso cref="PlayerControlsActions" />
         private void UnregisterCallbacks(IPlayerControlsActions instance)
         {
-            @Thrust.started -= instance.OnThrust;
-            @Thrust.performed -= instance.OnThrust;
-            @Thrust.canceled -= instance.OnThrust;
-            @Strafe.started -= instance.OnStrafe;
-            @Strafe.performed -= instance.OnStrafe;
-            @Strafe.canceled -= instance.OnStrafe;
+            @ForwardBack.started -= instance.OnForwardBack;
+            @ForwardBack.performed -= instance.OnForwardBack;
+            @ForwardBack.canceled -= instance.OnForwardBack;
+            @LeftRight.started -= instance.OnLeftRight;
+            @LeftRight.performed -= instance.OnLeftRight;
+            @LeftRight.canceled -= instance.OnLeftRight;
+            @UpDown.started -= instance.OnUpDown;
+            @UpDown.performed -= instance.OnUpDown;
+            @UpDown.canceled -= instance.OnUpDown;
             @Roll.started -= instance.OnRoll;
             @Roll.performed -= instance.OnRoll;
             @Roll.canceled -= instance.OnRoll;
@@ -1354,19 +1441,26 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
     public interface IPlayerControlsActions
     {
         /// <summary>
-        /// Method invoked when associated input action "Thrust" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Forward&Back" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnThrust(InputAction.CallbackContext context);
+        void OnForwardBack(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Strafe" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Left&Right" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnStrafe(InputAction.CallbackContext context);
+        void OnLeftRight(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Up&Down" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUpDown(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Roll" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
