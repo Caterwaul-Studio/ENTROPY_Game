@@ -39,7 +39,7 @@ public class StingerManager : MonoBehaviour
     {
         if (tutorialStingerSource == null || tutorialStingerClip == null)
         {
-            Debug.LogWarning("AmbientController: Missing tutorial stinger AudioSource or Clip.");
+            //Debug.LogWarning("AmbientController: Missing tutorial stinger AudioSource or Clip.");
             return;
         }
 
@@ -124,7 +124,7 @@ public class StingerManager : MonoBehaviour
     }
     public void PlayExplosion()
     {
-        Debug.Log("Playing explosion sound");
+        //Debug.Log("Playing explosion sound");
         explosionSource.priority = priority;
         explosionSource.clip = explosionClip;
         explosionSource.loop = false;
@@ -137,7 +137,7 @@ public class StingerManager : MonoBehaviour
     {
         if (bodyScareStingerSource == null || bodyScareStingerClip == null)
         {
-            Debug.LogWarning("StingerManager: Missing body scare stinger AudioSource or Clip.");
+            //Debug.LogWarning("StingerManager: Missing body scare stinger AudioSource or Clip.");
             return;
         }
         bodyScareStingerSource.priority = priority;
@@ -154,7 +154,7 @@ public class StingerManager : MonoBehaviour
         {
         if (dormRoomStingerSource == null || dormRoomStingerClip == null)
         {
-            Debug.LogWarning("StingerManager: Missing dorm hall stinger AudioSource or Clip.");
+            //Debug.LogWarning("StingerManager: Missing dorm hall stinger AudioSource or Clip.");
             return;
         }
         dormRoomStingerSource.priority = priority;
