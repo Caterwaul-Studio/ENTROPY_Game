@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -71,7 +72,10 @@ public class DialogueManager : MonoBehaviour
 
     public int numDialoguesQueued { get; private set; } = 0;
 
-    public event Action<int> OnDialogueEnd;
+    //_______________________________________________________________________________________________________________
+    // Events for external listeners (e.g. tutorial manager) - can be expanded as needed
+    public event Action<int> OnDialogueLineEndBrokenDoor;
+    public event Action<int> OnDialogueEndTutorial;
 
     private void Awake()
     {
@@ -289,6 +293,10 @@ public class DialogueManager : MonoBehaviour
             yield return StartCoroutine(PlaySingleDialogue(d, sequenceSource));
             bool wasSkipped = lastDialogueWasSkipped;
 
+            // check for the last line of the dining room sequence before alan breaks the door, and fire an event to trigger the door break
+            bool isLastEntryBeforeDoorBreak = currentDialogueIndex == sequence.dialogues.Length - 2;
+            if (isLastEntryBeforeDoorBreak) OnDialogueLineEndBrokenDoorSafe(currentSequenceIndex);
+
             // Handle tutorial advancement
             if (d.advancesTutorial && tutorialManager != null)
             {
@@ -323,7 +331,7 @@ public class DialogueManager : MonoBehaviour
         }
 
         //Debug.Log("Dialogue at sequence " + sequenceIndex + " is has completed");
-        OnDialogueEndSafe(currentSequenceIndex);
+        OnDialogueEndTutorialSafe(currentSequenceIndex);
         
         if (sequenceQueue.Count <= 0)
         {
@@ -648,15 +656,27 @@ public class DialogueManager : MonoBehaviour
         if (dialogueCanvasGroup != null) dialogueCanvasGroup.alpha = 0f;
     }
 
-    private void OnDialogueEndSafe(int sequenceIndex)
+    private void OnDialogueEndTutorialSafe(int sequenceIndex)
     {
         try
         {
-            OnDialogueEnd?.Invoke(sequenceIndex);
+            OnDialogueEndTutorial?.Invoke(sequenceIndex);
         }
         catch (Exception e)
         {
             Debug.LogWarning("OnDialogueEnd handler threw: " + e);
+        }
+    }
+
+    private void OnDialogueLineEndBrokenDoorSafe(int sequenceIndex)
+    {
+        try
+        {
+            OnDialogueLineEndBrokenDoor?.Invoke(sequenceIndex);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("OnDialogueLineEndBrokenDoor handler threw: " + e);
         }
     }
 
