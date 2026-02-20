@@ -105,7 +105,7 @@ public class TutorialManager : MonoBehaviour
         //determines if the player is to be in tutorial from the player controller's "TutorialMode" bool, which is saved by the GSM
         if (playerController.TutorialMode == true && !GlobalSaveManager.LoadFromSave)
         {
-            dialogueManager.OnDialogueEnd += OnDialogueComplete;
+            dialogueManager.OnDialogueEndTutorial += OnDialogueComplete;
             StartCoroutine(StartTutorial());
         }
 
