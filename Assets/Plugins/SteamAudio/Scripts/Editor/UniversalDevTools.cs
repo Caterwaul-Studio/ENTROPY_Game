@@ -1,3 +1,4 @@
+using System.IO;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -15,7 +16,7 @@ public class UniversalDevTools : EditorWindow
 
     // A float created to store the value of the no clip move speed, this is used for the slider in the dev tools
     // and also set the value in ZeroGravity.cs through reflection
-    private float noClipMoveSpeed = 10f;
+    private float noClipMoveSpeed = 5f;
 
     // Gizmo toggles (static so DrawGizmo can read them)
     private static bool drawGrabRange = false;
@@ -206,6 +207,23 @@ public class UniversalDevTools : EditorWindow
                     "C -> Down",
                     MessageType.None
                     );
+            }
+            else
+            {
+                //set the player rb .IsKinematic to false
+                FieldInfo rbField = playerScript.GetType().GetField("rb", BindingFlags.NonPublic | BindingFlags.Instance);
+                if(rbField != null)
+                {
+                    Rigidbody rb = rbField.GetValue(playerScript) as Rigidbody;
+                    if(rb != null)
+                    {
+                        rb.isKinematic = false;
+                    }
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("Rigidbody field not found! Make sure you have a Rigidbody component and that it's assigned to the 'rb' field in ZeroGravity.cs", MessageType.Error);
+                }
             }
         }
         else

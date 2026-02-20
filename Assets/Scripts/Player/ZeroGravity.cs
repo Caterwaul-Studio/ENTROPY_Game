@@ -257,7 +257,16 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             if (playerFreeMoveNoClip == value) return;
             playerFreeMoveNoClip = value;
 
-            if (value)
+            if (!value)
+            {
+                //Debug.Log("NOCLIP OFF - isKinematic before: " + rb.isKinematic);
+                rb.isKinematic = false;
+                boundingSphere.enabled = true;
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                //Debug.Log("NOCLIP OFF - isKinematic after: " + rb.isKinematic);
+            }
+            else
             {
                 //Debug.Log("NOCLIP ON - isKinematic before: " + rb.isKinematic);
                 ReleaseBar(); // ensure we clean up any grabbed bar states/ break those dependencies
@@ -266,15 +275,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 rb.isKinematic = true;
                 boundingSphere.enabled = false;
                 //Debug.Log("NOCLIP ON - isKinematic after: " + rb.isKinematic);
-            }
-            else
-            {
-                //Debug.Log("NOCLIP OFF - isKinematic before: " + rb.isKinematic);
-                rb.isKinematic = false;
-                boundingSphere.enabled = true;
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-                //Debug.Log("NOCLIP OFF - isKinematic after: " + rb.isKinematic);
             }
         }
     }
@@ -423,6 +423,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         playerHealth = 3;
         //make sure there are no stims in teh plaeyr inventory
         numStims = 0;
+        rb.useGravity = false;
+        //hard code isKinematic is false to ensure the No-Clip logic works and doesn't force the player into kinematic when they shouldn't be
+        rb.isKinematic = false;
+        boundingSphere.enabled = true;
+        cam = Camera.main;
     }
 
     // Start is called before the first frame update
@@ -450,8 +455,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         }
 
         isDead = false;
-
-
         justHit = false;
         prevJustHit = false;
         prevHurt = false;
@@ -460,10 +463,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         //let the mouse move
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        rb.useGravity = false;
-        //hard code isKinematic is false to ensure the No-Clip logic works and doesn't force the player into kinematic when they shouldn't be
-        rb.isKinematic = false;
-        cam = Camera.main;
+        
 
         if(useManualPullIn)
         {

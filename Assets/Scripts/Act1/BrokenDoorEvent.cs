@@ -44,18 +44,27 @@ public class BrokenDoorEvent : MonoBehaviour
 
     public void StartBrokenDoorBeat()
     {
-        StartCoroutine(BrokenDoorBeat());
+        //StartCoroutine(BrokenDoorBeat());
         stingerManager.BrokenDoorStingerTriggered();
         //flicker lights
         StartCoroutine(lightManager.FlickerLights(LightLocation.Dining, 2.0f, 2.5f, true));
         StartCoroutine(MalfunctionDispenser());
+
+        manager.OnDialogueLineEndBrokenDoor += OnLastDialogueLineBrokenDoorStarted;
+        manager.StartDialogueSequence(5, delay);
+    }
+
+    private void OnLastDialogueLineBrokenDoorStarted(int sequenceIndex)
+    {
+        //hard code that we are looking for a line in the broken door sequence
+        if (sequenceIndex != 5) return;
+        //unregister event so it doesn't get called again
+        manager.OnDialogueLineEndBrokenDoor -= OnLastDialogueLineBrokenDoorStarted;
+        StartCoroutine(BrokenDoorBeat());
     }
 
     private IEnumerator BrokenDoorBeat()
     {
-        manager.StartDialogueSequence(5, delay);
-
-        yield return new WaitForSeconds(51f);
         brokenDoorAudio.Play();
         yield return new WaitForSeconds(3f);
         brokenDoor.SetState(DoorScript.States.Broken);
