@@ -16,6 +16,7 @@ public class Looper : MonoBehaviour
     private string currentClip = "none";
 
     public const double shortFadeDuration = 0.5f;
+    public const double mediumFadeDuration = 4.0f;
     public const double longFadeDuration = 10.0f;
     
     public AudioMixerGroup musicGroup;
@@ -74,13 +75,13 @@ public class Looper : MonoBehaviour
         StartCoroutine(Fade(audioSources[sourceIndex], delay, shortFadeDuration ,true));
     }
 
-    public void FadeOut()
+    public void FadeOut(double duration = longFadeDuration)
     {
         // Debug.Log("FadeOut triggered");
-        StartCoroutine(Fade(audioSources[0], 0.0f, longFadeDuration, true));
-        StartCoroutine(Fade(audioSources[1], 0.0f, longFadeDuration, true));
+        StartCoroutine(Fade(audioSources[0], 0.0f, duration, true));
+        StartCoroutine(Fade(audioSources[1], 0.0f, duration, true));
     }
-    
+
     public void FadeIn()
     {
         // Debug.Log("FadeIn triggered" + currentClip);
