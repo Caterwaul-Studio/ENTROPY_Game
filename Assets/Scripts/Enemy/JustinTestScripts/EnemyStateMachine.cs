@@ -91,10 +91,14 @@ public class EnemyStateMachine : MonoBehaviour
     private float randomPointRetreatDistanceMin;
     private float randomPointRetreatDistanceMax;
     [SerializeField] private LayerMask waypointLayer;
-    public float minRadius = 3f;
-    public float maxRadius = 7f;
+    public float minRadius = 7f;
+    public float maxRadius = 9f;
+    [SerializeField] private float _totalMaxRadius; //Inspector Variable
     private float maxRadiusAdd;
 
+    [Header("Gizmos Bools")]
+    [SerializeField] private bool showDetectionRadius;
+    [SerializeField] private bool showPointSearchRadius;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -294,6 +298,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     private List<Waypoint> DetermineRandomPoints()
     {
+        _totalMaxRadius = maxRadius + maxRadiusAdd;
         Collider[] allWithinMax = Physics.OverlapSphere(transform.position, maxRadius + maxRadiusAdd, waypointLayer);
         if (maxRadiusAdd >= 20)
         {
@@ -342,6 +347,31 @@ public class EnemyStateMachine : MonoBehaviour
         }
 
         return TempList[Random.Range(0, TempList.Count)];
+    }
+
+    public void GetRetreatPoint()
+    {
+        int attempts = 0;
+        int maxAttempts = 5;
+        bool foundValidPoint = false;
+
+        while (attempts < maxAttempts)
+        {
+            ComplexEnemyAI.Instance.retreatWaypoint = GetRandomValidPoint();
+
+            if (!ComplexEnemyAI.Instance.CheckIfPlayerInWay())
+            {
+                foundValidPoint = true;
+                break; 
+            }
+
+            attempts++;
+        }
+
+        if (!foundValidPoint)
+        {
+            ComplexEnemyAI.Instance.MoveThanTeleport();
+        }
     }
 
     #endregion
@@ -449,29 +479,41 @@ public class EnemyStateMachine : MonoBehaviour
         // Only draw when selected in the editor
         Gizmos.color = Color.yellow;
 
-        //if the Geist can detect the player
-        if (canDetectPlayer)
+        if (showDetectionRadius)
+        {
+            //if the Geist can detect the player
+            if (canDetectPlayer)
+            {
+                Gizmos.color = Color.green;
+            }
+            else
+            {
+                Gizmos.color = Color.red;
+            }
+            // Wake distance (yellow)
+
+            // 1. Calculate the offset from start to target
+            Vector3 offset = player.transform.position - transform.position;
+
+            // 2. Clamp that offset to your max length
+            Vector3 limitedOffset = Vector3.ClampMagnitude(offset, detectionRadius);
+
+            // 3. Calculate the final "clamped" point
+            Vector3 clampedPoint = player.transform.position + limitedOffset;
+
+            Gizmos.DrawLine(transform.position, clampedPoint);
+        }
+
+        if (showPointSearchRadius)
         {
             Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, minRadius);
+            Gizmos.DrawWireSphere(transform.position, maxRadius);
+            Gizmos.DrawWireSphere(transform.position, _totalMaxRadius);
         }
-        else 
-        {
-            Gizmos.color = Color.red;
-        }
-        // Wake distance (yellow)
+        //Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        // 1. Calculate the offset from start to target
-        Vector3 offset = player.transform.position - transform.position;
-
-        // 2. Clamp that offset to your max length
-        Vector3 limitedOffset = Vector3.ClampMagnitude(offset, detectionRadius);
-
-        // 3. Calculate the final "clamped" point
-        Vector3 clampedPoint = player.transform.position + limitedOffset;
-
-        Gizmos.DrawLine(transform.position, clampedPoint);
-
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        
 
         // Chase distance (red)
         //Gizmos.color = Color.red;

@@ -112,6 +112,9 @@ public class ComplexEnemyAI : MonoBehaviour
     private float clearPathCheckTimer = 0f;
     private bool hasClearPath = true;
 
+    [Header("Retreat")]
+
+    [SerializeField] private Waypoint FailSafe; //This point will be the failsafe for if the retreating doesn't work correctly
 
     void Start()
     {
@@ -750,6 +753,7 @@ public class ComplexEnemyAI : MonoBehaviour
         FindPlayerPath();
     }
     */
+
     void FindPlayerPath()
     {
         if (playerWaypoint == null)
@@ -772,24 +776,14 @@ public class ComplexEnemyAI : MonoBehaviour
 
     public void FindRetreatPath()
     {
-        if (retreatWaypoint == null)
-        {
-            retreatWaypoint = EnemyStateMachine.Instance.GetRandomValidPoint();
+        EnemyStateMachine.Instance.GetRetreatPoint();
 
-            CheckIfPlayerInWay();
+        path = BFS(currentWaypoint, retreatWaypoint);
+    }
 
-            path = BFS(currentWaypoint, retreatWaypoint);
-        }
-        else
-        {
-            Waypoint testWaypoint = FindClosestWaypoint(player.transform.position);
-            //only do a new BFS if the player waypoint is new.
-            if (retreatWaypoint != testWaypoint)
-            {
-                retreatWaypoint = testWaypoint;
-                path = BFS(currentWaypoint, retreatWaypoint);
-            }
-        }
+    public void MoveThanTeleport()
+    {
+
     }
 
     private void MoveInRetreatPointDirection()
@@ -797,7 +791,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
     }
 
-    private bool CheckIfPlayerInWay()
+    public bool CheckIfPlayerInWay()
     {
         Waypoint tempPlayerWaypoint = FindClosestWaypoint(player.transform.position);
 
