@@ -117,7 +117,7 @@ public class EnemyStateMachine : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        EnemyStateHandler();
+        //EnemyStateHandler();
     }
 
     #region StateHandler
@@ -207,6 +207,8 @@ public class EnemyStateMachine : MonoBehaviour
             if (interestTimer <= 0 && currentSpecificState == SpecificEnemyState.Investigate)
             {
                 ChangeSpecificState(SpecificEnemyState.Patrol);
+
+                ComplexEnemyAI.Instance.isPatroling();
             }
 
             //During the time limit start Investigating 

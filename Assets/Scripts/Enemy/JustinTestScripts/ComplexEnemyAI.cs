@@ -94,7 +94,7 @@ public class ComplexEnemyAI : MonoBehaviour
     public bool isCharging = false;
     public bool isLunging = false;
     public float lungeTimer = 0f;
-    public bool isAwake = false;
+    //public bool isAwake = false;
 
     //direction calculation
     private float directionUpdateThreshold = 0.05f; // Minimal movement to update direction
@@ -181,6 +181,7 @@ public class ComplexEnemyAI : MonoBehaviour
             return;
         }
 
+        /*
         sqrDist = (transform.position - player.transform.position).sqrMagnitude;
 
         if (sqrDist > wakeDistance * wakeDistance)
@@ -196,7 +197,7 @@ public class ComplexEnemyAI : MonoBehaviour
         {
             return;
         }
-
+        */
 
         // 2) If stunned, do nothing else (charging/lunging will abort)
         if (isStunned) return;
@@ -939,8 +940,10 @@ public class ComplexEnemyAI : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 
+    /*
     bool CheckLineOfSight()
     {
+        
         if (isAwake)
         {
             Vector3 origin = transform.position; // Offset if needed
@@ -958,9 +961,10 @@ public class ComplexEnemyAI : MonoBehaviour
         {
             return false;
         }
-
+        
     }
-
+    */
+    
     IEnumerator UpdateLineOfSight()
     {
         while (true)
@@ -1012,7 +1016,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
         // Stop everything
         StopAllCoroutines();
-        isAwake = false;
+        //isAwake = false;
         isStunned = false;
         isCharging = false;
         isLunging = false;
