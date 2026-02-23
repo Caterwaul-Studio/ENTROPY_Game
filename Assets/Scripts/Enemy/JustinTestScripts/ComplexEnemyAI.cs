@@ -33,9 +33,6 @@ public class ComplexEnemyAI : MonoBehaviour
     public float chargeUpTime = 1.5f;
     public float lungeSpeed = 3.5f;
     public float lungeDuration = 3f;
-    public int maxRicochets = 2;
-    private int ricochetCount = 0;
-    public float ricochetSpeedMultiplier = 0.8f; // slow down a bit after bounce
 
     [Header("Stun Settings")]
     public float stunSeconds = 3f;
@@ -47,14 +44,6 @@ public class ComplexEnemyAI : MonoBehaviour
     public Waypoint startingWaypoint;
     public Transform waypointGroup;
     //public DoorScript door;
-
-    [Header("Audio")]
-    public AudioSource audioSource;
-    public AudioSource audioSource2;
-    public AudioClip alienSfx;
-    public AudioClip chargingSound;
-    public AudioClip lungeSound;
-    public AudioClip takeDamage;
 
     [Header("Tendril Settings")]
     public GameObject tendrilPrefab;
@@ -77,8 +66,8 @@ public class ComplexEnemyAI : MonoBehaviour
     private Queue<Waypoint> path = new Queue<Waypoint>();
     public Waypoint playerWaypoint;
     public Waypoint targetWaypoint;
-
     public Waypoint retreatWaypoint;
+    public Waypoint lastSeenWaypoint;
 
     private List<Waypoint> allWaypoints = new List<Waypoint>();
     private List<Waypoint> roamingWaypoints = new List<Waypoint>();
@@ -138,10 +127,6 @@ public class ComplexEnemyAI : MonoBehaviour
 
         playerController = player.GetComponent<ZeroGravity>();
 
-        audioSource.clip = alienSfx;
-        audioSource.loop = true;
-        audioSource.Stop();
-
         // Rigidbody must exist and start in kinematic mode
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
@@ -154,7 +139,7 @@ public class ComplexEnemyAI : MonoBehaviour
         tendrilOrigins = GetComponentsInChildren<TendrilOrigin>().ToList();
         availableOrigins = new List<TendrilOrigin>(tendrilOrigins);
 
-        StartCoroutine(UpdateLineOfSight());
+        //StartCoroutine(UpdateLineOfSight());
     }
 
     void Update()
@@ -165,6 +150,7 @@ public class ComplexEnemyAI : MonoBehaviour
             return;
         }
 
+        /*
         if (playerController.IsDead == true)
         {
             //RoamArea();
@@ -248,7 +234,7 @@ public class ComplexEnemyAI : MonoBehaviour
         */
 
         // 6) Otherwise, run normal AI (chase/roam/track)
-        EnemyStateMachine.Instance.EnemyStateHandler();
+        EnemyStateMachine.Instance.GeneralLogic();
         //RunNormalAIBehavior();
 
         CalculateDirection();
@@ -264,7 +250,6 @@ public class ComplexEnemyAI : MonoBehaviour
 
     public void IsChasingPlayer()
     {
-        if (!audioSource.isPlaying) audioSource.Play();
 
         clearPathCheckTimer += Time.deltaTime;
 
@@ -319,39 +304,29 @@ public class ComplexEnemyAI : MonoBehaviour
 
     public void isPatroling()
     {
-        float sqrDist = (transform.position - player.transform.position).sqrMagnitude;
-
-        //if we have line of sight and we are within chase distance, start chasing
-        if (hasLineOfSight && sqrDist <= chaseDistance * chaseDistance)
+        if (currentWaypoint.type == Waypoint.WaypointType.General)
         {
-            isChasingPlayer = true;
-            ChasePlayer();
-        }
-        else if (sqrDist <= chaseDistance * chaseDistance)
-        {
-            //FindPlayerPath();
+            RoamArea();
 
         }
         else
         {
-            //simply roam the full area if we have escaped the limited roaming area
-            if (currentWaypoint.type == Waypoint.WaypointType.General)
-            {
-                RoamArea();
-
-            }
-            else
-            {
-                RoamLimited();
-            }
-            isChasingPlayer = false;
-            if (audioSource.isPlaying) audioSource.Stop();
+            RoamLimited();
         }
     }
 
     private void IsInvestigating()
     {
         
+    }
+
+    private void GetLastSeenLocation()
+    {
+        EnemyStateMachine.Instance.playersLastKnownLocation = player.transform;
+
+        lastSeenWaypoint = FindClosestWaypoint(EnemyStateMachine.Instance.playersLastKnownLocation.position);
+
+
     }
 
     /*
@@ -438,7 +413,7 @@ public class ComplexEnemyAI : MonoBehaviour
             if (objRb != null && objRb.linearVelocity.magnitude >= stunVelocityThreshold)
             {
                 Debug.Log("Object hit at this speed: " + objRb.linearVelocity.magnitude);
-                StartCoroutine(StunCoroutine());
+                //StartCoroutine(StunCoroutine());
             }
         }
         // 2) If its the player, kill them
@@ -494,6 +469,7 @@ public class ComplexEnemyAI : MonoBehaviour
         */
     }
 
+        /*
     private IEnumerator StunCoroutine()
     {
         if (isStunned) yield break;
@@ -512,6 +488,7 @@ public class ComplexEnemyAI : MonoBehaviour
         }
         */
         // Retract ALL current tendrils
+        /*
         foreach (var origin in tendrilOrigins)
         {
             if (origin.activeTendril != null)
@@ -533,7 +510,7 @@ public class ComplexEnemyAI : MonoBehaviour
         isStunned = false;
         FindPlayerPath();
     }
-
+*/
     void ChasePlayer()
     {
         // Move directly towards the player
@@ -777,7 +754,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
     public void FindRetreatPath()
     {
-        EnemyStateMachine.Instance.GetRetreatPoint();
+        EnemyStateMachine.Instance.GetRandomValidPoint();
 
         path = BFS(currentWaypoint, retreatWaypoint);
     }
@@ -846,7 +823,7 @@ public class ComplexEnemyAI : MonoBehaviour
         return path;
     }
 
-    Waypoint FindClosestWaypoint(Vector3 position)
+    public Waypoint FindClosestWaypoint(Vector3 position)
     {
         Waypoint[] waypoints = waypointGroup.GetComponentsInChildren<Waypoint>();
         Waypoint closest = null;
@@ -865,6 +842,7 @@ public class ComplexEnemyAI : MonoBehaviour
         return closest;
     }
 
+    
 
     void UpdateCurrentWaypointToClosest()
     {
@@ -965,15 +943,16 @@ public class ComplexEnemyAI : MonoBehaviour
     }
     */
     
+    /*
     IEnumerator UpdateLineOfSight()
     {
         while (true)
         {
-            hasLineOfSight = CheckLineOfSight();
+            hasLineOfSight = EnemyStateMachine.Instance.EnemyDetection();
             yield return new WaitForSeconds(0.25f);
         }
     }
-
+    */
     bool HasClearPathTo(Vector3 targetPosition)
     {
         Vector3 direction = (targetPosition - transform.position).normalized;
@@ -1056,19 +1035,16 @@ public class ComplexEnemyAI : MonoBehaviour
         availableOrigins.Clear();
         availableOrigins.AddRange(tendrilOrigins);
 
-        audioSource.Stop();
-        audioSource2.Stop();
-
         // Start line of sight tracking after a short delay
-        StartCoroutine(DelayedWake());
+        //StartCoroutine(DelayedWake());
     }
-
+    /*
     IEnumerator DelayedWake()
     {
         yield return null; // wait 1 frame to ensure position is stable
         StartCoroutine(UpdateLineOfSight());
     }
-
+    */
     void OnDrawGizmosSelected()
     {
         // Only draw when selected in the editor

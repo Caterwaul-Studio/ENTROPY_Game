@@ -31,494 +31,240 @@ public class EnemyStateMachine : MonoBehaviour
 {
     public static EnemyStateMachine Instance { get; private set; }
 
-    public void Awake()
-    {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-    }
-
     [Header("Enum Values")]
     public EnemyVersion enemyVersion;
-    public GeneralEnemyState currentGeneralState;
-    public SpecificEnemyState currentSpecificState;
+    public GeneralEnemyState currentGeneralState = GeneralEnemyState.Active;
+    public SpecificEnemyState currentSpecificState = SpecificEnemyState.Patrol;
     public SpecificEnemyState pastSpecificState;
-
-    //[SerializeField] private ComplexEnemyAI ComplexEnemyAI;
 
     [Header("References")]
     public GameObject player;
     [SerializeField] private GameObject simpleEnemy;
     [SerializeField] private GameObject complexEnemy;
 
-    //[SerializeField] public bool isPaused = false;
-    //[SerializeField] public bool isActive = false;
-    //[SerializeField] public bool isRetreating = false;
-
-    [Header("Detection")]
-
-    public LayerMask playerLayer;
-    public LayerMask barrierLayer; // Set this to "Barrier"
-    public LayerMask doorLayer;
-    public float detectionRadius = 5f;
-    public float wakeLossCooldown = 10f;
-    private float timeSinceLastSeenPlayer = 0f;
-    private bool canDetectPlayer = false;
-
-    public float detectionDuration = 10f;
-    private Coroutine detectingTimerCoroutine;
+    [Header("Detection Settings")]
+    public LayerMask detectionMask; // Set this to "Default", "Player", and "Obstacles"
+    public float detectionRadius = 15f;
+    public float detectionDuration = 1.5f; // Time to "spot" player
     [SerializeField] private float detectionTimer;
+    [SerializeField] private bool canDetectPlayer = false;
+    [SerializeField] private bool chasePlayer = false;
 
-    [Header("Interest")]
+    [Header("Interest/Search Settings")]
     public float interestDuration = 10f;
     [SerializeField] private float interestTimer;
-    private Coroutine investingTimerCoroutine;
+    public Transform playersLastKnownLocation;
 
-    [Header("Retreat")]
+    [Header("Retreat Settings")]
     public float retreatDuration = 3f;
-    [SerializeField] private float retreatTimer;
-    private Coroutine retreatingTimerCoroutine;
-    [SerializeField] private float test;
-    private bool playerCanSeeEnemy;
-    private bool canRetreat; // This is to see if the Geist can run by moving away or does it have to move through the wall and teleport
-    private float retreatDistanceCheck;
-    private float randomPointRetreatDistanceMin;
-    private float randomPointRetreatDistanceMax;
-    [SerializeField] private LayerMask waypointLayer;
+    public float retreatDistanceCheck = 20f;
+    public LayerMask barrierLayer;
+    public LayerMask waypointLayer;
     public float minRadius = 7f;
     public float maxRadius = 9f;
-    [SerializeField] private float _totalMaxRadius; //Inspector Variable
-    private float maxRadiusAdd;
+    [SerializeField] private float retreatTimer;
 
-    [Header("Gizmos Bools")]
+    [Header("Gizmos")]
     [SerializeField] private bool showDetectionRadius;
-    [SerializeField] private bool showPointSearchRadius;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Awake()
     {
-        if (simpleEnemy == null)
-        {
-            simpleEnemy = GameObject.FindGameObjectWithTag("SimpleEnemy");
-        }
-
-        if (complexEnemy == null)
-        {
-            complexEnemy = GameObject.FindGameObjectWithTag("ComplexEnemy");
-        }
+        if (Instance != null) { Destroy(gameObject); }
+        else { Instance = this; DontDestroyOnLoad(gameObject); }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        //EnemyStateHandler();
+        if (player == null) player = GameObject.FindGameObjectWithTag("Player");
+        currentSpecificState = SpecificEnemyState.Patrol;
     }
 
-    #region StateHandler
-
-    //
-    /*
-
-
-     */
-
-    public void EnemyStateHandler()
+    public void GeneralLogic()
     {
-        if (currentGeneralState == GeneralEnemyState.Pause)
-        {
-            //currentGeneralState = GeneralEnemyState.Pause;
-            return;
-        }
-        //active
+        if (currentGeneralState == GeneralEnemyState.Pause) return;
+
+        // Run detection every frame
+        canDetectPlayer = PerformRaycastDetection();
+
         if (currentGeneralState == GeneralEnemyState.Active)
         {
-            EnemyDetection();
-
-            ChaseStates();
+            HandleActiveLogic();
         }
-        //Retreating
         else if (currentGeneralState == GeneralEnemyState.Retreat)
         {
-            DeterminePlayerLOS();
-
-            RetreatStates();
-        }
-        //idle - special 
-        else if (currentGeneralState == GeneralEnemyState.Idle)
-        {
-
+            HandleRetreatLogic();
         }
     }
 
-    //This is basically a hard State Change it will change the state without all the logic
-    private void ManualStateChange()
+    #region Active Logic
+    private void HandleActiveLogic()
     {
-         
+        switch (currentSpecificState)
+        {
+            case SpecificEnemyState.Patrol:
+                ComplexEnemyAI.Instance.isPatroling();
+
+                if (canDetectPlayer)
+                {
+                    // If we haven't committed to the chase yet, count down the "spotting" timer
+                    if (!chasePlayer)
+                    {
+                        detectionTimer -= Time.deltaTime;
+
+                        if (detectionTimer <= 0)
+                        {
+                            chasePlayer = true;
+                            ChangeSpecificState(SpecificEnemyState.Chase);
+                        }
+                    }
+                }
+                else
+                {
+                    // If the player hides, reset the detection progress
+                    chasePlayer = false;
+                    detectionTimer = detectionDuration;
+                }
+                break;
+
+            case SpecificEnemyState.Chase:
+                ComplexEnemyAI.Instance.IsChasingPlayer();
+                if (!canDetectPlayer)
+                {
+                    interestTimer = interestDuration;
+                    ChangeSpecificState(SpecificEnemyState.Investigate);
+                }
+                break;
+
+            case SpecificEnemyState.Investigate:
+                interestTimer -= Time.deltaTime;
+                // Geist logic for searching
+                if (canDetectPlayer)
+                {
+                    ChangeSpecificState(SpecificEnemyState.Chase);
+                }
+                else if (interestTimer <= 0)
+                {
+                    ChangeSpecificState(SpecificEnemyState.Patrol);
+                }
+                else
+                {
+
+                }
+
+                break;
+        }
     }
     #endregion
 
-    //Enemy Detection 
-
-    #region Detection/Attention Methods
-
-    //
-    /*
-
-     */
-    private void ChaseStates()
+    #region Investigate
+    public List<Waypoint> FindInvestWaypoints(Waypoint OriginPoint)
     {
-        if (canDetectPlayer)
-        {
-            ChangeSpecificState(SpecificEnemyState.Chase);
+        HashSet<Waypoint> waypoints = new HashSet<Waypoint>();
 
-            ComplexEnemyAI.Instance.IsChasingPlayer();
-            //--Chase--
-        }
-        else if (!canDetectPlayer && currentSpecificState == SpecificEnemyState.Chase)
+        foreach (Waypoint neighbor in OriginPoint.neighbors)
         {
-            //Changes to Specific State of Investigate
-            ChangeSpecificState(SpecificEnemyState.Investigate);
-        }
+            waypoints.Add(neighbor);
 
-        if (currentSpecificState == SpecificEnemyState.Investigate)
-        {
-            //Start the Investigation Timer and stop chasing
-            if (investingTimerCoroutine == null)
+            foreach (Waypoint farneighbor in neighbor.neighbors)
             {
-                StartTimer(interestDuration, interestTimer, investingTimerCoroutine);
+                waypoints.Add(farneighbor);
             }
-
-            //If the player is detected again, within the time limit start chasing again
-            if (canDetectPlayer)
-            {
-                StopTimer(investingTimerCoroutine);
-
-                ChangeSpecificState(SpecificEnemyState.Chase);
-            }
-
-            //If the player isn't detected in the time limit start patroling again,
-            //or some other behavior this can be changed
-            if (interestTimer <= 0 && currentSpecificState == SpecificEnemyState.Investigate)
-            {
-                ChangeSpecificState(SpecificEnemyState.Patrol);
-
-                ComplexEnemyAI.Instance.isPatroling();
-            }
-
-            //During the time limit start Investigating 
-
-            //--Investigate--
         }
 
-        if (currentSpecificState == SpecificEnemyState.Patrol)
-        {
-
-        }
+        return new List<Waypoint>(waypoints);
     }
 
-    //Changes currentSpecificState to the new state and saves the immediate past state 
-    private void ChangeSpecificState(SpecificEnemyState newState)
+    public Waypoint GetRandomInvestPoint(Waypoint OriginPoint)
     {
-        if (currentSpecificState != newState)
-        {
-            return;
-        }
+        List<Waypoint> waypoints = FindInvestWaypoints(OriginPoint);
 
-        pastSpecificState = currentSpecificState;
-        currentSpecificState = newState;
-    }
-
-    private void EnemyDetection()
-    {
-        RaycastHit hit;
-
-        Vector3 playerDetection = player.transform.position - transform.position;
-
-        //This should allow the Geist to detect the player only and only if it's directly in the LOS and area of detection
-        if (Physics.Raycast(transform.position, playerDetection, out hit,detectionRadius, playerLayer))
-        {
-            canDetectPlayer = true;
-        }
-        else
-        {
-            canDetectPlayer = false;
-        }
+        return waypoints[Random.Range(0, waypoints.Count)];
     }
 
     #endregion
 
     #region Retreat Logic
 
-    //When retreating, move away from the player by going through waypoints,
-    //if moving to the only waypoint to retreat isn't valid or will collide 
-    //with the player move through the walls or some 
-    private void RetreatStates()
+    private void HandleRetreatLogic()
     {
-        if (currentGeneralState == GeneralEnemyState.Retreat)
+        retreatTimer -= Time.deltaTime;
+
+        // If timer ends or player loses LOS, find a path
+        if (retreatTimer <= 0 || !IsPlayerLookingAtMe())
         {
-            //This limits how long the retreat timer is
-            StartTimer(retreatDuration, retreatTimer, retreatingTimerCoroutine);
-
-            if (retreatTimer <= 0)
-            {
-                StopTimer(retreatingTimerCoroutine);
-
-                ComplexEnemyAI.Instance.FindRetreatPath();
-            }
-
-            if (!playerCanSeeEnemy) 
-            {
-                StopTimer(retreatingTimerCoroutine);
-
-                ComplexEnemyAI.Instance.FindRetreatPath();
-            }
+            ComplexEnemyAI.Instance.FindRetreatPath();
         }
     }
 
-    private void DeterminePlayerLOS()
+    private bool IsPlayerLookingAtMe()
     {
-        RaycastHit hit;
-
-        Vector3 playerDetection = player.transform.position - transform.position;
-        //This should detect if the player can see the geist, by mainly seeing if there's a door or a wall between the
-        //
-        if (Physics.Raycast(transform.position, playerDetection, out hit, retreatDistanceCheck, barrierLayer) || Physics.Raycast(transform.position, playerDetection, out hit, retreatDistanceCheck, barrierLayer))
-        {
-            playerCanSeeEnemy = true;
-        }
-        else
-        {
-            playerCanSeeEnemy = false;
-        }
+        Vector3 dir = player.transform.position - transform.position;
+        // If there's a barrier in the way, the player CANNOT see me
+        return !Physics.Raycast(transform.position, dir.normalized, retreatDistanceCheck, barrierLayer);
     }
 
-    private List<Waypoint> DetermineRandomPoints()
-    {
-        _totalMaxRadius = maxRadius + maxRadiusAdd;
-        Collider[] allWithinMax = Physics.OverlapSphere(transform.position, maxRadius + maxRadiusAdd, waypointLayer);
-        if (maxRadiusAdd >= 20)
-        {
-            maxRadiusAdd = 0;
-            return null;
-        }
-
-        if (allWithinMax.Length == 0)
-        {
-            //Change
-            maxRadiusAdd += 5;
-            return DetermineRandomPoints();
-        }
-
-        List<Waypoint> results = new List<Waypoint>();
-        float minRadiusSquared = minRadius * minRadius; 
-
-        foreach (var col in allWithinMax)
-        {
-            float distSq = (col.transform.position - transform.position).sqrMagnitude;
-
-            if (distSq >= minRadiusSquared)
-            {
-                // FIX: Added <Waypoint>() and null check
-                Waypoint wp = col.GetComponent<Waypoint>();
-                if (wp != null)
-                {
-                    results.Add(wp);
-                }
-            }
-        }
-
-        maxRadiusAdd = 0;
-        return results;
-    }
-
+    // A safer version of your random point logic using a loop instead of recursion
     public Waypoint GetRandomValidPoint()
     {
-        List<Waypoint> TempList = DetermineRandomPoints();
-
-        maxRadiusAdd = 0;
-
-        if (TempList == null)
+        float currentMax = maxRadius;
+        for (int i = 0; i < 5; i++) // Try 5 times to expand radius
         {
-            return null;
-        }
+            Collider[] cols = Physics.OverlapSphere(transform.position, currentMax, waypointLayer);
+            List<Waypoint> validPoints = new List<Waypoint>();
 
-        return TempList[Random.Range(0, TempList.Count)];
-    }
-
-    public void GetRetreatPoint()
-    {
-        int attempts = 0;
-        int maxAttempts = 5;
-        bool foundValidPoint = false;
-
-        while (attempts < maxAttempts)
-        {
-            ComplexEnemyAI.Instance.retreatWaypoint = GetRandomValidPoint();
-
-            if (!ComplexEnemyAI.Instance.CheckIfPlayerInWay())
+            foreach (var c in cols)
             {
-                foundValidPoint = true;
-                break; 
+                if (Vector3.Distance(transform.position, c.transform.position) >= minRadius)
+                {
+                    Waypoint wp = c.GetComponent<Waypoint>();
+                    if (wp != null) validPoints.Add(wp);
+                }
             }
 
-            attempts++;
-        }
+            if (validPoints.Count > 0)
+                return validPoints[Random.Range(0, validPoints.Count)];
 
-        if (!foundValidPoint)
-        {
-            ComplexEnemyAI.Instance.MoveThanTeleport();
+            currentMax += 5f; // Expand search area
         }
+        return null;
     }
-
     #endregion
 
-    #region Timer Methods
-
-    private IEnumerator TimerRoutine(float duration, float timer, Coroutine timerCoroutine)
+    #region State Tools
+    public void ChangeSpecificState(SpecificEnemyState newState)
     {
-        timer = duration;
-        while (timer > 0)
+        if (currentSpecificState == newState) return; // FIXED: Changed != to ==
+
+        pastSpecificState = currentSpecificState;
+        currentSpecificState = newState;
+        Debug.Log($"State Changed to: {newState}");
+    }
+
+    private bool PerformRaycastDetection()
+    {
+        if (player == null) return false;
+
+        Vector3 dir = player.transform.position - transform.position;
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, dir.normalized, out hit, detectionRadius, detectionMask))
         {
-            timer -= Time.deltaTime;
-            yield return null;
-        }
-
-        timerCoroutine = null;
-    }
-
-    private void StartTimer(float duration, float timer, Coroutine timerCoroutine)
-    {
-        //Stops any existing timers for the investing state 
-        StopTimer(timerCoroutine);
-
-        timerCoroutine = StartCoroutine(TimerRoutine(duration, timer, timerCoroutine));
-    }
-
-    private void StopTimer(Coroutine timerCoroutine)
-    {
-        if (timerCoroutine != null)
-        {
-            StopCoroutine(timerCoroutine);
-            timerCoroutine = null; // Clear the reference
-        }
-    }
-
-    #region Outdated Timer Methods
-    /*
-    private IEnumerator InvestigationTimerRoutine(float time) 
-    {
-        interestTimer = time;
-        while (interestTimer > 0)
-        {
-            interestTimer -= Time.deltaTime;
-            yield return null;
-        }
-
-        InvestingTimerCoroutine = null;
-    }
-
-    private void StartInvestigationTimer()
-    {
-        //Stops any existing timers for the investing state 
-        StopInvestigationTimer();
-
-        InvestingTimerCoroutine = StartCoroutine(InvestigationTimerRoutine(interestDuration));
-    }
-
-    private void StopInvestigationTimer()
-    {
-        if (InvestingTimerCoroutine != null)
-        {
-            StopCoroutine(InvestingTimerCoroutine);
-            InvestingTimerCoroutine = null; // Clear the reference
-        }
-    }
-
-    // if the player enters within the detection range start the timer
-
-    
-    private IEnumerator DetectionTimerRoutine(float time)
-    {
-        interestTimer = time;
-        while (interestTimer > 0)
-        {
-            interestTimer -= Time.deltaTime;
-            yield return null;
-        }
-
-        InvestingTimerCoroutine = null;
-    }
-
-    private void StartDetectionTimer()
-    {
-        //Stops any existing timers for the investing state 
-        StopInvestigationTimer();
-
-        InvestingTimerCoroutine = StartCoroutine(InvestigationTimerRoutine(interestDuration));
-    }
-
-    private void StopDetectionTimer()
-    {
-        if (InvestingTimerCoroutine != null)
-        {
-            StopCoroutine(InvestingTimerCoroutine);
-            InvestingTimerCoroutine = null; // Clear the reference
-        }
-    }
-    */
-    #endregion
-
-    #endregion
-
-    void OnDrawGizmosSelected()
-    {
-        // Only draw when selected in the editor
-        Gizmos.color = Color.yellow;
-
-        if (showDetectionRadius)
-        {
-            //if the Geist can detect the player
-            if (canDetectPlayer)
+            if (hit.collider.CompareTag("Player"))
             {
-                Gizmos.color = Color.green;
+                return true;
             }
-            else
-            {
-                Gizmos.color = Color.red;
-            }
-            // Wake distance (yellow)
-
-            // 1. Calculate the offset from start to target
-            Vector3 offset = player.transform.position - transform.position;
-
-            // 2. Clamp that offset to your max length
-            Vector3 limitedOffset = Vector3.ClampMagnitude(offset, detectionRadius);
-
-            // 3. Calculate the final "clamped" point
-            Vector3 clampedPoint = player.transform.position + limitedOffset;
-
-            Gizmos.DrawLine(transform.position, clampedPoint);
         }
+        return false;
+    }
+    #endregion
 
-        if (showPointSearchRadius)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(transform.position, minRadius);
-            Gizmos.DrawWireSphere(transform.position, maxRadius);
-            Gizmos.DrawWireSphere(transform.position, _totalMaxRadius);
-        }
-        //Gizmos.DrawWireSphere(transform.position, detectionRadius);
+    private void OnDrawGizmos()
+    {
+        if (!showDetectionRadius) return;
+        Gizmos.color = canDetectPlayer ? Color.green : Color.red;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        
-
-        // Chase distance (red)
-        //Gizmos.color = Color.red;
-        //Gizmos.DrawWireSphere(transform.position, chaseDistance);
+        if (player != null)
+            Gizmos.DrawLine(transform.position, player.transform.position);
     }
 }
