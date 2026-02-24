@@ -5,6 +5,7 @@ using UnityEngine;
 public enum SpecificEnemyState
 {
     Chase,
+    Track,
     Investigate,
     Patrol,
     Idle,
@@ -18,6 +19,7 @@ public enum GeneralEnemyState
     Pause,
     Active,
     Retreat,
+    Dev,
     Idle, // Special State for certain circumstances
 }
 
@@ -29,31 +31,36 @@ public enum EnemyVersion
 
 public class EnemyStateMachine : MonoBehaviour
 {
-    public static EnemyStateMachine Instance { get; private set; }
-
     [Header("Enum Values")]
     public EnemyVersion enemyVersion;
     public GeneralEnemyState currentGeneralState = GeneralEnemyState.Active;
+    public GeneralEnemyState pastGeneralState;
     public SpecificEnemyState currentSpecificState = SpecificEnemyState.Patrol;
     public SpecificEnemyState pastSpecificState;
 
     [Header("References")]
     public GameObject player;
+    [SerializeField] private ComplexEnemyAI complecEnemyAI;
     [SerializeField] private GameObject simpleEnemy;
     [SerializeField] private GameObject complexEnemy;
 
     [Header("Detection Settings")]
     public LayerMask detectionMask; // Set this to "Default", "Player", and "Obstacles"
-    public float detectionRadius = 15f;
+    public float detectionRadius;
+    public float defaultDetectionRadius = 10f;
+    public float chaseDetectionRadius = 15f;
     public float detectionDuration = 1.5f; // Time to "spot" player
+    
     [SerializeField] private float detectionTimer;
-    [SerializeField] private bool canDetectPlayer = false;
+    public bool canDetectPlayer = false;
     [SerializeField] private bool chasePlayer = false;
 
     [Header("Interest/Search Settings")]
     public float interestDuration = 10f;
     [SerializeField] private float interestTimer;
-    public Transform playersLastKnownLocation;
+    public Vector3 playersLastKnownLocation;
+    private bool isInvestigating;
+    public bool shouldFollow;
 
     [Header("Retreat Settings")]
     public float retreatDuration = 3f;
@@ -66,12 +73,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     [Header("Gizmos")]
     [SerializeField] private bool showDetectionRadius;
-
-    private void Awake()
-    {
-        if (Instance != null) { Destroy(gameObject); }
-        else { Instance = this; DontDestroyOnLoad(gameObject); }
-    }
+    [SerializeField] private bool showRetreatRadius;
 
     private void Start()
     {
@@ -94,6 +96,10 @@ public class EnemyStateMachine : MonoBehaviour
         {
             HandleRetreatLogic();
         }
+        else if (currentGeneralState == GeneralEnemyState.Dev)
+        {
+
+        }
     }
 
     #region Active Logic
@@ -102,15 +108,15 @@ public class EnemyStateMachine : MonoBehaviour
         switch (currentSpecificState)
         {
             case SpecificEnemyState.Patrol:
-                ComplexEnemyAI.Instance.isPatroling();
+                complecEnemyAI.isPatroling();
+
+                detectionRadius = defaultDetectionRadius;
 
                 if (canDetectPlayer)
                 {
-                    // If we haven't committed to the chase yet, count down the "spotting" timer
                     if (!chasePlayer)
                     {
                         detectionTimer -= Time.deltaTime;
-
                         if (detectionTimer <= 0)
                         {
                             chasePlayer = true;
@@ -120,57 +126,99 @@ public class EnemyStateMachine : MonoBehaviour
                 }
                 else
                 {
-                    // If the player hides, reset the detection progress
                     chasePlayer = false;
                     detectionTimer = detectionDuration;
+
+                    complecEnemyAI.investigatingWaypoint = null;
+                    complecEnemyAI.lastSeenWaypoint = null;
                 }
                 break;
 
             case SpecificEnemyState.Chase:
-                ComplexEnemyAI.Instance.IsChasingPlayer();
+                detectionRadius = chaseDetectionRadius;
+
+                complecEnemyAI.IsChasingPlayer();
                 if (!canDetectPlayer)
                 {
                     interestTimer = interestDuration;
+                    GetLastSeenLocation();
+                    isInvestigating = false;
                     ChangeSpecificState(SpecificEnemyState.Investigate);
                 }
                 break;
 
             case SpecificEnemyState.Investigate:
                 interestTimer -= Time.deltaTime;
-                // Geist logic for searching
+
                 if (canDetectPlayer)
                 {
                     ChangeSpecificState(SpecificEnemyState.Chase);
+                    isInvestigating = false;
                 }
+                // Only switch to Patrol if the timer is DONE
                 else if (interestTimer <= 0)
                 {
+                    if (complecEnemyAI.investigatingWaypoint != null)
+                    {
+                        complecEnemyAI.currentWaypoint = complecEnemyAI.investigatingWaypoint;
+                    }
+
+                    isInvestigating = false;
+                    complecEnemyAI.investigatingWaypoint = null;
                     ChangeSpecificState(SpecificEnemyState.Patrol);
                 }
                 else
                 {
+                    // Increase distance threshold to 1.0f for more reliable detection
+                    float dist = (complecEnemyAI.investigatingWaypoint != null) ?
+                                 Vector3.Distance(transform.position, complecEnemyAI.investigatingWaypoint.transform.position) : 0f;
 
+                    bool reachedPoint = complecEnemyAI.investigatingWaypoint == null || dist < 1.0f;
+
+                    if (reachedPoint)
+                    {
+                        // Reset the flag so GetRandomInvestPoint can be called again
+                        isInvestigating = false;
+
+                        Waypoint searchOrigin = (complecEnemyAI.lastSeenWaypoint != null) ?
+                                                complecEnemyAI.lastSeenWaypoint :
+                                                complecEnemyAI.currentWaypoint;
+
+                        if (searchOrigin != null && !isInvestigating)
+                        {
+                            complecEnemyAI.investigatingWaypoint = GetRandomInvestPoint(searchOrigin);
+                            shouldFollow = (Random.value > 0.5f);
+                            isInvestigating = true;
+                        }
+                    }
+                    complecEnemyAI.IsInvestigating();
                 }
-
                 break;
         }
     }
     #endregion
 
+    #region Manual Logic
+    #endregion
+
     #region Investigate
     public List<Waypoint> FindInvestWaypoints(Waypoint OriginPoint)
     {
+        // Safety check to prevent NullReferenceException
+        if (OriginPoint == null) return new List<Waypoint>();
+
         HashSet<Waypoint> waypoints = new HashSet<Waypoint>();
 
+        // Layer 1: Only check the direct neighbors of the starting point
         foreach (Waypoint neighbor in OriginPoint.neighbors)
         {
-            waypoints.Add(neighbor);
-
-            foreach (Waypoint farneighbor in neighbor.neighbors)
+            if (neighbor != null)
             {
-                waypoints.Add(farneighbor);
+                waypoints.Add(neighbor);
             }
         }
 
+        // We no longer loop through 'neighbor.neighbors', effectively limiting the search
         return new List<Waypoint>(waypoints);
     }
 
@@ -179,6 +227,14 @@ public class EnemyStateMachine : MonoBehaviour
         List<Waypoint> waypoints = FindInvestWaypoints(OriginPoint);
 
         return waypoints[Random.Range(0, waypoints.Count)];
+    }
+    private void GetLastSeenLocation()
+    {
+        playersLastKnownLocation = player.transform.position;
+
+        complecEnemyAI.lastSeenWaypoint = complecEnemyAI.FindClosestWaypoint(playersLastKnownLocation);
+
+
     }
 
     #endregion
@@ -190,9 +246,24 @@ public class EnemyStateMachine : MonoBehaviour
         retreatTimer -= Time.deltaTime;
 
         // If timer ends or player loses LOS, find a path
-        if (retreatTimer <= 0 || !IsPlayerLookingAtMe())
+        if (retreatTimer <= 0)
         {
-            ComplexEnemyAI.Instance.FindRetreatPath();
+            ChangeGeneralState(GeneralEnemyState.Active);
+
+            ChangeSpecificState(SpecificEnemyState.Patrol);
+
+            complecEnemyAI.FindRetreatPath();
+        }
+        //if player still has LOS move down path towards retreat point
+        else if (IsPlayerLookingAtMe())
+        {
+
+        }
+        //if the player is in the way attempt to find an alternative route,
+        //but if there are no vaild alternative routes have the geist move through the walls
+        else if (true) 
+        {
+
         }
     }
 
@@ -233,10 +304,33 @@ public class EnemyStateMachine : MonoBehaviour
     #region State Tools
     public void ChangeSpecificState(SpecificEnemyState newState)
     {
-        if (currentSpecificState == newState) return; // FIXED: Changed != to ==
+        if (currentSpecificState == newState) return;
+
+        // Clear pathing when changing states to prevent "Ghost Paths"
+        if (complecEnemyAI != null)
+        {
+            complecEnemyAI.path.Clear();
+            complecEnemyAI.targetWaypoint = null;
+        }
 
         pastSpecificState = currentSpecificState;
         currentSpecificState = newState;
+        Debug.Log($"State Changed to: {newState}");
+    }
+
+    public void ChangeGeneralState(GeneralEnemyState newState)
+    {
+        if (currentGeneralState == newState) return;
+
+        // Clear pathing when changing states to prevent "Ghost Paths"
+        if (complecEnemyAI != null)
+        {
+            complecEnemyAI.path.Clear();
+            complecEnemyAI.targetWaypoint = null;
+        }
+
+        pastGeneralState = currentGeneralState;
+        currentGeneralState = newState;
         Debug.Log($"State Changed to: {newState}");
     }
 
@@ -260,11 +354,21 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (!showDetectionRadius) return;
-        Gizmos.color = canDetectPlayer ? Color.green : Color.red;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        if (showDetectionRadius)
+        {
+            Gizmos.color = canDetectPlayer ? Color.green : Color.red;
+            Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        if (player != null)
-            Gizmos.DrawLine(transform.position, player.transform.position);
+            if (player != null)
+                Gizmos.DrawLine(transform.position, player.transform.position);
+        }
+        
+        if (showRetreatRadius)
+        {
+            Gizmos.color = Color.blue;
+
+            Gizmos.DrawWireSphere(transform.position, minRadius);
+            Gizmos.DrawWireSphere(transform.position, maxRadius);
+        }
     }
 }

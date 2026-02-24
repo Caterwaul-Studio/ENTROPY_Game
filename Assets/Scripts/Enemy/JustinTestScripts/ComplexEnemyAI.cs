@@ -5,25 +5,9 @@ using UnityEngine;
 
 public class ComplexEnemyAI : MonoBehaviour
 {
-    public static ComplexEnemyAI Instance { get; private set; }
-
-    public void Awake()
-    {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-    }
 
     [Header("Movement")]
     public float speed = 3.0f;
-    public float chaseDistance = 15.0f;
-    public float escapeDistance = 20f;
     public bool useRandomRoaming;
     public float setRotationSpeed = 2.5f;
     private float rotationSpeed = 2.5f;
@@ -43,6 +27,7 @@ public class ComplexEnemyAI : MonoBehaviour
     private ZeroGravity playerController;
     public Waypoint startingWaypoint;
     public Transform waypointGroup;
+    public EnemyStateMachine enemyStateMachine;
     //public DoorScript door;
 
     [Header("Tendril Settings")]
@@ -63,11 +48,12 @@ public class ComplexEnemyAI : MonoBehaviour
 
     // Internal state
     public Waypoint currentWaypoint;
-    private Queue<Waypoint> path = new Queue<Waypoint>();
+    public Queue<Waypoint> path = new Queue<Waypoint>();
     public Waypoint playerWaypoint;
     public Waypoint targetWaypoint;
     public Waypoint retreatWaypoint;
     public Waypoint lastSeenWaypoint;
+    public Waypoint investigatingWaypoint;
 
     private List<Waypoint> allWaypoints = new List<Waypoint>();
     private List<Waypoint> roamingWaypoints = new List<Waypoint>();
@@ -90,6 +76,13 @@ public class ComplexEnemyAI : MonoBehaviour
     private Vector3 lastPosition;
     private Vector3 currentDirection;
 
+    [Header("Stuck Recovery")]
+    private Vector3 lastProgressPosition; // Tracks position at intervals
+    private float stuckTimer = 0f;
+    public float stuckThreshold = 2f;
+    private float progressCheckFrequency = 0.5f; // Check progress twice a second
+    private float nextProgressCheckTime = 0f;
+
     //public Vector3 initialPosition;
     private Quaternion initialRotation;
 
@@ -100,6 +93,8 @@ public class ComplexEnemyAI : MonoBehaviour
     private float clearPathCheckCooldown = 0.25f;
     private float clearPathCheckTimer = 0f;
     private bool hasClearPath = true;
+
+    
 
     [Header("Retreat")]
 
@@ -139,166 +134,114 @@ public class ComplexEnemyAI : MonoBehaviour
         tendrilOrigins = GetComponentsInChildren<TendrilOrigin>().ToList();
         availableOrigins = new List<TendrilOrigin>(tendrilOrigins);
 
-        //StartCoroutine(UpdateLineOfSight());
     }
+
+    // ... Headers and Variables stay the same ...
 
     void Update()
     {
-        if (resetCooldown > 0f)
+        if (resetCooldown > 0f || isStunned)
         {
             resetCooldown -= Time.deltaTime;
             return;
         }
 
-        /*
-        if (playerController.IsDead == true)
+        enemyStateMachine.GeneralLogic();
+
+        // Movement execution
+        switch (enemyStateMachine.currentSpecificState)
         {
-            //RoamArea();
-
-            CalculateDirection();
-            RotateTowardsDirection();
-
-            if (!isStunned && !isLunging && Time.time - lastTendrilTime >= spawnInterval)
-            {
-                SpawnTendril();
-                lastTendrilTime = Time.time;
-            }
-
-            return;
+            case SpecificEnemyState.Chase:
+                IsChasingPlayer();
+                break;
+            case SpecificEnemyState.Patrol:
+                isPatroling();
+                break;
+            case SpecificEnemyState.Investigate:
+                IsInvestigating();
+                break;
+            case SpecificEnemyState.Retreat:
+                TrackPath();
+                break;
         }
-
-        /*
-        sqrDist = (transform.position - player.transform.position).sqrMagnitude;
-
-        if (sqrDist > wakeDistance * wakeDistance)
-        {
-            isAwake = false;
-        }
-        else
-        {
-            isAwake = true;
-        }
-
-        if (!isAwake)
-        {
-            return;
-        }
-        */
-
-        // 2) If stunned, do nothing else (charging/lunging will abort)
-        if (isStunned) return;
-
-        // 3) If mid-lunge, track timeout
-        /*
-        if (isLunging)
-        {
-            lungeTimer += Time.deltaTime;
-            if (lungeTimer >= lungeDuration)
-                EndLunge();
-            return;
-        }
-
-        // 4) If mid-charge, skip normal AI
-        if (isCharging)
-        {
-            ForceLookAtPlayer(); // Always rotate toward player during charge
-            return;
-        }
-        // 5) Check if player is within lungeDistance, the enemy has line of sight with the player, and not charging or lunging → start charging
-        if (hasLineOfSight && sqrDist < (lungeDistance * lungeDistance) && !isCharging && !isLunging)
-        {
-
-
-            Vector3 toPlayer = player.transform.position - transform.position;
-            float checkDistance = toPlayer.magnitude;
-            Vector3 direction = toPlayer.normalized;
-
-            // Perform a SphereCast in the direction of the player
-            float sphereRadius = 0.5f * transform.localScale.x; // adjust based on your alien's size
-
-
-            //check to see if there's anything in the way before we lunge into a wall
-            if (!Physics.SphereCast(transform.position, sphereRadius, direction, out RaycastHit hit, 5f, barrierLayer))
-            {
-                isCharging = true;
-                //StartCoroutine(ChargeAndLunge());
-                return;
-            }
-            else
-            {
-                // Optional: debug visualization
-                Debug.DrawRay(transform.position, direction * 5.0f, Color.red, 0.2f);
-                //Debug.Log("Lunge blocked by: " + hit.collider.name);
-            }
-        }
-        */
-
-        // 6) Otherwise, run normal AI (chase/roam/track)
-        EnemyStateMachine.Instance.GeneralLogic();
-        //RunNormalAIBehavior();
 
         CalculateDirection();
         RotateTowardsDirection();
 
-        if (!isStunned && !isLunging && Time.time - lastTendrilTime >= spawnInterval)
+        // --- IMPROVED STUCK CHECK ---
+        if (Time.time >= nextProgressCheckTime)
+        {
+            // Only check progress if the AI is in a state where it should be moving
+            bool shouldBeMoving = enemyStateMachine.currentSpecificState != SpecificEnemyState.Idle &&
+                                  enemyStateMachine.currentSpecificState != SpecificEnemyState.Kill;
+
+            if (shouldBeMoving)
+            {
+                // If we moved less than 0.3 units in the last 0.5 seconds
+                if (Vector3.Distance(transform.position, lastProgressPosition) < 0.3f)
+                {
+                    stuckTimer += progressCheckFrequency;
+                    if (stuckTimer >= stuckThreshold)
+                    {
+                        HandleStuckReset();
+                    }
+                }
+                else
+                {
+                    stuckTimer = 0f;
+                    lastProgressPosition = transform.position;
+                }
+            }
+            nextProgressCheckTime = Time.time + progressCheckFrequency;
+        }
+
+        if (!isLunging && Time.time - lastTendrilTime >= spawnInterval)
         {
             SpawnTendril();
             lastTendrilTime = Time.time;
         }
-
     }
+
+    void HandleStuckReset()
+    {
+        Debug.Log("<color=orange>Geist stuck! Clearing path and finding nearest waypoint.</color>");
+        stuckTimer = 0f;
+        path.Clear();
+        targetWaypoint = null;
+
+        // Reset to the absolute closest waypoint so it doesn't try to go 'through' the corner
+        currentWaypoint = FindClosestWaypoint(transform.position);
+        lastProgressPosition = transform.position;
+    }
+
 
     public void IsChasingPlayer()
     {
-
-        clearPathCheckTimer += Time.deltaTime;
-
-        if (clearPathCheckTimer >= clearPathCheckCooldown)
+        // Use the State Machine's detection result
+        if (enemyStateMachine.canDetectPlayer)
         {
-            Vector3 direction = (player.transform.position - transform.position).normalized;
-            hasClearPath = HasClearPath(direction, Vector3.Distance(player.transform.position, transform.position)); // Or some distance like 5f
-            clearPathCheckTimer = 0f;
+            ChasePlayer();
         }
-
-        if (hasClearPath)
-        {
-            ChasePlayer(); // Direct chase
-        }
-        //if line of sight is lost, go back to waypoint tracking
         else
         {
-            // LOS lost, fall back to pathfinding
             FindPlayerPath();
-            /*
-            if(path.Count > 0)
-            {
-                Waypoint nextWaypoint = path.Peek();
-                if (nextWaypoint != null)
-                {
-                    // Check if we are between currentWaypoint and nextWaypoint
-                    if (IsBetweenWaypoints(currentWaypoint.transform.position, nextWaypoint.transform.position, transform.position))
-                    {
-                        Vector3 directionToNext = (nextWaypoint.transform.position - transform.position).normalized;
-
-                        // Check clear path to next waypoint
-                        if (HasClearPath(directionToNext, Vector3.Distance(transform.position, nextWaypoint.transform.position)))
-                        {
-                            currentWaypoint = nextWaypoint;
-                            path.Dequeue(); // Move along path
-                        }
-                    }
-                }
-            }
-            */
-            TrackPlayer();
-            //isChasingPlayer = false;
-
+            TrackPath();
         }
+    }
 
-        float sqrDist = (transform.position - player.transform.position).sqrMagnitude;
-        if (sqrDist >= escapeDistance * escapeDistance && timeSinceLastSeenPlayer >= wakeLossCooldown)
+    void TrackPath()
+    {
+        if (path == null || path.Count == 0) return;
+
+        targetWaypoint = path.Peek();
+
+        // Move toward target
+        transform.position = Vector3.MoveTowards(transform.position, targetWaypoint.transform.position, speed * Time.deltaTime);
+
+        // Use a 0.5f threshold - much safer for MoveTowards
+        if (Vector3.Distance(transform.position, targetWaypoint.transform.position) < 0.5f)
         {
-            isChasingPlayer = false;
+            currentWaypoint = path.Dequeue();
         }
     }
 
@@ -315,91 +258,24 @@ public class ComplexEnemyAI : MonoBehaviour
         }
     }
 
-    private void IsInvestigating()
+    public void IsInvestigating()
     {
-        
-    }
-
-    private void GetLastSeenLocation()
-    {
-        EnemyStateMachine.Instance.playersLastKnownLocation = player.transform;
-
-        lastSeenWaypoint = FindClosestWaypoint(EnemyStateMachine.Instance.playersLastKnownLocation.position);
-
-
-    }
-
-    /*
-    void RunNormalAIBehavior()
-    {
-        //if chasing player, check for line of sight.
-        if (isChasingPlayer)
+        //follow the path
+        if (enemyStateMachine.shouldFollow)
         {
-            if (!audioSource.isPlaying) audioSource.Play();
-
-            clearPathCheckTimer += Time.deltaTime;
-
-            if (clearPathCheckTimer >= clearPathCheckCooldown)
-            {
-                Vector3 direction = (player.transform.position - transform.position).normalized;
-                hasClearPath = HasClearPath(direction, Vector3.Distance(player.transform.position, transform.position)); // Or some distance like 5f
-                clearPathCheckTimer = 0f;
-            }
-
-            if (hasClearPath)
-            {
-                ChasePlayer(); // Direct chase
-            }
-            //if line of sight is lost, go back to waypoint tracking
-            else
-            {
-                // LOS lost, fall back to pathfinding
-                FindPlayerPath();
-                TrackPlayer();
-                //isChasingPlayer = false;
-
-            }
-
-            float sqrDist = (transform.position - player.transform.position).sqrMagnitude;
-            if (sqrDist >= escapeDistance * escapeDistance && timeSinceLastSeenPlayer >= wakeLossCooldown)
-            {
-                isChasingPlayer = false;
-            }
+            path = BFS(currentWaypoint, investigatingWaypoint);
         }
-        //if not chasing player
+        //go through the walls
         else
         {
-            float sqrDist = (transform.position - player.transform.position).sqrMagnitude;
+            // Move directly towards the point
+            transform.position = Vector3.MoveTowards(transform.position, investigatingWaypoint.transform.position, speed * Time.deltaTime);
 
-            //if we have line of sight and we are within chase distance, start chasing
-            if (hasLineOfSight && sqrDist <= chaseDistance * chaseDistance)
-            {
-                isChasingPlayer = true;
-                ChasePlayer();
-            }
-            else if (sqrDist <= chaseDistance * chaseDistance)
-            {
-                //FindPlayerPath();
+            currentWaypoint = investigatingWaypoint;
 
-            }
-            else
-            {
-                //simply roam the full area if we have escaped the limited roaming area
-                if (currentWaypoint.type == Waypoint.WaypointType.General)
-                {
-                    RoamArea();
-
-                }
-                else
-                {
-                    RoamLimited();
-                }
-                isChasingPlayer = false;
-                if (audioSource.isPlaying) audioSource.Stop();
-            }
+            UpdateCurrentWaypointToClosest();
         }
     }
-    */
 
     // Called by Unity when this collider hits another collider
     private void OnCollisionEnter(Collision collision)
@@ -437,80 +313,8 @@ public class ComplexEnemyAI : MonoBehaviour
             }
 
         }
-        /*
-        else if (isLunging)
-        {
-            if (other.CompareTag("Barrier"))
-            {
-                Rigidbody rb = GetComponent<Rigidbody>();
-                if (rb == null) return;
-
-                Vector3 incomingVelocity = rb.linearVelocity;
-                Vector3 normal = collision.contacts[0].normal;
-
-                // Reflect the velocity vector around the collision normal
-                Vector3 reflectedVelocity = Vector3.Reflect(incomingVelocity, normal);
-
-                // Optionally reduce speed slightly after bounce
-                reflectedVelocity *= ricochetSpeedMultiplier;
-
-                // Apply the new velocity
-                rb.linearVelocity = reflectedVelocity;
-
-                ricochetCount++;
-
-                // If ricochet count exceeded max, end the lunge early
-                if (ricochetCount >= maxRicochets)
-                {
-                    EndLunge();
-                }
-            }
-        }
-        */
     }
 
-        /*
-    private IEnumerator StunCoroutine()
-    {
-        if (isStunned) yield break;
-
-        // Cancel any ongoing charge or lunge
-        isStunned = true;
-        /*
-        if (isCharging)
-        {
-            isCharging = false;
-            // We let the ChargeAndLunge coroutine exit gracefully on its next frame check.
-        }
-        if (isLunging)
-        {
-            EndLunge();
-        }
-        */
-        // Retract ALL current tendrils
-        /*
-        foreach (var origin in tendrilOrigins)
-        {
-            if (origin.activeTendril != null)
-            {
-                origin.activeTendril.Retract();
-            }
-        }
-
-        //sfx
-        audioSource.Stop();
-        audioSource2.Stop();
-        audioSource2.PlayOneShot(takeDamage);
-
-
-        // Wait for stun duration
-        yield return new WaitForSeconds(stunSeconds);
-
-        // Un-stun and restore AI
-        isStunned = false;
-        FindPlayerPath();
-    }
-*/
     void ChasePlayer()
     {
         // Move directly towards the player
@@ -519,37 +323,13 @@ public class ComplexEnemyAI : MonoBehaviour
         UpdateCurrentWaypointToClosest();
     }
 
-    void TrackPlayer()
-    {
-        if (path.Count == 0)
-        {
-            FindPlayerPath();
-            return;
-        }
-
-        targetWaypoint = path.Peek();
-        transform.position = Vector3.MoveTowards(transform.position, targetWaypoint.transform.position, speed * Time.deltaTime);
-
-        // Advance when close enough
-        if ((transform.position - targetWaypoint.transform.position).sqrMagnitude < 0.01f)
-        {
-            path.Dequeue();
-            currentWaypoint = targetWaypoint;
-        }
-
-        // If finished path, recalculate
-        if (path.Count == 0)
-        {
-            FindPlayerPath();
-        }
-    }
+    #region Roam
 
     void RoamArea()
     {
-        // Pick new goal when we don't have one or reached current goal
-        if (goalWaypoint == null || (path.Count == 0 && Vector3.Distance(transform.position, currentWaypoint.transform.position) < 0.1f))
+        // Only pick a new goal if we are done with the current path
+        if (path.Count == 0)
         {
-            // Pick a random waypoint at least 20 units away
             List<Waypoint> farWaypoints = allWaypoints.Where(wp =>
                 Vector3.Distance(transform.position, wp.transform.position) > 20f
             ).ToList();
@@ -561,176 +341,29 @@ public class ComplexEnemyAI : MonoBehaviour
             }
         }
 
-        // Follow the path
-        if (path.Count > 0)
-        {
-            Waypoint nextWaypoint = path.Peek();
-            transform.position = Vector3.MoveTowards(transform.position, nextWaypoint.transform.position, speed * Time.deltaTime);
-
-            if (Vector3.Distance(transform.position, nextWaypoint.transform.position) < 0.1f)
-            {
-                currentWaypoint = nextWaypoint;
-                path.Dequeue();
-            }
-        }
+        TrackPath(); // This actually moves the Geist
     }
 
     void RoamLimited()
     {
-        if (currentWaypoint == null) return;
-
-        // If we've reached the current waypoint, choose a new roaming neighbor
-        if (Vector3.Distance(transform.position, currentWaypoint.transform.position) < 0.1f)
+        // If we finished the current waypoint, pick a neighbor and put it in the path
+        if (path.Count == 0)
         {
-            List<Waypoint> roamingNeighbors = new List<Waypoint>();
-
-            foreach (Waypoint neighbor in currentWaypoint.neighbors)
-            {
-                if (neighbor != null && neighbor.type == Waypoint.WaypointType.Roaming)
-                {
-                    roamingNeighbors.Add(neighbor);
-                }
-            }
+            List<Waypoint> roamingNeighbors = currentWaypoint.neighbors
+                .Where(n => n != null && n.type == Waypoint.WaypointType.Roaming)
+                .ToList();
 
             if (roamingNeighbors.Count > 0)
             {
-                Waypoint nextWaypoint = roamingNeighbors[Random.Range(0, roamingNeighbors.Count)];
-                currentWaypoint = nextWaypoint;
-            }
-            else
-            {
-                // Stay at current waypoint if no valid roaming neighbors
-                Debug.LogWarning($"Waypoint {currentWaypoint.name} has no roaming neighbors.");
+                Waypoint next = roamingNeighbors[Random.Range(0, roamingNeighbors.Count)];
+                path.Enqueue(next);
             }
         }
 
-        // Move toward the current waypoint
-        transform.position = Vector3.MoveTowards(transform.position, currentWaypoint.transform.position, speed * Time.deltaTime);
+        TrackPath(); // Move!
     }
 
-    /*
-    private IEnumerator ChargeAndLunge()
-    {
-        Debug.Log("Charging Coroutine called");
-        rotationSpeed = 20f;
-        isChasingPlayer = false;
-        ricochetCount = 0;
-
-        audioSource2.clip = chargingSound;
-        audioSource2.Play();
-
-        // Retract ALL current tendrils
-        foreach (TendrilOrigin origin in tendrilOrigins)
-        {
-            if (origin.activeTendril != null)
-            {
-                origin.activeTendril.Retract();
-                origin.activeTendril = null; // clear immediately
-            }
-        }
-
-        // Wait until the enemy is facing the player before continuing
-        Vector3 toPlayer = (player.transform.position - transform.position).normalized;
-        float angle = Vector3.Angle(transform.forward, toPlayer);
-
-        while (angle > 20f) // or whatever threshold feels right
-        {
-            toPlayer = (player.transform.position - transform.position).normalized;
-            angle = Vector3.Angle(transform.forward, toPlayer);
-            //Debug.Log(angle);
-            yield return null;
-        }
-
-
-        // Step 2: Spawn 5 tendrils at random from backwardsOrigins
-        List<TendrilOrigin> shuffled = new List<TendrilOrigin>(backwardsOrigins);
-        int spawnCount = Mathf.Min(6, shuffled.Count);
-
-        for (int i = 0; i < spawnCount; i++)
-        {
-            int index = Random.Range(0, shuffled.Count);
-            TendrilOrigin origin = shuffled[index];
-            shuffled.RemoveAt(index);
-
-            // Spawn tendril at the backwards origin
-            GameObject t = Instantiate(tendrilPrefab, origin.transform.position, origin.transform.rotation, origin.transform);
-            TendrilBehavior tb = t.GetComponent<TendrilBehavior>();
-            if (tb != null)
-            {
-                tb.Initialize(origin, this, true); // true = manualRetract
-                origin.activeTendril = tb;
-            }
-        }
-
-
-        float timer = 0f;
-        while (timer < chargeUpTime)
-        {
-            if (isStunned)
-            {
-                isCharging = false;
-                yield break;
-            }
-
-            // Pull-back motion
-            toPlayer = (player.transform.position - transform.position).normalized;
-            Vector3 pullBackDirection = -toPlayer; // Opposite of direction to player
-            float pullBackSpeed = 1.5f; // tweak as needed
-
-            float pullBackDistance = pullBackSpeed * Time.deltaTime;
-            float radius = 0.5f * transform.localScale.x;
-
-            // Raycast to prevent backing into a wall
-            RaycastHit hit;
-            if (!Physics.SphereCast(transform.position, radius, pullBackDirection, out hit, pullBackDistance + 0.25f, barrierLayer))
-            {
-                transform.position += pullBackDirection * pullBackDistance;
-            }
-
-            timer += Time.deltaTime;
-            yield return null;
-        }
-
-        foreach (TendrilOrigin origin in backwardsOrigins)
-        {
-            if (origin.activeTendril != null)
-            {
-                origin.activeTendril.Retract();
-            }
-        }
-        audioSource2.Stop();
-        audioSource2.clip = lungeSound;
-        audioSource2.Play();
-
-        // Finish charging → launch the lunge
-        Vector3 dir = (player.transform.position - transform.position).normalized;
-        Rigidbody rb = GetComponent<Rigidbody>();
-        rb.isKinematic = false;
-        rb.linearVelocity = dir * lungeSpeed;
-
-        isLunging = true;
-        lungeTimer = 0f;
-        rotationSpeed = setRotationSpeed;
-
-
-    }
-    */
-
-    /*
-    private void EndLunge()
-    {
-        if (!isLunging) return;
-
-        isLunging = false;
-        isCharging = false;
-
-        Rigidbody rb = GetComponent<Rigidbody>();
-        rb.linearVelocity = Vector3.zero;
-        rb.isKinematic = true;
-
-        FindPlayerPath();
-    }
-    */
+    #endregion
 
     void FindPlayerPath()
     {
@@ -752,16 +385,19 @@ public class ComplexEnemyAI : MonoBehaviour
 
     }
 
+    #region Retreat
     public void FindRetreatPath()
     {
-        EnemyStateMachine.Instance.GetRandomValidPoint();
+        enemyStateMachine.GetRandomValidPoint();
 
         path = BFS(currentWaypoint, retreatWaypoint);
     }
 
-    public void MoveThanTeleport()
+    public void TeleportToWaypoint()
     {
+        if (retreatWaypoint == null) return;
 
+        currentWaypoint = retreatWaypoint;
     }
 
     private void MoveInRetreatPointDirection()
@@ -785,11 +421,21 @@ public class ComplexEnemyAI : MonoBehaviour
 
         return false;
     }
+    #endregion
 
+    #region Path Finding
     Queue<Waypoint> BFS(Waypoint start, Waypoint goal)
     {
+        // GUARD: If start or goal is null, return an empty path instead of crashing
+        if (start == null || goal == null)
+        {
+            Debug.LogWarning($"BFS stopped: Start is {(start == null ? "NULL" : "Valid")}, Goal is {(goal == null ? "NULL" : "Valid")}");
+            return new Queue<Waypoint>();
+        }
+
         Queue<Waypoint> queue = new Queue<Waypoint>();
         Dictionary<Waypoint, Waypoint> cameFrom = new Dictionary<Waypoint, Waypoint>();
+
         queue.Enqueue(start);
         cameFrom[start] = null;
 
@@ -800,6 +446,9 @@ public class ComplexEnemyAI : MonoBehaviour
 
             foreach (Waypoint neighbor in current.neighbors)
             {
+                // GUARD: Skip neighbors that might be missing in the Inspector
+                if (neighbor == null) continue;
+
                 if (!cameFrom.ContainsKey(neighbor))
                 {
                     queue.Enqueue(neighbor);
@@ -808,13 +457,22 @@ public class ComplexEnemyAI : MonoBehaviour
             }
         }
 
+        Queue<Waypoint> path = new Queue<Waypoint>();
+
+        // If goal was never reached (no path exists)
+        if (!cameFrom.ContainsKey(goal)) return path;
+
         Stack<Waypoint> reversePath = new Stack<Waypoint>();
         for (Waypoint at = goal; at != null; at = cameFrom[at])
         {
             reversePath.Push(at);
         }
 
-        Queue<Waypoint> path = new Queue<Waypoint>();
+        if (reversePath.Count > 0 && Vector3.Distance(transform.position, reversePath.Peek().transform.position) < 0.1f)
+        {
+            reversePath.Pop();
+        }
+
         while (reversePath.Count > 0)
         {
             path.Enqueue(reversePath.Pop());
@@ -842,17 +500,25 @@ public class ComplexEnemyAI : MonoBehaviour
         return closest;
     }
 
-    
-
     void UpdateCurrentWaypointToClosest()
     {
-        if (currentWaypoint == null) return;
+        // FIX: If we have no waypoint at all, find the absolute closest one in the world
+        if (currentWaypoint == null)
+        {
+            currentWaypoint = FindClosestWaypoint(transform.position);
+
+            // If it's STILL null (meaning no waypoints exist in the scene), stop here
+            if (currentWaypoint == null) return;
+        }
 
         Waypoint closest = currentWaypoint;
         float minSqrDist = (transform.position - currentWaypoint.transform.position).sqrMagnitude;
 
         foreach (Waypoint neighbor in currentWaypoint.neighbors)
         {
+            // Safety check for individual neighbor slots in the Inspector
+            if (neighbor == null) continue;
+
             float sqrDist = (transform.position - neighbor.transform.position).sqrMagnitude;
             if (sqrDist < minSqrDist)
             {
@@ -889,15 +555,6 @@ public class ComplexEnemyAI : MonoBehaviour
         availableOrigins.RemoveAt(index);
     }
 
-    void ForceLookAtPlayer()
-    {
-        Vector3 toPlayer = (player.transform.position - transform.position);
-        if (toPlayer.sqrMagnitude < 0.01f) return;
-
-        Quaternion targetRotation = Quaternion.LookRotation(toPlayer.normalized, Vector3.up);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-    }
-
     void CalculateDirection()
     {
         Vector3 displacement = transform.position - lastPosition;
@@ -918,74 +575,7 @@ public class ComplexEnemyAI : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 
-    /*
-    bool CheckLineOfSight()
-    {
-        
-        if (isAwake)
-        {
-            Vector3 origin = transform.position; // Offset if needed
-            Vector3 dir = (player.transform.position - origin).normalized;
-            float dist = Vector3.Distance(origin, player.transform.position);
-
-            if (Physics.Raycast(origin, dir, out RaycastHit hit, dist, barrierLayer))
-            {
-                // Hit something before the player
-                return false;
-            }
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-        
-    }
-    */
-    
-    /*
-    IEnumerator UpdateLineOfSight()
-    {
-        while (true)
-        {
-            hasLineOfSight = EnemyStateMachine.Instance.EnemyDetection();
-            yield return new WaitForSeconds(0.25f);
-        }
-    }
-    */
-    bool HasClearPathTo(Vector3 targetPosition)
-    {
-        Vector3 direction = (targetPosition - transform.position).normalized;
-        float distance = Vector3.Distance(transform.position, targetPosition);
-        return HasClearPath(direction, distance);
-    }
-
-    bool HasClearPath(Vector3 direction, float checkDistance)
-    {
-
-        float radius = 0.5f * transform.localScale.x; // Use the collider's radius if needed
-
-        if (Physics.SphereCast(transform.position, radius, direction, out RaycastHit hit, checkDistance, barrierLayer))
-        {
-            // If we hit *anything* in the barrier layer, the path is NOT clear
-            return false;
-        }
-
-        return true; // Nothing in the way at all
-    }
-
-    bool IsBetweenWaypoints(Vector3 a, Vector3 b, Vector3 position)
-    {
-        Vector3 ab = b - a;
-        Vector3 ap = position - a;
-
-        float abSqr = ab.sqrMagnitude;
-        float dot = Vector3.Dot(ap, ab);
-
-        // dot must be >= 0 and <= abSqr to be between the points
-        return dot >= 0 && dot <= abSqr;
-    }
-
+    #endregion
     /// <summary>
     /// Resets the alien to its original position and state.
     /// </summary>
@@ -1058,10 +648,6 @@ public class ComplexEnemyAI : MonoBehaviour
         // Wake distance (yellow)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, wakeDistance);
-
-        // Chase distance (red)
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, chaseDistance);
     }
 
 }

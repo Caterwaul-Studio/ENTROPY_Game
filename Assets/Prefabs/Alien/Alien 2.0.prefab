@@ -707,6 +707,8 @@ GameObject:
   - component: {fileID: 1737342439193834287}
   - component: {fileID: 5199120060305423437}
   - component: {fileID: 7622105044120730811}
+  - component: {fileID: 5193662425567147664}
+  - component: {fileID: 8811146767685563550}
   m_Layer: 0
   m_Name: Alien 2.0
   m_TagString: Untagged
@@ -929,6 +931,102 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &5193662425567147664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4181188042944330115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e597e09e3da4344a9ef2bd960e3aa19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyVersion: 0
+  currentGeneralState: 1
+  currentSpecificState: 2
+  pastSpecificState: 0
+  player: {fileID: 0}
+  complecEnemyAI: {fileID: 0}
+  simpleEnemy: {fileID: 0}
+  complexEnemy: {fileID: 4181188042944330115}
+  detectionMask:
+    serializedVersion: 2
+    m_Bits: 16576
+  detectionRadius: 10
+  defaultDetectionRadius: 7
+  chaseDetectionRadius: 9
+  detectionDuration: 2
+  detectionTimer: 0
+  canDetectPlayer: 0
+  chasePlayer: 0
+  interestDuration: 5
+  interestTimer: 0
+  playersLastKnownLocation: {x: 0, y: 0, z: 0}
+  shouldFollow: 0
+  retreatDuration: 3
+  retreatDistanceCheck: 0
+  barrierLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  waypointLayer:
+    serializedVersion: 2
+    m_Bits: 65536
+  minRadius: 12
+  maxRadius: 16
+  retreatTimer: 0
+  showDetectionRadius: 1
+--- !u!114 &8811146767685563550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4181188042944330115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53c125d3bff671c45b1321354920a789, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 3
+  chaseDistance: 15
+  escapeDistance: 20
+  useRandomRoaming: 0
+  setRotationSpeed: 2.5
+  lungeDistance: 5
+  chargeUpTime: 1.5
+  lungeSpeed: 3.5
+  lungeDuration: 3
+  stunSeconds: 3
+  stunVelocityThreshold: 4
+  player: {fileID: 0}
+  startingWaypoint: {fileID: 0}
+  waypointGroup: {fileID: 0}
+  enemyStateMachine: {fileID: 5193662425567147664}
+  tendrilPrefab: {fileID: 5341443121709070393, guid: 74545c336bfdea942b5351b1f9244c3b, type: 3}
+  tendrilOrigins: []
+  backwardsOrigins: []
+  spawnInterval: 4
+  wakeDistance: 50
+  barrierLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  wakeLossCooldown: 10
+  currentWaypoint: {fileID: 0}
+  playerWaypoint: {fileID: 0}
+  targetWaypoint: {fileID: 0}
+  retreatWaypoint: {fileID: 0}
+  lastSeenWaypoint: {fileID: 0}
+  investigatingWaypoint: {fileID: 0}
+  isChasingPlayer: 0
+  isStunned: 0
+  isCharging: 0
+  isLunging: 0
+  lungeTimer: 0
+  stuckThreshold: 2
+  availableOrigins: []
+  FailSafe: {fileID: 0}
 --- !u!1 &4788405973948100029
 GameObject:
   m_ObjectHideFlags: 0
