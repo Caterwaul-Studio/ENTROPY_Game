@@ -170,8 +170,8 @@ public class EnemyStateMachine : MonoBehaviour
                 else
                 {
                     // Increase distance threshold to 1.0f for more reliable detection
-                    float dist = (complecEnemyAI.investigatingWaypoint != null) ?
-                                 Vector3.Distance(transform.position, complecEnemyAI.investigatingWaypoint.transform.position) : 0f;
+                    float dist = (complecEnemyAI.investigatingWaypoint != null) ? 
+                        Vector3.Distance(transform.position, complecEnemyAI.investigatingWaypoint.transform.position) : 0f;
 
                     bool reachedPoint = complecEnemyAI.investigatingWaypoint == null || dist < 1.0f;
 
@@ -180,9 +180,8 @@ public class EnemyStateMachine : MonoBehaviour
                         // Reset the flag so GetRandomInvestPoint can be called again
                         isInvestigating = false;
 
-                        Waypoint searchOrigin = (complecEnemyAI.lastSeenWaypoint != null) ?
-                                                complecEnemyAI.lastSeenWaypoint :
-                                                complecEnemyAI.currentWaypoint;
+                        Waypoint searchOrigin = (complecEnemyAI.lastSeenWaypoint != null) ? 
+                            complecEnemyAI.lastSeenWaypoint : complecEnemyAI.currentWaypoint;
 
                         if (searchOrigin != null && !isInvestigating)
                         {
@@ -196,9 +195,6 @@ public class EnemyStateMachine : MonoBehaviour
                 break;
         }
     }
-    #endregion
-
-    #region Manual Logic
     #endregion
 
     #region Investigate
@@ -254,13 +250,14 @@ public class EnemyStateMachine : MonoBehaviour
 
             complecEnemyAI.FindRetreatPath();
         }
-        //if player still has LOS move down path towards retreat point
-        else if (IsPlayerLookingAtMe())
+        //if the player is in the way attempt to find an alternative route,
+        //but if there are no vaild alternative routes have the geist move through the walls
+        
+        else if (IsPlayerLookingAtMe() && complecEnemyAI.CheckIfPlayerInWay())
         {
 
         }
-        //if the player is in the way attempt to find an alternative route,
-        //but if there are no vaild alternative routes have the geist move through the walls
+        //if player still has LOS move down path towards retreat point
         else if (true) 
         {
 
@@ -350,6 +347,12 @@ public class EnemyStateMachine : MonoBehaviour
         }
         return false;
     }
+    #endregion
+
+    #region Dev Tools
+
+
+
     #endregion
 
     private void OnDrawGizmos()
