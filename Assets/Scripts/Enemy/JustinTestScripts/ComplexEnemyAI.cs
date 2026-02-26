@@ -206,26 +206,30 @@ public class ComplexEnemyAI : MonoBehaviour
     {
         Debug.Log("<color=orange>Geist stuck! Clearing path and finding nearest waypoint.</color>");
         stuckTimer = 0f;
+        /*
         path.Clear();
         targetWaypoint = null;
-
+        */
         // Reset to the absolute closest waypoint so it doesn't try to go 'through' the corner
         currentWaypoint = FindClosestWaypoint(transform.position);
+       
         lastProgressPosition = transform.position;
+
+        transform.position = currentWaypoint.transform.position;
     }
 
 
     public void IsChasingPlayer()
     {
-        // Use the State Machine's detection result
         if (enemyStateMachine.canDetectPlayer)
         {
-            ChasePlayer();
+            ChasePlayer(); // Direct LOS movement
+            path.Clear();  // Clear old pathfinding data
         }
         else
         {
-            FindPlayerPath();
-            TrackPath();
+            FindPlayerPath(); // Re-calculate breadcrumbs to last seen position
+            TrackPath();      // Follow the breadcrumbs
         }
     }
 
@@ -260,19 +264,19 @@ public class ComplexEnemyAI : MonoBehaviour
 
     public void IsInvestigating()
     {
-        //follow the path
         if (enemyStateMachine.shouldFollow)
         {
-            path = BFS(currentWaypoint, investigatingWaypoint);
+            // Only calculate a path if we don't have one
+            if (path.Count == 0)
+            {
+                path = BFS(currentWaypoint, investigatingWaypoint);
+            }
+            TrackPath();
         }
-        //go through the walls
         else
         {
-            // Move directly towards the point
+            // Direct move if "shouldFollow" is false (ghosting through walls)
             transform.position = Vector3.MoveTowards(transform.position, investigatingWaypoint.transform.position, speed * Time.deltaTime);
-
-            currentWaypoint = investigatingWaypoint;
-
             UpdateCurrentWaypointToClosest();
         }
     }
@@ -330,9 +334,12 @@ public class ComplexEnemyAI : MonoBehaviour
         // Only pick a new goal if we are done with the current path
         if (path.Count == 0)
         {
+            /*
             List<Waypoint> farWaypoints = allWaypoints.Where(wp =>
                 Vector3.Distance(transform.position, wp.transform.position) > 20f
             ).ToList();
+            */
+            List<Waypoint> farWaypoints = allWaypoints.Where(wp => wp != currentWaypoint).ToList();
 
             if (farWaypoints.Count > 0)
             {
