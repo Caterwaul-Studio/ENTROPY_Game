@@ -70,6 +70,7 @@ public class EnemyStateMachine : MonoBehaviour
     public float minRadius = 7f;
     public float maxRadius = 9f;
     [SerializeField] private float retreatTimer;
+    [SerializeField] private float retreatPointReroll;
 
     [Header("Gizmos")]
     [SerializeField] private bool showDetectionRadius;
@@ -248,20 +249,49 @@ public class EnemyStateMachine : MonoBehaviour
 
             ChangeSpecificState(SpecificEnemyState.Patrol);
 
-            complecEnemyAI.FindRetreatPath();
+            //complecEnemyAI.FindRetreatPath();
         }
-        //if the player is in the way attempt to find an alternative route,
-        //but if there are no vaild alternative routes have the geist move through the walls
-        
-        else if (IsPlayerLookingAtMe() && complecEnemyAI.CheckIfPlayerInWay())
-        {
 
-        }
-        //if player still has LOS move down path towards retreat point
-        else if (true) 
+        if (IsPlayerLookingAtMe())
         {
+            if (complecEnemyAI.CheckIfPlayerInWay())
+            {
+                //if the player is in the way attempt to find an alternative route,
+                //Try 5 more Points
+                while (retreatPointReroll < 5)
+                {
+                    if(!complecEnemyAI.CheckIfPlayerInWay())
+                    {
+                        break;
+                    }
 
+                    complecEnemyAI.FindRetreatPath();
+
+                    retreatPointReroll++;
+                }
+            }
+
+            //but if there are no vaild alternative routes have the geist move through the walls
+            if ()
+            {
+                complecEnemyAI.MoveThanTeleportInPointDirection();
+            }
+
+            //if player still has LOS move down path towards retreat point
+            else if (!complecEnemyAI.CheckIfPlayerInWay())
+            {
+                complecEnemyAI.FindRetreatPath();
+            }
+                
         }
+
+        else if (!IsPlayerLookingAtMe())
+        {
+            GetRandomValidPoint();
+
+            complecEnemyAI.TeleportToWaypoint();
+        }
+      
     }
 
     private bool IsPlayerLookingAtMe()

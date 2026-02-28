@@ -400,9 +400,9 @@ public class ComplexEnemyAI : MonoBehaviour
         currentWaypoint = retreatWaypoint;
     }
 
-    private void MoveInRetreatPointDirection()
+    public void MoveThanTeleportInPointDirection()
     {
-
+        
     }
 
     public bool CheckIfPlayerInWay()
