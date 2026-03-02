@@ -30,18 +30,31 @@ public class DoorManager : MonoBehaviour, ISaveable
 
     [Header("Hologram Variables")]
 
+    private float EmissiveMapIntensity = 1.0f;
+
+    // locked colors
     [SerializeField]
     public Texture2D lockedTexture;
-    [SerializeField]
-    public Color lockedColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
+    
+    public Color LockedLightColor { get { return new Color(4.24f, 0.36f, 0.3f, 1.0f) * EmissiveMapIntensity; } }
+    public Color LockedHoloBackColor = new Color(0.58f, 0.1f, 0.08f, 1.0f);
+    public Color LockedHoloTextColor = new Color(1.0f, 0.3f, 0.2f, 1.0f);
+
+    // unlocked colors
     [SerializeField]
     public Texture2D unlockedTexture;
-    [SerializeField]
-    public Color unlockedColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
+
+    public Color UnlockedLightColor { get { return new Color(0.95f, 2.5f, 3.3f, 1.0f) * EmissiveMapIntensity; } }
+    public Color UnlockedHoloBackColor = new Color(0.15f, 0.3f, 0.42f, 1.0f);
+    public Color UnlockedHoloTextColor = new Color(0.7f, 0.99f, 0.97f, 1.0f);
+
+    // broken colors
     [SerializeField]
     public Texture2D warningTexture;
-    [SerializeField]
-    public Color warningColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
+
+    public Color WarningLightColor { get { return new Color(4.2f, 0.43f, 0.1f, 1.0f) * EmissiveMapIntensity; } }
+    public Color WarningHoloBackColor = new Color(0.44f, 0.26f, 0.16f, 1.0f);
+    public Color WarningHoloTextColor = new Color(0.95f, 0.64f, 0.32f, 1.0f);
 
     public GameObject CurrentSelectedDoor
     {
@@ -171,7 +184,7 @@ public class DoorManager : MonoBehaviour, ISaveable
                 {
                     //Debug.Log("fade on");
                     // fade on
-                    door.StartFade(0.0f, door.lightOn, 1.5f);
+                    door.StartFade(0.0f, 1.5f);
 
                 }
                 
@@ -190,7 +203,7 @@ public class DoorManager : MonoBehaviour, ISaveable
                     //fade out doors no longer in range. checks for if the hologram is already deactivated from being open
                     if (doorsInRange[i].hologramGroup != null && doorsInRange[i].hologramActive == true)
                     {
-                        doorsInRange[i].StartFade(1.0f, doorsInRange[i].lightOff, 1.5f);
+                        doorsInRange[i].StartFade(1.0f, 1.5f);
                     }
                     
                     doorsInRange.Remove(doorsInRange[i]);
