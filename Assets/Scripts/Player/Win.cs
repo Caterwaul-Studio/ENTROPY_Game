@@ -31,13 +31,22 @@ public class Win : MonoBehaviour
 
     void Update()
     {
-        if (winDoor.DoorState == DoorScript.States.Open && canWin == true)
+        // Check if the win door (final door of the game) is open and the player can win
+        //first ensure we catch if there is no win door assigned in inspector
+        if(winDoor == null)
         {
-            canWin = false;
-            _uiCam.SetActive(true);
-            StartCoroutine(ShowWin());
+            //Debug.LogError("winDoor, 'final door of level' is NOT assigned in the inspector!");
+            return;
         }
-
+        else
+        {
+            if (winDoor.DoorState == DoorScript.States.Open && canWin == true)
+            {
+                canWin = false;
+                _uiCam.SetActive(true);
+                StartCoroutine(ShowWin());
+            }
+        }
     }
 
     private IEnumerator ShowWin()

@@ -200,8 +200,6 @@ public class PlayerUIManager : MonoBehaviour
         billboardObject = GameObject.Instantiate(billboardPrefab);
         billboardObject.SetActive(false);
 
-
-
         //set the crosshair and grabber sprites accordingly;
         crosshair.sprite = crosshairIcon;
         //set bar in view intially as false
@@ -423,12 +421,15 @@ public class PlayerUIManager : MonoBehaviour
                     stim.CanRefill = false;
                 }
             }
-            if (dormHallEvent.CanGrab)
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //dorm hall event call for some reason hardcoded into this script, need to come back and make this more efficient and less hardcoded,
+            //but for now this works for the playtest
+            if (dormHallEvent != null && dormHallEvent.CanGrab)
             {
                 dormHallEvent.CanGrab = false;
             }
-
-            if (lockdownEvent.CanPull)
+            //lockdown event call also hardcoded in, also needs to be fixed but works for now
+            if (lockdownEvent != null && lockdownEvent.CanPull)
             {
                 lockdownEvent.CanPull = false;
             }
@@ -1065,12 +1066,16 @@ public class PlayerUIManager : MonoBehaviour
         {
             // make sure nothing currently needs the billboard
             // fence that prevents hiding the billboard if its currently being used by one of these said properties
+
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // check for the event calls that are hardcoded into this script for some reason.
+            // need to remove them later but I am currently deep into this task
             if (!pickupScript.CanPickUp &&
                 !CanPushOffNow &&
                 (terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated) &&
-                !dormHallEvent.CanGrab &&
-                !lockdownEvent.CanPull &&
-                !lookingAtStim)
+                !lookingAtStim &&
+                (dormHallEvent != null && !dormHallEvent.CanGrab) || 
+                (lockdownEvent != null && !lockdownEvent.CanPull))
             {
                 // returns crosshair to full opacity
                 crosshair.color = crosshair.color = new Color(1f, 1f, 1f, 1f);
@@ -1089,6 +1094,7 @@ public class PlayerUIManager : MonoBehaviour
                 tmp.text = "";
                 image.sprite = null;
             }
+
             else
             {
                 // debug for billboard UI hiding
@@ -1099,9 +1105,8 @@ public class PlayerUIManager : MonoBehaviour
                 //Debug.Log(!dormHallEvent.CanGrab);
                 //Debug.Log(!lockdownEvent.CanPull);
                 //Debug.Log(!lookingAtStim);
-
             }
-            
+
 
         }
 
