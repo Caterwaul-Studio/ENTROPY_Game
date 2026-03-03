@@ -1074,7 +1074,7 @@ public class PlayerUIManager : MonoBehaviour
                 !CanPushOffNow &&
                 (terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated) &&
                 !lookingAtStim &&
-                (dormHallEvent != null && !dormHallEvent.CanGrab) || 
+                (dormHallEvent != null && !dormHallEvent.CanGrab) && 
                 (lockdownEvent != null && !lockdownEvent.CanPull))
             {
                 // returns crosshair to full opacity
@@ -1098,13 +1098,13 @@ public class PlayerUIManager : MonoBehaviour
             else
             {
                 // debug for billboard UI hiding
-                //Debug.Log("prevented hiding");
-                //Debug.Log(!pickupScript.CanPickUp);
-                //Debug.Log(!CanPushOffNow);
-                //Debug.Log(terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated);
-                //Debug.Log(!dormHallEvent.CanGrab);
-                //Debug.Log(!lockdownEvent.CanPull);
-                //Debug.Log(!lookingAtStim);
+                Debug.Log("prevented hiding");
+                Debug.Log(!pickupScript.CanPickUp);
+                Debug.Log(!CanPushOffNow);
+                Debug.Log(terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated);
+                Debug.Log(!dormHallEvent.CanGrab);
+                Debug.Log(!lockdownEvent.CanPull);
+                Debug.Log(!lookingAtStim);
             }
 
 
