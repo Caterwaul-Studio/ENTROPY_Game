@@ -71,6 +71,7 @@ public class EnemyStateMachine : MonoBehaviour
     public float maxRadius = 9f;
     [SerializeField] private float retreatTimer;
     [SerializeField] private float retreatPointReroll;
+    [SerializeField] private bool canRetreat;
 
     [Header("Gizmos")]
     [SerializeField] private bool showDetectionRadius;
@@ -242,56 +243,54 @@ public class EnemyStateMachine : MonoBehaviour
     {
         retreatTimer -= Time.deltaTime;
 
-        // If timer ends or player loses LOS, find a path
+        // 1. Exit Condition
         if (retreatTimer <= 0)
         {
             ChangeGeneralState(GeneralEnemyState.Active);
-
             ChangeSpecificState(SpecificEnemyState.Patrol);
-
-            //complecEnemyAI.FindRetreatPath();
+            return;
         }
 
+        // 2. Logic based on Player Line of Sight
         if (IsPlayerLookingAtMe())
         {
-            if (complecEnemyAI.CheckIfPlayerInWay())
+            // Only calculate a path if we don't have one or the current one is bad
+            if (complecEnemyAI.path.Count == 0 || complecEnemyAI.CheckIfPlayerInWay())
             {
-                //if the player is in the way attempt to find an alternative route,
-                //Try 5 more Points
-                while (retreatPointReroll < 5)
+                bool foundSafePath = false;
+
+                // Try to find a path that doesn't go through the player
+                for (int i = 0; i < 5; i++)
                 {
-                    if(!complecEnemyAI.CheckIfPlayerInWay())
+                    complecEnemyAI.FindRetreatPath(); // This picks a random point and BFSs
+
+                    if (!complecEnemyAI.CheckIfPlayerInWay())
                     {
+                        foundSafePath = true;
                         break;
                     }
+                }
 
-                    complecEnemyAI.FindRetreatPath();
-
-                    retreatPointReroll++;
+                // If we tried 5 times and the player is STILL in the way of every path
+                if (!foundSafePath)
+                {
+                    // Force "Ghost Mode" through walls toward a retreat point
+                    complecEnemyAI.MoveThanTeleportInPointDirection();
+                    return; // Exit this frame to let it move
                 }
             }
 
-            //but if there are no vaild alternative routes have the geist move through the walls
-            if ()
-            {
-                complecEnemyAI.MoveThanTeleportInPointDirection();
-            }
-
-            //if player still has LOS move down path towards retreat point
-            else if (!complecEnemyAI.CheckIfPlayerInWay())
-            {
-                complecEnemyAI.FindRetreatPath();
-            }
-                
+            // Move along the path we found
+            complecEnemyAI.TrackPath();
         }
-
-        else if (!IsPlayerLookingAtMe())
+        else
         {
-            GetRandomValidPoint();
-
+            // Player ISN'T looking: Escape quickly
             complecEnemyAI.TeleportToWaypoint();
+
+            // Optionally end retreat early since we escaped
+            retreatTimer = 0;
         }
-      
     }
 
     private bool IsPlayerLookingAtMe()

@@ -75,6 +75,7 @@ public class ComplexEnemyAI : MonoBehaviour
     private float directionUpdateThreshold = 0.05f; // Minimal movement to update direction
     private Vector3 lastPosition;
     private Vector3 currentDirection;
+    private Vector3 retreatDirection;
 
     [Header("Stuck Recovery")]
     private Vector3 lastProgressPosition; // Tracks position at intervals
@@ -233,7 +234,7 @@ public class ComplexEnemyAI : MonoBehaviour
         }
     }
 
-    void TrackPath()
+    public void TrackPath()
     {
         if (path == null || path.Count == 0) return;
 
@@ -409,7 +410,17 @@ public class ComplexEnemyAI : MonoBehaviour
 
     public void MoveThanTeleportInPointDirection()
     {
+        if (retreatDirection == Vector3.zero)
+        {
+            retreatDirection = GetRandomPointOpposite(player.transform.position, 5, 45);
+        }
         
+        transform.position = Vector3.MoveTowards(transform.position, retreatDirection, speed * Time.deltaTime);
+
+        if (Vector3.Distance(transform.position, retreatDirection) < 0.4f)
+        {
+            TeleportToWaypoint();
+        }
     }
 
     public bool CheckIfPlayerInWay()
@@ -427,6 +438,17 @@ public class ComplexEnemyAI : MonoBehaviour
         }
 
         return false;
+    }
+
+    public Vector3 GetRandomPointOpposite(Vector3 targetPos, float distance, float angleSpread)
+    {
+        Vector3 awayDir = (transform.position - targetPos).normalized;
+
+        float randomAngle = Random.Range(-angleSpread, angleSpread);
+        Quaternion rotation = Quaternion.Euler(0, randomAngle, 0);
+        Vector3 randomDir = rotation * awayDir;
+
+        return transform.position + (randomDir * distance);
     }
     #endregion
 
