@@ -44,9 +44,9 @@ public class DoorManager : MonoBehaviour, ISaveable
     [SerializeField]
     public Texture2D unlockedTexture;
 
-    public Color UnlockedLightColor { get { return new Color(0.95f, 2.5f, 3.3f, 1.0f) * EmissiveMapIntensity; } }
-    public Color UnlockedHoloBackColor = new Color(0.15f, 0.3f, 0.42f, 1.0f);
-    public Color UnlockedHoloTextColor = new Color(0.7f, 0.99f, 0.97f, 1.0f);
+    public Color UnlockedLightColor { get { return new Color(0.5f, 1.0f, 1.12f, 1.0f) * EmissiveMapIntensity; } }
+    public Color UnlockedHoloBackColor = new Color(0.05f, 0.19f, 0.3f, 1.0f);
+    public Color UnlockedHoloTextColor = new Color(0.63f, 0.87f, 0.85f, 1.0f);
 
     // broken colors
     [SerializeField]
