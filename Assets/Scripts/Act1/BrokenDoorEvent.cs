@@ -13,6 +13,8 @@ public class BrokenDoorEvent : MonoBehaviour
     float delay = 0f;
     [SerializeField]
     private AudioSource brokenDoorAudio;
+    [SerializeField]
+    private AudioSource shootAudio;
     private DialogueManager manager;
     private WristMonitor monitor;
     public StingerManager stingerManager;
@@ -109,7 +111,9 @@ public class BrokenDoorEvent : MonoBehaviour
             Physics.IgnoreCollision(collider, b, true);
         }
 
-        
+        //play audio of shooting/launching a canister from the foodchute
+        shootAudio.Play();
+
         yield return StartCoroutine(AnimateShootDoor(90f, 0.2f));
 
         float randForce = Random.Range(400, 800);
