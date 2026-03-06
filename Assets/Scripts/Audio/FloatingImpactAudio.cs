@@ -71,7 +71,7 @@ public class FloatingImpactAudio : MonoBehaviour
     private IEnumerator bumpCooldown()
     {
         bumpSoundOnCoolDown = true;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.05f);
         bumpSoundOnCoolDown = false;
     }
 
