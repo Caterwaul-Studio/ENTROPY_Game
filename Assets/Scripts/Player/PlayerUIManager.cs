@@ -1098,13 +1098,13 @@ public class PlayerUIManager : MonoBehaviour
             else
             {
                 // debug for billboard UI hiding
-                Debug.Log("prevented hiding");
-                Debug.Log(!pickupScript.CanPickUp);
-                Debug.Log(!CanPushOffNow);
-                Debug.Log(terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated);
-                Debug.Log(!dormHallEvent.CanGrab);
-                Debug.Log(!lockdownEvent.CanPull);
-                Debug.Log(!lookingAtStim);
+                //Debug.Log("prevented hiding");
+                //Debug.Log(!pickupScript.CanPickUp);
+                //Debug.Log(!CanPushOffNow);
+                //Debug.Log(terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated);
+                //Debug.Log(!dormHallEvent.CanGrab);
+                //Debug.Log(!lockdownEvent.CanPull);
+                //Debug.Log(!lookingAtStim);
             }
 
 
