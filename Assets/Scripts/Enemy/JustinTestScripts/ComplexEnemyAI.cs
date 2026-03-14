@@ -141,66 +141,74 @@ public class ComplexEnemyAI : MonoBehaviour
 
     void Update()
     {
-        if (resetCooldown > 0f || isStunned)
+        if (enemyStateMachine.enemyVersion == EnemyVersion.Simple)
         {
-            resetCooldown -= Time.deltaTime;
-            return;
+
         }
-
-        enemyStateMachine.GeneralLogic();
-
-        // Movement execution
-        switch (enemyStateMachine.currentSpecificState)
+        else if (enemyStateMachine.enemyVersion == EnemyVersion.Complex)
         {
-            case SpecificEnemyState.Chase:
-                IsChasingPlayer();
-                break;
-            case SpecificEnemyState.Patrol:
-                isPatroling();
-                break;
-            case SpecificEnemyState.Investigate:
-                IsInvestigating();
-                break;
-            case SpecificEnemyState.Retreat:
-                TrackPath();
-                break;
-        }
-
-        CalculateDirection();
-        RotateTowardsDirection();
-
-        // --- IMPROVED STUCK CHECK ---
-        if (Time.time >= nextProgressCheckTime)
-        {
-            // Only check progress if the AI is in a state where it should be moving
-            bool shouldBeMoving = enemyStateMachine.currentSpecificState != SpecificEnemyState.Idle &&
-                                  enemyStateMachine.currentSpecificState != SpecificEnemyState.Kill;
-
-            if (shouldBeMoving)
+            if (resetCooldown > 0f || isStunned)
             {
-                // If we moved less than 0.3 units in the last 0.5 seconds
-                if (Vector3.Distance(transform.position, lastProgressPosition) < 0.3f)
+                resetCooldown -= Time.deltaTime;
+                return;
+            }
+
+            enemyStateMachine.GeneralLogic();
+
+            // Movement execution
+            switch (enemyStateMachine.currentSpecificState)
+            {
+                case SpecificEnemyState.Chase:
+                    IsChasingPlayer();
+                    break;
+                case SpecificEnemyState.Patrol:
+                    isPatroling();
+                    break;
+                case SpecificEnemyState.Investigate:
+                    IsInvestigating();
+                    break;
+                case SpecificEnemyState.Retreat:
+                    TrackPath();
+                    break;
+            }
+
+            CalculateDirection();
+            RotateTowardsDirection();
+
+            // --- IMPROVED STUCK CHECK ---
+            if (Time.time >= nextProgressCheckTime)
+            {
+                // Only check progress if the AI is in a state where it should be moving
+                bool shouldBeMoving = enemyStateMachine.currentSpecificState != SpecificEnemyState.Idle &&
+                                      enemyStateMachine.currentSpecificState != SpecificEnemyState.Kill;
+
+                if (shouldBeMoving)
                 {
-                    stuckTimer += progressCheckFrequency;
-                    if (stuckTimer >= stuckThreshold)
+                    // If we moved less than 0.3 units in the last 0.5 seconds
+                    if (Vector3.Distance(transform.position, lastProgressPosition) < 0.3f)
                     {
-                        HandleStuckReset();
+                        stuckTimer += progressCheckFrequency;
+                        if (stuckTimer >= stuckThreshold)
+                        {
+                            HandleStuckReset();
+                        }
+                    }
+                    else
+                    {
+                        stuckTimer = 0f;
+                        lastProgressPosition = transform.position;
                     }
                 }
-                else
-                {
-                    stuckTimer = 0f;
-                    lastProgressPosition = transform.position;
-                }
+                nextProgressCheckTime = Time.time + progressCheckFrequency;
             }
-            nextProgressCheckTime = Time.time + progressCheckFrequency;
-        }
 
-        if (!isLunging && Time.time - lastTendrilTime >= spawnInterval)
-        {
-            SpawnTendril();
-            lastTendrilTime = Time.time;
+            if (!isLunging && Time.time - lastTendrilTime >= spawnInterval)
+            {
+                SpawnTendril();
+                lastTendrilTime = Time.time;
+            }
         }
+        
     }
 
     void HandleStuckReset()

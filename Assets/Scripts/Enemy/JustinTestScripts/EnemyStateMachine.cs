@@ -8,7 +8,7 @@ public enum SpecificEnemyState
     Track,
     Investigate,
     Patrol,
-    Idle,
+    Throw,
     Kill,
     Retreat,
     Stunned,
@@ -220,6 +220,19 @@ public class EnemyStateMachine : MonoBehaviour
         return new List<Waypoint>(waypoints);
     }
 
+    /*
+    -- All the times are able to be changed --
+    1.lose sight of the player
+    2.get the last point the geist saw the player
+    3.Start heading towards the closest waypoint to the last seen point
+    3.after a few seconds around 1-2 seconds, get another closet point to the player
+    4.search generally around the last point gotten, for around 4 - 5 seconds
+    
+     */
+    protected void AdvanceInvestigation()
+    {
+
+    }
     public Waypoint GetRandomInvestPoint(Waypoint OriginPoint)
     {
         List<Waypoint> waypoints = FindInvestWaypoints(OriginPoint);
