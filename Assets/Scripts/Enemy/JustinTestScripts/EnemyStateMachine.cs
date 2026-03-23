@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 public enum SpecificEnemyState
 {
@@ -77,6 +79,14 @@ public class EnemyStateMachine : MonoBehaviour
     [SerializeField] private bool showDetectionRadius;
     [SerializeField] private bool showRetreatRadius;
 
+    [Header("Light Detection")]
+
+    private bool isLightOn;
+    private float lightDetectionRange;
+    private float lightDetectionCooldown = 3f;
+    private float lightDetectionDuration = 0f;
+    private float lightDetectionTimer = 0f;
+
     private void Start()
     {
         if (player == null) player = GameObject.FindGameObjectWithTag("Player");
@@ -90,19 +100,28 @@ public class EnemyStateMachine : MonoBehaviour
         // Run detection every frame
         canDetectPlayer = PerformRaycastDetection();
 
-        if (currentGeneralState == GeneralEnemyState.Active)
+        if (isLightOn)
         {
-            HandleActiveLogic();
+            //canDetectPlayer = FireDetectionGrid();
         }
-        else if (currentGeneralState == GeneralEnemyState.Retreat)
+
+        switch (currentGeneralState)
         {
-            HandleRetreatLogic();
-        }
-        else if (currentGeneralState == GeneralEnemyState.Dev)
-        {
+            case GeneralEnemyState.Active:
+                HandleActiveLogic();
+                break;
+            case GeneralEnemyState.Retreat:
+                HandleRetreatLogic();
+                break;
+            case GeneralEnemyState.Idle:
+                break;
+            case GeneralEnemyState.Dev:
+                break;
 
         }
     }
+
+ 
 
     #region Active Logic
     private void HandleActiveLogic()
@@ -220,19 +239,7 @@ public class EnemyStateMachine : MonoBehaviour
         return new List<Waypoint>(waypoints);
     }
 
-    /*
-    -- All the times are able to be changed --
-    1.lose sight of the player
-    2.get the last point the geist saw the player
-    3.Start heading towards the closest waypoint to the last seen point
-    3.after a few seconds around 1-2 seconds, get another closet point to the player
-    4.search generally around the last point gotten, for around 4 - 5 seconds
-    
-     */
-    protected void AdvanceInvestigation()
-    {
 
-    }
     public Waypoint GetRandomInvestPoint(Waypoint OriginPoint)
     {
         List<Waypoint> waypoints = FindInvestWaypoints(OriginPoint);
@@ -340,6 +347,13 @@ public class EnemyStateMachine : MonoBehaviour
     }
     #endregion
 
+    #region Idle Logic
+
+    #endregion
+
+    #region Detection Logic
+    #endregion
+
     #region State Tools
     public void ChangeSpecificState(SpecificEnemyState newState)
     {
@@ -388,6 +402,41 @@ public class EnemyStateMachine : MonoBehaviour
             }
         }
         return false;
+    }
+
+    private bool DetectPlayerFlashLight()
+    {
+        if (!isLightOn) return false;
+
+        
+
+        return false;
+    }
+
+    private void FireDetectionGrid(float columns, float rows, float spacing, float range)
+    {
+        // Calculate offsets to ensure the grid is centered on the forward vector
+        float halfWidth = (columns - 1) * spacing / 2f;
+        float halfHeight = (rows - 1) * spacing / 2f;
+
+        for (int x = 0; x < columns; x++)
+        {
+            for (int y = 0; y < rows; y++)
+            {
+                float xOffset = (x * spacing) - halfWidth;
+                float yOffset = (y * spacing) - halfHeight;
+
+                Vector3 rayDirection = transform.forward + (transform.right * xOffset) + (transform.up * yOffset);
+
+                rayDirection.Normalize();
+
+                if (Physics.Raycast(transform.position, rayDirection, out RaycastHit hit, range))
+                {
+                    
+                    // Add hit logic here
+                }
+            }
+        }
     }
     #endregion
 

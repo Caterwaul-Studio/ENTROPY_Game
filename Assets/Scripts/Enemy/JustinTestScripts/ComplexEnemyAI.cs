@@ -95,11 +95,11 @@ public class ComplexEnemyAI : MonoBehaviour
     private float clearPathCheckTimer = 0f;
     private bool hasClearPath = true;
 
-    
-
     [Header("Retreat")]
 
     [SerializeField] private Waypoint FailSafe; //This point will be the failsafe for if the retreating doesn't work correctly
+
+    
 
     void Start()
     {
@@ -179,8 +179,8 @@ public class ComplexEnemyAI : MonoBehaviour
             if (Time.time >= nextProgressCheckTime)
             {
                 // Only check progress if the AI is in a state where it should be moving
-                bool shouldBeMoving = enemyStateMachine.currentSpecificState != SpecificEnemyState.Idle &&
-                                      enemyStateMachine.currentSpecificState != SpecificEnemyState.Kill;
+                bool shouldBeMoving = enemyStateMachine.currentSpecificState != SpecificEnemyState.Kill &&
+                                      enemyStateMachine.currentSpecificState != SpecificEnemyState.Stunned;
 
                 if (shouldBeMoving)
                 {
@@ -211,7 +211,7 @@ public class ComplexEnemyAI : MonoBehaviour
         
     }
 
-    void HandleStuckReset()
+    private void HandleStuckReset()
     {
         Debug.Log("<color=orange>Geist stuck! Clearing path and finding nearest waypoint.</color>");
         stuckTimer = 0f;
@@ -287,6 +287,39 @@ public class ComplexEnemyAI : MonoBehaviour
             // Direct move if "shouldFollow" is false (ghosting through walls)
             transform.position = Vector3.MoveTowards(transform.position, investigatingWaypoint.transform.position, speed * Time.deltaTime);
             UpdateCurrentWaypointToClosest();
+        }
+    }
+
+    /*
+-- All the times are able to be changed --
+1.lose sight of the player
+2.get the last point the geist saw the player
+3.Start heading towards the closest waypoint to the last seen point
+3.after a few seconds around 1-2 seconds, get another closet point to the player
+4.search generally around the last point gotten, for around 4 - 5 seconds
+
+ */
+    protected void AdvanceInvestigation()
+    {
+        if (enemyStateMachine.shouldFollow)
+        {
+            // Only calculate a path if we don't have one
+            if (path.Count == 0)
+            {
+                path = BFS(currentWaypoint, investigatingWaypoint);
+            }
+            TrackPath();
+        }
+        else
+        {
+            // Direct move if "shouldFollow" is false (ghosting through walls)
+            transform.position = Vector3.MoveTowards(transform.position, investigatingWaypoint.transform.position, speed * Time.deltaTime);
+            UpdateCurrentWaypointToClosest();
+        }
+
+        if (currentWaypoint == investigatingWaypoint)
+        {
+
         }
     }
 
