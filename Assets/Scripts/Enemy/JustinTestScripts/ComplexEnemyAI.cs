@@ -493,6 +493,24 @@ public class ComplexEnemyAI : MonoBehaviour
     }
     #endregion
 
+    #region Throw/Attack
+
+    private void GrabPlayer()
+    {
+        //Disable Player Inputs
+        player.GetComponent<ZeroGravity>().CanMove = false;
+
+
+    }
+
+    private void ThrowPlayer()
+    {
+
+    }
+
+
+
+    #endregion
     #region Path Finding
     Queue<Waypoint> BFS(Waypoint start, Waypoint goal)
     {

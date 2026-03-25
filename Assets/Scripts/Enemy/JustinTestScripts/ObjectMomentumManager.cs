@@ -11,8 +11,7 @@ public class ObjectMomentumManager : MonoBehaviour
     public float momentumThreshhold; 
     public bool collidedWithWall = false;
     public bool collidedWithGeist = false;
-
-    public bool IsMoving = false;
+    public bool isMoving = false;
 
     private void Update()
     {
@@ -21,16 +20,16 @@ public class ObjectMomentumManager : MonoBehaviour
 
     private void CheckIfObjectCollided()
     {
-        if ()
+        if (!collidedWithWall)
         {
-            co
+            
         }
     }
 
     private bool CheckIfFastEnough()
     {
         
-        if (grabbedObjectMomentum >= momentumThreshhold && IsMoving)
+        if (grabbedObjectMomentum >= momentumThreshhold && isMoving)
         {
             return true;
         }

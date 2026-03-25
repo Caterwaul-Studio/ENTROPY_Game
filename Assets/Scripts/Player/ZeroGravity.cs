@@ -331,6 +331,8 @@ public class ZeroGravity : MonoBehaviour
 
     public int PlayerHealth { get { return playerHealth; } }
 
+    public int MaxHealth { get { return maxHealth; } }
+
     public int NumStims { get { return numStims; } }
 
     public bool IsDead

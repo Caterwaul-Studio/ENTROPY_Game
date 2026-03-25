@@ -351,6 +351,28 @@ public class EnemyStateMachine : MonoBehaviour
 
     #endregion
 
+    #region Grab/Attack Logic
+
+    private void GrabAttackLogic()
+    {
+        if (player.GetComponent<ZeroGravity>().PlayerHealth <= player.GetComponent<ZeroGravity>().MaxHealth / 2)
+        {
+            ChangeSpecificState(SpecificEnemyState.Kill);
+
+        }
+        else 
+        {
+            ChangeSpecificState(SpecificEnemyState.Throw);
+        }
+    }
+
+    private void DetermineThrow()
+    {
+
+    }
+
+    #endregion
+
     #region Detection Logic
     #endregion
 
