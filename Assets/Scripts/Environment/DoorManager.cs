@@ -80,6 +80,10 @@ public class DoorManager : MonoBehaviour, ISaveable
     // Start is called before the first frame update
     void Start()
     {
+        if(player == null)
+        {
+            player = FindFirstObjectByType<ZeroGravity>();
+        }
         doors = transform.Find("DoorGroup").GetComponentsInChildren<DoorScript>();
         doorsInRange = new List<DoorScript>();
         // continue from save
