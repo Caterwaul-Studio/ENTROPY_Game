@@ -54,11 +54,11 @@ public class SceneLoader : MonoBehaviour
             loadingScreenCanvas.SetActive(true);
             //UICamera.SetActive(false);
             //playerUI.SetActive(false);
-            Debug.Log("Loading screen activated: " + loadingScreenCanvas.name + " | active: " + loadingScreenCanvas.activeSelf);
+            //Debug.Log("Loading screen activated: " + loadingScreenCanvas.name + " | active: " + loadingScreenCanvas.activeSelf);
         }
         else
         {
-            Debug.LogError("loadingScreenCanvas is NULL - not assigned in Inspector!");
+            //Debug.LogError("loadingScreenCanvas is NULL - not assigned in Inspector!");
         }
         // force atleast 2 frames for canvas to render
         yield return null; 
@@ -89,7 +89,7 @@ public class SceneLoader : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
 
-        Debug.Log("Hiding loading screen");
+        //Debug.Log("Hiding loading screen");
         if (loadingScreenCanvas)
         {
             loadingScreenCanvas.SetActive(false);
@@ -110,7 +110,7 @@ public class SceneLoader : MonoBehaviour
 
         // Find entry trigger: tag "EntryTrigger" in Inspector for specificity
         SceneTransitionTrigger[] allTriggers = FindObjectsByType<SceneTransitionTrigger>(FindObjectsSortMode.None);
-        Debug.Log(allTriggers);
+        //Debug.Log(allTriggers);
         SceneTransitionTrigger entryTrigger = null;
         foreach (var t in allTriggers)
         {
@@ -139,6 +139,6 @@ public class SceneLoader : MonoBehaviour
         if (loadingScreenCanvas)loadingScreenCanvas.SetActive(false);
         _hasPendingTransfer = false;
 
-        Debug.Log("Transfer applied. Player placed at: " + worldPos);
+        //Debug.Log("Transfer applied. Player placed at: " + worldPos);
     }
 }
