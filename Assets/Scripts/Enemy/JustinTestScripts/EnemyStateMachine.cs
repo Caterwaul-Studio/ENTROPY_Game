@@ -1,7 +1,7 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 using static UnityEngine.Rendering.DebugUI.Table;
 
 public enum SpecificEnemyState
@@ -74,6 +74,14 @@ public class EnemyStateMachine : MonoBehaviour
     [SerializeField] private float retreatTimer;
     [SerializeField] private float retreatPointReroll;
     [SerializeField] private bool canRetreat;
+
+    [Header("Throw Settings")]
+
+    [SerializeField] private float throwDistanceCheck;
+    [SerializeField] private bool canThrow;
+    [SerializeField] private LayerMask wallLayer;
+    [SerializeField] private int throwCheckLimit;
+    [SerializeField] private Vector3 ThrowCheckOffset;
 
     [Header("Gizmos")]
     [SerializeField] private bool showDetectionRadius;
@@ -351,7 +359,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     #endregion
 
-    #region Grab/Attack Logic
+    #region Grab/Throw/Attack Logic
 
     private void GrabAttackLogic()
     {
@@ -366,7 +374,42 @@ public class EnemyStateMachine : MonoBehaviour
         }
     }
 
-    private void DetermineThrow()
+    private void DetermineThrowLocation()
+    {
+        if (CanThrow(ThrowCheckOffset))
+        {
+
+        }
+        else
+        {
+            //
+            for (int x = 0; x < throwCheckLimit; x++)
+            {
+
+            }
+        }
+    }
+
+    private bool CanThrow(Vector3 checkOfSet)
+    {
+        if (player == null) return false;
+
+        Vector3 dir = player.transform.position - transform.position;
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, dir.normalized, out hit, throwDistanceCheck, wallLayer))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private void LockPlayerInputs()
+    {
+
+    }
+
+    private void LookAtGeist()
     {
 
     }

@@ -508,7 +508,10 @@ public class ComplexEnemyAI : MonoBehaviour
 
     }
 
+    private void KillPlayer()
+    {
 
+    }
 
     #endregion
     #region Path Finding
