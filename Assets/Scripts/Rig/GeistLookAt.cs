@@ -43,27 +43,21 @@ public class GeistLookAt : MonoBehaviour
     private void SetIKTargetPosition()
     {
         if (ikTarget == null || ikRestAnchor == null) return;
-
         if (!TargetVisible)
         {
             Vector3 targetPos = ikRestAnchor.position;
             ikTarget.position = Vector3.SmoothDamp(ikTarget.position, targetPos, ref _ikVelocity, 1f / ikFollowSpeed);
-            ikTarget.rotation = Quaternion.Euler(lookRotationOffset);
+            ikTarget.rotation = Quaternion.LookRotation(transform.forward) * Quaternion.Euler(lookRotationOffset);
             return;
         }
-
         Vector3 direction = (target.position - coneOrigin.position).normalized;
-
         Vector3 lateral = Vector3.ProjectOnPlane(direction, ikRestAnchor.up);
         if (lateral.magnitude > 0.2f)
             _lastLateral = lateral.normalized;
-
         Vector3 behindPoint = ikRestAnchor.position - ikRestAnchor.up * neckBendOffset;
         Vector3 desiredPos = behindPoint + _lastLateral * neckBendOffset;
         ikTarget.position = Vector3.SmoothDamp(ikTarget.position, desiredPos, ref _ikVelocity, 1f / ikFollowSpeed);
-
-        ikTarget.rotation = Quaternion.LookRotation(direction)
-                            * Quaternion.Euler(lookRotationOffset);
+        ikTarget.rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(lookRotationOffset);
     }
 
 #if UNITY_EDITOR
