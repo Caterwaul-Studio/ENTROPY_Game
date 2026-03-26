@@ -83,9 +83,11 @@ public class SceneLoader : MonoBehaviour
         //wait for scene objects to all initialize
         yield return null; // let scene activate
         yield return null; // let awake/start run
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(.1f);
 
         ApplyTransfer();
+
+        yield return new WaitForSeconds(1f);
 
         Debug.Log("Hiding loading screen");
         if (loadingScreenCanvas)
@@ -99,6 +101,12 @@ public class SceneLoader : MonoBehaviour
     private void ApplyTransfer()
     {
         if (!_hasPendingTransfer) return;
+
+        // Find player and ZeroGravity
+        //GameObject player = GameObject.FindWithTag("Player");
+        //if (player == null) { Debug.LogError("Player not found in new scene!"); return; }
+        ZeroGravity zg = FindFirstObjectByType<ZeroGravity>();
+        if (zg == null) { Debug.LogError("ZeroGravity not found on player!"); return; }
 
         // Find entry trigger: tag "EntryTrigger" in Inspector for specificity
         SceneTransitionTrigger[] allTriggers = FindObjectsByType<SceneTransitionTrigger>(FindObjectsSortMode.None);
@@ -123,12 +131,6 @@ public class SceneLoader : MonoBehaviour
             _pendingLocalOffset.z * entryBox.size.z
         );
         Vector3 worldPos = entryTrigger.transform.TransformPoint(scaledOffset);
-
-        // Find player and ZeroGravity
-        //GameObject player = GameObject.FindWithTag("Player");
-        //if (player == null) { Debug.LogError("Player not found in new scene!"); return; }
-        ZeroGravity zg = FindFirstObjectByType<ZeroGravity>();
-        if (zg == null) { Debug.LogError("ZeroGravity not found on player!"); return; }
 
         //Apply position and physics state
         zg.transform.position = worldPos;
