@@ -1564,6 +1564,21 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     }
     #endregion
 
+
+    #region Level/ Scene Transferring
+
+    public void ApplySceneTransferState(Vector3 velocity, Vector3 angularVelocity, Quaternion camRotation)
+    {
+        rb.linearVelocity = velocity;
+        rb.angularVelocity = angularVelocity;
+        cam.transform.rotation = camRotation;
+        //clear input state so no phantom movement
+        rotationHoriz = 0f;
+        rotationVert = 0f;
+        rotationZ = 0f;
+    }
+    #endregion
+
     #region Global Save Manager Integration
 
     // backs up player data for saving

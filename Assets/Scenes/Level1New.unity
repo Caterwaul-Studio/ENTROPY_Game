@@ -14721,17 +14721,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1740493868202025507, guid: e9845b4cea6795d4295987fcb39f5427, type: 3}
   m_PrefabInstance: {fileID: 650280625}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &650280627 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1073714519406835130, guid: e9845b4cea6795d4295987fcb39f5427, type: 3}
-  m_PrefabInstance: {fileID: 650280625}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 079a258bccb901344ade2698a14ec3fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &651265754
 GameObject:
   m_ObjectHideFlags: 0
@@ -31943,6 +31932,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1953917246}
   - component: {fileID: 1953917247}
+  - component: {fileID: 1953917248}
   m_Layer: 0
   m_Name: Level02Loader
   m_TagString: Untagged
@@ -31986,6 +31976,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2, y: 2.762224, z: 3.26692}
   m_Center: {x: 0.5, y: -0.11888802, z: -0.13346004}
+--- !u!114 &1953917248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1953917245}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20150c64ed6f0bd4295fcc9375b27747, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneToLoad: Level2
+  isEntryTrigger: 0
 --- !u!1001 &1961045791
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -41488,10 +41492,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1408877014302736871, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
-      propertyPath: m_IsKinematic
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1696311947089158245, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -41888,10 +41888,6 @@ PrefabInstance:
       propertyPath: doorsContainer
       value: 
       objectReference: {fileID: 8694779195880317731}
-    - target: {fileID: 8236976712054434928, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
-      propertyPath: winDoor
-      value: 
-      objectReference: {fileID: 650280627}
     - target: {fileID: 8309431941715903292, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
