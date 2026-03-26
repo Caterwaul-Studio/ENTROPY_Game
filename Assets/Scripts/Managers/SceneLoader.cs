@@ -9,6 +9,8 @@ public class SceneLoader : MonoBehaviour
     public static SceneLoader Instance { get; private set; }
 
     [SerializeField] private GameObject loadingScreenCanvas;
+    //[SerializeField] private GameObject UICamera;
+    //[SerializeField] private GameObject playerUI;
     [SerializeField] public TagHandle entryTag;
 
     //transfered variables
@@ -50,13 +52,31 @@ public class SceneLoader : MonoBehaviour
         if (loadingScreenCanvas)
         {
             loadingScreenCanvas.SetActive(true);
+            //UICamera.SetActive(false);
+            //playerUI.SetActive(false);
+            Debug.Log("Loading screen activated: " + loadingScreenCanvas.name + " | active: " + loadingScreenCanvas.activeSelf);
         }
+        else
+        {
+            Debug.LogError("loadingScreenCanvas is NULL - not assigned in Inspector!");
+        }
+        // force atleast 2 frames for canvas to render
+        yield return null; 
+        yield return null;
 
         AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
         op.allowSceneActivation = false;
 
+        // Minimum display time so player actually sees it
+        float minLoadTime = 1.5f;
+        float elapsed = 0f;
+
         //wait until the scene is ready
-        while(op.progress < 0.9f) yield return null;
+        while (op.progress < 0.9f || elapsed < minLoadTime)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
 
         op.allowSceneActivation = true;
 
@@ -66,6 +86,14 @@ public class SceneLoader : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
 
         ApplyTransfer();
+
+        Debug.Log("Hiding loading screen");
+        if (loadingScreenCanvas)
+        {
+            loadingScreenCanvas.SetActive(false);
+            //UICamera.SetActive(true);
+            //playerUI.SetActive(true);
+        }
     }
 
     private void ApplyTransfer()
