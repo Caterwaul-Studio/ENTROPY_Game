@@ -29,6 +29,7 @@ public class TendrilIKStepper : MonoBehaviour
     public float grabAngle = 120f;
 
     public float moveSpeed = 8f;
+    public float passiveMoveSpeed = 20f;
 
     public Vector3 CurrentTarget { get; private set; }
     public bool StepRequested { get; private set; }
@@ -50,8 +51,8 @@ public class TendrilIKStepper : MonoBehaviour
     {
         if (isPassive)
         {
-            ikTarget.position = Vector3.Lerp(ikTarget.position, defaultLocalPosition.position, Time.deltaTime * moveSpeed);
-            ikTarget.rotation = Quaternion.Lerp(ikTarget.rotation, defaultLocalPosition.rotation, Time.deltaTime * moveSpeed);
+            ikTarget.position = Vector3.Lerp(ikTarget.position, defaultLocalPosition.position, Time.deltaTime * passiveMoveSpeed);
+            ikTarget.rotation = Quaternion.Lerp(ikTarget.rotation, defaultLocalPosition.rotation, Time.deltaTime * passiveMoveSpeed);
 
             Collider[] hits = Physics.OverlapSphere(origin.position, grabRange, groundMask);
             foreach (Collider hit in hits)
