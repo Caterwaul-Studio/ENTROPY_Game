@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class StretchIKBones : MonoBehaviour
 {
 
-    const float MAX_DISTANCE = 2.5f;
+    const float MAX_DISTANCE = 2.3f;
     private float stretchFactor = 1f;
 
     [SerializeField]
@@ -37,22 +37,16 @@ public class StretchIKBones : MonoBehaviour
        
     }
 
-    void Update()
-    {
-        if (target.position != previousPosition)
-        {
-            distance = Vector3.Distance(root.position, target.position);
-            stretchFactor = distance > MAX_DISTANCE ? distance / MAX_DISTANCE : 1f;
-            previousPosition = target.position;
-        }
-
-        for (int i = 1; i < bones.Count; i++)
-            bones[i].localPosition = initPositions[i] * stretchFactor;
-    }
 
     void LateUpdate()
     {
-      
+
+       
+        distance = Vector3.Distance(root.position, target.position);
+        stretchFactor = distance > MAX_DISTANCE ? distance / MAX_DISTANCE : 1f;
+        previousPosition = target.position;
+        
+
         for (int i = 1; i < bones.Count; i++)
             bones[i].localPosition = initPositions[i] * stretchFactor;
     }
