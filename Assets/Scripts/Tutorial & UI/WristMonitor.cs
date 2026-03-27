@@ -115,9 +115,9 @@ public class WristMonitor : MonoBehaviour
     {
         //player = GameObject.FindWithTag("Player").GetComponent<ZeroGravity>();
         //mainObjectives.Add(new Objective("Empty", "<color=orange>Current Objective: </color>\nEMPTY", "<size=8><color=orange>Sub Objective: </color>\n\tReconnect ALAN</size>", false));
-        mainObjectives.Add(new Objective("Empty", @"Connect alan:\ to the nearest terminal", "", false));
+        mainObjectives.Add(new Objective("Empty", @"Connect alan:\ to Dorm Room screen", "", false));
         mainObjectives.Add(new Objective("Medbay", @"    get e-stim in Medical Bay\n    -reconnect alan:\", "", false));
-        mainObjectives.Add(new Objective("Medbay Stim", @"    -refill e-stims\n    -administer e-stim", "", false));
+        mainObjectives.Add(new Objective("Medbay Stim", @"    -refill E-stims\n    -administer E-stim", "", false));
         mainObjectives.Add(new Objective("Dining Room", @"    -reach Dining Room\n    -reconnect alan:\", "", false));
         mainObjectives.Add(new Objective("Server Farm", "    -reach Server Farm\n    -override Manual Lockdown", "", false));
         mainObjectives.Add(new Objective("Vocational_Wing", "    -return to Dining Room</size> \n", "", false));
