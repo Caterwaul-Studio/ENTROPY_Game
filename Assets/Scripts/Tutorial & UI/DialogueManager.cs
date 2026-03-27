@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -20,7 +21,8 @@ public class DialogueManager : MonoBehaviour
     public TextMeshProUGUI dialogueTextUI;
 
     [Header("Audio / Typewriter")]
-    public AudioSource audioSource;
+    public AudioSource defaultAudioSource;
+    public List<AudioSource> sourceList;
     public AudioClip fillerLineBeep;
     public float defaultTextSpeed = 0.08f;
     public float textSpeedMultiplier = 1.1f;
@@ -70,7 +72,10 @@ public class DialogueManager : MonoBehaviour
 
     public int numDialoguesQueued { get; private set; } = 0;
 
-    public event Action<int> OnDialogueEnd;
+    //_______________________________________________________________________________________________________________
+    // Events for external listeners (e.g. tutorial manager) - can be expanded as needed
+    public event Action<int> OnDialogueLineEndBrokenDoor;
+    public event Action<int> OnDialogueEndTutorial;
 
     private void Awake()
     {
@@ -93,6 +98,7 @@ public class DialogueManager : MonoBehaviour
     private void Start()
     {
         if (player != null) playerManager = player.GetComponent<ZeroGravity>();
+        sourceList.Add(defaultAudioSource);
     }
 
     private void Update()
@@ -142,7 +148,12 @@ public class DialogueManager : MonoBehaviour
         sequenceQueue.Clear();
         if (clearQueue) numDialoguesQueued = 0;
 
-        if (audioSource != null && audioSource.isPlaying) audioSource.Stop();
+        //stop all potential audio sources
+        foreach(AudioSource source in sourceList)
+        {
+            if (source != null && source.isPlaying) source.Stop();
+        }
+        
         ClearTextsImmediate();
         HideCanvasImmediate();
     }
@@ -179,8 +190,10 @@ public class DialogueManager : MonoBehaviour
         }
 
         // Stop audio
-        if (audioSource != null && audioSource.isPlaying)
-            audioSource.Stop();
+        foreach (AudioSource source in sourceList)
+        {
+            if (source != null && source.isPlaying) source.Stop();
+        }
 
         // Clear any skip requests
         skipDialogueRequested = false;
@@ -205,6 +218,7 @@ public class DialogueManager : MonoBehaviour
 
         // Don't hide or fade out the canvas - leave it ready for the next sequence
     }
+
 
     #endregion
 
@@ -235,6 +249,22 @@ public class DialogueManager : MonoBehaviour
         if (sequenceIndex < 0 || sequenceIndex >= dialogueSequences.Length) yield break;
         DialogueSequence sequence = dialogueSequences[sequenceIndex];
 
+        //keep track of the source being used for this sequence
+        AudioSource sequenceSource;
+        if (sequence.audioSource)
+        {
+            sequenceSource = sequence.audioSource;
+        }
+        else
+        {
+            sequenceSource = defaultAudioSource;
+        }
+
+        if(!sourceList.Contains(sequenceSource))
+        {
+            sourceList.Add(sequenceSource);
+        }
+
         currentDialogueIndex = 0;
 
         ClearDialogueTextBeforeShow();
@@ -260,8 +290,12 @@ public class DialogueManager : MonoBehaviour
 
             //Debug.Log("Dialogue at index " + currentDialogueIndex + " about to play the dialogue");
             // Play the dialogue and check if it was skipped
-            yield return StartCoroutine(PlaySingleDialogue(d));
+            yield return StartCoroutine(PlaySingleDialogue(d, sequenceSource));
             bool wasSkipped = lastDialogueWasSkipped;
+
+            // check for the last line of the dining room sequence before alan breaks the door, and fire an event to trigger the door break
+            bool isLastEntryBeforeDoorBreak = currentDialogueIndex == sequence.dialogues.Length - 2;
+            if (isLastEntryBeforeDoorBreak) OnDialogueLineEndBrokenDoorSafe(currentSequenceIndex);
 
             // Handle tutorial advancement
             if (d.advancesTutorial && tutorialManager != null)
@@ -273,10 +307,10 @@ public class DialogueManager : MonoBehaviour
             }
 
             // Wait for audio to finish if not skipped
-            if (!wasSkipped && audioSource != null && audioSource.clip != null)
+            if (!wasSkipped && sequenceSource != null && sequenceSource.clip != null)
             {
                 
-                yield return new WaitWhile(() => audioSource.isPlaying);
+                yield return new WaitWhile(() => sequenceSource.isPlaying);
                 //Debug.Log("Dialogue at index " + currentDialogueIndex + " successfully waiting for the audio source to stop playing");
             }
 
@@ -297,7 +331,7 @@ public class DialogueManager : MonoBehaviour
         }
 
         //Debug.Log("Dialogue at sequence " + sequenceIndex + " is has completed");
-        OnDialogueEndSafe(currentSequenceIndex);
+        OnDialogueEndTutorialSafe(currentSequenceIndex);
         
         if (sequenceQueue.Count <= 0)
         {
@@ -311,7 +345,7 @@ public class DialogueManager : MonoBehaviour
     /// Used by both normal sequences and failure dialogues.
     /// Sets lastDialogueWasSkipped to indicate if it was skipped.
     /// </summary>
-    private IEnumerator PlaySingleDialogue(Dialogue d)
+    private IEnumerator PlaySingleDialogue(Dialogue d, AudioSource audioSource)
     {
         lastDialogueWasSkipped = false;
 
@@ -322,7 +356,8 @@ public class DialogueManager : MonoBehaviour
         if (d.audioClip != null && audioSource != null)
         {
             audioSource.clip = d.audioClip;
-            audioSource.Play();
+            if (audioSource.isActiveAndEnabled)
+                audioSource.Play();
             playFillerBeep = false;
         }
         else
@@ -351,7 +386,7 @@ public class DialogueManager : MonoBehaviour
 
             // Type the line
             if (typewriterCoroutine != null) { StopCoroutine(typewriterCoroutine); typewriterCoroutine = null; }
-            typewriterCoroutine = StartCoroutine(TypewriterEffect(line, typeSpeed));
+            typewriterCoroutine = StartCoroutine(TypewriterEffect(line, typeSpeed, audioSource));
             yield return typewriterCoroutine;
             typewriterCoroutine = null;
 
@@ -366,7 +401,7 @@ public class DialogueManager : MonoBehaviour
             // Small buffer between lines
             if (lineIndex < d.dialogueLines.Length - 1)
             {
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSeconds(d.delayBetweenLines);
             }
         }
 
@@ -383,11 +418,15 @@ public class DialogueManager : MonoBehaviour
     private void HandleDialogueSkip(Dialogue d)
     {
         // Stop audio and play skip SFX
-        if (audioSource != null && audioSource.isPlaying)
-            audioSource.Stop();
+        //stop all potential audio sources
+        foreach (AudioSource source in sourceList)
+        {
+            if (source != null && source.isPlaying) source.Stop();
+        }
 
         if (sfxSource && skipSfxClip)
-            sfxSource.PlayOneShot(skipSfxClip);
+            if (sfxSource.isActiveAndEnabled)
+                sfxSource.PlayOneShot(skipSfxClip);
 
         // Check if this is the last dialogue in the sequence
         bool isLastDialogue = false;
@@ -457,6 +496,22 @@ public class DialogueManager : MonoBehaviour
         ShowCanvasImmediate();
         yield return StartCoroutine(FadeCanvas(true));
 
+        //keep track of the source being used for this sequence
+        AudioSource sequenceSource;
+        if (failureDialogues.audioSource)
+        {
+            sequenceSource = failureDialogues.audioSource;
+        }
+        else
+        {
+            sequenceSource = defaultAudioSource;
+        }
+
+        if (!sourceList.Contains(sequenceSource))
+        {
+            sourceList.Add(sequenceSource);
+        }
+
         Dialogue d = failureDialogues.dialogues[index];
 
         // If this failure should skip the success dialogue in the main sequence
@@ -471,7 +526,7 @@ public class DialogueManager : MonoBehaviour
         }
 
         // Play the failure dialogue using the same PlaySingleDialogue method
-        yield return StartCoroutine(PlaySingleDialogue(d));
+        yield return StartCoroutine(PlaySingleDialogue(d, sequenceSource));
         bool wasSkipped = lastDialogueWasSkipped;
 
         // Handle tutorial advancement if this failure dialogue advances the tutorial
@@ -509,7 +564,7 @@ public class DialogueManager : MonoBehaviour
 
     #region Typewriter & Helpers
 
-    private IEnumerator TypewriterEffect(string fullText, float charDelay)
+    private IEnumerator TypewriterEffect(string fullText, float charDelay, AudioSource audioSource)
     {
         isLineTyping = true;
         dialogueTextUI.text = "";
@@ -601,15 +656,27 @@ public class DialogueManager : MonoBehaviour
         if (dialogueCanvasGroup != null) dialogueCanvasGroup.alpha = 0f;
     }
 
-    private void OnDialogueEndSafe(int sequenceIndex)
+    private void OnDialogueEndTutorialSafe(int sequenceIndex)
     {
         try
         {
-            OnDialogueEnd?.Invoke(sequenceIndex);
+            OnDialogueEndTutorial?.Invoke(sequenceIndex);
         }
         catch (Exception e)
         {
             Debug.LogWarning("OnDialogueEnd handler threw: " + e);
+        }
+    }
+
+    private void OnDialogueLineEndBrokenDoorSafe(int sequenceIndex)
+    {
+        try
+        {
+            OnDialogueLineEndBrokenDoor?.Invoke(sequenceIndex);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("OnDialogueLineEndBrokenDoor handler threw: " + e);
         }
     }
 

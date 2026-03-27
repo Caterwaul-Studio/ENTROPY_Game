@@ -34,13 +34,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 1
   m_Settings:
-    technique: 0
+    technique: 2
     maxDrawDistance: 1000
-    decalLayers: 0
+    decalLayers: 1
     dBufferSettings:
       surfaceData: 2
     screenSpaceSettings:
-      normalBlend: 0
+      normalBlend: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109,14 +109,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 1
   m_Settings:
-    AOMethod: 0
+    AOMethod: 1
     Downsample: 1
     AfterOpaque: 0
     Source: 1
     NormalSamples: 1
-    Intensity: 4
-    DirectLightingStrength: 0.874
-    Radius: 0.02
+    Intensity: 2
+    DirectLightingStrength: 1
+    Radius: 0.015
     Samples: 1
     BlurQuality: 1
     Falloff: 100

@@ -29,6 +29,10 @@ public class Terminal : MonoBehaviour
     public GameObject ALANScreenUI { set { ALANScreen = value; } }
     public TerminalPopup MainScriptPopup { set { popup = value; } }
     public Material OnMaterial { set { onMaterial = value; } }
+    public GameObject TargetTransform
+    {
+        get { return targetTransform; }
+    }
 
     //this is how we can assign different actions to be called by our terminals
     //assign a method from a script in the inspector
@@ -37,6 +41,10 @@ public class Terminal : MonoBehaviour
 
     private GameObject playerObj;
     private ZeroGravity playerScript;
+    public ZeroGravity PlayerScript
+    {
+        get { return playerScript; }
+    }
 
     [Header("Audio Sources")]
     [SerializeField] private AudioSource bootupSource;
@@ -87,7 +95,21 @@ public class Terminal : MonoBehaviour
         // Move player smoothly to the terminal
         StartCoroutine(LerpPosition(targetTransform.transform.position, 0.75f));
     }
-
+    // starts the player at the terminal immediately after upload
+    public void MediumActivation()
+    {
+        isActivated = true;
+        disabled.StopFlashing();
+        ALANScreen.SetActive(true);
+        onUploadComplete?.Invoke();
+    }
+    // simply sets the terminal to active
+    public void SoftActivation()
+    {
+        isActivated = true;
+        disabled.StopFlashing();
+        ALANScreen.SetActive(true);
+    }
     private IEnumerator LerpPosition(Vector3 destination, float duration)
     {
         Vector3 start = playerObj.transform.position;

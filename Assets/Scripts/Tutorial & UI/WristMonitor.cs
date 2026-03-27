@@ -7,47 +7,64 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 public class WristMonitor : MonoBehaviour
 {
     // Variables
     bool isActive = false;
-    public bool IsActive
-    {
-        get { return isActive; }
-        set { isActive = value; }
-    }
-    [SerializeField] ZeroGravity player;
-    [SerializeField] Slider healthSlider;
-    [SerializeField] TextMeshProUGUI currentObjectiveText;
-    [SerializeField] GameObject wristMonitor;
+
+    [Header("Dependencies")]
+    [SerializeField] private ZeroGravity player;
+    //[SerializeField] GameObject wristMonitorObject;
+    [SerializeField]
+    private bool hasWristMonitor = false;
     // checks the wrist monitor object and manipulates the state of having the wrist monitor accordingly
-    public bool HasWristMonitor
-    {
-        get { return !wristMonitor.activeSelf; }
-        set {  wristMonitor.SetActive(!value); }
-    }
+
+    [Header("Health Section")]
     [SerializeField] TextMeshProUGUI stimText;
+    [SerializeField] TextMeshProUGUI healthText;
+    [SerializeField] GameObject fullHealthAnimationImage;
+    [SerializeField] GameObject injuredAnimationImage;
+    [SerializeField] GameObject lowHealthAnimationImage;
+
+    [Header("Objectives")]
     public List<Objective> mainObjectives = new List<Objective>();
     public List<Objective> completedObjectives = new List<Objective>();
-    public RectTransform targetRectTransform;
-    public Vector3 targetPosition;
-    public float lerpDuration;
-
-    Vector3 startPosition;
-    public float duration;
-    Vector3 currentPosition;
-
+    [SerializeField] TextMeshProUGUI currentObjectiveText;
+    [SerializeField] TextMeshProUGUI completedObjectiveText;
     [SerializeField] private GameObject[] _displayTexts;
     [SerializeField] ObjectiveUpdate objectiveUpdator;
-
-    
 
     private bool tutorialShowing = true;
     [SerializeField]
     private DormHallEvent dormHallScript;
 
+    [Header("Feedback Sliders")]
+    public CanvasGroup tabCanvasGroup;
+    public CanvasGroup wristMonitorCanvasGroup;
+    [SerializeField] private Slider skipProgressSlider;
+    [SerializeField] private float holdDuration = 0.5f;
+    private float currentHoldTime = 0f;
 
+    // Properties
+    public bool IsActive
+    {
+        get { return isActive; }
+        set { isActive = value; }
+    }
+
+    public bool HasWristMonitor
+    {
+        get { return hasWristMonitor; }
+        set {
+            if (hasWristMonitor == value) return;
+            hasWristMonitor = value;
+            OnWristMonitorAcquired?.Invoke(hasWristMonitor);
+        }
+    }
+
+    public event System.Action<bool> OnWristMonitorAcquired;
     /// <summary>
     /// Public class used to display vital information to the player of how they must proceed
     /// </summary>
@@ -96,90 +113,175 @@ public class WristMonitor : MonoBehaviour
     /// </summary>
     private void Start()
     {
+        //player = GameObject.FindWithTag("Player").GetComponent<ZeroGravity>();
         //mainObjectives.Add(new Objective("Empty", "<color=orange>Current Objective: </color>\nEMPTY", "<size=8><color=orange>Sub Objective: </color>\n\tReconnect ALAN</size>", false));
-        mainObjectives.Add(new Objective("Empty", "<size=14><color=orange>Current Objective: </size></color><size=12>\nConnect ALAN to the nearest terminal</size>\n", "<size=10><color=orange>Sub Objective: </color>\n</size>", false));
-        mainObjectives.Add(new Objective("Medbay", "<size=14><color=orange>Current Objective: </size></color><size=12>\n  Reach the Medbay</size> \n", "<size=10><color=orange>Sub Objective: </color></size>\n  <size=8>Reconnect ALAN</size>", false));
-        mainObjectives.Add(new Objective("Dining Room", "<size=14><color=orange>Current Objective: </size></color><size=12>\nRefill your stims</size> \n", "<size=10><color=orange>Sub Objective: </color></size>\n  <size=8>Heal yourself</size>", false));
-        mainObjectives.Add(new Objective("Dining Room", "<size=14><color=orange>Current Objective: </size></color><size=12>\nReach the Dining room</size> \n", "<size=10><color=orange>Sub Objective: </color></size>\n  <size=8></size>", false));
-        mainObjectives.Add(new Objective("Server Room", "<size=14><color=orange>Current Objective: </size></color><size=12>\n  Reach the Server Room</size> \n", "<size=10><color=orange>Sub Objective: </color></size>\n  <size=8>Override Manual Lockdown</size>", false));
-        mainObjectives.Add(new Objective("Facilities Room", "<size=14><color=orange>Current Objective: </size></color><size=12>\n  Reach the Facilities Room</size> \n", "", false));
-        if (targetRectTransform == null) {
-            Debug.LogError("TargetRectTransform not assigned");
-            return;
-        }
-        startPosition = targetRectTransform.anchoredPosition3D;
-        duration = 0f;
-        //this.enabled = false;
-        
+        mainObjectives.Add(new Objective("Empty", @"Connect alan:\ to the nearest terminal", "", false));
+        mainObjectives.Add(new Objective("Medbay", @"    -reach Medical_Bay\n    -reconnect alan:\", "", false));
+        mainObjectives.Add(new Objective("Medbay_Stim", @"    -refill e-stims\n    -administer e-stim", "", false));
+        mainObjectives.Add(new Objective("Dining_Room", @"    -reach Dining_Room\n    -reconnect alan:\", "", false));
+        mainObjectives.Add(new Objective("Server_Farm", "    -reach Server_Farm\n    -override Manual_Lockdown", "", false));
+        mainObjectives.Add(new Objective("Vocational_Wing", "    -reach Vocational_Wing</size> \n", "", false));
+        //if (targetRectTransform == null) {
+        //    Debug.LogError("TargetRectTransform not assigned");
+        //    return;
+        //}
+        //startPosition = targetRectTransform.anchoredPosition3D;
+        //duration = 0f;
     }
-
-
-
-    /// <summary>
+  
+    //Hold to open Logic
+    /// <summary> 
     /// Public method called by the zero gravity controller to turn the monitor on and off
     /// </summary>
-    public void ToggleWristMonitor(InputAction.CallbackContext context)
-    {
-        if (context.performed && !wristMonitor.activeSelf)
-        {
-            isActive = true;
-            this.gameObject.SetActive(true);
-            StartLerp();
+    //public void HandleWristMonitorToggle()
+    //{
+    //    if (Keyboard.current.tabKey.isPressed && !isActive)
+    //    {
+    //        if (tabCanvasGroup.alpha < 1)
+    //        {
+    //            tabCanvasGroup.alpha = 1f;
+    //        }
 
-            if(tutorialShowing && dormHallScript != null)
-            {
-                tutorialShowing = false;
-                dormHallScript.FadeOutMonitorTutorial();
-            }
-        }
-        else if (context.canceled)
+    //        skipProgressSlider.GetComponent<CanvasGroup>().alpha = 1.0f;
+    //        currentHoldTime += Time.deltaTime;
+
+    //        // Update slider progress
+    //        if (skipProgressSlider != null)
+    //        {
+    //            skipProgressSlider.value = Mathf.Clamp01(currentHoldTime / holdDuration);
+    //        }
+
+    //        // Check if hold duration is complete
+    //        if (currentHoldTime >= holdDuration)
+    //        {
+    //            skipProgressSlider.GetComponent<CanvasGroup>().alpha = 0f;
+    //            FadeOut(tabCanvasGroup);
+    //            isActive = true;
+    //            // Reset after skipping
+    //            currentHoldTime = 0f;
+    //            if (skipProgressSlider != null)
+    //            {
+    //                skipProgressSlider.value = 0f;
+    //            }
+    //        }
+    //    }
+    //    else if (!Keyboard.current.tabKey.isPressed && !isActive) 
+    //    {
+    //        skipProgressSlider.GetComponent<CanvasGroup>().alpha = 0f;
+    //        // Reset when key is released
+    //        if (currentHoldTime > 0f)
+    //        {
+    //            currentHoldTime = 0f;
+    //            if (skipProgressSlider != null)
+    //            {
+    //                skipProgressSlider.value = 0f;
+    //            }
+    //        }
+    //        isActive = false;
+    //    }
+    //}
+
+    public void CloseWristMonitor(InputAction.CallbackContext context)
+    {
+        if(isActive && context.performed)
         {
             isActive = false;
-            StartLerp();
-            
         }
     }
 
-    public void StartLerp()
+    // Fade out the UI element (make it invisible)
+    public void FadeOut(CanvasGroup groupToFade)
     {
-        startPosition = new Vector3(-300,0,0);
-        duration = 0f;
+        StartCoroutine(FadeCanvasGroup(groupToFade, groupToFade.alpha, 0f));
     }
 
-    
+    // Coroutine to fade the CanvasGroup over time
+    private IEnumerator FadeCanvasGroup(CanvasGroup canvasGroup, float startAlpha, float endAlpha)
+    {
+        float timeElapsed = 0f;
+
+        while (timeElapsed < .5f)
+        {
+            // Lerp alpha from start to end
+            canvasGroup.alpha = Mathf.Lerp(startAlpha, endAlpha, timeElapsed / .5f);
+            timeElapsed += Time.deltaTime;
+            yield return null; // Wait until the next frame
+        }
+
+        canvasGroup.alpha = endAlpha; // Ensure it's set to the final alpha
+    }
+
+    public void ToggleMonitor()
+    {
+        if (hasWristMonitor)
+        {
+            isActive = !isActive;
+        }
+    }
 
     /// <summary>
-    /// Updates health text as well as the current objective. Also handles Lerp logic 
+    /// Updates health text as well as the current objective. 
     /// </summary>
     private void FixedUpdate()
     {
-        healthSlider.value = player.PlayerHealth;
-        stimText.text = $"{player.NumStims}/3";
-        if(mainObjectives.Count > 0)
+        if (isActive)
         {
-            currentObjectiveText.text = $"{mainObjectives[0].ObjectiveDescription}\n{mainObjectives[0].SubObjective}";
-        }
-        currentPosition = targetRectTransform.anchoredPosition3D;
-        if(isActive && duration < lerpDuration)
-        {
-            duration += Time.deltaTime;
-            float t = duration / lerpDuration;
-
-            targetRectTransform.anchoredPosition3D = Vector3.Lerp(startPosition, targetPosition, t);
-        }
-        if (!isActive && duration < lerpDuration)
-        {
-            duration += Time.deltaTime;
-            float t = duration / lerpDuration;
-
-            targetRectTransform.anchoredPosition3D = Vector3.Lerp(currentPosition, startPosition, t);
-
-            if (targetRectTransform.anchoredPosition3D == startPosition) {
-                this.gameObject.SetActive(false);
+            wristMonitorCanvasGroup.alpha = 1f;
+            UpdateHealthAndInfo();
+            if (player.IsGrabbing)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+            }
+        }
+        else
+        {
+            wristMonitorCanvasGroup.alpha = 0f;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
     }
 
+    /// <summary>
+    /// Updates the health animation as well as the stim charges
+    /// </summary>
+    private void UpdateHealthAndInfo()
+    {
+        // Show current objective
+        if (mainObjectives.Count > 0)
+        {
+            currentObjectiveText.text = $"{mainObjectives[0].ObjectiveDescription}\n{mainObjectives[0].SubObjective}";
+        }
+        // Update stim number
+        stimText.text = $"{player.NumStims}/3";
+
+        if(player.PlayerHealth <= 1)
+        {
+            healthText.text = "<Color=red>Status: DYING</color>";
+            fullHealthAnimationImage.SetActive(false);
+            injuredAnimationImage.SetActive(false);
+            lowHealthAnimationImage.SetActive(true);
+        }
+        if (player.PlayerHealth <= 3)
+        {
+            healthText.text = "<Color=yellow>Status: INJURED</color>";
+            fullHealthAnimationImage.SetActive(false);
+            injuredAnimationImage.SetActive(true);
+            lowHealthAnimationImage.SetActive(false);
+        }
+        if (player.PlayerHealth == 4)
+        {
+            healthText.text = "<Color=green>Status: HEALTHY</color>";
+            fullHealthAnimationImage.SetActive(true);
+            injuredAnimationImage.SetActive(false);
+            lowHealthAnimationImage.SetActive(false);
+        }
+    }
     /// <summary>
     /// Public method called outside of script (by objective triggers) to complete the first objective in the list
     /// </summary>
@@ -189,7 +291,8 @@ public class WristMonitor : MonoBehaviour
         {
             mainObjectives[0].IsCompleted = true;
             CheckObjectives();
-            objectiveUpdator.TextFade();
+            objectiveUpdator.TextFade(mainObjectives[0].ObjectiveName);
+            
 
             //Debug.Log(mainObjectives[0].ObjectiveDescription);
         }
@@ -207,6 +310,18 @@ public class WristMonitor : MonoBehaviour
         }
     }
 
+    public void ShowCompleted()
+    {
+        completedObjectiveText.text = "";
+        foreach (var objective in completedObjectives)
+        {
+            completedObjectiveText.text += objective.ObjectiveName.ToString();
+        }
+    }
+    /// <summary>
+    /// Switches the active display of the Wrist Monitor
+    /// </summary>
+    /// <param name="displayIndex"></param>
     public void SwitchDisplay(int displayIndex)
     {
         for(int i = 0; i < _displayTexts.Length; i++)

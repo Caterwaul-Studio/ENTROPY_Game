@@ -101,15 +101,15 @@ public class PickupScript : MonoBehaviour
                 {
                     current = hitObj;
                     canPickUp = true;
-                    uiManager.InputIndicator.sprite = uiManager.KeyFIndicator;
-                    uiManager.InputIndicator.color = indicatorColor;
+
+                    uiManager.ShowBillboardUI(uiManager.KeyFIndicator, hitObj.transform);
                 }
                 else
                 {
                     current = null;
                     canPickUp = false;
-                    //uiManager.InputIndicator.sprite = null;
-                    //uiManager.InputIndicator.color = emptyColor;
+
+                    uiManager.HideBillboardUI();
                 }
             }
             else
@@ -123,8 +123,8 @@ public class PickupScript : MonoBehaviour
                     {
                         current = col.gameObject;
                         canPickUp = true;
-                        uiManager.InputIndicator.sprite = uiManager.KeyFIndicator;
-                        uiManager.InputIndicator.color = indicatorColor;
+
+                        uiManager.ShowBillboardUI(uiManager.KeyFIndicator, col.transform);
                         found = true;
                         break;
                     }
@@ -134,10 +134,14 @@ public class PickupScript : MonoBehaviour
                 {
                     current = null;
                     canPickUp = false;
-                    //uiManager.InputIndicator.sprite = null;
-                    //uiManager.InputIndicator.color = emptyColor;
+
+                    uiManager.HideBillboardUI();
                 }
             }
+        }
+        else
+        {
+            canPickUp = false;
         }
 
         //Debug.DrawRay(cam.transform.position, cam.transform.forward * pickUpRange, Color.blue);
@@ -181,6 +185,11 @@ public class PickupScript : MonoBehaviour
     {
         if (heldObj != null) //if player is holding object
         {
+            if (heldObj.GetComponent<FloatingImpactAudio>()) //only do this if the object has an audio source
+            {
+                //unmute the thrown object
+                StartCoroutine(heldObj.GetComponent<FloatingImpactAudio>().unmuteAfterTime());
+            }
             MoveObject(); //keep object position at holdPos
             ThrowObject();
 
@@ -190,13 +199,25 @@ public class PickupScript : MonoBehaviour
 
     void PickUpObject(GameObject pickUpObj)
     {
+        if (pickUpObj.GetComponent<AudioSource>()) //only do this if the object has an audio source
+        {
+            //mute the picked up object's audio source if we are holding it
+            pickUpObj.GetComponent<AudioSource>().mute = true;
+        }
+
         if (pickUpObj.GetComponent<Rigidbody>()) //make sure the object has a RigidBody
         {
+            canPickUp = false;
             heldObj = pickUpObj; //assign heldObj to the object that was hit by the raycast (no longer == null)
+            uiManager.HideBillboardUI();
             heldObjRb = pickUpObj.GetComponent<Rigidbody>(); //assign Rigidbody
             heldObjRb.isKinematic = true;
             heldObjRb.transform.parent = holdPos.transform; //parent object to holdposition
             heldObj.layer = 8; //change the object layer to the holdLayer
+            foreach (Transform child in heldObj.GetComponentInChildren<Transform>())
+            {
+                child.gameObject.layer = 8;
+            }
             //make sure object doesnt collide with player, it can cause weird bugs
             Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, true);
             //heldObj.GetComponent<Collider>().enabled = false;
@@ -218,8 +239,8 @@ public class PickupScript : MonoBehaviour
 
             AudioSource itemSource = heldObj.GetComponentInChildren<AudioSource>();
 
-            if (itemAudioHandler != null && itemSource != null)
-                itemAudioHandler.PlayPickUpSound(itemSource);
+            if (itemAudioHandler != null)
+                itemAudioHandler.PlayPickUpSound(holdPos.position);
         }
     }
     void DropObject()
@@ -228,8 +249,11 @@ public class PickupScript : MonoBehaviour
         Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, false);
         //heldObj.GetComponent<Collider>().enabled = true;
 
-        Debug.Log(objectLayer.value);
         heldObj.layer = 9; //object assigned back to default layer
+        foreach (Transform child in heldObj.GetComponentInChildren<Transform>())
+        {
+            child.gameObject.layer = 0;
+        }
         heldObjRb.isKinematic = false;
         heldObj.transform.parent = ObjectContainer.transform; //unparent object
         heldObj = null; //undefine game object
@@ -257,14 +281,18 @@ public class PickupScript : MonoBehaviour
         Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, false);
         //heldObj.GetComponent<Collider>().enabled = true;
         heldObj.layer = 9;
+        foreach (Transform child in heldObj.GetComponentInChildren<Transform>())
+        {
+            child.gameObject.layer = 0;
+        }
         heldObjRb.isKinematic = false;
         heldObj.transform.parent = ObjectContainer.transform;
         heldObjRb.AddForce(cam.transform.forward.normalized * throwForce, ForceMode.VelocityChange);
 
         AudioSource itemSource = heldObj.GetComponentInChildren<AudioSource>();
 
-        if (itemAudioHandler != null && itemSource != null)
-            itemAudioHandler.PlayThrowSound(itemSource);
+        if (itemAudioHandler != null)
+            itemAudioHandler.PlayThrowSound(holdPos.position);
 
         heldObj = null;
         hasThrownObject = true;

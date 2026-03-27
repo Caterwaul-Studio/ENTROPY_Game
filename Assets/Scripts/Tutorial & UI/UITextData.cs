@@ -11,12 +11,14 @@ public class Dialogue
     public bool skipWithTutorial;
     public bool incrementsDialogue;
     public float delayBetweenDialogues = 0.5f;
+    public float delayBetweenLines = 1f;
 }
 
 [System.Serializable]
 public class DialogueSequence
 {
     public Dialogue[] dialogues;
+    public AudioSource audioSource;
 }
 
 struct TutorialStep

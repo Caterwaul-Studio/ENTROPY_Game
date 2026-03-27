@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class TerminalTextureRendererManager : MonoBehaviour
 {
@@ -14,13 +15,8 @@ public class TerminalTextureRendererManager : MonoBehaviour
 
     private int[] textureDensity = new int[] { 1024, 1024 };
 
-
-
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
-   
         foreach (Terminal terminal in this.GetComponentsInChildren<Terminal>())
         {
             // hard coding avoiding overwriting the server terminals screen material...
@@ -61,7 +57,7 @@ public class TerminalTextureRendererManager : MonoBehaviour
             terminal.ALANScreenUI = uiReferences.ALANConnected;
 
             td.DisabledScreen = uiReferences.NeedsConnection;
-      
+
             ts.TerminalText = uiReferences.ComputerTerminalText;
 
             tp.UploadText = uiReferences.UploadText;
@@ -73,14 +69,18 @@ public class TerminalTextureRendererManager : MonoBehaviour
 
 
 
-
-
         }
+    }
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+   
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        
     }
 }

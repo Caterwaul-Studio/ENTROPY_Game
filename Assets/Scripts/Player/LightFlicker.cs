@@ -39,6 +39,7 @@ public class LightFlicker : MonoBehaviour
     private float timer;
 
 
+    public bool useSwapMaterial = false;
 
     bool isActive;
 
@@ -48,7 +49,9 @@ public class LightFlicker : MonoBehaviour
     {
         timer = Random.Range(minOnDuration, maxOnDuration);
         isActive = true;
-        lightBaseRenderer = lightBase.GetComponent<Renderer>();
+
+
+        if (lightBase) lightBaseRenderer = lightBase.GetComponent<Renderer>();
     }
 
     // Update is called once per frame
@@ -63,13 +66,13 @@ public class LightFlicker : MonoBehaviour
 
             if (isActive)
             {
-                lightBaseRenderer.material = onMaterial;
+                if(useSwapMaterial) lightBaseRenderer.material = onMaterial;
                 spotLight.intensity = defaultIntensity;
                 timer = Random.Range(minOnDuration, maxOnDuration);
             }
             else
             {
-                lightBaseRenderer.material = offMaterial;
+                if(useSwapMaterial) lightBaseRenderer.material = offMaterial;
                 spotLight.intensity = Random.Range(minIntensity, maxIntensity);
                 timer = Random.Range(-minOffDuration, maxOffDuration);
             }

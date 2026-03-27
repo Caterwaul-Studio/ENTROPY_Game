@@ -37,7 +37,8 @@ public class Sparks : MonoBehaviour
                 
                 spark.Emit(Random.Range(5, 12));
                 StartCoroutine(LightFlash());
-                audio.PlayOneShot(sparkSFX);
+                if (audio.isActiveAndEnabled)
+                    audio.PlayOneShot(sparkSFX);
                 
                 
             }

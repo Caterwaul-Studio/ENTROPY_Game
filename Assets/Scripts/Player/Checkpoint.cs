@@ -35,6 +35,18 @@ public class Checkpoint : MonoBehaviour
         }
     }
 
+    public void ToggleCheckpoint(bool isActive)
+    {
+        _col.enabled = isActive;
+    }
+
+    public void TriggerCheckpointManually()
+    {
+        _zeroG.respawnLoc = respawnPoint;
+        _col.enabled = false;             // deactivate this checkpoint
+        OnReached?.Invoke(this);
+    }
+
     void OnDrawGizmos()
     {
         // Draw sphere at respawn point

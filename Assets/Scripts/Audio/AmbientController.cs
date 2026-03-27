@@ -364,7 +364,7 @@ public class AmbientController : MonoBehaviour
             }
         }
     }
-
+/*
     public void PlayStinger(AudioClip clip, bool loop = false, float fadeInDuration = 0f)
     {
         if (clip == null) return;
@@ -508,7 +508,7 @@ public class AmbientController : MonoBehaviour
             // Wait for clip to finish
             yield return new WaitForSeconds(clip.length);
         }
-    }
+    }*/
 
 
 }

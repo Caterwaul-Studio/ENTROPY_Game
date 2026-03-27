@@ -1,12 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
-public class CheckpointManager : MonoBehaviour
+public class CheckpointManager : MonoBehaviour, ISaveable
 {
     [Tooltip("Ordered list of your checkpoints in scene")]
     [SerializeField]
     public List<Checkpoint> checkpoints;
-    public ZeroGravity playerZeroG;    // drag your player’s ZeroGravity component here
+    public ZeroGravity playerZeroG;    // drag your playerï¿½s ZeroGravity component here
 
     int _currentIndex = 0;
 
@@ -19,11 +20,8 @@ public class CheckpointManager : MonoBehaviour
             cp.OnReached += HandleCheckpointReached;
             cp.Initialize(playerZeroG, i == 0);
         }
-        // when loading from save, overwrite the checkpoints
-        if (GlobalSaveManager.Instance != null && GlobalSaveManager.Instance.LoadFromSave)
-        {
-            LoadCheckpointStates(GlobalSaveManager.Instance.Data.CheckpointStates);
-        }
+        // continue from save
+        if (GlobalSaveManager.LoadFromSave) GlobalSaveManager.LoadSavable(this, false);
     }
 
     void HandleCheckpointReached(Checkpoint reached)
@@ -34,31 +32,56 @@ public class CheckpointManager : MonoBehaviour
             _currentIndex++;
             checkpoints[_currentIndex].Initialize(playerZeroG, true);
         }
-        StoreCheckpointStates();
         // store the Player's data to the save manager, passing in the position of this checkpoint
         playerZeroG.StorePlayerData(reached.respawnPoint.transform.position);
         // save the game at checkpoints
-        GlobalSaveManager.Instance.CreateSaveFile();
+        GlobalSaveManager.SavedWithTerminal = false;
+        GlobalSaveManager.SaveGame(false);
     }
-    // backs up checkpoint states for saving
-    public void StoreCheckpointStates()
+
+    // these are for serialization and will be created during the save
+    [Serializable]
+    public class CheckPointData
+    {
+        [SerializeField]
+        private List<bool> checkpointStates;
+        public List<bool> CheckpointStates
+        {
+            get { return checkpointStates; }
+        }
+        public CheckPointData(List<bool> _checkpointStates)
+        {
+            checkpointStates = _checkpointStates;
+        }
+    }
+
+    public void LoadSaveFile(string fileName)
+    {
+        // this will load data from the file to a variable we will use to change this objects data
+        string path = Application.persistentDataPath;
+        string loadedData = GlobalSaveManager.LoadTextFromFile(path, fileName);
+        if (loadedData != null && loadedData != "")
+        {
+            CheckPointData _checkpointData = JsonUtility.FromJson<CheckPointData>(loadedData);
+            for (int i = 0; i < _checkpointData.CheckpointStates.Count; i++)
+            {
+                checkpoints[i].Col.enabled = _checkpointData.CheckpointStates[i];
+            }
+        }
+    }
+
+    public void CreateSaveFile(string fileName)
     {
         // store a copy of the checkpoint data in the global save manager
         // GlobalSaveManager.Instance.Data.Checkpoints = new List<Checkpoint>(checkpoints);
-        bool[] _checkPointStates = new bool[checkpoints.Count];
-        for (int i = 0; i < checkpoints.Count; i++)
+        CheckPointData _checkpointData = new CheckPointData(new List<bool>());
+        foreach (Checkpoint _checkpoint in checkpoints)
         {
-            _checkPointStates[i] = checkpoints[i].Col.enabled;
+            _checkpointData.CheckpointStates.Add(_checkpoint.Col.enabled);
         }
-        GlobalSaveManager.Instance.Data.CheckpointStates = _checkPointStates;
-    }
-
-    // called when loading a save
-    public void LoadCheckpointStates(bool[] _checkpointStates)
-    {
-        for (int i = 0; i < checkpoints.Count; i++)
-        {
-            checkpoints[i].Col.enabled = _checkpointStates[i];
-        }
+        // this will create a file backing up the data we give it
+        string json = JsonUtility.ToJson(_checkpointData);
+        string path = Application.persistentDataPath;
+        GlobalSaveManager.SaveTextToFile(path, fileName, json);
     }
 }

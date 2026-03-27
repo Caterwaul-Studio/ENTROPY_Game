@@ -6,24 +6,24 @@ using System.Collections;
 public class ServerProgressBars : MonoBehaviour
 {
     [Header("Screen Sources")]
-    [SerializeField] Terminal serverTerminal;
+    //[SerializeField] Terminal serverTerminal;
     [SerializeField] LockdownPanel panel;
 
     [Header("Panels")]
-    [SerializeField] GameObject terminalShutdown;
-    [SerializeField] GameObject terminalReboot;
+    //[SerializeField] GameObject terminalShutdown;
+    //[SerializeField] GameObject terminalReboot;
     [SerializeField] GameObject panelShutdown;
     [SerializeField] GameObject panelReboot;
 
     [Header("Sliders")]
-    [SerializeField] Slider terminalShutdownSlider;
-    [SerializeField] Slider terminalRebootSlider;
+    //[SerializeField] Slider terminalShutdownSlider;
+    //[SerializeField] Slider terminalRebootSlider;
     [SerializeField] Slider panelShutdownSlider;
     [SerializeField] Slider panelRebootSlider;
 
     [Header("UploadText")]
-    [SerializeField] TMP_Text terminalShutdownText;
-    [SerializeField] TMP_Text terminalRebootText;
+    //[SerializeField] TMP_Text terminalShutdownText;
+    //[SerializeField] TMP_Text terminalRebootText;
     [SerializeField] TMP_Text panelShutdownText;
     [SerializeField] TMP_Text panelRebootText;
 
@@ -66,30 +66,30 @@ public class ServerProgressBars : MonoBehaviour
     {
         shutdownComplete = false;
 
-        StartCoroutine(UploadProgress(6f, terminalShutdown, terminalShutdownSlider, terminalShutdownText, ProgressType.Shutdown));
+        //StartCoroutine(UploadProgress(6f, terminalShutdown, terminalShutdownSlider, terminalShutdownText, ProgressType.Shutdown));
         StartCoroutine(UploadProgress(6f, panelShutdown, panelShutdownSlider, panelShutdownText, ProgressType.Shutdown));
 
         yield return new WaitUntil(() => shutdownComplete);
 
-        terminalShutdown.SetActive(false);
+        //terminalShutdown.SetActive(false);
         panelShutdown.SetActive(false);
-        serverTerminal.TurnOff();
+        //serverTerminal.TurnOff();
         panel.TurnOff();
     }
 
     private IEnumerator StartReboot()
     {
         rebootComplete = false;
-        serverTerminal.TurnOn();
+        //serverTerminal.TurnOn();
         panel.TurnOn();
 
-        StartCoroutine(UploadProgress(7f, terminalReboot, terminalRebootSlider, terminalRebootText, ProgressType.Reboot));
+        //StartCoroutine(UploadProgress(7f, terminalReboot, terminalRebootSlider, terminalRebootText, ProgressType.Reboot));
         StartCoroutine(UploadProgress(7f, panelReboot, panelRebootSlider, panelRebootText, ProgressType.Reboot));
 
         yield return new WaitUntil(() => rebootComplete);
 
         panel.CompleteLockdown();
-        terminalReboot.SetActive(false);
+        //terminalReboot.SetActive(false);
         panelReboot.SetActive(false);
     }
 }

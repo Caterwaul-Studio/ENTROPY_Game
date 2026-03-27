@@ -4,9 +4,8 @@ using UnityEngine;
 public class AirBreachTrigger : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    [SerializeField] private VentScript vent1;
-    [SerializeField] private VentScript vent2;
-    [SerializeField] private VentScript vent3;
+    public AirBreachScript breachScript;
+    
     void Start()
     {
         
@@ -18,22 +17,26 @@ public class AirBreachTrigger : MonoBehaviour
         
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            GetComponent<Collider>().enabled = false;
-            StartCoroutine(TriggerVents());
+        if (!breachScript.IsCurrentlyBlowing) return;
 
+        if (other.CompareTag("PickupObject") || other.CompareTag("Player"))
+        {
+            Rigidbody rb = other.attachedRigidbody;
+            if (rb != null && !breachScript.affectedRigidbodies.Contains(rb))
+            {
+                breachScript.affectedRigidbodies.Add(rb);
+            }
         }
     }
 
-    private IEnumerator TriggerVents()
+    void OnTriggerExit(Collider other)
     {
-        vent1.TurnOn();
-        yield return new WaitForSeconds(3f);
-        vent2.TurnOn();
-        yield return new WaitForSeconds(0.5f);
-        vent3.TurnOn();
+        Rigidbody rb = other.attachedRigidbody;
+        if (rb != null)
+        {
+            breachScript.affectedRigidbodies.Remove(rb);
+        }
     }
 }

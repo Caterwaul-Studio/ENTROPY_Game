@@ -36,9 +36,9 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private Slider rollProgressBar;
     [SerializeField] private float requiredRotation = 180f; // how much roll needed
 
-    [SerializeField] private AudioClip tutorialStingerClip;
+    //[SerializeField] private AudioClip tutorialStingerClip;
 
-    public AudioClip TutorialStingerClip => tutorialStingerClip; // property accessor
+    //public AudioClip TutorialStingerClip => tutorialStingerClip; // property accessor
 
     public float fadeDuration = 1f;
 
@@ -60,21 +60,27 @@ public class TutorialManager : MonoBehaviour
 
     private float initialRollZ;
 
+    //audio managers
     public DialogueAudio dialogueAudio;
-    public AmbientController ambientController;
+    public StingerManager stingerManager;
 
     private bool inItemGrabTutorial = false;
     private bool inItemThrowTutorial = false;
     private bool detectedPickup = false;
     private bool hasAttemptedSecondGrab = false;
 
-    // rolling threshold (in degrees) beyond which we consider �upside down�
+    // rolling threshold (in degrees) beyond which we consider upside down
     [SerializeField] private float rollAngleThreshold = 150f;
 
-    
+
     //timer for checking if player is upside down
     private float upsideDownTimer = 0f;
     private const float upsideDownDuration = 3f;
+
+    [SerializeField] private Slider skipProgressSlider;
+    [SerializeField] private float holdDuration = 1f;
+    private float currentHoldTime = 0f;
+
 
     public bool IsTutorialSkipped
     {
@@ -95,11 +101,20 @@ public class TutorialManager : MonoBehaviour
         playerController = ZeroGPlayer.GetComponent<ZeroGravity>();
         pickupScript = ZeroGPlayer.GetComponent<PickupScript>();
         playerGrabRange = playerController.GrabRange;
+        playerController.TutorialMode = true;
 
-        if (playerController.TutorialMode == true)
+        //determines if the player is to be in tutorial from the player controller's "TutorialMode" bool, which is saved by the GSM
+        if (playerController.TutorialMode == true && !GlobalSaveManager.LoadFromSave)
         {
-            dialogueManager.OnDialogueEnd += OnDialogueComplete;
+            dialogueManager.OnDialogueEndTutorial += OnDialogueComplete;
             StartCoroutine(StartTutorial());
+        }
+
+        if (skipProgressSlider != null)
+        {
+            skipProgressSlider.minValue = 0f;
+            skipProgressSlider.maxValue = 1f;
+            skipProgressSlider.value = 0f;
         }
 
     }
@@ -107,23 +122,12 @@ public class TutorialManager : MonoBehaviour
     void Update()
     {
         // Skip tutorial with Enter
-        if (Keyboard.current.enterKey.wasPressedThisFrame)
+        if (!tutorialSkipped && inTutorial)
         {
-            if (!tutorialSkipped && inTutorial)
-            {
-                tutorialSkipped = true;
-                dialogueManager.SkipTutorial();
-                FadeOut(enterCanvasGroup);
-                if (ambientController != null)
-                {
-                    ambientController.StopStinger(ambientController.TutorialStingerClip, 5f);
-
-                }
-                EndTutorial();
-            }
-            
+            HandleTutorialSkip();
         }
 
+        //isWaitingForAction is the how we determine when the tutorial is waiting for an action for the player, and it matches with step in accordance with RunTutorialStep()
         if (isWaitingForAction)
         {
             if (currentStep == 1 && playerController.IsGrabbing)
@@ -131,64 +135,41 @@ public class TutorialManager : MonoBehaviour
                 FadeOut(grabCanvasGroup);
                 CompleteStep();
             }
-            //Debug.Log("Waiting for step " + currentStep);
-            //Debug.Log("Current step complete: " + stepComplete);
             else if (currentStep == 2)
             {
 
                 UpdateRollProgress();
-                //float currentZ = playerController.cam.transform.eulerAngles.z;
-                //Debug.Log(currentZ);
 
-                // Compute delta roll from initial orientation
-                //float delta = Mathf.DeltaAngle(initialRollZ, currentZ);
-
-                //bool isUpsideDownLook = Mathf.Abs(delta) >= 170f && Mathf.Abs(delta) <= 190f;
-                //Debug.Log("Tutorial Detected Rotation " + playerController.TotalRotation);
                 bool isUpsideDown = playerController.TotalRotation >= requiredRotation;
 
-                //Debug.Log("Has rolled? "+ playerController.HasRolled);
                 if (isUpsideDown)
                 {
                     //Debug.Log("Player rolled upside down");
                     playerController.StopRollingQuickly();
-                    
+
                     FadeOut(rollQCanvasGroup);
                     CompleteStep();
                     playerController.TotalRotation = 0;
                     rollProgressBar.gameObject.SetActive(false); // hide when done
                 }
-                //else if (isUpsideDownLook && !playerController.HasRolled)
-                //{
-                //    if (!hasPlayedRollFailure)
-                //    {
-                //        StartCoroutine(dialogueManager.PlayFailureDialogue(1));
-                //        hasPlayedRollFailure = true;
-                //    }
-                //}
             }
             else if (currentStep == 3)
             {
                 UpdateRollProgress();
-                //float currentZ = playerController.cam.transform.eulerAngles.z;
-
-                //float delta = Mathf.DeltaAngle(initialRollZ, currentZ);
-
-                //bool isUpright = Mathf.Abs(delta) <= 10f; // close to original orientation
                 bool isUpright = playerController.TotalRotation <= requiredRotation;
 
                 if (isUpright)
                 {
                     //Debug.Log("Player rolled upright");
                     playerController.StopRollingQuickly();
-                    
+
                     FadeOut(rollECanvasGroup);
                     CompleteStep();
                     playerController.TotalRotation = 0;
                     rollProgressBar.gameObject.SetActive(false); // hide when done
                 }
             }
-            
+
             else if (currentStep == 4 && playerController.HasPropelled && hasAttemptedSecondGrab == false)
             {
                 //Debug.Log("Detected player propel");
@@ -200,13 +181,14 @@ public class TutorialManager : MonoBehaviour
             }
         }
 
+        //When the player enters the dorm hall there's an optional tutorial to handle grabbing items.
         if (inItemGrabTutorial)
         {
-            if(pickupScript.HeldObject != null && !detectedPickup)
+            if (pickupScript.HeldObject != null && !detectedPickup)
             {
                 detectedPickup = true;
                 inItemGrabTutorial = false;
-                if(pickUpItemCanvasGroup.alpha > 0)
+                if (pickUpItemCanvasGroup.alpha > 0)
                 {
                     pickUpItemCanvasGroup.alpha = 0;
                 }
@@ -215,7 +197,7 @@ public class TutorialManager : MonoBehaviour
             }
         }
 
-        if(inItemThrowTutorial)
+        if (inItemThrowTutorial)
         {
             if (pickupScript.HeldObject == null)
             {
@@ -225,18 +207,21 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
+    //Starts the tutoral and sets up player actions, audio, and UI
     private IEnumerator StartTutorial()
     {
         SetPlayerAbilities(false, false, false, false, false);
+
+        //temporarily reduce grab range so the player can only grab the closest bar to them.
         playerController.GrabRange = 1f;
         inTutorial = true;
         yield return new WaitForSeconds(1f);
-        //dialogueAudio.PlayJingle();
+        dialogueAudio.PlayJingle();
 
         // Play looping tutorial stinger with fade-in
-        if (ambientController != null)
+        if (stingerManager != null)
         {
-            ambientController.PlayStinger(ambientController.TutorialStingerClip, loop: true, fadeInDuration: 8f);
+            StartCoroutine(DelayedStinger(8f));
         }
 
 
@@ -247,6 +232,15 @@ public class TutorialManager : MonoBehaviour
         StartCoroutine(DelayFadeOut(7, enterCanvasGroup));
     }
 
+    private IEnumerator DelayedStinger(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        // Play looping tutorial stinger with fade-in
+        stingerManager.PlayTutorialStinger(fadeInDuration: 7f);
+    }
+
+    //Called from the Dialogue Manager when the next step is ready to occur
     public void ProgressTutorial()
     {
         if (isWaitingForAction) return;
@@ -254,12 +248,20 @@ public class TutorialManager : MonoBehaviour
         RunTutorialStep();
     }
 
+    //Is intended to be used when the player skips the tutorial.
+    public void ForceCompleteAllSteps()
+    {
+        stepComplete = true;
+        isWaitingForAction = false;
+    }
+
+    //Switch statement that handles each step in the tutorial
     void RunTutorialStep()
     {
         //Debug.Log("Current Step: " + currentStep);
         switch (currentStep)
         {
-            
+
             case 1:
                 // Step 1: Grab a bar
                 //Debug.Log("Tutorial 1: Grab bar");
@@ -278,13 +280,13 @@ public class TutorialManager : MonoBehaviour
                     rollProgressBar.gameObject.SetActive(true);
                     rollProgressBar.value = 0f; // reset to empty immediately
                 }
-                    
+
                 stepComplete = false;
                 isWaitingForAction = true;
                 SetPlayerAbilities(true, false, false, true, false); // grab and roll only
                 initialRollZ = playerController.cam.transform.eulerAngles.z;
                 FadeIn(rollQCanvasGroup);
-                
+
                 break;
 
             case 3:
@@ -301,7 +303,7 @@ public class TutorialManager : MonoBehaviour
                 SetPlayerAbilities(true, false, false, true, false); // grab and roll only
                 initialRollZ = playerController.cam.transform.eulerAngles.z;
                 FadeIn(rollECanvasGroup);
-                
+
                 break;
 
             case 4:
@@ -315,7 +317,7 @@ public class TutorialManager : MonoBehaviour
                 break;
             case 5:
                 //Debug.Log("Tutorial Complete");
-                
+
                 EndTutorial();
 
                 break;
@@ -358,10 +360,13 @@ public class TutorialManager : MonoBehaviour
         {
             FadeOut(propelCanvasGroup);
             // Step is now complete
-            
+
             CompleteStep();
         }
-        
+
+
+
+
     }
 
     public void CompleteStep()
@@ -370,6 +375,7 @@ public class TutorialManager : MonoBehaviour
         isWaitingForAction = false;
     }
 
+    //sets the abilities of the player and has them reflected in the tutorial script
     public void SetPlayerAbilities(bool canGrab, bool canPropel, bool canPushOff, bool canRoll, bool canThrow)
     {
         playerController.CanGrab = canGrab;
@@ -385,6 +391,7 @@ public class TutorialManager : MonoBehaviour
         this.canThrow = canThrow;
     }
 
+    //Method that sets the abilities of the player back to that which is currently needed in the tutorial.
     public void SetAbilitiesToTutorial()
     {
         playerController.CanGrab = canGrab;
@@ -396,22 +403,15 @@ public class TutorialManager : MonoBehaviour
 
     void EndTutorial()
     {
-        
         SetPlayerAbilities(true, true, true, true, true);
         inTutorial = false;
         isWaitingForAction = false;
         playerController.TutorialMode = false;
         playerController.GrabRange = playerGrabRange;
-        if(doorToOpen!=null)
-        {
-            if(doorToOpen.DoorState != DoorScript.States.Open)
-            {
-                doorToOpen.SetState(DoorScript.States.Open);
-            }
-        }
+
 
         // Fade out tutorial stinger
-        ambientController.StopStinger(ambientController.TutorialStingerClip, fadeOutDuration: 10f);
+
 
 
         //remove all tutorial panels
@@ -419,8 +419,84 @@ public class TutorialManager : MonoBehaviour
         //ambientController.Progress();
         currentStep = 5;
 
+
+        /*        Debug.Log("EndTutorial called. Subscribing to OnDialogueEnd.");
+                dialogueManager.StartDialogueSequence(1, 0.2f);
+
+                dialogueManager.OnDialogueEnd += HandleDialogueFinished;
+        */
         dialogueManager.StartDialogueSequence(1, 0.2f);
+
+        StartCoroutine(WaitForDialogue1AndOpenDoor());
+
+        /*        if (doorToOpen != null)
+                {
+                    if (doorToOpen.DoorState != DoorScript.States.Open)
+                    {
+                        doorToOpen.SetState(DoorScript.States.Open);
+                    }
+                }*/
     }
+
+    private IEnumerator WaitForDialogue1AndOpenDoor()
+    {
+        // Wait until DialogueManager is idle and sequence 1 has finished
+        while (dialogueManager.IsDialogueActive)
+        {
+            yield return null;
+        }
+
+        if (doorToOpen != null && doorToOpen.DoorState != DoorScript.States.Open)
+        {
+            doorToOpen.SetState(DoorScript.States.Open);
+        }
+
+        if (stingerManager != null)
+        {
+            stingerManager.StopTutorialStinger(fadeOutDuration: 12f);
+        }
+
+    }
+
+    /*    private void HandleDialogueFinished(int sequenceIndex)
+        {
+            // Only react to sequence 1 finishing
+
+
+            Debug.Log("HandleDialogueFinished RECEIVED index: " + sequenceIndex);
+            dialogueManager.OnDialogueEnd -= HandleDialogueFinished; // Unsubscribe
+
+            if (doorToOpen != null && doorToOpen.DoorState != DoorScript.States.Open)
+            {
+                doorToOpen.SetState(DoorScript.States.Open);
+            }
+
+            *//*            if (doorToOpen != null)
+                        {
+                            if (doorToOpen.DoorState != DoorScript.States.Open)
+                            {
+                                doorToOpen.SetState(DoorScript.States.Open);
+                            }
+                        }*//*
+
+            stingerManager.StopTutorialStinger(fadeOutDuration: 12f);
+
+        }
+
+        private IEnumerator ForcePlayEndTutorialDialogue()
+        {
+            // Wait one frame so EndTutorial() finishes
+            yield return null;
+
+            // Ensure handler is correctly wired
+            dialogueManager.OnDialogueEnd -= HandleDialogueFinished;
+            dialogueManager.OnDialogueEnd += HandleDialogueFinished;
+
+            // Force start sequence 1 manually
+            dialogueManager.ForceStartSequence(1);
+        }
+    */
+
 
     //checks to see if the tutorial step is complete
     public bool TutorialStepCompleted()
@@ -529,11 +605,11 @@ public class TutorialManager : MonoBehaviour
     {
         StopAllCoroutines();
 
-        if(enterCanvasGroup.alpha != 0)
+        if (enterCanvasGroup.alpha != 0)
         {
             FadeOut(enterCanvasGroup);
         }
-        if(rollQCanvasGroup.alpha != 0)
+        if (rollQCanvasGroup.alpha != 0)
         {
             FadeOut(rollQCanvasGroup);
         }
@@ -587,9 +663,66 @@ public class TutorialManager : MonoBehaviour
     {
         FadeIn(pickUpItemCanvasGroup);
         yield return new WaitForSeconds(7f);
-        if(pickUpItemCanvasGroup.alpha > 0)
+        if (pickUpItemCanvasGroup.alpha > 0)
         {
             FadeOut(pickUpItemCanvasGroup);
+        }
+    }
+
+
+
+    private void HandleTutorialSkip()
+    {
+        if (Keyboard.current.enterKey.isPressed)
+        {
+            if (enterCanvasGroup.alpha < 1)
+            {
+                enterCanvasGroup.alpha = 1f;
+            }
+
+            skipProgressSlider.GetComponent<CanvasGroup>().alpha = 1.0f;
+            currentHoldTime += Time.deltaTime;
+
+            // Update slider progress
+            if (skipProgressSlider != null)
+            {
+                skipProgressSlider.value = Mathf.Clamp01(currentHoldTime / holdDuration);
+            }
+
+            // Check if hold duration is complete
+            if (currentHoldTime >= holdDuration)
+            {
+                skipProgressSlider.GetComponent<CanvasGroup>().alpha = 0f;
+                tutorialSkipped = true;
+                dialogueManager.SkipTutorial();
+                ForceCompleteAllSteps();
+                FadeOut(enterCanvasGroup);
+                if (stingerManager != null)
+                {
+                    stingerManager.StopTutorialStinger(fadeOutDuration: 12f);
+                }
+                EndTutorial();
+                // Reset after skipping
+                currentHoldTime = 0f;
+                if (skipProgressSlider != null)
+                {
+                    skipProgressSlider.value = 0f;
+                }
+
+            }
+        }
+        else
+        {
+            skipProgressSlider.GetComponent<CanvasGroup>().alpha = 0f;
+            // Reset when key is released
+            if (currentHoldTime > 0f)
+            {
+                currentHoldTime = 0f;
+                if (skipProgressSlider != null)
+                {
+                    skipProgressSlider.value = 0f;
+                }
+            }
         }
     }
 }

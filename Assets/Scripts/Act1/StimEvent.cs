@@ -19,6 +19,11 @@ public class StimEvent : MonoBehaviour
     [SerializeField]
     private WristMonitor wristMonitor;
 
+    [Header("Air Breaches")]
+    [SerializeField] private AirBreachScript air1;
+    [SerializeField] private AirBreachScript air2;
+    [SerializeField] private AirBreachScript air3;
+
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -41,7 +46,7 @@ public class StimEvent : MonoBehaviour
 
     public IEnumerator StimTutorial()
     {
-        manager.StartDialogueSequence(5, 0.5f);
+        manager.StartDialogueSequence(3, 0.5f);
 
         yield return new WaitForSeconds(6f);
         dispenser.ToggleUsability(true);
@@ -56,14 +61,12 @@ public class StimEvent : MonoBehaviour
 
         wristMonitor.CompleteObjective();
         StartCoroutine(FadeCanvasGroup(stimUseCanvasGroup, 1f, 0f));
-        
+        manager.StartDialogueSequence(4, 0.5f);
 
         yield return new WaitForSeconds(2f);
 
         yield return StartCoroutine(doorToOpen.PlayDoorAlarm(1.2f));
         doorToOpen.SetState(DoorScript.States.Closed);
-
-
     }
 
     private IEnumerator FadeCanvasGroup(CanvasGroup canvasGroup, float startAlpha, float endAlpha)
@@ -80,5 +83,19 @@ public class StimEvent : MonoBehaviour
         }
 
         canvasGroup.alpha = endAlpha; // Ensure it's set to the final alpha
+    }
+
+    public void TriggerBreaches()
+    {
+        StartCoroutine(TriggerBreachesRoutine());
+    }
+
+    private IEnumerator TriggerBreachesRoutine()
+    {
+        air1.TurnOn();
+        yield return new WaitForSeconds(3f);
+        air2.TurnOn();
+        yield return new WaitForSeconds(0.5f);
+        air3.TurnOn();
     }
 }

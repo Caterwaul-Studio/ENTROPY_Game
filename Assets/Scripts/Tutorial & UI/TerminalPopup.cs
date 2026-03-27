@@ -24,6 +24,7 @@ public class TerminalPopup : MonoBehaviour
     [Header("Audio Sources")]
     [SerializeField] private AudioSource bootupSource;
     [SerializeField] private AudioSource completeSource;
+    [SerializeField] private AudioSource loadingBarSource;
 
     public GameObject PopupObject { set { popupObject = value; } }
     public GameObject UploadCompleteText { set { uploadCompleteText = value; } }
@@ -51,6 +52,7 @@ public class TerminalPopup : MonoBehaviour
         uploadText.text = "UPLOADING... 0%";
         uploadCompleteText.SetActive(false);
         isUploaded = false;
+        terminalAudio.PlayLoadingBarSound(loadingBarSource);
 
         StartCoroutine(UploadProgress());
     }

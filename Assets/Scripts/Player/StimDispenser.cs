@@ -40,6 +40,7 @@ public class StimDispenser : MonoBehaviour
     private float lightIntensity = 0f;
 
     private Image progressBar;
+    private CanvasGroup progressCanvas;
 
     [SerializeField]
     private AudioSource audioSource;
@@ -85,6 +86,8 @@ public class StimDispenser : MonoBehaviour
         //Debug.Log(playerScript);
         //Debug.Log(uiScript);
         progressBar = uiScript.ProgressBar;
+        progressCanvas = progressBar.GetComponent<CanvasGroup>();
+        progressCanvas.alpha = 0;
     }
 
     // Update is called once per frame
@@ -92,6 +95,7 @@ public class StimDispenser : MonoBehaviour
     {
         if (isRefilling)
         {
+            progressCanvas.alpha = 1f;
             float progress = holdTimer / refillTime;
             progressBar.fillAmount = Mathf.Clamp01(progress);
             // Cancel refill if player is too far
@@ -149,12 +153,14 @@ public class StimDispenser : MonoBehaviour
         holdTimer = 0f;
         progressBar.fillAmount = 0f;
         progressBar.enabled = false;
+        progressCanvas.alpha = 0f;
     }
 
     private void CompleteRefill()
     {
         // Replace this with logic to update wrist monitor and stim counts
         //Debug.Log("Stim refill complete!");
+        audioSource.priority = 15;
         audioSource.Play();
         playerScript.AddStimsToInv(3);
     }

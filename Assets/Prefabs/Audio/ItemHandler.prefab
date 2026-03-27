@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2631034563455048453
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8701477722954031340}
+  - component: {fileID: 5180332102419684371}
+  m_Layer: 0
+  m_Name: ItemHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8701477722954031340
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2631034563455048453}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.78636, y: 1.29767, z: 8.65314}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7287547808377388333}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5180332102419684371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2631034563455048453}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2999fd6c0c611e84286ea91d226df18b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupSounds:
+  - {fileID: 8300000, guid: 67233a24acf1f6b40b7d1aee2122f8f8, type: 3}
+  throwSounds:
+  - {fileID: 8300000, guid: 67233a24acf1f6b40b7d1aee2122f8f8, type: 3}
+  audioSourcePrefab: {fileID: 7718569169722747656, guid: 86db1edfd9d3f1c4c95a6a7c26a89fbd, type: 3}
+  audioSourceContainer: {fileID: 7287547808377388333}
+  lightImpactThreshold: 1.5
+  metalLightImpacts: []
+  metalHardImpacts: []
+  plasticLightImpacts: []
+  plasticHardImpacts: []
+  softLightImpacts: []
+  softHardImpacts: []
+--- !u!1 &5273678682253452827
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7287547808377388333}
+  m_Layer: 0
+  m_Name: ItemSourceContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7287547808377388333
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5273678682253452827}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8701477722954031340}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -10,14 +10,14 @@ public class Win : MonoBehaviour
     public bool canWin = true;
     public CanvasGroup fadeCanvasGroup;
     public CanvasGroup thanksGroup;
-    private GameObject _uiCam;
+    public GameObject _uiCam;
 
     private void Start()
     {
         if (fadeCanvasGroup == null)
             Debug.LogError("fadeCanvasGroup is NOT assigned in the inspector!");
         winCondition = false;
-        _uiCam = GameObject.FindGameObjectWithTag("UICamera");
+        //_uiCam = GameObject.FindGameObjectWithTag("UICamera");
         if(_uiCam == null)
         {
             print("NULL UI CAM");
@@ -31,13 +31,22 @@ public class Win : MonoBehaviour
 
     void Update()
     {
-        if (winDoor.DoorState == DoorScript.States.Open && canWin == true)
+        // Check if the win door (final door of the game) is open and the player can win
+        //first ensure we catch if there is no win door assigned in inspector
+        if(winDoor == null)
         {
-            canWin = false;
-            _uiCam.SetActive(true);
-            StartCoroutine(ShowWin());
+            //Debug.LogError("winDoor, 'final door of level' is NOT assigned in the inspector!");
+            return;
         }
-
+        else
+        {
+            if (winDoor.DoorState == DoorScript.States.Open && canWin == true)
+            {
+                canWin = false;
+                _uiCam.SetActive(true);
+                StartCoroutine(ShowWin());
+            }
+        }
     }
 
     private IEnumerator ShowWin()

@@ -1,44 +1,121 @@
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
+public enum ItemType
+{
+    MetalSheet,
+    PlasticBin,
+    SoftBox
+}
+
 public class ItemAudioHandler : MonoBehaviour
 {
-    //[Header("Audio Source")]
-    //public AudioSource audioSource;
-
     [Header("Grab Sounds")]
     public AudioClip[] pickupSounds;
 
     [Header("Throw Sounds")]
     public AudioClip[] throwSounds;
 
-/*    [Header("Impact Sounds")]
-    public AudioClip[] impactSounds;
+    public GameObject audioSourcePrefab;
+    public Transform audioSourceContainer;
 
-    [Tooltip("Minimum collision velocity to trigger an impact sound")]
-    public float impactThreshold = 1.5f;*/
+    [Header("Impact Settings")]
+    public float lightImpactThreshold = 1.5f;  // below = light, above = hard
 
-/*    private void Awake()
+    [Header("Metal Sheet")]
+    public AudioClip[] metalLightImpacts;
+    public AudioClip[] metalHardImpacts;
+
+    [Header("Plastic Bin")]
+    public AudioClip[] plasticLightImpacts;
+    public AudioClip[] plasticHardImpacts;
+
+    [Header("Soft Box")]
+    public AudioClip[] softLightImpacts;
+    public AudioClip[] softHardImpacts;
+
+    public void PlayImpactSound(ItemType type, float velocity, Vector3 position)
     {
-        
-    }*/
+        AudioClip[] clips = null;
 
-    public void PlayPickUpSound(AudioSource source)
-    {
-        if (pickupSounds.Length == 0 || source == null) return;
-        int index = Random.Range(0, pickupSounds.Length);
-        source.pitch = Random.Range(0.95f, 1.05f);
-        source.PlayOneShot(pickupSounds[index]);
+        bool hardImpact = velocity >= lightImpactThreshold;
+
+        switch (type)
+        {
+            case ItemType.MetalSheet:
+                clips = hardImpact ? metalHardImpacts : metalLightImpacts;
+                break;
+
+            case ItemType.PlasticBin:
+                clips = hardImpact ? plasticHardImpacts : plasticLightImpacts;
+                break;
+
+            case ItemType.SoftBox:
+                clips = hardImpact ? softHardImpacts : softLightImpacts;
+                break;
+        }
+
+        if (clips == null || clips.Length == 0) return;
+
+        int index = Random.Range(0, clips.Length);
+        PlayOneShot(clips[index], position);
     }
 
-    public void PlayThrowSound(AudioSource source)
+    private void PlayOneShot(AudioClip clip, Vector3 position)
     {
-        if (throwSounds.Length == 0 || source == null) return;
+        if (!clip || !audioSourcePrefab) return;
+
+        GameObject obj = Instantiate(audioSourcePrefab, position, Quaternion.identity, audioSourceContainer);
+        AudioSource src = obj.GetComponent<AudioSource>();
+
+        src.clip = clip;
+        src.pitch = Random.Range(0.85f, 1.15f);
+
+        src.Play();
+        Destroy(obj, clip.length + 0.1f);
+    }
+    public void PlayPickUpSound(Vector3 position)
+    {
+        if (pickupSounds.Length == 0) return;
+
+        int index = Random.Range(0, pickupSounds.Length);
+        PlaySoundAtPosition(pickupSounds[index], position);
+    }
+
+    public void PlayThrowSound(Vector3 position)
+    {
+        if (throwSounds.Length == 0) return;
+
         int index = Random.Range(0, throwSounds.Length);
-        source.pitch = Random.Range(0.95f, 1.05f);
-        source.PlayOneShot(throwSounds[index]);
+        PlaySoundAtPosition(throwSounds[index], position);
+    }
+
+    private void PlaySoundAtPosition(AudioClip clip, Vector3 position)
+    {
+        if (clip == null || audioSourcePrefab == null) return;
+
+        GameObject tempAudioObj =
+            Instantiate(audioSourcePrefab, position, Quaternion.identity, audioSourceContainer);
+
+        AudioSource tempSource = tempAudioObj.GetComponent<AudioSource>();
+
+        if (tempSource == null)
+        {
+            Debug.LogError("Audio prefab missing AudioSource!");
+            Destroy(tempAudioObj);
+            return;
+        }
+
+        tempSource.clip = clip;
+        tempSource.pitch = Random.Range(0.8f, 1.2f);
+        tempSource.spatialBlend = 1f; // Ensure 3D sound
+        tempSource.Play();
+
+        Destroy(tempAudioObj, clip.length + 0.1f);
     }
 }
+
+
+
 
 /*private void OnCollisionEnter(Collision collision)
 {
@@ -61,3 +138,37 @@ public void PlayImpactSound()
     audioSource.PlayOneShot(impactSounds[index]);
 }*/
 
+//Code for FloatingObject script(s) once new objects have been added://
+/*public enum ItemType
+{
+    MetalSheet,
+    PlasticBin,
+    SoftBox
+}
+
+public class FloatingObject : MonoBehaviour
+{
+    public ItemType itemType;
+    public ItemAudioHandler audioHandler;
+
+    private Rigidbody rb;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (audioHandler == null) return;
+
+        float impactSpeed = collision.relativeVelocity.magnitude;
+
+        // Prevent tiny micro-sounds
+        if (impactSpeed < 0.2f) return;
+
+        Vector3 hitPoint = collision.contacts[0].point;
+
+        audioHandler.PlayImpactSound(itemType, impactSpeed, hitPoint);
+    }
+}*/

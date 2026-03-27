@@ -20,8 +20,6 @@ public class LockdownEvent : MonoBehaviour
     //[SerializeField]
     //private GameObject lever;
     [SerializeField]
-    private Light buttonLight;
-    [SerializeField]
     private GameObject wrist;
     [SerializeField]
     private DoorScript[] doorsToOpen;
@@ -51,8 +49,10 @@ public class LockdownEvent : MonoBehaviour
     private Material leverMaterial;
 
     // lockdown bools
+    private bool leverPulled;
     private bool isActive;
     private bool canPull;
+    private bool isComplete;
 
     // wrist monitor
     private bool canGrab;
@@ -87,24 +87,40 @@ public class LockdownEvent : MonoBehaviour
     private Vector3 grateMovePos;
 
 
-    [SerializeField]
-    private GameObject serverObj;
-    [SerializeField]
-    private Material serverMaterial;
-    private Material serverMaterialInstance;
-    private Color initialEmissionColor;
+    [SerializeField] private ServerProgressBars serverProgress;
+    //[SerializeField] private Terminal serverTerminal;
+    [SerializeField] private LockdownPanel lockdownPanel;
 
+    [SerializeField]
+    private MeshRenderer[] emissiveMeshes;
+    [SerializeField]
+    private Material[] serverEmissives;
+    private Color[] initialEmissionColor;
 
+    [SerializeField] private GameObject BarsGroup;
+    [SerializeField] private MeshRenderer TerminalBars;
+    private Material[] barsMaterials;
+    private Color initBarEmissive;
+
+    [SerializeField] private MeshRenderer[] lightMeshes = new MeshRenderer[12];
+    private Material[] lightMaterials = new Material[12];
+    [SerializeField] private Color initLightEmissiveColor;
+    [SerializeField] private float initLightEmissiveMultiplier;
+    [SerializeField] private Color endLightEmissiveColor;
+    [SerializeField] private float endLightEmissiveMultiplier;
 
     public GameObject alienBody;
     public Animator alienAnimator;
     public Light alienLight;
+    public Light alienSpotLight;
 
-    [SerializeField] private ServerProgressBars serverProgress;
-    [SerializeField] private Terminal serverTerminal;
-    [SerializeField] private LockdownPanel lockdownPanel;
+    public Transform panelMovePos;
 
 
+    public bool LeverPulled
+    {
+        get { return leverPulled; }
+    }
     public bool CanPull
     {
         get { return canPull; }
@@ -114,6 +130,11 @@ public class LockdownEvent : MonoBehaviour
     public bool IsActive
     {
         get { return isActive; }
+    }
+
+    public bool IsComplete
+    {
+        get { return isComplete; }
     }
 
 
@@ -138,19 +159,38 @@ public class LockdownEvent : MonoBehaviour
         cuttingOutTrigger.enabled = false;
         // checks if player is currently hovering over lever
         canPull = false;
+        // checks if the first sequence is complete
+        leverPulled = false;
         // checks if system is able to be turned on
         isActive = false;
+        // all player action is completed for this sequence.
+        isComplete = false;
 
         canGrab = false;
         isGrabbable = true;
 
         dialogueManager = FindFirstObjectByType<DialogueManager>();
 
-        
-        Renderer rend = serverObj.GetComponent<Renderer>();
-        serverMaterialInstance = rend.materials[1]; // this clones the material at runtime
-        initialEmissionColor = serverMaterialInstance.GetColor("_EmissionColor");
 
+        // Renderer rend = serverObj.GetComponent<Renderer>();
+        //serverMaterialInstance = rend.materials[1]; // this clones the material at runtime
+
+        // manual setup for getting material references (annoying)
+        serverEmissives = new Material[3];
+       
+        serverEmissives[0] = emissiveMeshes[0].materials[1]; // Server material
+        serverEmissives[1] = emissiveMeshes[0].materials[2]; // Wire Material
+        serverEmissives[2] = emissiveMeshes[1].materials[2]; // Floor material
+
+        initialEmissionColor = new Color[serverEmissives.Length];
+        for (int i = 0; i < serverEmissives.Length; i++)
+        {
+            initialEmissionColor[i] = serverEmissives[i].GetColor("_EmissionColor");
+        }
+
+
+        GetBarMaterials();
+        GetLightMaterials();
     }
 
     // Update is called once per frame
@@ -240,28 +280,58 @@ public class LockdownEvent : MonoBehaviour
     private IEnumerator WaitForBodyVisible()
     {
         yield return new WaitForSeconds(2f);
-        audioManager.playBodyStinger();
+        //audioManager.playBodyStinger();
 
     }
 
     public void OnInteract(InputAction.CallbackContext context)
     {
-        //Handle lockdown lever
-        if (canPull && isActive)
-        {
-            audioManager.PlayButtonClick();
-            buttonLight.intensity = 0;
-            // open the broken door first
-            //brokenDoor.SetState(DoorScript.States.Open);
-            
-            DoorTrigger.enabled = true;
-            isActive = false;
 
-            // begin lighting and audio queues
-            player.PlayerCutSceneHandler(true);
-            StartCoroutine(PlayLockdownFX());
-            
+        if (context.performed)
+        {
+            //Debug.Log(isActive);
+            //Handle lockdown lever
+            if (canPull && isActive && !isComplete)
+            {
+                audioManager.PlayButtonClick();
+                StartCoroutine(LerpPosition(panelMovePos.position, 1f));
+ 
+                // open the broken door first
+                //brokenDoor.SetState(DoorScript.States.Open);
+
+                DoorTrigger.enabled = true;
+                //isActive = false;
+                isComplete = true;
+
+                // begin lighting and audio queues
+                player.PlayerCutSceneHandler(true);
+                StartCoroutine(PlayLockdownFX());
+
+            }
+            else if (canPull && !isActive)
+            {
+                // lever must be pulled first
+                StartCoroutine(ActivateLever());
+                audioManager.playLeverSFX();
+            }
         }
+        
+    }
+
+    private IEnumerator ActivateLever()
+    {
+
+        leverPulled = true;
+        yield return StartCoroutine(lockdownPanel.PlayLeverAnimation());
+
+        lockdownPanel.SwitchToDeactivate();
+
+        //genuinely idk if this sequence is used??? it doesnt play so is it just a empty line idk???
+        dialogueManager.StartDialogueSequence(9, 0.5f);
+
+        // I need isactive to be true when dialogue concludes
+        yield return new WaitForSeconds(1f);
+        isActive = true;
     }
 
     private IEnumerator PlayLockdownFX()
@@ -284,7 +354,18 @@ public class LockdownEvent : MonoBehaviour
         audioManager.FadeServers(false);
         audioManager.playPowerCut();
         serverProgress.Shutdown();
-        StartCoroutine(FadeEmission(serverMaterialInstance, initialEmissionColor, initialEmissionColor, 4f, 0, 6.5f, 0f));
+
+        for (int i = 0; i < serverEmissives.Length; i++)
+        {
+            StartCoroutine(FadeEmission(serverEmissives, initialEmissionColor[i], initialEmissionColor[i], 4f, 0, 6.5f, 0f));
+        }
+
+        StartCoroutine(FadeEmission(barsMaterials, initBarEmissive, initBarEmissive, 1f, -10, 8f, 0f));
+
+        StartCoroutine(FadeEmission(lightMaterials, initLightEmissiveColor, endLightEmissiveColor, initLightEmissiveMultiplier, -10, 6.5f, 0f));
+
+
+
         poweringDown = true;
         
         yield return new WaitForSeconds(13f);
@@ -292,11 +373,19 @@ public class LockdownEvent : MonoBehaviour
         //audioManager.playAlienRunAway();
         StartCoroutine(PlayAlienAnimation());
 
-        yield return new WaitForSeconds(4f);
+        yield return new WaitForSeconds(26f);
 
         audioManager.playPowerOn();
         serverProgress.Reboot();
-        StartCoroutine(FadeEmission(serverMaterialInstance, initialEmissionColor, endEmissionColor, 0, 4f, 4f, 2f));
+
+        for (int i = 0; i < serverEmissives.Length; i++)
+        {
+            StartCoroutine(FadeEmission(serverEmissives, initialEmissionColor[i], endEmissionColor, 0, 4f, 4f, 2f));
+        }
+
+        StartCoroutine(FadeEmission(barsMaterials, initBarEmissive, initBarEmissive, -10, 1, 8.5f, 0f));
+        StartCoroutine(FadeEmission(lightMaterials, endLightEmissiveColor, endLightEmissiveColor, -10, endLightEmissiveMultiplier, 6.5f, 0f));
+
         glitchLights = true;
         foreach(Light light in lights)
         {
@@ -304,11 +393,12 @@ public class LockdownEvent : MonoBehaviour
         }
         foreach (Light lightSource in softLights)
         {
-            StartCoroutine(FadeLightIntensity(lightSource, 0.2f, 5f));
+            StartCoroutine(FadeLightIntensity(lightSource, 0.6f, 5f));
         }
-        StartCoroutine(FadeLightIntensity(buttonLight, 0.5f, 5f));
-        StartCoroutine(FadeLightColor(buttonLight, buttonLight.color, endButtonColor, 0.5f));
-        
+
+        //adjust intensity to be lower onreboot
+        intensityMultiplier = 0.2f;
+
         yield return new WaitUntil(() => !glitchLights);
         foreach(Light lightSource in lights)
         {
@@ -318,11 +408,11 @@ public class LockdownEvent : MonoBehaviour
         yield return new WaitForSeconds(4f);
         player.PlayerCutSceneHandler(false);
         StartCoroutine(MoveDoor(gratePos, grateMovePos, 4f, null));
-        dialogueManager.StartDialogueSequence(4, 0f);
+        
         //Open doors in the doors to open array, this is the dining hall to facilities door.
 
         OpenDoors();
-        escapeDoor.SetState(DoorScript.States.Open);
+        escapeDoor.SetState(DoorScript.States.Closed);
         audioManager.FadeServers(true);
         ambientController.Progress();
         
@@ -331,13 +421,14 @@ public class LockdownEvent : MonoBehaviour
     private IEnumerator LockServerEntrance()
     {
         brokenDoor.SetState(DoorScript.States.Closed);
-        
-        yield return new WaitForSeconds(19.5f);
 
-        auxLightObj.GetComponent<Renderer>().material = leverMaterial;
-        auxLight.color = endButtonColor;
+        yield return null;
 
-        brokenDoor.SetState(DoorScript.States.Open);
+        // needs to be updated with new auxiliary lights to function base on emission color
+        //auxLightObj.GetComponent<Renderer>().material = leverMaterial;
+        //auxLight.color = endButtonColor;
+
+        //brokenDoor.SetState(DoorScript.States.Open);
     }
 
     public IEnumerator FadeLightColor(Light lightSource, Color fromColor, Color toColor, float duration)
@@ -388,11 +479,10 @@ public class LockdownEvent : MonoBehaviour
         canvasGroup.alpha = endAlpha; // Ensure it's set to the final alpha
     }
 
-    public IEnumerator FadeEmission(Material mat, Color fromColor, Color toColor, float fromIntensity, float toIntensity, float duration, float delayTime)
+    public IEnumerator FadeEmission(Material[] materials, Color fromColor, Color toColor, float fromIntensity, float toIntensity, float duration, float delayTime)
     {
         yield return new WaitForSeconds(delayTime);
-        // Ensure the emission is enabled on the material
-        mat.EnableKeyword("_EMISSION");
+
 
         float elapsedTime = 0f;
 
@@ -405,14 +495,21 @@ public class LockdownEvent : MonoBehaviour
             float currentIntensity = Mathf.Lerp(fromIntensity, toIntensity, t);
 
             // Apply combined color * intensity as emission
-            mat.SetColor("_EmissionColor", currentColor * currentIntensity);
+            foreach (Material mat in materials)
+            {
+                mat.SetColor("_EmissionColor", currentColor * currentIntensity);
+            }
+
 
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
         // Final value at end of fade
-        mat.SetColor("_EmissionColor", toColor * toIntensity);
+        foreach (Material mat in materials)
+        {
+            mat.SetColor("_EmissionColor", toColor * toIntensity);
+        }
     }
 
 
@@ -438,30 +535,52 @@ public class LockdownEvent : MonoBehaviour
     private IEnumerator PlayAlienAnimation()
     {
         alienBody.SetActive(true);
-        alienLight.intensity = 10f;
 
-        yield return new WaitForSeconds(0.3f);
-
-        alienLight.intensity = 0f;
+        StartCoroutine(FadeAlienLight());
 
         alienAnimator.SetTrigger("PlayLockdown");
 
         audioManager.playAlienRunAway();
 
-        yield return new WaitForSeconds(6.9f);
+        yield return new WaitForSeconds(29f);
 
         
         alienBody.SetActive(false);
         alienAnimator.SetTrigger("ReturnToIdle");
 
-        alienLight.intensity = 10f;
 
-        yield return new WaitForSeconds(0.1f);
 
+
+    }
+
+    IEnumerator FadeAlienLight()
+    {
+        float duration = 2f;
+        float elapsed = 0f;
+
+        // Fade from 0 to 10
+        while (elapsed < duration / 2)
+        {
+            elapsed += Time.deltaTime;
+            alienLight.intensity = Mathf.Lerp(0f, 30f, elapsed / (duration / 2));
+            alienSpotLight.intensity = Mathf.Lerp(0f, 30f, elapsed / (duration / 2));
+            yield return null;
+        }
+
+        elapsed = 0f;
+
+        // Fade from 10 back to 0
+        while (elapsed < duration / 2)
+        {
+            elapsed += Time.deltaTime;
+            alienLight.intensity = Mathf.Lerp(30f, 0f, elapsed / (duration / 2));
+            alienSpotLight.intensity = Mathf.Lerp(30f, 0f, elapsed / (duration / 2));
+            yield return null;
+        }
+
+        // Ensure final value is exactly 0
         alienLight.intensity = 0f;
-
-
-
+        alienSpotLight.intensity = 0f;
     }
 
     public void TerminalActivated()
@@ -469,7 +588,57 @@ public class LockdownEvent : MonoBehaviour
         //change the lockdown panel and make it interactable
         lockdownPanel.SwitchToDeactivate();
         isActive = true;
-        dialogueManager.StartDialogueSequence(9, 0.5f);
+        
+    }
+
+    /// <summary>
+    /// Method for moving the player to the panel position;
+    /// </summary>
+    /// <param name="destination"></param>
+    /// <param name="duration"></param>
+    /// <returns></returns>
+    private IEnumerator LerpPosition(Vector3 destination, float duration)
+    {
+        Vector3 start = player.transform.position;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            player.transform.position = Vector3.Lerp(start, destination, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        player.transform.position = destination;
+    }
+
+    private void GetBarMaterials()
+    {
+        MeshRenderer[] barMeshes = BarsGroup.GetComponentsInChildren<MeshRenderer>();
+
+        barsMaterials = new Material[barMeshes.Length + 1];
+
+
+        for (int i = 0; i < barMeshes.Length; i++)
+        {
+            barsMaterials[i] = barMeshes[i].material;
+        }
+
+        barsMaterials[barsMaterials.Length-1] = TerminalBars.materials[0];
+
+        initBarEmissive = barsMaterials[0].GetColor("_EmissionColor");
+    }
+
+    private void GetLightMaterials()
+    {
+
+
+
+        for (int i = 0; i < lightMeshes.Length; i++)
+        {
+            lightMaterials[i] = lightMeshes[i].material;
+        }
+
     }
 
 }

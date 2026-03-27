@@ -23,6 +23,11 @@ public class FloatingObject : MonoBehaviour
     float randomSpeedUpper = 100f;
 
     [SerializeField]
+    bool applyManualTorque = false;
+    [SerializeField]
+    Vector3 initTorque;
+
+    [SerializeField]
     bool useFriction = false;
     [SerializeField]
     float minimumSpeed = 0.3f;
@@ -68,7 +73,15 @@ public class FloatingObject : MonoBehaviour
         }
 
         // add initial forces
-        rb.AddTorque( initDirection * (initSpeed * 0.1f));
+        if (applyManualTorque)
+        {
+            rb.AddTorque(initTorque * (initSpeed));
+        }
+        else
+        {
+            rb.AddTorque(initDirection * (initSpeed * 0.1f));
+        }
+        
         rb.AddForce(initDirection * initSpeed);
 
 
