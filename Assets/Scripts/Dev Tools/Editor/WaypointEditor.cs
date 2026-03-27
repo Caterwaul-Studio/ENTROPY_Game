@@ -425,6 +425,9 @@ public class WaypointTools : EditorWindow
     {
         int connectionsAdded = 0;
 
+        string blockingLayerName = "Barrier"; // Change this to your layer's exact name
+        int blockingLayerIndex = LayerMask.NameToLayer(blockingLayerName);
+
         foreach (Waypoint other in allWaypoints)
         {
             if (other == waypoint) continue;
@@ -436,12 +439,23 @@ public class WaypointTools : EditorWindow
             if (useLineOfSight)
             {
                 Vector3 direction = other.transform.position - waypoint.transform.position;
-                Ray ray = new Ray(waypoint.transform.position, direction);
+                Ray ray = new Ray(waypoint.transform.position + direction.normalized * 0.1f, direction);
 
                 if (Physics.Raycast(ray, out RaycastHit hit, distance))
                 {
-                    if (hit.collider.gameObject != other.gameObject)
+                    // 1. If we hit the target waypoint, the path is clear.
+                    if (hit.collider.gameObject == other.gameObject)
+                    {
+                        // Allow connection
+                    }
+                    // 2. Check if the object we hit is on the "Bad Layer"
+                    else if (hit.collider.gameObject.layer == blockingLayerIndex)
+                    {
+                        // It hit a layer that blocks connections (like a Wall)
                         continue;
+                    }
+                    // 3. If it hit something else NOT on that layer (like a trigger or small prop)
+                    // we can choose to ignore the hit and connect anyway.
                 }
             }
 

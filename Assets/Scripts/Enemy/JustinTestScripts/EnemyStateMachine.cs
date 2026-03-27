@@ -42,9 +42,9 @@ public class EnemyStateMachine : MonoBehaviour
 
     [Header("References")]
     public GameObject player;
-    [SerializeField] private ComplexEnemyAI complecEnemyAI;
-    [SerializeField] private GameObject simpleEnemy;
-    [SerializeField] private GameObject complexEnemy;
+    public ComplexEnemyAI complecEnemyAI;
+    //[SerializeField] private GameObject simpleEnemy;
+    //[SerializeField] private GameObject complexEnemy;
 
     [Header("Detection Settings")]
     public LayerMask detectionMask; // Set this to "Default", "Player", and "Obstacles"
@@ -98,6 +98,9 @@ public class EnemyStateMachine : MonoBehaviour
     private void Start()
     {
         if (player == null) player = GameObject.FindGameObjectWithTag("Player");
+
+        if (complecEnemyAI == null) complecEnemyAI = GetComponent<ComplexEnemyAI>(); 
+
         currentSpecificState = SpecificEnemyState.Patrol;
     }
 
@@ -417,6 +420,7 @@ public class EnemyStateMachine : MonoBehaviour
     #endregion
 
     #region Detection Logic
+
     #endregion
 
     #region State Tools

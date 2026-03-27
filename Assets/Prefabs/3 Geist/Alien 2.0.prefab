@@ -945,12 +945,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyVersion: 0
   currentGeneralState: 1
-  currentSpecificState: 2
+  pastGeneralState: 0
+  currentSpecificState: 3
   pastSpecificState: 0
   player: {fileID: 0}
   complecEnemyAI: {fileID: 0}
-  simpleEnemy: {fileID: 0}
-  complexEnemy: {fileID: 4181188042944330115}
   detectionMask:
     serializedVersion: 2
     m_Bits: 16576
@@ -976,7 +975,17 @@ MonoBehaviour:
   minRadius: 12
   maxRadius: 16
   retreatTimer: 0
+  retreatPointReroll: 0
+  canRetreat: 0
+  throwDistanceCheck: 0
+  canThrow: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  throwCheckLimit: 0
+  ThrowCheckOffset: {x: 0, y: 0, z: 0}
   showDetectionRadius: 1
+  showRetreatRadius: 0
 --- !u!114 &8811146767685563550
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -989,9 +998,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53c125d3bff671c45b1321354920a789, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 3
-  chaseDistance: 15
-  escapeDistance: 20
+  speed: 1.5
   useRandomRoaming: 0
   setRotationSpeed: 2.5
   lungeDistance: 5
@@ -1001,6 +1008,7 @@ MonoBehaviour:
   stunSeconds: 3
   stunVelocityThreshold: 4
   player: {fileID: 0}
+  playerController: {fileID: 0}
   startingWaypoint: {fileID: 0}
   waypointGroup: {fileID: 0}
   enemyStateMachine: {fileID: 5193662425567147664}

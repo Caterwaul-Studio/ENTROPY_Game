@@ -189,7 +189,6 @@ public class DoorScript : MonoBehaviour
     private void Awake()
     {
         doorManager = FindFirstObjectByType<DoorManager>();
-        doorManager.doorList.Add(this);
     }
 
     // Start is called before the first frame update

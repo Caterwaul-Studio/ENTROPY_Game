@@ -13,7 +13,7 @@ public class DoorManager : MonoBehaviour, ISaveable
     [SerializeField]
     ZeroGravity player;
     [SerializeField]
-    public List<DoorScript> doorList;
+    private DoorScript[] doors;
     [SerializeField]
     private List<DoorScript> doorsInRange;
 
@@ -35,7 +35,7 @@ public class DoorManager : MonoBehaviour, ISaveable
     // locked colors
     [SerializeField]
     public Texture2D lockedTexture;
-    
+
     public Color LockedLightColor { get { return new Color(4.24f, 0.36f, 0.3f, 1.0f) * EmissiveMapIntensity; } }
     public Color LockedHoloBackColor = new Color(0.58f, 0.1f, 0.08f, 1.0f);
     public Color LockedHoloTextColor = new Color(1.0f, 0.3f, 0.2f, 1.0f);

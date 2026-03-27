@@ -152,7 +152,6 @@ public class TendrilBehavior : MonoBehaviour
     {
         origin = originPoint;
         origin.activeTendril = this;
-        compOwnerEnemy = owner;
         manualRetract = retractsManually;
         initialized = true;
 

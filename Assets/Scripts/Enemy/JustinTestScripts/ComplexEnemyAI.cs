@@ -24,7 +24,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
     [Header("References")]
     public GameObject player;
-    private ZeroGravity playerController;
+    public ZeroGravity playerController;
     public Waypoint startingWaypoint;
     public Transform waypointGroup;
     public EnemyStateMachine enemyStateMachine;
@@ -103,6 +103,10 @@ public class ComplexEnemyAI : MonoBehaviour
 
     void Start()
     {
+        if (player == null) player = GameObject.FindGameObjectWithTag("Player");
+        if (playerController == null) playerController = FindAnyObjectByType<ZeroGravity>();
+
+        
         allWaypoints = waypointGroup.GetComponentsInChildren<Waypoint>().ToList();
         foreach (Waypoint wp in allWaypoints)
         {
@@ -121,7 +125,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
         FindPlayerPath();
 
-        playerController = player.GetComponent<ZeroGravity>();
+        //playerController = player.GetComponent<ZeroGravity>();
 
         // Rigidbody must exist and start in kinematic mode
         Rigidbody rb = GetComponent<Rigidbody>();
