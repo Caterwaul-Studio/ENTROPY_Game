@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 public class StretchIKBones : MonoBehaviour
 {
-
-    const float MAX_DISTANCE = 2.3f;
+    [SerializeField]
+    private float MAX_DISTANCE = 2f;
     private float stretchFactor = 1f;
 
     [SerializeField]

@@ -31,6 +31,8 @@ public class TendrilIKStepper : MonoBehaviour
     public float moveSpeed = 8f;
     public float passiveMoveSpeed = 20f;
 
+    private Quaternion targetRotation = Quaternion.identity;
+
     public Vector3 CurrentTarget { get; private set; }
     public bool StepRequested { get; private set; }
 
@@ -142,10 +144,12 @@ public class TendrilIKStepper : MonoBehaviour
             biasDir = Vector3.Slerp(randomDir, clampedMoveDir, directionBias);
         }
 
-        // Cast FROM origin TOWARD the surface along biasDir
         if (Physics.Raycast(origin.position, biasDir, out RaycastHit hit, grabRange, groundMask))
+        {
+            targetRotation = Quaternion.FromToRotation(-Vector3.up, -biasDir.normalized);
             return hit.point + hit.normal * groundOffset;
-
+        }
+        
         return null;
     }
 
@@ -163,6 +167,9 @@ public class TendrilIKStepper : MonoBehaviour
 
         Vector3 prevPoint = Vector3.zero;
         Gizmos.color = Color.green;
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(CurrentTarget, targetRotation * Vector3.forward * 0.5f);
 
         for (int i = 0; i <= segments; i++)
         {

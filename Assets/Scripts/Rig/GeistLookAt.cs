@@ -19,8 +19,8 @@ public class GeistLookAt : MonoBehaviour
 
     public bool TargetVisible { get; private set; }
 
-    private Vector3 _lastLateral = Vector3.right;
-    private Vector3 _ikVelocity;
+    private Vector3 lastLateral = Vector3.right;
+    private Vector3 ikVelocity;
 
     private void LateUpdate()
     {
@@ -46,17 +46,17 @@ public class GeistLookAt : MonoBehaviour
         if (!TargetVisible)
         {
             Vector3 targetPos = ikRestAnchor.position;
-            ikTarget.position = Vector3.SmoothDamp(ikTarget.position, targetPos, ref _ikVelocity, 1f / ikFollowSpeed);
+            ikTarget.position = Vector3.SmoothDamp(ikTarget.position, targetPos, ref ikVelocity, 1f / ikFollowSpeed);
             ikTarget.rotation = Quaternion.LookRotation(transform.forward) * Quaternion.Euler(lookRotationOffset);
             return;
         }
         Vector3 direction = (target.position - coneOrigin.position).normalized;
         Vector3 lateral = Vector3.ProjectOnPlane(direction, ikRestAnchor.up);
         if (lateral.magnitude > 0.2f)
-            _lastLateral = lateral.normalized;
+            lastLateral = lateral.normalized;
         Vector3 behindPoint = ikRestAnchor.position - ikRestAnchor.up * neckBendOffset;
-        Vector3 desiredPos = behindPoint + _lastLateral * neckBendOffset;
-        ikTarget.position = Vector3.SmoothDamp(ikTarget.position, desiredPos, ref _ikVelocity, 1f / ikFollowSpeed);
+        Vector3 desiredPos = behindPoint + lastLateral * neckBendOffset;
+        ikTarget.position = Vector3.SmoothDamp(ikTarget.position, desiredPos, ref ikVelocity, 1f / ikFollowSpeed);
         ikTarget.rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(lookRotationOffset);
     }
 
