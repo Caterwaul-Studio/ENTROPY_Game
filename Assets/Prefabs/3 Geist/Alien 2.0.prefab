@@ -709,6 +709,7 @@ GameObject:
   - component: {fileID: 7622105044120730811}
   - component: {fileID: 5193662425567147664}
   - component: {fileID: 8811146767685563550}
+  - component: {fileID: 6365921600599371455}
   m_Layer: 0
   m_Name: Alien 2.0
   m_TagString: Untagged
@@ -740,7 +741,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4181188042944330115}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 0}
 --- !u!23 &4686730224877371607
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1035,6 +1036,20 @@ MonoBehaviour:
   stuckThreshold: 2
   availableOrigins: []
   FailSafe: {fileID: 0}
+--- !u!114 &6365921600599371455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4181188042944330115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 892e2363d65dede43bbfd07a087cb276, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  geistRigPrefab: {fileID: 5441912815523802169, guid: cd75e0e6d374cc345af8391514ca6f75, type: 3}
+  children: []
 --- !u!1 &4788405973948100029
 GameObject:
   m_ObjectHideFlags: 0

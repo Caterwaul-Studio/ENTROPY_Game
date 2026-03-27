@@ -11,7 +11,8 @@ public class GeistLookAt : MonoBehaviour
     public float detectionRange = 10f;
 
     [Header("IK Target")]
-    public Transform ikTarget;
+    [SerializeField]
+    private Transform ikTarget;
     public Transform ikRestAnchor;
     public float neckBendOffset = 0.3f;
     public float ikFollowSpeed = 5f;
@@ -21,6 +22,11 @@ public class GeistLookAt : MonoBehaviour
 
     private Vector3 lastLateral = Vector3.right;
     private Vector3 ikVelocity;
+
+    void Start()
+    {
+        target = FindFirstObjectByType<ZeroGravity>().transform;
+    }
 
     private void LateUpdate()
     {
