@@ -39,7 +39,7 @@ public class PickupScript : MonoBehaviour
 
     [SerializeField]
     private Collider playerCollider;
-    private GameObject current;
+    public GameObject current;
 
     [SerializeField] private PlayerAudio playerAudio;
 
