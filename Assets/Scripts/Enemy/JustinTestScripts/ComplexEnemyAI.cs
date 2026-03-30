@@ -651,6 +651,7 @@ public class ComplexEnemyAI : MonoBehaviour
     }
 
     #endregion
+
     #region Path Finding
     Queue<Waypoint> BFS(Waypoint start, Waypoint goal)
     {
@@ -804,6 +805,7 @@ public class ComplexEnemyAI : MonoBehaviour
     }
 
     #endregion
+
     /// <summary>
     /// Resets the alien to its original position and state.
     /// </summary>
