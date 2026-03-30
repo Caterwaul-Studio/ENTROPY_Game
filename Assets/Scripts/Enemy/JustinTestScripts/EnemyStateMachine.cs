@@ -10,6 +10,7 @@ public enum SpecificEnemyState
     Track,
     Investigate,
     Patrol,
+    Lunging,
     Throw,
     Kill,
     Retreat,
@@ -42,6 +43,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     [Header("References")]
     public GameObject player;
+    public ZeroGravity playerController;
     public ComplexEnemyAI complecEnemyAI;
     //[SerializeField] private GameObject simpleEnemy;
     //[SerializeField] private GameObject complexEnemy;
@@ -78,10 +80,15 @@ public class EnemyStateMachine : MonoBehaviour
     [Header("Throw Settings")]
 
     [SerializeField] private float throwDistanceCheck;
+    [SerializeField] private float checkRadius;
     [SerializeField] private bool canThrow;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private int throwCheckLimit;
-    [SerializeField] private Vector3 ThrowCheckOffset;
+    [SerializeField] private Vector3 throwCheckOffset;
+
+    [Header("Lunging")]
+
+    [SerializeField] private float lungeTimer;
 
     [Header("Gizmos")]
     [SerializeField] private bool showDetectionRadius;
@@ -98,6 +105,7 @@ public class EnemyStateMachine : MonoBehaviour
     private void Start()
     {
         if (player == null) player = GameObject.FindGameObjectWithTag("Player");
+        if (playerController == null) playerController = FindAnyObjectByType<ZeroGravity>();
 
         if (complecEnemyAI == null) complecEnemyAI = GetComponent<ComplexEnemyAI>(); 
 
@@ -364,63 +372,229 @@ public class EnemyStateMachine : MonoBehaviour
 
     #region Grab/Throw/Attack Logic
 
+    private void IfCanGrab()
+    {
+        if (player)
+        {
+
+        }
+    }
+
     private void GrabAttackLogic()
     {
-        if (player.GetComponent<ZeroGravity>().PlayerHealth <= player.GetComponent<ZeroGravity>().MaxHealth / 2)
+        if (player.GetComponent<ZeroGravity>().PlayerHealth <= 1)
         {
             ChangeSpecificState(SpecificEnemyState.Kill);
 
         }
-        else 
+        else
         {
-            ChangeSpecificState(SpecificEnemyState.Throw);
+            DetermineThrowLocation();
         }
+
     }
 
     private void DetermineThrowLocation()
     {
-        if (CanThrow(ThrowCheckOffset))
-        {
+        // 1. Reset and check the primary "Directly Behind" spot
+        throwCheckOffset = Vector3.zero;
+        canThrow = HasSpaceBehind(throwDistanceCheck, checkRadius, throwCheckOffset);
 
+        if (canThrow)
+        {
+            SetThrowLocation(throwCheckOffset);
         }
         else
         {
-            //
-            for (int x = 0; x < throwCheckLimit; x++)
-            {
+            // 2. Expand into 3D search
+            canThrow = false;
+            float step = 1f; // How far apart each check is
 
+            // This creates a 3x3x3 cube of checks (-1 to 1 on all axes)
+            for (float x = -step; x <= step; x += step)
+            {
+                for (float y = -step; y <= step; y += step)
+                {
+                    for (float z = -step; z <= step; z += step)
+                    {
+                        // Skip the center (0,0,0) because we already checked it
+                        if (x == 0 && y == 0 && z == 0) continue;
+
+                        Vector3 trialOffset = new Vector3(x, y, z);
+
+                        if (HasSpaceBehind(throwDistanceCheck, checkRadius, trialOffset))
+                        {
+                            canThrow = true;
+                            SetThrowLocation(trialOffset);
+                            break;
+                        }
+                    }
+                    if (canThrow) break;
+                }
+                if (canThrow) break;
             }
+
+            // 3. If still no clear spot found, find the best "partial" distance
+            if (!canThrow)
+            {
+                FindClosestPointOfThrowOffset(Vector3.zero);
+            }
+        }
+
+        // Final state transition
+        ChangeSpecificState(SpecificEnemyState.Throw);
+    }
+
+    private void SetThrowLocation(Vector3 offsetUsed)
+    {
+        Vector3 startPos = transform.position + transform.TransformDirection(offsetUsed);
+        Vector3 direction = -transform.forward;
+        complecEnemyAI.throwLocation = startPos + (direction * throwDistanceCheck);
+    }
+
+    public bool HasSpaceBehind(float distance, float radius, Vector3 offset)
+    {
+        // 1. Calculate the starting point (Player position + your custom offset)
+        // Using TransformDirection ensures the offset moves WITH the player's rotation
+        Vector3 startPos = transform.position + transform.TransformDirection(offset);
+
+        // 2. Define the direction (Straight back from where the player is facing)
+        Vector3 direction = -transform.forward;
+
+        // 3. Perform the SphereCast
+        // We use a RaycastHit to see what we bumped into, if anything.
+        if (Physics.SphereCast(startPos, radius, direction, out RaycastHit hit, distance))
+        {
+            // If we hit something, there isn't enough space.
+            return false;
+        }
+
+        // If the SphereCast reaches the 'distance' without hitting anything, return true.
+        return true;
+    }
+
+    private void FindClosestPointOfThrowOffset(Vector3 offset)
+    {
+        Vector3 startPos = transform.position + transform.TransformDirection(offset);
+        Vector3 direction = -transform.forward;
+        Vector3 physicalLandingPos;
+
+        // 1. Find the physical spot the player/object would hit
+        if (Physics.SphereCast(startPos, checkRadius, direction, out RaycastHit hit, throwDistanceCheck, wallLayer))
+        {
+            physicalLandingPos = startPos + (direction * (hit.distance - 0.1f));
+        }
+        else
+        {
+            physicalLandingPos = startPos + (direction * throwDistanceCheck);
+        }
+
+
+        // 2. Find the waypoint nearest to that landing spot
+        Waypoint nearestWP = complecEnemyAI.FindClosestWaypoint(physicalLandingPos);
+
+        if (nearestWP != null)
+        {
+            Debug.Log($"Nearest Waypoint to landing is: {nearestWP.name}");
+            // Now tell your Geist AI to use this waypoint for its next BFS path
+            // complexEnemyAI.SetCurrentWaypoint(nearestWP);
         }
     }
 
-    private bool CanThrow(Vector3 checkOfSet)
+    private void LockPlayerInputs()
+    {
+        playerController.CanMove = false;
+        playerController.StopRollingQuickly();
+    }
+
+    private void UnlockPlayerInputs()
+    {
+        playerController.CanMove = true;
+    }
+
+    private void LookAtGeist(Transform target, float duration)
+    {
+        StartCoroutine(RotateCameraToTarget(target, duration));
+    }
+
+    IEnumerator RotateCameraToTarget(Transform target, float duration)
+    {
+        float elapsed = 0f;
+        Quaternion startRotation = playerController.cam.transform.rotation;
+
+        while (elapsed < duration)
+        {
+            // 1. Calculate the direction to the target
+            Vector3 direction = target.position - playerController.cam.transform.position;
+
+            // 2. Determine the target rotation (LookRotation)
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+            // 3. Smoothly interpolate between start and end
+            playerController.cam.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, elapsed / duration);
+
+            elapsed += Time.deltaTime;
+            yield return null; // Wait for the next frame
+        }
+
+        // Ensure it finishes exactly at the target
+        playerController.cam.transform.LookAt(target);
+    }
+
+    #endregion
+
+    #region Light Detection Logic
+    private bool PerformRaycastDetection()
     {
         if (player == null) return false;
 
         Vector3 dir = player.transform.position - transform.position;
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, dir.normalized, out hit, throwDistanceCheck, wallLayer))
+        if (Physics.Raycast(transform.position, dir.normalized, out hit, detectionRadius, detectionMask))
         {
-            return false;
+            if (hit.collider.CompareTag("Player"))
+            {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
-    private void LockPlayerInputs()
+    private bool DetectPlayerFlashLight()
     {
+        if (!isLightOn) return false;
 
+
+
+        return false;
     }
 
-    private void LookAtGeist()
+    private void FireDetectionGrid(float columns, float rows, float spacing, float range)
     {
+        // Calculate offsets to ensure the grid is centered on the forward vector
+        float halfWidth = (columns - 1) * spacing / 2f;
+        float halfHeight = (rows - 1) * spacing / 2f;
 
+        for (int x = 0; x < columns; x++)
+        {
+            for (int y = 0; y < rows; y++)
+            {
+                float xOffset = (x * spacing) - halfWidth;
+                float yOffset = (y * spacing) - halfHeight;
+
+                Vector3 rayDirection = transform.forward + (transform.right * xOffset) + (transform.up * yOffset);
+
+                rayDirection.Normalize();
+
+                if (Physics.Raycast(transform.position, rayDirection, out RaycastHit hit, range))
+                {
+
+                    // Add hit logic here
+                }
+            }
+        }
     }
-
-    #endregion
-
-    #region Detection Logic
-
     #endregion
 
     #region State Tools
@@ -456,57 +630,7 @@ public class EnemyStateMachine : MonoBehaviour
         Debug.Log($"State Changed to: {newState}");
     }
 
-    private bool PerformRaycastDetection()
-    {
-        if (player == null) return false;
-
-        Vector3 dir = player.transform.position - transform.position;
-        RaycastHit hit;
-
-        if (Physics.Raycast(transform.position, dir.normalized, out hit, detectionRadius, detectionMask))
-        {
-            if (hit.collider.CompareTag("Player"))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private bool DetectPlayerFlashLight()
-    {
-        if (!isLightOn) return false;
-
-        
-
-        return false;
-    }
-
-    private void FireDetectionGrid(float columns, float rows, float spacing, float range)
-    {
-        // Calculate offsets to ensure the grid is centered on the forward vector
-        float halfWidth = (columns - 1) * spacing / 2f;
-        float halfHeight = (rows - 1) * spacing / 2f;
-
-        for (int x = 0; x < columns; x++)
-        {
-            for (int y = 0; y < rows; y++)
-            {
-                float xOffset = (x * spacing) - halfWidth;
-                float yOffset = (y * spacing) - halfHeight;
-
-                Vector3 rayDirection = transform.forward + (transform.right * xOffset) + (transform.up * yOffset);
-
-                rayDirection.Normalize();
-
-                if (Physics.Raycast(transform.position, rayDirection, out RaycastHit hit, range))
-                {
-                    
-                    // Add hit logic here
-                }
-            }
-        }
-    }
+    
     #endregion
 
     #region Dev Tools

@@ -223,6 +223,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     // Track if the movement keys were released
     private bool movementKeysReleased;
 
+    [SerializeField] private bool playerInputs = false;
+
     [SerializeField] private bool useManualPullIn = false;
     private bool isPullingIn;
 
@@ -446,6 +448,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             canPushOff = false;
             canPropel = false;
             canRoll = false;
+            playerInputs = true;
         }
         //not in tutorial mode
         else
@@ -527,7 +530,22 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         if (canMove)
         {
+            if (!canRoll || !canPropel || !canPushOff || !canGrab)
+            {
+                canRoll = true;
+                canPropel = true;
+                canPushOff = true;
+                canGrab = true;
+            }
+
             RotateCam();
+        }
+        else if (!canMove)
+        {
+            canRoll = false;
+            canPropel = false;
+            canPushOff = false;
+            canGrab = false;
         }
     }
     #endregion

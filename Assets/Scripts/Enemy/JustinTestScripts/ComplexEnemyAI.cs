@@ -99,7 +99,8 @@ public class ComplexEnemyAI : MonoBehaviour
 
     [SerializeField] private Waypoint FailSafe; //This point will be the failsafe for if the retreating doesn't work correctly
 
-    
+    [Header("Throw")]
+    [SerializeField] public Vector3 throwLocation;
 
     void Start()
     {
@@ -173,6 +174,10 @@ public class ComplexEnemyAI : MonoBehaviour
                     break;
                 case SpecificEnemyState.Retreat:
                     TrackPath();
+                    break;
+                case SpecificEnemyState.Lunging:
+                    break;
+                case SpecificEnemyState.Stunned:
                     break;
             }
 
@@ -346,6 +351,22 @@ public class ComplexEnemyAI : MonoBehaviour
         else if (other.CompareTag("Player"))
         {
 
+            if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Throw)
+            {
+
+            }
+            else if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill) 
+            {
+                if (!playerController.IsDead)
+                {
+                    Debug.Log("Player killed by alien");
+                    playerController.IsDead = true;
+                    isChasingPlayer = false;
+                    //EndLunge();
+                }
+            }
+
+
             if (!playerController.IsDead)
             {
                 Debug.Log("Player killed by alien");
@@ -361,7 +382,6 @@ public class ComplexEnemyAI : MonoBehaviour
 
                 playerRb.AddForce(forceDirection * knockbackStrength, ForceMode.Impulse);
             }
-
         }
     }
 
@@ -497,24 +517,137 @@ public class ComplexEnemyAI : MonoBehaviour
     }
     #endregion
 
-    #region Throw/Attack
-
-    private void GrabPlayer()
+    #region Throw/Attack/Lunge
+    
+    private IEnumerator GrabPlayer()
     {
         //Disable Player Inputs
         player.GetComponent<ZeroGravity>().CanMove = false;
 
-
+        yield return new WaitForSeconds(3.0f); 
     }
 
     private void ThrowPlayer()
     {
-
+        StartCoroutine(GrabPlayer());
     }
 
     private void KillPlayer()
     {
+        StartCoroutine(GrabPlayer());
+    }
 
+    private IEnumerator ChargeAndLunge()
+    {
+        Debug.Log("Charging Coroutine called");
+        rotationSpeed = 20f;
+        isChasingPlayer = false;
+
+        // Retract ALL current tendrils
+        foreach (TendrilOrigin origin in tendrilOrigins)
+        {
+            if (origin.activeTendril != null)
+            {
+                origin.activeTendril.Retract();
+                origin.activeTendril = null; // clear immediately
+            }
+        }
+
+        // Wait until the enemy is facing the player before continuing
+        Vector3 toPlayer = (player.transform.position - transform.position).normalized;
+        float angle = Vector3.Angle(transform.forward, toPlayer);
+
+        while (angle > 20f) // or whatever threshold feels right
+        {
+            toPlayer = (player.transform.position - transform.position).normalized;
+            angle = Vector3.Angle(transform.forward, toPlayer);
+            //Debug.Log(angle);
+            yield return null;
+        }
+
+
+        // Step 2: Spawn 5 tendrils at random from backwardsOrigins
+        List<TendrilOrigin> shuffled = new List<TendrilOrigin>(backwardsOrigins);
+        int spawnCount = Mathf.Min(6, shuffled.Count);
+
+        for (int i = 0; i < spawnCount; i++)
+        {
+            int index = Random.Range(0, shuffled.Count);
+            TendrilOrigin origin = shuffled[index];
+            shuffled.RemoveAt(index);
+
+            // Spawn tendril at the backwards origin
+            GameObject t = Instantiate(tendrilPrefab, origin.transform.position, origin.transform.rotation, origin.transform);
+            TendrilBehavior tb = t.GetComponent<TendrilBehavior>();
+            if (tb != null)
+            {
+                tb.Initialize(origin, this, true); // true = manualRetract
+                origin.activeTendril = tb;
+            }
+        }
+
+
+        float timer = 0f;
+        while (timer < chargeUpTime)
+        {
+            if (isStunned)
+            {
+                isCharging = false;
+                yield break;
+            }
+
+            // Pull-back motion
+            toPlayer = (player.transform.position - transform.position).normalized;
+            Vector3 pullBackDirection = -toPlayer; // Opposite of direction to player
+            float pullBackSpeed = 1.5f; // tweak as needed
+
+            float pullBackDistance = pullBackSpeed * Time.deltaTime;
+            float radius = 0.5f * transform.localScale.x;
+
+            // Raycast to prevent backing into a wall
+            RaycastHit hit;
+            if (!Physics.SphereCast(transform.position, radius, pullBackDirection, out hit, pullBackDistance + 0.25f, barrierLayer))
+            {
+                transform.position += pullBackDirection * pullBackDistance;
+            }
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        foreach (TendrilOrigin origin in backwardsOrigins)
+        {
+            if (origin.activeTendril != null)
+            {
+                origin.activeTendril.Retract();
+            }
+        }
+
+        // Finish charging → launch the lunge
+        Vector3 dir = (player.transform.position - transform.position).normalized;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.isKinematic = false;
+        rb.linearVelocity = dir * lungeSpeed;
+
+        isLunging = true;
+        lungeTimer = 0f;
+        rotationSpeed = setRotationSpeed;
+
+
+    }
+
+    private void EndLunge()
+    {
+        if (!isLunging) return;
+
+        isLunging = false;
+        isCharging = false;
+
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.linearVelocity = Vector3.zero;
+        rb.isKinematic = true;
+
+        FindPlayerPath();
     }
 
     #endregion
