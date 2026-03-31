@@ -15,6 +15,8 @@ public class BrokenDoorEvent : MonoBehaviour
     private AudioSource brokenDoorAudio;
     [SerializeField]
     private AudioSource shootAudio;
+    [SerializeField]
+    private AudioSource[] lightOnAudio; //making this an array so it can be a drop down/not take up too much space in the editor
     private DialogueManager manager;
     private WristMonitor monitor;
     public StingerManager stingerManager;
@@ -51,6 +53,7 @@ public class BrokenDoorEvent : MonoBehaviour
         //flicker lights
         StartCoroutine(lightManager.FlickerLights(LightLocation.Dining, 2.0f, 2.5f, true));
         StartCoroutine(MalfunctionDispenser());
+        StartCoroutine(lightOnSequence());
 
         manager.OnDialogueLineEndBrokenDoor += OnLastDialogueLineBrokenDoorStarted;
         manager.StartDialogueSequence(5, delay);
@@ -72,6 +75,17 @@ public class BrokenDoorEvent : MonoBehaviour
         brokenDoor.SetState(DoorScript.States.Broken);
         diningCheckpoint.TriggerCheckpointManually();
         monitor.CompleteObjective();
+    }
+
+    private IEnumerator lightOnSequence()
+    {
+        lightOnAudio[0].Play();
+        yield return new WaitForSeconds(0.2f);
+        lightOnAudio[1].Play();
+        yield return new WaitForSeconds(0.2f);
+        lightOnAudio[2].Play();
+        yield return new WaitForSeconds(0.2f);
+        lightOnAudio[3].Play();
     }
 
     private IEnumerator MalfunctionDispenser()
