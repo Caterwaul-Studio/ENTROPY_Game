@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 public class WristMonitor : MonoBehaviour
 {
@@ -15,7 +16,9 @@ public class WristMonitor : MonoBehaviour
 
     [Header("Dependencies")]
     [SerializeField] private ZeroGravity player;
-    [SerializeField] GameObject wristMonitorObject;
+    //[SerializeField] GameObject wristMonitorObject;
+    [SerializeField]
+    private bool hasWristMonitor = false;
     // checks the wrist monitor object and manipulates the state of having the wrist monitor accordingly
 
     [Header("Health Section")]
@@ -53,9 +56,15 @@ public class WristMonitor : MonoBehaviour
 
     public bool HasWristMonitor
     {
-        get { return !wristMonitorObject.activeSelf; }
-        set { wristMonitorObject.SetActive(!value); }
+        get { return hasWristMonitor; }
+        set {
+            if (hasWristMonitor == value) return;
+            hasWristMonitor = value;
+            OnWristMonitorAcquired?.Invoke(hasWristMonitor);
+        }
     }
+
+    public event System.Action<bool> OnWristMonitorAcquired;
     /// <summary>
     /// Public class used to display vital information to the player of how they must proceed
     /// </summary>
@@ -106,12 +115,12 @@ public class WristMonitor : MonoBehaviour
     {
         //player = GameObject.FindWithTag("Player").GetComponent<ZeroGravity>();
         //mainObjectives.Add(new Objective("Empty", "<color=orange>Current Objective: </color>\nEMPTY", "<size=8><color=orange>Sub Objective: </color>\n\tReconnect ALAN</size>", false));
-        mainObjectives.Add(new Objective("Empty", @"Connect alan:\ to the nearest terminal", "", false));
-        mainObjectives.Add(new Objective("Medbay", @"    -reach Medical_Bay\n    -reconnect alan:\", "", false));
-        mainObjectives.Add(new Objective("Medbay_Stim", @"    -refill e-stims\n    -administer e-stim", "", false));
-        mainObjectives.Add(new Objective("Dining_Room", @"    -reach Dining_Room\n    -reconnect alan:\", "", false));
-        mainObjectives.Add(new Objective("Server_Farm", "    -reach Server_Farm\n    -override Manual_Lockdown", "", false));
-        mainObjectives.Add(new Objective("Vocational_Wing", "    -reach Vocational_Wing</size> \n", "", false));
+        mainObjectives.Add(new Objective("Empty", @"Connect alan:\ to Dorm Room screen", "", false));
+        mainObjectives.Add(new Objective("Medbay", @"    go to Medical Bay\n    -reconnect alan:\", "", false));
+        mainObjectives.Add(new Objective("Medbay Stim", @"    -refill E-stims\n    -administer E-stim", "", false));
+        mainObjectives.Add(new Objective("Dining Room", @"    -reach Dining Room\n    -reconnect alan:\", "", false));
+        mainObjectives.Add(new Objective("Server Farm", "    -reach Server Farm\n    -override Manual Lockdown", "", false));
+        mainObjectives.Add(new Objective("Vocational_Wing", "    -return to Dining Room</size> \n", "", false));
         //if (targetRectTransform == null) {
         //    Debug.LogError("TargetRectTransform not assigned");
         //    return;
@@ -204,7 +213,7 @@ public class WristMonitor : MonoBehaviour
 
     public void ToggleMonitor()
     {
-        if (!wristMonitorObject.activeSelf)
+        if (hasWristMonitor)
         {
             isActive = !isActive;
         }

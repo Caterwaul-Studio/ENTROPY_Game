@@ -41,6 +41,10 @@ public class MenuManager : MonoBehaviour
     // Camera effects
     [SerializeField] private GameObject _UICamera;
     private float _unscaledTime = 1000;
+
+    // Level Loading Screen Canvas
+    [SerializeField] private GameObject lvlLoadingScreen;
+
     public void Start()
     {
         activeMenus = new List<GameObject>();
@@ -88,7 +92,7 @@ public class MenuManager : MonoBehaviour
         if (_isPaused)
         {
             Time.timeScale = 0;
-            dialogue.Pause();
+            if (dialogue != null) dialogue.Pause();
         }
         else
         {
@@ -107,7 +111,7 @@ public class MenuManager : MonoBehaviour
         dialogueCanvas.SetActive(true);
         tutorialCanvas.SetActive(true);
         Time.timeScale = 1;
-        dialogue.UnPause();
+        if (dialogue != null) dialogue.UnPause();
         _isPaused = false;
     }
 
@@ -147,7 +151,7 @@ public class MenuManager : MonoBehaviour
         //set the death menu to true.
         deathMenu.SetActive(true);
 
-        dialogue.Pause();
+        if(dialogue != null) dialogue.Pause();
     }
 
     public void Quit()
