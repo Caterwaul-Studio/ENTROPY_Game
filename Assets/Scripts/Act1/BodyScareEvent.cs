@@ -14,10 +14,9 @@ public class BodyScareEvent : MonoBehaviour, ISaveable
     private GameObject body;
     [SerializeField]
     private Rigidbody bodyRb;
+
     [SerializeField]
     private GameObject tempCollider;
-    [SerializeField] //making this an array so it can be a drop down/not take up too much space in the editor
-    private AudioSource[] lightOnAudio; 
     //this trigger box is for when the player returns to the dining room after the dead body reveal
     [SerializeField]
     private GameObject colliderTriggerEnd;
@@ -191,7 +190,6 @@ public class BodyScareEvent : MonoBehaviour, ISaveable
         //float elapsed = 0f;
 
         //audioManager.playBodyStinger();
-        StartCoroutine(lightOnSequence());
 
         yield return StartCoroutine(lightManager.FlickerLights(LightLocation.EscapePod, duration, 3.0f, false));
         StartCoroutine(lightManager.FlickerLightsForever(LightLocation.EscapePod));
@@ -241,15 +239,4 @@ public class BodyScareEvent : MonoBehaviour, ISaveable
         string path = Application.persistentDataPath;
         GlobalSaveManager.SaveTextToFile(path, fileName, json);
     }
-
-
-    private IEnumerator lightOnSequence()
-    {
-        lightOnAudio[0].Play();
-        yield return new WaitForSeconds(0.2f);
-        lightOnAudio[1].Play();
-        yield return new WaitForSeconds(0.2f);
-        lightOnAudio[2].Play();
-    }
-
 }
