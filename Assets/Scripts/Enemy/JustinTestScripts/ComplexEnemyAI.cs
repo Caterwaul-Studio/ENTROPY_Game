@@ -216,7 +216,7 @@ public class ComplexEnemyAI : MonoBehaviour
         }
 
         //part of temporary audio system, to be replaced
-        Debug.Log(Vector3.Distance(player.transform.position, transform.position));
+        //Debug.Log(Vector3.Distance(player.transform.position, transform.position));
         farMusic.volume = Vector3.Distance(player.transform.position, transform.position) / 10;
         nearMusic.volume = 1 - Vector3.Distance(player.transform.position, transform.position) / 10;
         
