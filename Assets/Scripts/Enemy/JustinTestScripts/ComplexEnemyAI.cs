@@ -28,6 +28,8 @@ public class ComplexEnemyAI : MonoBehaviour
     public Waypoint startingWaypoint;
     public Transform waypointGroup;
     public EnemyStateMachine enemyStateMachine;
+    public AudioSource farMusic; //part of temp system
+    public AudioSource nearMusic; //part of temp system
     //public DoorScript door;
 
     [Header("Tendril Settings")]
@@ -212,6 +214,11 @@ public class ComplexEnemyAI : MonoBehaviour
                 lastTendrilTime = Time.time;
             }
         }
+
+        //part of temporary audio system, to be replaced
+        Debug.Log(Vector3.Distance(player.transform.position, transform.position));
+        farMusic.volume = Vector3.Distance(player.transform.position, transform.position) / 10;
+        nearMusic.volume = 1 - Vector3.Distance(player.transform.position, transform.position) / 10;
         
     }
 
@@ -264,6 +271,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
     public void isPatroling()
     {
+
         if (currentWaypoint.type == Waypoint.WaypointType.General)
         {
             RoamArea();
@@ -277,6 +285,8 @@ public class ComplexEnemyAI : MonoBehaviour
 
     public void IsInvestigating()
     {
+
+
         if (enemyStateMachine.shouldFollow)
         {
             // Only calculate a path if we don't have one
