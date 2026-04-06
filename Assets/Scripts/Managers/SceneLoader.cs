@@ -28,6 +28,7 @@ public class SceneLoader : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            PersistPersistentGameObject();
         }
         else
         {
@@ -139,6 +140,29 @@ public class SceneLoader : MonoBehaviour
         if (loadingScreenCanvas)loadingScreenCanvas.SetActive(false);
         _hasPendingTransfer = false;
 
+        PlayerUIManager uiManager = FindFirstObjectByType<PlayerUIManager>();
+        if(uiManager != null)
+        {
+            uiManager.OnSceneLoaded();
+        }
+        else
+        {
+            Debug.LogWarning("SceneLoader: No PlayerUIManager found in scene to notify of scene load.");
+        }
+
         //Debug.Log("Transfer applied. Player placed at: " + worldPos);
+    }
+
+    private void PersistPersistentGameObject()
+    {
+        GameObject persistent = GameObject.Find("Persistent");
+        if ((persistent != null && persistent.transform.parent == null))
+        {
+            DontDestroyOnLoad(persistent);
+        }
+        else
+        {
+            Debug.LogWarning("SceneLoader: Could not find root-level GameObject");
+        }
     }
 }

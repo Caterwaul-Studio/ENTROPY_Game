@@ -5,6 +5,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using NUnit.Framework;
+using UnityEngine.SceneManagement;
 
 public class PlayerUIManager : MonoBehaviour
 {
@@ -23,7 +24,7 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField]
     private DormHallEvent dormHallEvent;
     [SerializeField]
-    private GameObject stimDispenserContainer;
+    private StimDispenserManager stimDispenserContainer;
     private StimDispenser[] stimDispensers;
     private bool lookingAtStim;
 
@@ -218,7 +219,7 @@ public class PlayerUIManager : MonoBehaviour
         }
         if(stimDispenserContainer == null)
         {
-            stimDispenserContainer = GameObject.Find("StimDispensers");
+            stimDispenserContainer = FindFirstObjectByType<StimDispenserManager>();
         }
 
         if (stimDispenserContainer != null)
@@ -1178,6 +1179,17 @@ public class PlayerUIManager : MonoBehaviour
     {
         inputIndicator.sprite = keyFIndicator;
         inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
+    }
+
+    public void OnSceneLoaded()
+    {
+        // scene - level managers need to be refound
+        doorManager = FindFirstObjectByType<DoorManager>();
+        terminalManager = FindFirstObjectByType<TerminalManager>();
+        stimDispenserContainer = FindFirstObjectByType<StimDispenserManager>();
+        stimDispensers = stimDispenserContainer.GetComponentsInChildren<StimDispenser>();
+        billboardObject = GameObject.Instantiate(billboardPrefab);
+        billboardObject.SetActive(false);
     }
 
     //void OnDrawGizmos()
