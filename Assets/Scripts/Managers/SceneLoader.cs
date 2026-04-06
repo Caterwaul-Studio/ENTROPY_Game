@@ -62,10 +62,13 @@ public class SceneLoader : MonoBehaviour
             //Debug.LogError("loadingScreenCanvas is NULL - not assigned in Inspector!");
         }
         // force atleast 2 frames for canvas to render
-        yield return null; 
+        yield return null;
         yield return null;
 
         AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
+
+        //add buffer time to prevent instant scene switch if scene is already loaded, and to ensure
+        //loading screen is visible for at least a moment
         op.allowSceneActivation = false;
 
         // Minimum display time so player actually sees it
