@@ -519,6 +519,54 @@ public class ComplexEnemyAI : MonoBehaviour
 
     #region Throw/Attack/Lunge
     
+    private void LungeStuff()
+    {
+        if (isLunging)
+        {
+            lungeTimer += Time.deltaTime;
+            if (lungeTimer >= lungeDuration)
+                EndLunge();
+            return;
+        }
+    }
+
+    private void Chargelunge()
+    {
+        // 4) If mid-charge, skip normal AI
+        if (isCharging)
+        {
+            //ForceLookAtPlayer(); // Always rotate toward player during charge
+            return;
+        }
+        // 5) Check if player is within lungeDistance, the enemy has line of sight with the player, and not charging or lunging → start charging
+        if (hasLineOfSight && sqrDist < (lungeDistance * lungeDistance) && !isCharging && !isLunging)
+        {
+
+
+            Vector3 toPlayer = player.transform.position - transform.position;
+            float checkDistance = toPlayer.magnitude;
+            Vector3 direction = toPlayer.normalized;
+
+            // Perform a SphereCast in the direction of the player
+            float sphereRadius = 0.5f * transform.localScale.x; // adjust based on your alien's size
+
+
+            //check to see if there's anything in the way before we lunge into a wall
+            if (!Physics.SphereCast(transform.position, sphereRadius, direction, out RaycastHit hit, 5f, barrierLayer))
+            {
+                isCharging = true;
+                StartCoroutine(ChargeAndLunge());
+                return;
+            }
+            else
+            {
+                // Optional: debug visualization
+                Debug.DrawRay(transform.position, direction * 5.0f, Color.red, 0.2f);
+                //Debug.Log("Lunge blocked by: " + hit.collider.name);
+            }
+        }
+    }
+
     private IEnumerator GrabPlayer()
     {
         //Disable Player Inputs

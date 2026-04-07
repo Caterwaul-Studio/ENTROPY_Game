@@ -148,7 +148,16 @@ public class EnemyStateMachine : MonoBehaviour
         }
         else if (enemyVersion == EnemyVersion.Simple)
         {
+            switch (currentGeneralState)
+            {
+                case GeneralEnemyState.Active:
+                    HandleActiveLogic();
+                    break;
+                case GeneralEnemyState.Retreat:
+                    HandleRetreatLogic();
+                    break;
 
+            }
         }
         
     }
