@@ -1466,13 +1466,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         canGrab = false;
     }
 
-    public void Respawn()
-    {
-        // whether or not we load from save depends on whether temp data exists
-        GlobalSaveManager.LoadFromSave = GlobalSaveManager.TempDataExists();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
     #endregion
     #endregion
 
@@ -1582,6 +1575,13 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     #endregion
 
     #region Global Save Manager Integration
+
+    public void Respawn()
+    {
+        // whether or not we load from save depends on whether temp data exists
+        GlobalSaveManager.LoadFromSave = GlobalSaveManager.TempDataExists();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
 
     // backs up player data for saving
     public void StorePlayerData(Vector3 _position) // takes the checkpoints respawn point

@@ -1,19 +1,36 @@
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class PersistantManager : MonoBehaviour
 {
+    private ZeroGravity player;
+
+    private ObjectiveUpdate objectiveUpdate;
+
+    public void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
+    }
+
+    private void OnSceneUnloaded(Scene scene)
+    {
+        player = null; // clears the destroyed reference
+    }
 
     public static PersistantManager Instance { get; private set; }
+
     private void Awake()
     {
-        if (Instance == null)
+        if(Instance != null && Instance != this)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // if persistent player already exists, destroy duplicate
+            Destroy(gameObject);
+            return;
         }
-        else
-        {
-            Destroy(gameObject); // destroy the Level2 duplicate
-        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 }
