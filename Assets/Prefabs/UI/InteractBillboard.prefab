@@ -140,10 +140,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: '
+
+'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 6435650147dd9d8448f6f82ecb97b8ba, type: 2}
-  m_sharedMaterial: {fileID: 0}
+  m_fontAsset: {fileID: 11400000, guid: b85bd102a3bc1c64f8001b144861695e, type: 2}
+  m_sharedMaterial: {fileID: 6293322086163084313, guid: b85bd102a3bc1c64f8001b144861695e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -225,6 +227,7 @@ GameObject:
   - component: {fileID: 1302467473407557544}
   - component: {fileID: 1990830733140460653}
   - component: {fileID: 614079831999500445}
+  - component: {fileID: 6651432223825073828}
   m_Layer: 5
   m_Name: InteractBillboard
   m_TagString: Untagged
@@ -298,7 +301,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &1302467473407557544
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,3 +349,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 0}
+--- !u!225 &6651432223825073828
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6611770611460363364}
+  m_Enabled: 1
+  m_Alpha: 0.5
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
