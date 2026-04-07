@@ -353,7 +353,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
             if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Throw)
             {
-
+                
             }
             else if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill) 
             {
