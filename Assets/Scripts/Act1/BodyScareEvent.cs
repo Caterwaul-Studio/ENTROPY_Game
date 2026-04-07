@@ -14,7 +14,8 @@ public class BodyScareEvent : MonoBehaviour, ISaveable
     private GameObject body;
     [SerializeField]
     private Rigidbody bodyRb;
-
+    [SerializeField]
+    private AudioSource[] lightAudio;
     [SerializeField]
     private GameObject tempCollider;
     //this trigger box is for when the player returns to the dining room after the dead body reveal
@@ -137,6 +138,7 @@ public class BodyScareEvent : MonoBehaviour, ISaveable
 
         yield return new WaitForSeconds(1.5f);
         ActivateLights();
+        StartCoroutine(playLightAudio());
 
         //ambientController.Progress();
     }
@@ -238,5 +240,14 @@ public class BodyScareEvent : MonoBehaviour, ISaveable
         string json = JsonUtility.ToJson(_bodyScareEventData);
         string path = Application.persistentDataPath;
         GlobalSaveManager.SaveTextToFile(path, fileName, json);
+    }
+
+    private IEnumerator playLightAudio()
+    {
+        lightAudio[0].Play();
+        yield return new WaitForSeconds(0.2f);
+        lightAudio[1].Play();
+        yield return new WaitForSeconds(0.2f);
+        lightAudio[2].Play();
     }
 }
