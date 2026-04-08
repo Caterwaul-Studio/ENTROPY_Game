@@ -400,6 +400,264 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!1 &6704463082739463905
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6305161700335712389}
+  - component: {fileID: 192256101397047725}
+  m_Layer: 0
+  m_Name: TendrilAudio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6305161700335712389
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6704463082739463905}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.20410982, y: 0.21226154, z: -0.66630256, w: 0.6850731}
+  m_LocalPosition: {x: 0.0023147506, y: -0.0017557598, z: -0.0013060083}
+  m_LocalScale: {x: 0.001068458, y: 0.0010684589, z: 0.0010684576}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 554433014279705963}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &192256101397047725
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6704463082739463905}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 1476854147969383971, guid: 720f457489e44c440b5082c1b507453e, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 1
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 10
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!1 &7641177856703346139
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6534757781773406799}
+  - component: {fileID: 5670975492120408777}
+  m_Layer: 0
+  m_Name: TendrilAudio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6534757781773406799
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7641177856703346139}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.0057653757, y: 0.29442635, z: -0.9555647, w: 0.01327177}
+  m_LocalPosition: {x: 0.00008399559, y: -0.0037745892, z: -0.0026291434}
+  m_LocalScale: {x: 0.0010684585, y: 0.0010684583, z: 0.0010684575}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9222156123238723801}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &5670975492120408777
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7641177856703346139}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 1476854147969383971, guid: 720f457489e44c440b5082c1b507453e, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 1
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 10
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &7675111703229433746
 GameObject:
   m_ObjectHideFlags: 0
@@ -466,6 +724,135 @@ Transform:
   - {fileID: 629278854472940995}
   m_Father: {fileID: 1045260147178808843}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+--- !u!1 &8020358681043874201
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2806919466604207538}
+  - component: {fileID: 5352296064836447085}
+  m_Layer: 0
+  m_Name: TendrilAudio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2806919466604207538
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8020358681043874201}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.29442477, y: 0.0057629244, z: 0.013270304, w: 0.95556515}
+  m_LocalPosition: {x: 0, y: -0.000013518176, z: -0.00006755836}
+  m_LocalScale: {x: 0.0010684581, y: 0.0010684577, z: 0.0010684576}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3016843407574842000}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &5352296064836447085
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8020358681043874201}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 1476854147969383971, guid: 720f457489e44c440b5082c1b507453e, type: 2}
+  m_audioClip: {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
+  m_Resource: {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 1
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 10
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &8362164807471602378
 GameObject:
   m_ObjectHideFlags: 0
@@ -500,6 +887,135 @@ Transform:
   - {fileID: 9035715946231507228}
   m_Father: {fileID: 4424982315069405020}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8539198297639236774
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5366630501931712259}
+  - component: {fileID: 8650264377673002813}
+  m_Layer: 0
+  m_Name: TendrilAudio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5366630501931712259
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8539198297639236774}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.21226723, y: 0.20412053, z: -0.68506944, w: -0.6663012}
+  m_LocalPosition: {x: -0.0022349828, y: -0.0018734289, z: -0.001282454}
+  m_LocalScale: {x: 0.0010684583, y: 0.0010684585, z: 0.0010684571}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9000656099250969248}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &8650264377673002813
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8539198297639236774}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 1476854147969383971, guid: 720f457489e44c440b5082c1b507453e, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 1
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 10
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &167890258226811659
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -536,6 +1052,174 @@ PrefabInstance:
       propertyPath: groundMask.m_Bits
       value: 192
       objectReference: {fileID: 0}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: tendrilAudioPlayer
+      value: 
+      objectReference: {fileID: 5352296064836447085}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: tendrilAudioBank.Array.size
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[1]'
+      value: 
+      objectReference: {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[2]'
+      value: 
+      objectReference: {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[3]'
+      value: 
+      objectReference: {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[4]'
+      value: 
+      objectReference: {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[5]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[6]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[7]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[8]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[9]'
+      value: 
+      objectReference: {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[10]'
+      value: 
+      objectReference: {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[11]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[12]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[13]'
+      value: 
+      objectReference: {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[14]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[15]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[16]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[17]'
+      value: 
+      objectReference: {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[18]'
+      value: 
+      objectReference: {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[19]'
+      value: 
+      objectReference: {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[20]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[21]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[22]'
+      value: 
+      objectReference: {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[23]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[24]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[25]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[26]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[27]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[28]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[29]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[30]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[31]'
+      value: 
+      objectReference: {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[32]'
+      value: 
+      objectReference: {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[33]'
+      value: 
+      objectReference: {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[34]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[35]'
+      value: 
+      objectReference: {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[36]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[37]'
+      value: 
+      objectReference: {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[38]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[39]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
     - target: {fileID: 6907088704593530616, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.34
@@ -586,9 +1270,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 3137192910020258203, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2806919466604207538}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+--- !u!4 &3016843407574842000 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3137192910020258203, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+  m_PrefabInstance: {fileID: 167890258226811659}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6741501443350633971 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6907088704593530616, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
@@ -634,6 +1326,174 @@ PrefabInstance:
       propertyPath: groundMask.m_Bits
       value: 192
       objectReference: {fileID: 0}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: tendrilAudioPlayer
+      value: 
+      objectReference: {fileID: 192256101397047725}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: tendrilAudioBank.Array.size
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[1]'
+      value: 
+      objectReference: {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[2]'
+      value: 
+      objectReference: {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[3]'
+      value: 
+      objectReference: {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[4]'
+      value: 
+      objectReference: {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[5]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[6]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[7]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[8]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[9]'
+      value: 
+      objectReference: {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[10]'
+      value: 
+      objectReference: {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[11]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[12]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[13]'
+      value: 
+      objectReference: {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[14]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[15]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[16]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[17]'
+      value: 
+      objectReference: {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[18]'
+      value: 
+      objectReference: {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[19]'
+      value: 
+      objectReference: {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[20]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[21]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[22]'
+      value: 
+      objectReference: {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[23]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[24]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[25]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[26]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[27]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[28]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[29]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[30]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[31]'
+      value: 
+      objectReference: {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[32]'
+      value: 
+      objectReference: {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[33]'
+      value: 
+      objectReference: {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[34]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[35]'
+      value: 
+      objectReference: {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[36]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[37]'
+      value: 
+      objectReference: {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[38]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[39]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
     - target: {fileID: 6907088704593530616, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0
@@ -684,9 +1544,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 3137192910020258203, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6305161700335712389}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+--- !u!4 &554433014279705963 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3137192910020258203, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+  m_PrefabInstance: {fileID: 3186351398719962352}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8350475406921216520 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6907088704593530616, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
@@ -982,6 +1850,174 @@ PrefabInstance:
       propertyPath: groundMask.m_Bits
       value: 192
       objectReference: {fileID: 0}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: tendrilAudioPlayer
+      value: 
+      objectReference: {fileID: 5670975492120408777}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: tendrilAudioBank.Array.size
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[1]'
+      value: 
+      objectReference: {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[2]'
+      value: 
+      objectReference: {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[3]'
+      value: 
+      objectReference: {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[4]'
+      value: 
+      objectReference: {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[5]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[6]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[7]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[8]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[9]'
+      value: 
+      objectReference: {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[10]'
+      value: 
+      objectReference: {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[11]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[12]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[13]'
+      value: 
+      objectReference: {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[14]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[15]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[16]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[17]'
+      value: 
+      objectReference: {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[18]'
+      value: 
+      objectReference: {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[19]'
+      value: 
+      objectReference: {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[20]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[21]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[22]'
+      value: 
+      objectReference: {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[23]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[24]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[25]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[26]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[27]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[28]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[29]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[30]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[31]'
+      value: 
+      objectReference: {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[32]'
+      value: 
+      objectReference: {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[33]'
+      value: 
+      objectReference: {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[34]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[35]'
+      value: 
+      objectReference: {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[36]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[37]'
+      value: 
+      objectReference: {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[38]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[39]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
     - target: {fileID: 6907088704593530616, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.34
@@ -1032,12 +2068,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 3137192910020258203, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6534757781773406799}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
 --- !u!4 &840144403860215738 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6907088704593530616, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+  m_PrefabInstance: {fileID: 6084963939105888578}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &9222156123238723801 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3137192910020258203, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
   m_PrefabInstance: {fileID: 6084963939105888578}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6296398813266391867
@@ -1080,6 +2124,174 @@ PrefabInstance:
       propertyPath: groundMask.m_Bits
       value: 192
       objectReference: {fileID: 0}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: tendrilAudioPlayer
+      value: 
+      objectReference: {fileID: 8650264377673002813}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: tendrilAudioBank.Array.size
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[1]'
+      value: 
+      objectReference: {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[2]'
+      value: 
+      objectReference: {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[3]'
+      value: 
+      objectReference: {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[4]'
+      value: 
+      objectReference: {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[5]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[6]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[7]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[8]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[9]'
+      value: 
+      objectReference: {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[10]'
+      value: 
+      objectReference: {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[11]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[12]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[13]'
+      value: 
+      objectReference: {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[14]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[15]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[16]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[17]'
+      value: 
+      objectReference: {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[18]'
+      value: 
+      objectReference: {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[19]'
+      value: 
+      objectReference: {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[20]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[21]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[22]'
+      value: 
+      objectReference: {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[23]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[24]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[25]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[26]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[27]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[28]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[29]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[30]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[31]'
+      value: 
+      objectReference: {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[32]'
+      value: 
+      objectReference: {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[33]'
+      value: 
+      objectReference: {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[34]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[35]'
+      value: 
+      objectReference: {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[36]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[37]'
+      value: 
+      objectReference: {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[38]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
+    - target: {fileID: 6433525782243405665, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      propertyPath: 'tendrilAudioBank.Array.data[39]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
     - target: {fileID: 6907088704593530616, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0
@@ -1130,11 +2342,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 3137192910020258203, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5366630501931712259}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
 --- !u!4 &629278854472940995 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6907088704593530616, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
+  m_PrefabInstance: {fileID: 6296398813266391867}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &9000656099250969248 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3137192910020258203, guid: fbeaa0466296c6b4bacaf6a676900238, type: 3}
   m_PrefabInstance: {fileID: 6296398813266391867}
   m_PrefabAsset: {fileID: 0}
