@@ -175,7 +175,9 @@ public class ComplexEnemyAI : MonoBehaviour
                 case SpecificEnemyState.Retreat:
                     TrackPath();
                     break;
-                case SpecificEnemyState.Lunging:
+                case SpecificEnemyState.Lunge:
+                    break;
+                case SpecificEnemyState.Throw:
                     break;
                 case SpecificEnemyState.Stunned:
                     break;
@@ -279,7 +281,8 @@ public class ComplexEnemyAI : MonoBehaviour
             RoamLimited();
         }
     }
-
+    #region Investigation
+    #endregion
     public void IsInvestigating()
     {
         if (enemyStateMachine.shouldFollow)
@@ -351,9 +354,11 @@ public class ComplexEnemyAI : MonoBehaviour
         else if (other.CompareTag("Player"))
         {
 
-            if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Throw)
+            enemyStateMachine.GrabAttackLogic();
+
+            if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Grab)
             {
-                
+                enemyStateMachine.GrabPlayer();
             }
             else if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill) 
             {
@@ -521,6 +526,11 @@ public class ComplexEnemyAI : MonoBehaviour
     
     private void LungeStuff()
     {
+        
+    }
+
+    private void Chargelunge()
+    {
         if (isLunging)
         {
             lungeTimer += Time.deltaTime;
@@ -528,14 +538,10 @@ public class ComplexEnemyAI : MonoBehaviour
                 EndLunge();
             return;
         }
-    }
-
-    private void Chargelunge()
-    {
         // 4) If mid-charge, skip normal AI
         if (isCharging)
         {
-            //ForceLookAtPlayer(); // Always rotate toward player during charge
+            ForceLookAtPlayer(); // Always rotate toward player during charge
             return;
         }
         // 5) Check if player is within lungeDistance, the enemy has line of sight with the player, and not charging or lunging → start charging
@@ -565,6 +571,15 @@ public class ComplexEnemyAI : MonoBehaviour
                 //Debug.Log("Lunge blocked by: " + hit.collider.name);
             }
         }
+    }
+
+    void ForceLookAtPlayer()
+    {
+        Vector3 toPlayer = (player.transform.position - transform.position);
+        if (toPlayer.sqrMagnitude < 0.01f) return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(toPlayer.normalized, Vector3.up);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 
     private IEnumerator GrabPlayer()

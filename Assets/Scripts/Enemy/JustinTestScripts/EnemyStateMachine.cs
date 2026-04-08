@@ -10,7 +10,9 @@ public enum SpecificEnemyState
     Track,
     Investigate,
     Patrol,
-    Lunging,
+    Charge,
+    Lunge,
+    Grab,
     Throw,
     Kill,
     Retreat,
@@ -92,6 +94,8 @@ public class EnemyStateMachine : MonoBehaviour
     [Header("Lunging")]
 
     [SerializeField] private float lungeTimer;
+    [SerializeField] private float lungeDistanceMaxCheck;
+    [SerializeField] private bool isLunging;
 
     [Header("Gizmos")]
     [SerializeField] private bool showDetectionRadius;
@@ -394,14 +398,14 @@ public class EnemyStateMachine : MonoBehaviour
 
     #region Grab/Throw/Attack Logic
 
-    private void GrabPlayer()
+    public void GrabPlayer()
     {
         LockPlayerInputs();
         DetermineThrowLocation();
         ForceLookAtGeist(this.transform,forceLookSpeedTime);
     }
 
-    private void GrabAttackLogic()
+    public void GrabAttackLogic()
     {
         if (player.GetComponent<ZeroGravity>().PlayerHealth <= 1)
         {
@@ -410,8 +414,7 @@ public class EnemyStateMachine : MonoBehaviour
         }
         else
         {
-            GrabPlayer();
-            ChangeSpecificState(SpecificEnemyState.Throw);
+            ChangeSpecificState(SpecificEnemyState.Grab);
         }
 
     }
@@ -539,6 +542,23 @@ public class EnemyStateMachine : MonoBehaviour
         StartCoroutine(RotateCameraToTarget(target, duration));
     }
 
+    private void GoIdle()
+    {
+        UnlockPlayerInputs();
+
+        ChangeGeneralState(GeneralEnemyState.Idle);
+
+        StartCoroutine(WaitForTime(3.0f));
+
+        ChangeGeneralState(GeneralEnemyState.Active);
+        ChangeSpecificState(SpecificEnemyState.Investigate);
+    }
+
+    private IEnumerator WaitForTime(float WaitTime)
+    {
+        yield return new WaitForSeconds(WaitTime);
+    }
+
     IEnumerator RotateCameraToTarget(Transform target, float duration)
     {
         float elapsed = 0f;
@@ -565,25 +585,28 @@ public class EnemyStateMachine : MonoBehaviour
 
     #endregion
 
-    #region Light Detection Logic
-    private bool PerformRaycastDetection()
+    #region Lunge Logic
+
+    private void LungeLogic()
     {
-        if (player == null) return false;
 
-        Vector3 dir = player.transform.position - transform.position;
-        RaycastHit hit;
-
-        if (Physics.Raycast(transform.position, dir.normalized, out hit, detectionRadius, detectionMask))
+        if (isLunging = PerformRaycastDetection())
         {
-            
-            if (hit.collider.CompareTag("Player"))
-            {
-                Debug.Log("Can Detect Player");
-                return true;
-            }
+
         }
-        return false;
     }
+
+    private void ChargeLunge()
+    {
+        if (isLunging)
+        {
+
+        }
+    }
+
+    #endregion
+
+    #region Light Detection Logic
 
     private bool DetectPlayerFlashLight()
     {
@@ -654,7 +677,24 @@ public class EnemyStateMachine : MonoBehaviour
         Debug.Log($"State Changed to: {newState}");
     }
 
-    
+    private bool PerformRaycastDetection()
+    {
+        if (player == null) return false;
+
+        Vector3 dir = player.transform.position - transform.position;
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, dir.normalized, out hit, detectionRadius, detectionMask))
+        {
+
+            if (hit.collider.CompareTag("Player"))
+            {
+                Debug.Log("Can Detect Player");
+                return true;
+            }
+        }
+        return false;
+    }
     #endregion
 
     #region Dev Tools
