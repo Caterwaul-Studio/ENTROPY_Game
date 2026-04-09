@@ -179,10 +179,6 @@ public class ComplexEnemyAI : MonoBehaviour
                 case SpecificEnemyState.Retreat:
                     TrackPath();
                     break;
-                case SpecificEnemyState.Lunge:
-                    break;
-                case SpecificEnemyState.Throw:
-                    break;
                 case SpecificEnemyState.Stunned:
                     break;
             }
@@ -477,12 +473,8 @@ public class ComplexEnemyAI : MonoBehaviour
     #endregion
 
     #region Throw/Attack/Lunge
-    
-    private void LungeStuff()
-    {
-        
-    }
 
+    /*
     private void Chargelunge()
     {
         if (isLunging)
@@ -526,6 +518,7 @@ public class ComplexEnemyAI : MonoBehaviour
             }
         }
     }
+    */
 
     void ForceLookAtPlayer()
     {
@@ -554,6 +547,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
     private IEnumerator ThrowSequence()
     {
+        ForceLookAtPlayer();
         // Wait for the grab animation / hold duration
         yield return enemyStateMachine.GrabAndWait();
 
@@ -567,6 +561,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
     private void KillPlayer()
     {
+        ForceLookAtPlayer();
         StartCoroutine(enemyStateMachine.GrabAndWait());
 
         if (!playerController.IsDead)

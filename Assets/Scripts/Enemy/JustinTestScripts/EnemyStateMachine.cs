@@ -606,49 +606,16 @@ public class EnemyStateMachine : MonoBehaviour
         // If the SphereCast reaches the 'distance' without hitting anything, return true.
         return true;
     }
-    /*
-    private void FindClosestPointOfThrowOffset(Vector3 offset)
-    {
-        Vector3 startPos = transform.position + transform.TransformDirection(offset);
-        Vector3 direction = -transform.forward;
-        Vector3 physicalLandingPos;
-
-        // 1. Find the physical spot the player/object would hit
-        if (Physics.SphereCast(startPos, checkRadius, direction, out RaycastHit hit, throwDistanceCheck, wallLayer))
-        {
-            physicalLandingPos = startPos + (direction * (hit.distance - 0.1f));
-        }
-        else
-        {
-            physicalLandingPos = startPos + (direction * throwDistanceCheck);
-        }
-
-
-        // 2. Find the waypoint nearest to that landing spot
-        Waypoint nearestWP = complexEnemyAI.FindClosestWaypoint(physicalLandingPos);
-
-        if (nearestWP != null)
-        {
-            Debug.Log($"Nearest Waypoint to landing is: {nearestWP.name}");
-            // Now tell your Geist AI to use this waypoint for its next BFS path
-            // complexEnemyAI.SetCurrentWaypoint(nearestWP);
-        }
-    }
-    */
     private void LockPlayerInputs()
     {
         playerController.CanMove = false;
         playerController.StopRollingQuickly();
+        playerController.RB.linearVelocity *= 0;
     }
 
     public void UnlockPlayerInputs()
     {
         playerController.CanMove = true;
-    }
-
-    private void ForceLookAtGeist(Transform target, float duration)
-    {
-        StartCoroutine(RotateCameraToTarget(target, duration));
     }
 
     public void GoIdle()
@@ -663,11 +630,6 @@ public class EnemyStateMachine : MonoBehaviour
         yield return new WaitForSeconds(3.0f); // actually waits
         ChangeGeneralState(GeneralEnemyState.Active);
         ChangeSpecificState(SpecificEnemyState.Investigate);
-    }
-
-    private IEnumerator WaitForTime(float WaitTime)
-    {
-        yield return new WaitForSeconds(WaitTime);
     }
 
     IEnumerator RotateCameraToTarget(Transform target, float duration)

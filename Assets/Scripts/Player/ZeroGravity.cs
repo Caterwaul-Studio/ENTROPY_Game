@@ -330,6 +330,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         set { tutorialMode = value; }
     }
 
+    public Rigidbody RB
+    {
+        get { return rb; }
+    }
+
     public bool CanMove
     {
         get { return canMove; }
