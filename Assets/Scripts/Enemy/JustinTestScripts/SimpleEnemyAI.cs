@@ -165,7 +165,7 @@ public class SimpleEnemyAI : MonoBehaviour
                 case SpecificEnemyState.Chase:
                     IsChasingPlayer();
                     break;
-                case SpecificEnemyState.Lunging:
+                case SpecificEnemyState.Lunge:
                     break;
                 case SpecificEnemyState.Stunned:
                     break;

@@ -241,6 +241,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     // for storing the respawn information
     public PlayerData playerData;
+
+    [Header("== Kinematic Throw Settings ==")]
+    private Vector3 kinematicVelocity;
+    public float throwDecay = 3.0f; // How fast you slow down in space
+    public bool IsBeingThrown => kinematicVelocity.magnitude > 0.1f;
     #endregion 
 
     #region Properties
@@ -1582,6 +1587,49 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             UseStimCharge();
         }
     }
+
+    #region Throw Movement
+
+    public void GetThrown(Vector3 direction, float force)
+    {
+        StartCoroutine(ThrownRoutine(direction.normalized * force));
+    }
+
+    private IEnumerator ThrownRoutine(Vector3 impulse)
+    {
+        bool wasKinematic = rb.isKinematic;
+
+        // Temporarily disable kinematic so AddForce works
+        if (wasKinematic)
+        {
+            rb.isKinematic = false;
+            // Re-enable the collider in case it was disabled (e.g. no-clip mode)
+            boundingSphere.enabled = true;
+        }
+
+        // Cancel existing momentum then launch
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.AddForce(impulse, ForceMode.Impulse);
+
+        // Wait until the throw has decayed below a threshold
+        // (uses your existing throwDecay value so tuning still works)
+        while (rb.linearVelocity.magnitude > 0.5f)
+        {
+            yield return new WaitForFixedUpdate();
+        }
+
+        // Restore kinematic state if it was set before the throw
+        if (wasKinematic)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
+        }
+    }
+
+    #endregion
+
     #endregion
 
 
