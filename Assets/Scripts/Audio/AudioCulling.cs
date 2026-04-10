@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AudioCulling : MonoBehaviour
 {
@@ -12,8 +13,7 @@ public class AudioCulling : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        cullable = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
-        audioZones = FindObjectsByType<AudioZone>(FindObjectsSortMode.None);
+        Rebuild();
     }
 
     // Update is called once per frame
@@ -45,4 +45,36 @@ public class AudioCulling : MonoBehaviour
             }
         }
     }
+
+    private void Rebuild()
+    {
+        cullable = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
+        audioZones = FindObjectsByType<AudioZone>(FindObjectsSortMode.None);
+        currentZone = null;
+
+        foreach(AudioZone zone in audioZones)
+        {
+            if(zone != null)
+            {
+                zone.Repopulate();
+            }
+        }
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneUnloaded; ;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneUnloaded;
+    }
+
+    private void OnSceneUnloaded(Scene scene, LoadSceneMode mode)
+    {
+        Rebuild();
+    }
+
+
 }

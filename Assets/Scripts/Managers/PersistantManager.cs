@@ -10,10 +10,10 @@ public class PersistantManager : MonoBehaviour
 
     public void OnEnable()
     {
-        SceneManager.sceneLoaded += OnSceneLoaded;
         SceneManager.sceneUnloaded += OnSceneUnloaded;
+        //SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
-
+        
     private void OnSceneUnloaded(Scene scene)
     {
         player = null; // clears the destroyed reference

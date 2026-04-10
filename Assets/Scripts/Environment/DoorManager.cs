@@ -93,6 +93,11 @@ public class DoorManager : MonoBehaviour, ISaveable
     // Update is called once per frame
     void Update()
     {
+        // if player reference is lost, try to find it again
+        if (player == null || !player.gameObject.scene.isLoaded){
+            player = FindFirstObjectByType<ZeroGravity>();
+        }
+        ;
         ScanDoors();
     }
 
