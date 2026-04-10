@@ -84,6 +84,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 183194efc17280d4eb2357a6309c9cfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MAX_DISTANCE: 2
   root: {fileID: 220200311840046346}
   target: {fileID: 0}
   distance: 0
@@ -103,6 +104,7 @@ MonoBehaviour:
   origin: {fileID: 6907088704593530616}
   ikTarget: {fileID: 0}
   maxBackDistance: 1.5
+  stepBackZone: 25
   moveDirection: {x: 0, y: 0, z: 1}
   directionBias: 0.7
   groundMask:
@@ -113,8 +115,8 @@ MonoBehaviour:
   defaultLocalPosition: {fileID: 4468927107109183119}
   isPassive: 1
   grabRange: 3
-  grabAngle: 120
-  moveSpeed: 10
+  grabAngle: 160
+  moveSpeed: 3
   passiveMoveSpeed: 20
 --- !u!1 &3919433094626192572
 GameObject:
