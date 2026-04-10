@@ -104,6 +104,7 @@ public class TutorialManager : MonoBehaviour
         //playerController.TutorialMode = true;
 
         // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
+        // checks if dialogue is at the beginning (tutorial)
         if (dialogueManager.currentSequenceIndex == -1)
         {
             playerController.TutorialMode = true;
