@@ -102,6 +102,7 @@ public class ComplexEnemyAI : MonoBehaviour
     [Header("Throw")]
     public Vector3 throwLocation; // set via SetThrowLocation()
     public float minThrowDistance = 5f;
+    [SerializeField] private float throwForce = 20f;
 
 
     void Start()
@@ -180,6 +181,10 @@ public class ComplexEnemyAI : MonoBehaviour
                     TrackPath();
                     break;
                 case SpecificEnemyState.Stunned:
+                    break;
+                case SpecificEnemyState.Lunge:
+                case SpecificEnemyState.Charge:
+                    Chargelunge();
                     break;
             }
 
@@ -474,7 +479,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
     #region Throw/Attack/Lunge
 
-    /*
+    
     private void Chargelunge()
     {
         if (isLunging)
@@ -518,7 +523,7 @@ public class ComplexEnemyAI : MonoBehaviour
             }
         }
     }
-    */
+    
 
     void ForceLookAtPlayer()
     {
@@ -534,8 +539,6 @@ public class ComplexEnemyAI : MonoBehaviour
         // Direction from the enemy toward the computed throw target
         Vector3 direction = (throwLocation - transform.position).normalized;
 
-        // Tune throwForce in the inspector — start around 15-25
-        float throwForce = 20f;
 
         playerController.GetThrown(direction, throwForce);
     }

@@ -205,6 +205,9 @@ public class EnemyStateMachine : MonoBehaviour
                 detectionRadius = chaseDetectionRadius;
 
                 complexEnemyAI.IsChasingPlayer();
+
+                LungeLogic();
+
                 if (!canDetectPlayer)
                 {
                     interestTimer = interestDuration;
@@ -676,7 +679,7 @@ public class EnemyStateMachine : MonoBehaviour
         }
     }
 
-    private void ChargeLunge()
+    public void ChargeLunge()
     {
         if (currentSpecificState == SpecificEnemyState.Charge)
         {
