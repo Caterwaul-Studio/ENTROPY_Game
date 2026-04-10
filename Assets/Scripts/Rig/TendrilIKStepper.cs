@@ -32,6 +32,9 @@ public class TendrilIKStepper : MonoBehaviour
     public float moveSpeed = 8f;
     public float passiveMoveSpeed = 20f;
 
+    public AudioSource tendrilAudioPlayer;
+    public AudioClip[] tendrilAudioBank;
+
     private Quaternion targetRotation = Quaternion.identity;
 
     public Vector3 CurrentTarget { get; private set; }
@@ -130,6 +133,10 @@ public class TendrilIKStepper : MonoBehaviour
 
     Vector3? PickStepTarget()
     {
+        tendrilAudioPlayer.clip = tendrilAudioBank[Random.Range(0, tendrilAudioBank.Length)];
+        tendrilAudioPlayer.Play();
+
+
         float halfGrab = grabAngle * 0.5f;
         float angle = Random.Range(0f, halfGrab);
         float roll = Random.Range(0f, 360f);
