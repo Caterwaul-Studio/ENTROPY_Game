@@ -103,7 +103,11 @@ public class TutorialManager : MonoBehaviour
         playerGrabRange = playerController.GrabRange;
         //playerController.TutorialMode = true;
 
-        // need something to check here if player should be exposed to the tutorial
+        // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
+        if (dialogueManager.currentSequenceIndex == -1)
+        {
+            playerController.TutorialMode = true;
+        }
 
         //determines if the player is to be in tutorial from the player controller's "TutorialMode" bool, which is saved by the GSM
         if (playerController.TutorialMode == true && !GlobalSaveManager.LoadFromSave)
