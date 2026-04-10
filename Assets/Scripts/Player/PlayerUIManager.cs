@@ -1190,6 +1190,8 @@ public class PlayerUIManager : MonoBehaviour
         stimDispensers = stimDispenserContainer.GetComponentsInChildren<StimDispenser>();
         billboardObject = GameObject.Instantiate(billboardPrefab);
         billboardObject.SetActive(false);
+        wristMonitor = FindFirstObjectByType<WristMonitor>();
+        
     }
 
     //void OnDrawGizmos()
