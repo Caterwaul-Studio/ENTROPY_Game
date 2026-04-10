@@ -149,6 +149,8 @@ public class ComplexEnemyAI : MonoBehaviour
 
     void Update()
     {
+        hasLineOfSight = enemyStateMachine.canDetectPlayer;
+
         if (enemyStateMachine.enemyVersion == EnemyVersion.Simple)
         {
 
