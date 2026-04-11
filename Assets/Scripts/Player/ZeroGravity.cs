@@ -243,6 +243,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     public PlayerData playerData;
 
     [Header("== Kinematic Throw Settings ==")]
+    public bool isBeingGrabbed = false;
     private Vector3 kinematicVelocity;
     public float throwDecay = 3.0f; // How fast you slow down in space
     public bool IsBeingThrown => kinematicVelocity.magnitude > 0.1f;
@@ -290,6 +291,13 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     #endregion
 
     #region Other Properties
+
+    public bool IsBeingGrabbed
+    {
+        get { return isBeingGrabbed; }
+        set { isBeingGrabbed = value; }
+    }
+
     public float GrabPadding
     {
         get { return grabPadding; }
@@ -388,7 +396,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         set { totalRotation = value; }
     }
 
-    public int PlayerHealth { get { return playerHealth; } }
+    public int PlayerHealth { get { return playerHealth; } set { playerHealth = value; } }
 
     public int MaxHealth { get { return maxHealth; } }
 
@@ -494,6 +502,13 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     #region Update Methods
     void FixedUpdate()
     {
+        if (isBeingGrabbed)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            return; // skip all other movement
+        }
+
         if (PlayerFreeMoveNoClip)
         {
             FreeMoveNoClip();
@@ -1602,35 +1617,25 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     private IEnumerator ThrownRoutine(Vector3 impulse)
     {
-        bool wasKinematic = rb.isKinematic;
+        // rb may already be kinematic from the grab lock — ensure it's off for physics
+        rb.isKinematic = false;
+        boundingSphere.enabled = true;
 
-        // Temporarily disable kinematic so AddForce works
-        if (wasKinematic)
-        {
-            rb.isKinematic = false;
-            // Re-enable the collider in case it was disabled (e.g. no-clip mode)
-            boundingSphere.enabled = true;
-        }
+        // Wait one fixed frame so the physics engine acknowledges the kinematic change
+        yield return new WaitForFixedUpdate();
 
-        // Cancel existing momentum then launch
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         rb.AddForce(impulse, ForceMode.Impulse);
 
-        // Wait until the throw has decayed below a threshold
-        // (uses your existing throwDecay value so tuning still works)
+        // Wait until throw decays
         while (rb.linearVelocity.magnitude > 0.5f)
         {
             yield return new WaitForFixedUpdate();
         }
 
-        // Restore kinematic state if it was set before the throw
-        if (wasKinematic)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = true;
-        }
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
     }
 
     #endregion

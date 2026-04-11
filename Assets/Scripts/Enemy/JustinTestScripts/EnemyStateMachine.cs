@@ -88,6 +88,7 @@ public class EnemyStateMachine : MonoBehaviour
     [SerializeField] private int throwCheckLimit;
     [SerializeField] private Vector3 throwCheckOffset;
 
+    [SerializeField] private bool canTakeHealth;
 
     [Header("Grab Settings")]
     [SerializeField] private float forceLookSpeedTime;
@@ -129,7 +130,7 @@ public class EnemyStateMachine : MonoBehaviour
             // Run detection every frame
             canDetectPlayer = PerformRaycastDetection();
 
-            Debug.Log(canDetectPlayer);
+            //Debug.Log(canDetectPlayer);
 
             if (isLightOn)
             {
@@ -204,9 +205,9 @@ public class EnemyStateMachine : MonoBehaviour
             case SpecificEnemyState.Chase:
                 detectionRadius = chaseDetectionRadius;
 
-                complexEnemyAI.IsChasingPlayer();
-
-                LungeLogic();
+                if (currentSpecificState == SpecificEnemyState.Chase)
+                    complexEnemyAI.IsChasingPlayer();
+                //LungeLogic();
 
                 if (!canDetectPlayer)
                 {
@@ -296,7 +297,7 @@ public class EnemyStateMachine : MonoBehaviour
         if (waypoints == null || waypoints.Count == 0)
         {
             // Fall back to the origin itself so the AI doesn't crash
-            Debug.LogWarning($"GetRandomInvestPoint: no neighbours on {OriginPoint?.name}");
+            //Debug.LogWarning($"GetRandomInvestPoint: no neighbours on {OriginPoint?.name}");
             return OriginPoint;
         }
 
@@ -492,7 +493,7 @@ public class EnemyStateMachine : MonoBehaviour
 
         // 3. Struggle Pause
         // This gives the player a moment to see the Geist's face before being launched
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(5.5f);
 
         // 4. Execute Throw
         // We call a new function in AI to handle the kinematic "launch"
@@ -521,52 +522,6 @@ public class EnemyStateMachine : MonoBehaviour
     public IEnumerator GrabAndWait()
     {
         yield return new WaitForSeconds(3.0f);
-    }
-
-    private void DetermineThrowLocation()
-    {
-        throwCheckOffset = Vector3.zero;
-        canThrow = HasSpaceBehind(throwDistanceCheck, checkRadius, throwCheckOffset);
-
-        if (canThrow)
-        {
-            complexEnemyAI.throwLocation = throwCheckOffset;
-        }
-        else
-        {
-            canThrow = false;
-            float step = 1f;
-            int attempts = 0;
-
-            for (float x = -step; x <= step && !canThrow; x += step)
-            {
-                for (float y = -step; y <= step && !canThrow; y += step)
-                {
-                    for (float z = -step; z <= step && !canThrow; z += step)
-                    {
-                        if (x == 0 && y == 0 && z == 0) continue;
-                        if (throwCheckLimit > 0 && ++attempts > throwCheckLimit) goto DoneSearching;
-
-                        Vector3 trialOffset = new Vector3(x, y, z);
-                        if (HasSpaceBehind(throwDistanceCheck, checkRadius, trialOffset))
-                        {
-                            canThrow = true;
-                            SetThrowLocation(trialOffset);
-                        }
-                    }
-                }
-            }
-
-        DoneSearching:
-            // If still no clear spot, use the best available fallback position
-            if (!canThrow)
-            {
-                Vector3 fallback = GetFallbackThrowPosition(Vector3.zero);
-                complexEnemyAI.throwLocation = fallback;
-            }
-        }
-
-        ChangeSpecificState(SpecificEnemyState.Throw);
     }
 
     private Vector3 GetFallbackThrowPosition(Vector3 offset)
@@ -611,14 +566,39 @@ public class EnemyStateMachine : MonoBehaviour
     }
     private void LockPlayerInputs()
     {
+        Debug.Log("player control locked");
+
         playerController.CanMove = false;
         playerController.StopRollingQuickly();
-        playerController.RB.linearVelocity *= 0;
+
+        // Kill all momentum and freeze physics entirely
+        playerController.RB.linearVelocity = Vector3.zero;
+        playerController.RB.angularVelocity = Vector3.zero;
+        playerController.RB.isKinematic = true;
+
+        canTakeHealth = true;
+
     }
 
     public void UnlockPlayerInputs()
     {
+        Debug.Log("player control unlocked");
         playerController.CanMove = true;
+
+        // Restore physics — but only if we're not about to throw
+        // (GetThrown handles its own kinematic transition)
+        if (!playerController.IsBeingThrown)
+        {
+            playerController.RB.isKinematic = false;
+        }
+
+        if (canTakeHealth)
+        {
+            Debug.Log("player took damage");
+            playerController.PlayerHealth -= 1;
+            canTakeHealth = false;
+        }
+        
     }
 
     public void GoIdle()
@@ -630,7 +610,7 @@ public class EnemyStateMachine : MonoBehaviour
     {
         UnlockPlayerInputs();
         ChangeGeneralState(GeneralEnemyState.Idle);
-        yield return new WaitForSeconds(3.0f); // actually waits
+        yield return new WaitForSeconds(10.0f); // actually waits
         ChangeGeneralState(GeneralEnemyState.Active);
         ChangeSpecificState(SpecificEnemyState.Investigate);
     }
@@ -667,13 +647,15 @@ public class EnemyStateMachine : MonoBehaviour
     {
         ChargeLunge();
 
-        if (PerformRaycastDetection() && currentSpecificState != SpecificEnemyState.Charge)
+        float sqrDist = (complexEnemyAI.transform.position - player.transform.position).sqrMagnitude;
+        if (canDetectPlayer && sqrDist < (lungeDistanceMaxCheck * lungeDistanceMaxCheck)
+            && currentSpecificState != SpecificEnemyState.Charge)
         {
             ChangeSpecificState(SpecificEnemyState.Charge);
             lungeTimer = lungeTimerDuration;
         }
 
-        if (!PerformRaycastDetection())
+        if (!canDetectPlayer)
         {
             ChangeSpecificState(SpecificEnemyState.Chase);
         }
@@ -681,16 +663,18 @@ public class EnemyStateMachine : MonoBehaviour
 
     public void ChargeLunge()
     {
-        if (currentSpecificState == SpecificEnemyState.Charge)
-        {
-            lungeTimer -= Time.deltaTime;
+        // Only tick down if we're actually in the Charge state
+        if (currentSpecificState != SpecificEnemyState.Charge) return;
 
-            if (lungeTimer <= 0)
-            {
-                ChangeSpecificState(SpecificEnemyState.Lunge);
-            }
+        Debug.Log("hi");
+
+        lungeTimer -= Time.deltaTime;
+        if (lungeTimer <= 0)
+        {
+            ChangeSpecificState(SpecificEnemyState.Lunge);
         }
-        
+
+        Debug.Log("hi 2");
     }
 
     #endregion
@@ -778,7 +762,7 @@ public class EnemyStateMachine : MonoBehaviour
 
             if (hit.collider.CompareTag("Player"))
             {
-                Debug.Log("Can Detect Player");
+                //Debug.Log("Can Detect Player");
                 return true;
             }
         }

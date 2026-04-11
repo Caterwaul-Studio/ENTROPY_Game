@@ -184,10 +184,12 @@ public class ComplexEnemyAI : MonoBehaviour
                     break;
                 case SpecificEnemyState.Stunned:
                     break;
+                    /*
                 case SpecificEnemyState.Lunge:
                 case SpecificEnemyState.Charge:
                     Chargelunge();
                     break;
+                    */
             }
 
             CalculateDirection();
@@ -200,7 +202,7 @@ public class ComplexEnemyAI : MonoBehaviour
                 bool shouldBeMoving = enemyStateMachine.currentSpecificState != SpecificEnemyState.Kill &&
                                       enemyStateMachine.currentSpecificState != SpecificEnemyState.Stunned &&
                                       enemyStateMachine.currentSpecificState != SpecificEnemyState.Lunge &&
-                                      enemyStateMachine.currentSpecificState != SpecificEnemyState.Charge &&
+                                      //enemyStateMachine.currentSpecificState != SpecificEnemyState.Charge &&
                                       enemyStateMachine.currentSpecificState != SpecificEnemyState.Grab &&
                                       enemyStateMachine.currentSpecificState != SpecificEnemyState.Throw
                                       ;
@@ -239,6 +241,7 @@ public class ComplexEnemyAI : MonoBehaviour
         Debug.Log("<color=orange>Geist stuck! Clearing path and finding nearest waypoint.</color>");
         stuckTimer = 0f;
         /*
+         * 
         path.Clear();
         targetWaypoint = null;
         */
@@ -526,6 +529,31 @@ public class ComplexEnemyAI : MonoBehaviour
         }
     }
     
+    private void LungeAtPlayer()
+    {
+        Vector3 dir = (player.transform.position - transform.position).normalized;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.isKinematic = false;
+        rb.linearVelocity = dir * lungeSpeed;
+
+        isLunging = true;
+        lungeTimer = 0f;
+        rotationSpeed = setRotationSpeed;
+
+        isCharging = false;
+    }
+
+    private void EndLunge()
+    {
+        if (!isLunging) return;
+
+        isLunging = false;
+        isCharging = false;
+
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.linearVelocity = Vector3.zero;
+        rb.isKinematic = true;
+    }
 
     void ForceLookAtPlayer()
     {
@@ -545,11 +573,8 @@ public class ComplexEnemyAI : MonoBehaviour
         playerController.GetThrown(direction, throwForce);
     }
 
-    private void ThrowPlayer()
-    {
-        StartCoroutine(ThrowSequence());
-    }
-
+    private void ThrowPlayer() => StartCoroutine(ThrowSequence());
+    
     private IEnumerator ThrowSequence()
     {
         ForceLookAtPlayer();
@@ -564,17 +589,16 @@ public class ComplexEnemyAI : MonoBehaviour
         enemyStateMachine.GoIdle();
     }
 
-    private void KillPlayer()
+    private void KillPlayer() => StartCoroutine(KillSequence());
+
+    private IEnumerator KillSequence()
     {
         ForceLookAtPlayer();
-        StartCoroutine(enemyStateMachine.GrabAndWait());
-
+        yield return StartCoroutine(enemyStateMachine.GrabAndWait());
         if (!playerController.IsDead)
         {
-            Debug.Log("Player killed by alien");
             playerController.IsDead = true;
             isChasingPlayer = false;
-            //EndLunge();
         }
     }
 
@@ -666,18 +690,6 @@ public class ComplexEnemyAI : MonoBehaviour
         rotationSpeed = 20f;
         isChasingPlayer = false;
 
-        /*
-        // Retract ALL current tendrils
-        foreach (TendrilOrigin origin in tendrilOrigins)
-        {
-            if (origin.activeTendril != null)
-            {
-                origin.activeTendril.Retract();
-                origin.activeTendril = null; // clear immediately
-            }
-        }
-        */
-
         // Wait until the enemy is facing the player before continuing
         Vector3 toPlayer = (player.transform.position - transform.position).normalized;
         float angle = Vector3.Angle(transform.forward, toPlayer);
@@ -688,27 +700,6 @@ public class ComplexEnemyAI : MonoBehaviour
             angle = Vector3.Angle(transform.forward, toPlayer);
             //Debug.Log(angle);
             yield return null;
-        }
-
-
-        // Step 2: Spawn 5 tendrils at random from backwardsOrigins
-        List<TendrilOrigin> shuffled = new List<TendrilOrigin>(backwardsOrigins);
-        int spawnCount = Mathf.Min(6, shuffled.Count);
-
-        for (int i = 0; i < spawnCount; i++)
-        {
-            int index = Random.Range(0, shuffled.Count);
-            TendrilOrigin origin = shuffled[index];
-            shuffled.RemoveAt(index);
-
-            // Spawn tendril at the backwards origin
-            GameObject t = Instantiate(tendrilPrefab, origin.transform.position, origin.transform.rotation, origin.transform);
-            TendrilBehavior tb = t.GetComponent<TendrilBehavior>();
-            if (tb != null)
-            {
-                tb.Initialize(origin, this, true); // true = manualRetract
-                origin.activeTendril = tb;
-            }
         }
 
 
@@ -748,31 +739,11 @@ public class ComplexEnemyAI : MonoBehaviour
             }
         }
 
-        // Finish charging → launch the lunge
-        Vector3 dir = (player.transform.position - transform.position).normalized;
-        Rigidbody rb = GetComponent<Rigidbody>();
-        rb.isKinematic = false;
-        rb.linearVelocity = dir * lungeSpeed;
+        LungeAtPlayer();
 
-        isLunging = true;
-        lungeTimer = 0f;
-        rotationSpeed = setRotationSpeed;
+        EndLunge();
 
-
-    }
-
-    private void EndLunge()
-    {
-        if (!isLunging) return;
-
-        isLunging = false;
         isCharging = false;
-
-        Rigidbody rb = GetComponent<Rigidbody>();
-        rb.linearVelocity = Vector3.zero;
-        rb.isKinematic = true;
-
-        FindPlayerPath();
     }
 
     #endregion
