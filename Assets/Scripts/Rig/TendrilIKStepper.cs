@@ -9,6 +9,7 @@ public class TendrilIKStepper : MonoBehaviour
 
     [Header("Step Trigger")]
     public float maxBackDistance = 1.5f;
+    public float stepBackZone = 25f;
 
     [Header("Step Bias")]
     public Vector3 moveDirection = Vector3.zero;
@@ -121,8 +122,13 @@ public class TendrilIKStepper : MonoBehaviour
     bool ShouldStep()
     {
         Vector3 toPlanted = CurrentTarget - origin.position;
+
         float backDot = Vector3.Dot(toPlanted, -origin.up);
-        return backDot > maxBackDistance;
+        if (backDot > maxBackDistance) return true;
+
+        float angle = Vector3.Angle(origin.up, toPlanted);
+        float stepThreshold = (grabAngle * 0.5f) - stepBackZone;
+        return angle > stepThreshold;
     }
 
     Vector3? PickStepTarget()
