@@ -30,6 +30,12 @@ public class MainMenu : MonoBehaviour
         {
             distortion.active = true;
         }
+
+        // Get Menu dependencies stored in DontDestroyOnLoad
+        SceneFadeTransition transitionScript = FindFirstObjectByType<SceneFadeTransition>();
+        if (transitionScript != null) fadeImage = transitionScript.GetFadeImage();
+
+
         // Set time scale to normal
         Time.timeScale = 1f;
         //if(//GlobalSaveManager.Instance.Data.PlayerData. == 0)

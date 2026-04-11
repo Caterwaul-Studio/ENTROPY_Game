@@ -28,6 +28,10 @@ public class ComplexEnemyAI : MonoBehaviour
     public Waypoint startingWaypoint;
     public Transform waypointGroup;
     public EnemyStateMachine enemyStateMachine;
+    public AudioSource farMusic; //part of temp system
+    public AudioSource nearMusic; //part of temp system
+    public AudioSource hitSource; //part of temp system
+    public AudioClip[] hitAudioBank; //part of temp system
     //public DoorScript door;
 
     [Header("Tendril Settings")]
@@ -69,6 +73,8 @@ public class ComplexEnemyAI : MonoBehaviour
     public bool isCharging = false;
     public bool isLunging = false;
     public float lungeTimer = 0f;
+
+    public bool shouldPlaySting = true;
     //public bool isAwake = false;
 
     //direction calculation
@@ -233,7 +239,21 @@ public class ComplexEnemyAI : MonoBehaviour
                 lastTendrilTime = Time.time;
             }
         }
-        
+
+        //** M U S I C - Z O N E ** (temp)
+
+        //part of temporary audio system, to be replaced
+        //Debug.Log(Vector3.Distance(player.transform.position, transform.position));
+        farMusic.volume = Vector3.Distance(player.transform.position, transform.position) / 10;
+        nearMusic.volume = 1 - Vector3.Distance(player.transform.position, transform.position) / 10;
+        if (shouldPlaySting)
+        {
+            StartCoroutine(AlienHit());
+        }
+        //end music zone
+
+
+
     }
 
     private void HandleStuckReset()
@@ -286,6 +306,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
     public void isPatroling()
     {
+
         if (currentWaypoint.type == Waypoint.WaypointType.General)
         {
             RoamArea();
@@ -300,6 +321,8 @@ public class ComplexEnemyAI : MonoBehaviour
     #endregion
     public void IsInvestigating()
     {
+
+
         if (enemyStateMachine.shouldFollow)
         {
             // Only calculate a path if we don't have one
@@ -1013,4 +1036,15 @@ public class ComplexEnemyAI : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, wakeDistance);
     }
 
+    IEnumerator AlienHit()
+    {
+        //Debug.Log("waiting");
+        shouldPlaySting = false;
+        hitSource.clip = hitAudioBank[Random.Range(0, hitAudioBank.Length)];
+        var waitTime = Random.Range(5, 15);
+        yield return new WaitForSeconds(waitTime);
+        //Debug.Log("playing");
+        hitSource.Play();
+        shouldPlaySting = true;
+    }
 }
