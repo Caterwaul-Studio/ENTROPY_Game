@@ -770,12 +770,12 @@ public class ComplexEnemyAI : MonoBehaviour
 
     IEnumerator AlienHit()
     {
-        Debug.Log("waiting");
+        //Debug.Log("waiting");
         shouldPlaySting = false;
         hitSource.clip = hitAudioBank[Random.Range(0, hitAudioBank.Length)];
         var waitTime = Random.Range(5, 15);
         yield return new WaitForSeconds(waitTime);
-        Debug.Log("playing");
+        //Debug.Log("playing");
         hitSource.Play();
         shouldPlaySting = true;
     }
