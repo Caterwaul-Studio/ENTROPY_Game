@@ -3,7 +3,8 @@ using UnityEngine;
 public class TendrilBehavior : MonoBehaviour
 {
     public TendrilOrigin origin;
-    public EnemySimpleAI ownerEnemy;
+    public ComplexEnemyAI ownerEnemyComplex;
+    public SimpleEnemyAI ownerEnemySimple;
     public float maxLength = 6f;
     public float extendSpeed = 5f;
     public float retractSpeed = 5f;
@@ -45,11 +46,39 @@ public class TendrilBehavior : MonoBehaviour
     private float initialDelayTimer = 0f;
     private bool waitingForInitialDelay = false;
 
-    public void Initialize(TendrilOrigin originPoint, EnemySimpleAI owner = null, bool retractsManually = false)
+    public void Initialize(TendrilOrigin originPoint, ComplexEnemyAI owner = null, bool retractsManually = false)
     {
         origin = originPoint;
         origin.activeTendril = this;
-        ownerEnemy = owner;
+        ownerEnemyComplex = owner;
+        manualRetract = retractsManually;
+        initialized = true;
+
+        lineRenderer = GetComponentInChildren<LineRenderer>();
+        if (lineRenderer == null)
+        {
+            Debug.LogError("LineRenderer not found in children of " + gameObject.name);
+            return;
+        }
+
+        lineRenderer.positionCount = 2;
+        Vector3 endPoint = origin.transform.position + origin.transform.forward * 0.1f;
+
+        float angle = Random.Range(0f, 360f);
+        curveDirectionOffset = Quaternion.AngleAxis(angle, origin.transform.forward) * Vector3.up;
+
+        lineRenderer.SetPosition(0, origin.transform.position);
+        lineRenderer.SetPosition(1, endPoint);
+
+        CalculateNewTargetPoint();
+        PrecalculateLocalCurve();
+    }
+
+    public void Initialize(TendrilOrigin originPoint, SimpleEnemyAI owner = null, bool retractsManually = false)
+    {
+        origin = originPoint;
+        origin.activeTendril = this;
+        ownerEnemySimple = owner;
         manualRetract = retractsManually;
         initialized = true;
 
@@ -133,7 +162,7 @@ public class TendrilBehavior : MonoBehaviour
     {
         if (autoInitialize && origin != null)
         {
-            Initialize(origin, ownerEnemy, manualRetract);
+            Initialize(origin, ownerEnemyComplex, manualRetract);
         }
     }
 
@@ -148,7 +177,7 @@ public class TendrilBehavior : MonoBehaviour
         PrecalculateLocalCurve();
     }
 
-    public void Initialize(TendrilOrigin originPoint, ComplexEnemyAI owner, bool retractsManually)
+    public void Initialize(TendrilOrigin originPoint, bool retractsManually)
     {
         origin = originPoint;
         origin.activeTendril = this;
@@ -306,8 +335,8 @@ public class TendrilBehavior : MonoBehaviour
                 origin.activeTendril = null;
         }
 
-        if (ownerEnemy != null && !ownerEnemy.availableOrigins.Contains(origin))
-            ownerEnemy.availableOrigins.Add(origin);
+        if (ownerEnemyComplex != null && !ownerEnemyComplex.availableOrigins.Contains(origin))
+            ownerEnemyComplex.availableOrigins.Add(origin);
 
         Destroy(gameObject);
     }

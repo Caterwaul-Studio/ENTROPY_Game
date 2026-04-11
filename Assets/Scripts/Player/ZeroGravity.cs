@@ -223,6 +223,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     // Track if the movement keys were released
     private bool movementKeysReleased;
 
+    [SerializeField] private bool playerInputs = false;
+
     [SerializeField] private bool useManualPullIn = false;
     private bool isPullingIn;
 
@@ -239,6 +241,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     // for storing the respawn information
     public PlayerData playerData;
+
+    [Header("== Kinematic Throw Settings ==")]
+    public bool isBeingGrabbed = false;
+    private Vector3 kinematicVelocity;
+    public float throwDecay = 3.0f; // How fast you slow down in space
+    public bool IsBeingThrown => kinematicVelocity.magnitude > 0.1f;
     #endregion 
 
     #region Properties
@@ -283,6 +291,13 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     #endregion
 
     #region Other Properties
+
+    public bool IsBeingGrabbed
+    {
+        get { return isBeingGrabbed; }
+        set { isBeingGrabbed = value; }
+    }
+
     public float GrabPadding
     {
         get { return grabPadding; }
@@ -321,6 +336,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         get { return tutorialMode; }
         set { tutorialMode = value; }
+    }
+
+    public Rigidbody RB
+    {
+        get { return rb; }
     }
 
     public bool CanMove
@@ -376,7 +396,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         set { totalRotation = value; }
     }
 
-    public int PlayerHealth { get { return playerHealth; } }
+    public int PlayerHealth { get { return playerHealth; } set { playerHealth = value; } }
 
     public int MaxHealth { get { return maxHealth; } }
 
@@ -446,6 +466,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             canPushOff = false;
             canPropel = false;
             canRoll = false;
+            playerInputs = true;
         }
         //not in tutorial mode
         else
@@ -481,6 +502,13 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     #region Update Methods
     void FixedUpdate()
     {
+        if (isBeingGrabbed)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            return; // skip all other movement
+        }
+
         if (PlayerFreeMoveNoClip)
         {
             FreeMoveNoClip();
@@ -527,7 +555,22 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         if (canMove)
         {
+            if (!canRoll || !canPropel || !canPushOff || !canGrab)
+            {
+                canRoll = true;
+                canPropel = true;
+                canPushOff = true;
+                canGrab = true;
+            }
+
             RotateCam();
+        }
+        else if (!canMove)
+        {
+            canRoll = false;
+            canPropel = false;
+            canPushOff = false;
+            canGrab = false;
         }
     }
     #endregion
@@ -1564,6 +1607,39 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             UseStimCharge();
         }
     }
+
+    #region Throw Movement
+
+    public void GetThrown(Vector3 direction, float force)
+    {
+        StartCoroutine(ThrownRoutine(direction.normalized * force));
+    }
+
+    private IEnumerator ThrownRoutine(Vector3 impulse)
+    {
+        // rb may already be kinematic from the grab lock — ensure it's off for physics
+        rb.isKinematic = false;
+        boundingSphere.enabled = true;
+
+        // Wait one fixed frame so the physics engine acknowledges the kinematic change
+        yield return new WaitForFixedUpdate();
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.AddForce(impulse, ForceMode.Impulse);
+
+        // Wait until throw decays
+        while (rb.linearVelocity.magnitude > 0.5f)
+        {
+            yield return new WaitForFixedUpdate();
+        }
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
+
+    #endregion
+
     #endregion
 
 

@@ -953,10 +953,11 @@ MonoBehaviour:
   currentSpecificState: 3
   pastSpecificState: 0
   player: {fileID: 0}
+  playerController: {fileID: 0}
   complecEnemyAI: {fileID: 0}
   detectionMask:
     serializedVersion: 2
-    m_Bits: 16576
+    m_Bits: 16577
   detectionRadius: 10
   defaultDetectionRadius: 7
   chaseDetectionRadius: 9
@@ -982,12 +983,14 @@ MonoBehaviour:
   retreatPointReroll: 0
   canRetreat: 0
   throwDistanceCheck: 0
+  checkRadius: 0
   canThrow: 0
   wallLayer:
     serializedVersion: 2
     m_Bits: 64
   throwCheckLimit: 0
-  ThrowCheckOffset: {x: 0, y: 0, z: 0}
+  throwCheckOffset: {x: 0, y: 0, z: 0}
+  lungeTimer: 0
   showDetectionRadius: 1
   showRetreatRadius: 0
 --- !u!114 &8811146767685563550
@@ -1047,6 +1050,7 @@ MonoBehaviour:
   stuckThreshold: 2
   availableOrigins: []
   FailSafe: {fileID: 0}
+  throwLocation: {x: 0, y: 0, z: 0}
 --- !u!114 &6365921600599371455
 MonoBehaviour:
   m_ObjectHideFlags: 0

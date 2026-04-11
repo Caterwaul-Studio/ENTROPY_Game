@@ -10,6 +10,9 @@ public enum SpecificEnemyState
     Track,
     Investigate,
     Patrol,
+    Charge,
+    Lunge,
+    Grab,
     Throw,
     Kill,
     Retreat,
@@ -42,7 +45,9 @@ public class EnemyStateMachine : MonoBehaviour
 
     [Header("References")]
     public GameObject player;
-    public ComplexEnemyAI complecEnemyAI;
+    public ZeroGravity playerController;
+    public ComplexEnemyAI complexEnemyAI;
+    public SimpleEnemyAI simpleEnemyEnemyAI;
     //[SerializeField] private GameObject simpleEnemy;
     //[SerializeField] private GameObject complexEnemy;
 
@@ -76,12 +81,23 @@ public class EnemyStateMachine : MonoBehaviour
     [SerializeField] private bool canRetreat;
 
     [Header("Throw Settings")]
-
     [SerializeField] private float throwDistanceCheck;
+    [SerializeField] private float checkRadius;
     [SerializeField] private bool canThrow;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private int throwCheckLimit;
-    [SerializeField] private Vector3 ThrowCheckOffset;
+    [SerializeField] private Vector3 throwCheckOffset;
+
+    [SerializeField] private bool canTakeHealth;
+
+    [Header("Grab Settings")]
+    [SerializeField] private float forceLookSpeedTime;
+
+    [Header("Lunging")]
+
+    [SerializeField] private float lungeTimerDuration;
+    [SerializeField] private float lungeTimer;
+    [SerializeField] private float lungeDistanceMaxCheck;
 
     [Header("Gizmos")]
     [SerializeField] private bool showDetectionRadius;
@@ -98,38 +114,58 @@ public class EnemyStateMachine : MonoBehaviour
     private void Start()
     {
         if (player == null) player = GameObject.FindGameObjectWithTag("Player");
+        if (playerController == null) playerController = FindAnyObjectByType<ZeroGravity>();
 
-        if (complecEnemyAI == null) complecEnemyAI = GetComponent<ComplexEnemyAI>(); 
+        if (complexEnemyAI == null) complexEnemyAI = GetComponent<ComplexEnemyAI>(); 
 
         currentSpecificState = SpecificEnemyState.Patrol;
     }
 
     public void GeneralLogic()
     {
-        if (currentGeneralState == GeneralEnemyState.Pause) return;
-
-        // Run detection every frame
-        canDetectPlayer = PerformRaycastDetection();
-
-        if (isLightOn)
+        if (enemyVersion == EnemyVersion.Complex)
         {
-            //canDetectPlayer = FireDetectionGrid();
-        }
+            if (currentGeneralState == GeneralEnemyState.Pause) return;
 
-        switch (currentGeneralState)
+            // Run detection every frame
+            canDetectPlayer = PerformRaycastDetection();
+
+            //Debug.Log(canDetectPlayer);
+
+            if (isLightOn)
+            {
+                //canDetectPlayer = FireDetectionGrid();
+            }
+
+            switch (currentGeneralState)
+            {
+                case GeneralEnemyState.Active:
+                    HandleActiveLogic();
+                    break;
+                case GeneralEnemyState.Retreat:
+                    HandleRetreatLogic();
+                    break;
+                case GeneralEnemyState.Idle:
+                    break;
+                case GeneralEnemyState.Dev:
+                    break;
+
+            }
+        }
+        else if (enemyVersion == EnemyVersion.Simple)
         {
-            case GeneralEnemyState.Active:
-                HandleActiveLogic();
-                break;
-            case GeneralEnemyState.Retreat:
-                HandleRetreatLogic();
-                break;
-            case GeneralEnemyState.Idle:
-                break;
-            case GeneralEnemyState.Dev:
-                break;
+            switch (currentGeneralState)
+            {
+                case GeneralEnemyState.Active:
+                    HandleActiveLogic();
+                    break;
+                case GeneralEnemyState.Retreat:
+                    HandleRetreatLogic();
+                    break;
 
+            }
         }
+        
     }
 
  
@@ -140,7 +176,7 @@ public class EnemyStateMachine : MonoBehaviour
         switch (currentSpecificState)
         {
             case SpecificEnemyState.Patrol:
-                complecEnemyAI.isPatroling();
+                complexEnemyAI.isPatroling();
 
                 detectionRadius = defaultDetectionRadius;
 
@@ -161,15 +197,18 @@ public class EnemyStateMachine : MonoBehaviour
                     chasePlayer = false;
                     detectionTimer = detectionDuration;
 
-                    complecEnemyAI.investigatingWaypoint = null;
-                    complecEnemyAI.lastSeenWaypoint = null;
+                    complexEnemyAI.investigatingWaypoint = null;
+                    complexEnemyAI.lastSeenWaypoint = null;
                 }
                 break;
 
             case SpecificEnemyState.Chase:
                 detectionRadius = chaseDetectionRadius;
 
-                complecEnemyAI.IsChasingPlayer();
+                if (currentSpecificState == SpecificEnemyState.Chase)
+                    complexEnemyAI.IsChasingPlayer();
+                //LungeLogic();
+
                 if (!canDetectPlayer)
                 {
                     interestTimer = interestDuration;
@@ -190,39 +229,39 @@ public class EnemyStateMachine : MonoBehaviour
                 // Only switch to Patrol if the timer is DONE
                 else if (interestTimer <= 0)
                 {
-                    if (complecEnemyAI.investigatingWaypoint != null)
+                    if (complexEnemyAI.investigatingWaypoint != null)
                     {
-                        complecEnemyAI.currentWaypoint = complecEnemyAI.investigatingWaypoint;
+                        complexEnemyAI.currentWaypoint = complexEnemyAI.investigatingWaypoint;
                     }
 
                     isInvestigating = false;
-                    complecEnemyAI.investigatingWaypoint = null;
+                    complexEnemyAI.investigatingWaypoint = null;
                     ChangeSpecificState(SpecificEnemyState.Patrol);
                 }
                 else
                 {
                     // Increase distance threshold to 1.0f for more reliable detection
-                    float dist = (complecEnemyAI.investigatingWaypoint != null) ? 
-                        Vector3.Distance(transform.position, complecEnemyAI.investigatingWaypoint.transform.position) : 0f;
+                    float dist = (complexEnemyAI.investigatingWaypoint != null) ? 
+                        Vector3.Distance(transform.position, complexEnemyAI.investigatingWaypoint.transform.position) : 0f;
 
-                    bool reachedPoint = complecEnemyAI.investigatingWaypoint == null || dist < 1.0f;
+                    bool reachedPoint = complexEnemyAI.investigatingWaypoint == null || dist < 1.0f;
 
                     if (reachedPoint)
                     {
                         // Reset the flag so GetRandomInvestPoint can be called again
                         isInvestigating = false;
 
-                        Waypoint searchOrigin = (complecEnemyAI.lastSeenWaypoint != null) ? 
-                            complecEnemyAI.lastSeenWaypoint : complecEnemyAI.currentWaypoint;
+                        Waypoint searchOrigin = (complexEnemyAI.lastSeenWaypoint != null) ? 
+                            complexEnemyAI.lastSeenWaypoint : complexEnemyAI.currentWaypoint;
 
                         if (searchOrigin != null && !isInvestigating)
                         {
-                            complecEnemyAI.investigatingWaypoint = GetRandomInvestPoint(searchOrigin);
+                            complexEnemyAI.investigatingWaypoint = GetRandomInvestPoint(searchOrigin);
                             shouldFollow = (Random.value > 0.5f);
                             isInvestigating = true;
                         }
                     }
-                    complecEnemyAI.IsInvestigating();
+                    complexEnemyAI.IsInvestigating();
                 }
                 break;
         }
@@ -255,13 +294,20 @@ public class EnemyStateMachine : MonoBehaviour
     {
         List<Waypoint> waypoints = FindInvestWaypoints(OriginPoint);
 
+        if (waypoints == null || waypoints.Count == 0)
+        {
+            // Fall back to the origin itself so the AI doesn't crash
+            //Debug.LogWarning($"GetRandomInvestPoint: no neighbours on {OriginPoint?.name}");
+            return OriginPoint;
+        }
+
         return waypoints[Random.Range(0, waypoints.Count)];
     }
     private void GetLastSeenLocation()
     {
         playersLastKnownLocation = player.transform.position;
 
-        complecEnemyAI.lastSeenWaypoint = complecEnemyAI.FindClosestWaypoint(playersLastKnownLocation);
+        complexEnemyAI.lastSeenWaypoint = complexEnemyAI.FindClosestWaypoint(playersLastKnownLocation);
 
 
     }
@@ -269,7 +315,7 @@ public class EnemyStateMachine : MonoBehaviour
     #endregion
 
     #region Retreat Logic
-
+    /*
     private void HandleRetreatLogic()
     {
         retreatTimer -= Time.deltaTime;
@@ -286,16 +332,16 @@ public class EnemyStateMachine : MonoBehaviour
         if (IsPlayerLookingAtMe())
         {
             // Only calculate a path if we don't have one or the current one is bad
-            if (complecEnemyAI.path.Count == 0 || complecEnemyAI.CheckIfPlayerInWay())
+            if (complexEnemyAI.path.Count == 0 || complexEnemyAI.CheckIfPlayerInWay())
             {
                 bool foundSafePath = false;
 
                 // Try to find a path that doesn't go through the player
                 for (int i = 0; i < 5; i++)
                 {
-                    complecEnemyAI.FindRetreatPath(); // This picks a random point and BFSs
+                    complexEnemyAI.FindRetreatPath(); // This picks a random point and BFSs
 
-                    if (!complecEnemyAI.CheckIfPlayerInWay())
+                    if (!complexEnemyAI.CheckIfPlayerInWay())
                     {
                         foundSafePath = true;
                         break;
@@ -306,20 +352,83 @@ public class EnemyStateMachine : MonoBehaviour
                 if (!foundSafePath)
                 {
                     // Force "Ghost Mode" through walls toward a retreat point
-                    complecEnemyAI.MoveThanTeleportInPointDirection();
+                    complexEnemyAI.MoveThanTeleportInPointDirection();
                     return; // Exit this frame to let it move
                 }
             }
 
             // Move along the path we found
-            complecEnemyAI.TrackPath();
+            complexEnemyAI.TrackPath();
         }
         else
         {
             // Player ISN'T looking: Escape quickly
-            complecEnemyAI.TeleportToWaypoint();
+            complexEnemyAI.TeleportToWaypoint();
 
             // Optionally end retreat early since we escaped
+            retreatTimer = 0;
+        }
+    }
+    */
+    /*
+    private void HandleRetreatLogic()
+    {
+        retreatTimer -= Time.deltaTime;
+
+        if (retreatTimer <= 0)
+        {
+            ChangeGeneralState(GeneralEnemyState.Active);
+            ChangeSpecificState(SpecificEnemyState.Patrol);
+            return;
+        }
+
+        if (IsPlayerLookingAtMe())
+        {
+            // Only calculate a path if we don't have one or the current one is "blocked"
+            if (complexEnemyAI.path.Count == 0)
+            {
+                complexEnemyAI.FindRetreatPath(); // BFS is called ONCE here
+
+                // If the only available path goes through the player, force "Ghost Mode"
+                if (complexEnemyAI.CheckIfPlayerInWay())
+                {
+                    complexEnemyAI.MoveThanTeleportInPointDirection();
+                    return;
+                }
+            }
+
+            complexEnemyAI.TrackPath(); // Moves using the path found above
+        }
+        else
+        {
+            complexEnemyAI.TeleportToWaypoint();
+            retreatTimer = 0;
+        }
+    }
+    */
+
+    private void HandleRetreatLogic()
+    {
+        retreatTimer -= Time.deltaTime;
+        if (retreatTimer <= 0)
+        {
+            ChangeGeneralState(GeneralEnemyState.Active);
+            ChangeSpecificState(SpecificEnemyState.Patrol);
+            return;
+        }
+
+        if (IsPlayerLookingAtMe())
+        {
+            // Only BFS if we don't have a path or the player is blocking it
+            if (complexEnemyAI.path.Count == 0 || complexEnemyAI.CheckIfPlayerInWay())
+            {
+                complexEnemyAI.FindRetreatPath();
+            }
+            complexEnemyAI.TrackPath();
+        }
+        else
+        {
+            complexEnemyAI.TeleportToWaypoint();
             retreatTimer = 0;
         }
     }
@@ -364,120 +473,219 @@ public class EnemyStateMachine : MonoBehaviour
 
     #region Grab/Throw/Attack Logic
 
-    private void GrabAttackLogic()
+    public void GrabPlayer()
     {
-        if (player.GetComponent<ZeroGravity>().PlayerHealth <= player.GetComponent<ZeroGravity>().MaxHealth / 2)
+        // Start the sequence as a Coroutine so we can use "yield return" timers
+        StartCoroutine(GrabAndThrowSequence());
+    }
+
+    private IEnumerator GrabAndThrowSequence()
+    {
+        // 1. Lock Player
+        LockPlayerInputs();
+
+        player.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
+
+        // 2. Force Look (Starts its own internal coroutine for camera)
+        yield return StartCoroutine(RotateCameraToTarget(this.transform, forceLookSpeedTime));
+
+        complexEnemyAI.DetermineThrowTarget(); // Finds where to throw
+
+        // 3. Struggle Pause
+        // This gives the player a moment to see the Geist's face before being launched
+        yield return new WaitForSeconds(5.5f);
+
+        // 4. Execute Throw
+        // We call a new function in AI to handle the kinematic "launch"
+        complexEnemyAI.ExecuteKinematicThrow(complexEnemyAI.throwLocation,10f);
+
+        // 5. Cleanup
+        yield return new WaitForSeconds(0.5f); // Brief moment of stun after throw
+        UnlockPlayerInputs();
+        GoIdle(); // Transitions state
+    }
+
+    public void GrabAttackLogic()
+    {
+        if (player.GetComponent<ZeroGravity>().PlayerHealth <= 1)
         {
             ChangeSpecificState(SpecificEnemyState.Kill);
 
         }
-        else 
-        {
-            ChangeSpecificState(SpecificEnemyState.Throw);
-        }
-    }
-
-    private void DetermineThrowLocation()
-    {
-        if (CanThrow(ThrowCheckOffset))
-        {
-
-        }
         else
         {
-            //
-            for (int x = 0; x < throwCheckLimit; x++)
-            {
-
-            }
+            ChangeSpecificState(SpecificEnemyState.Grab);
         }
+
     }
 
-    private bool CanThrow(Vector3 checkOfSet)
+    public IEnumerator GrabAndWait()
     {
-        if (player == null) return false;
+        yield return new WaitForSeconds(3.0f);
+    }
 
-        Vector3 dir = player.transform.position - transform.position;
-        RaycastHit hit;
+    private Vector3 GetFallbackThrowPosition(Vector3 offset)
+    {
+        Vector3 startPos = transform.position + transform.TransformDirection(offset);
+        Vector3 direction = -transform.forward;
 
-        if (Physics.Raycast(transform.position, dir.normalized, out hit, throwDistanceCheck, wallLayer))
+        if (Physics.SphereCast(startPos, checkRadius, direction, out RaycastHit hit, throwDistanceCheck, wallLayer))
         {
+            return startPos + direction * Mathf.Max(0f, hit.distance - 0.1f);
+        }
+
+        return startPos + direction * throwDistanceCheck;
+    }
+
+    private void SetThrowLocation(Vector3 offsetUsed)
+    {
+        Vector3 startPos = transform.position + transform.TransformDirection(offsetUsed);
+        Vector3 direction = -transform.forward;
+        complexEnemyAI.throwLocation = (startPos + direction * throwDistanceCheck);
+    }
+
+    public bool HasSpaceBehind(float distance, float radius, Vector3 offset)
+    {
+        // 1. Calculate the starting point (Player position + your custom offset)
+        // Using TransformDirection ensures the offset moves WITH the player's rotation
+        Vector3 startPos = transform.position + transform.TransformDirection(offset);
+
+        // 2. Define the direction (Straight back from where the player is facing)
+        Vector3 direction = -transform.forward;
+
+        // 3. Perform the SphereCast
+        // We use a RaycastHit to see what we bumped into, if anything.
+        if (Physics.SphereCast(startPos, radius, direction, out RaycastHit hit, distance))
+        {
+            // If we hit something, there isn't enough space.
             return false;
         }
+
+        // If the SphereCast reaches the 'distance' without hitting anything, return true.
         return true;
     }
-
     private void LockPlayerInputs()
     {
+        Debug.Log("player control locked");
+
+        playerController.CanMove = false;
+        playerController.StopRollingQuickly();
+
+        // Kill all momentum and freeze physics entirely
+        playerController.RB.linearVelocity = Vector3.zero;
+        playerController.RB.angularVelocity = Vector3.zero;
+        playerController.RB.isKinematic = true;
+
+        canTakeHealth = true;
 
     }
 
-    private void LookAtGeist()
+    public void UnlockPlayerInputs()
     {
+        Debug.Log("player control unlocked");
+        playerController.CanMove = true;
 
+        // Restore physics — but only if we're not about to throw
+        // (GetThrown handles its own kinematic transition)
+        if (!playerController.IsBeingThrown)
+        {
+            playerController.RB.isKinematic = false;
+        }
+
+        if (canTakeHealth)
+        {
+            Debug.Log("player took damage");
+            playerController.PlayerHealth -= 1;
+            canTakeHealth = false;
+        }
+        
+    }
+
+    public void GoIdle()
+    {
+        StartCoroutine(GoIdleRoutine());
+    }
+
+    private IEnumerator GoIdleRoutine()
+    {
+        UnlockPlayerInputs();
+        ChangeGeneralState(GeneralEnemyState.Idle);
+        yield return new WaitForSeconds(10.0f); // actually waits
+        ChangeGeneralState(GeneralEnemyState.Active);
+        ChangeSpecificState(SpecificEnemyState.Investigate);
+    }
+
+    IEnumerator RotateCameraToTarget(Transform target, float duration)
+    {
+        float elapsed = 0f;
+        Quaternion startRotation = playerController.cam.transform.rotation;
+
+        while (elapsed < duration)
+        {
+            // 1. Calculate the direction to the target
+            Vector3 direction = target.position - playerController.cam.transform.position;
+
+            // 2. Determine the target rotation (LookRotation)
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+            // 3. Smoothly interpolate between start and end
+            playerController.cam.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, elapsed / duration);
+
+            elapsed += Time.deltaTime;
+            yield return null; // Wait for the next frame
+        }
+
+        // Ensure it finishes exactly at the target
+        playerController.cam.transform.LookAt(target);
     }
 
     #endregion
 
-    #region Detection Logic
+    #region Lunge Logic
+
+    private void LungeLogic()
+    {
+        ChargeLunge();
+
+        float sqrDist = (complexEnemyAI.transform.position - player.transform.position).sqrMagnitude;
+        if (canDetectPlayer && sqrDist < (lungeDistanceMaxCheck * lungeDistanceMaxCheck)
+            && currentSpecificState != SpecificEnemyState.Charge)
+        {
+            ChangeSpecificState(SpecificEnemyState.Charge);
+            lungeTimer = lungeTimerDuration;
+        }
+
+        if (!canDetectPlayer)
+        {
+            ChangeSpecificState(SpecificEnemyState.Chase);
+        }
+    }
+
+    public void ChargeLunge()
+    {
+        // Only tick down if we're actually in the Charge state
+        if (currentSpecificState != SpecificEnemyState.Charge) return;
+
+        Debug.Log("hi");
+
+        lungeTimer -= Time.deltaTime;
+        if (lungeTimer <= 0)
+        {
+            ChangeSpecificState(SpecificEnemyState.Lunge);
+        }
+
+        Debug.Log("hi 2");
+    }
 
     #endregion
 
-    #region State Tools
-    public void ChangeSpecificState(SpecificEnemyState newState)
-    {
-        if (currentSpecificState == newState) return;
-
-        // Clear pathing when changing states to prevent "Ghost Paths"
-        if (complecEnemyAI != null)
-        {
-            complecEnemyAI.path.Clear();
-            complecEnemyAI.targetWaypoint = null;
-        }
-
-        pastSpecificState = currentSpecificState;
-        currentSpecificState = newState;
-        Debug.Log($"State Changed to: {newState}");
-    }
-
-    public void ChangeGeneralState(GeneralEnemyState newState)
-    {
-        if (currentGeneralState == newState) return;
-
-        // Clear pathing when changing states to prevent "Ghost Paths"
-        if (complecEnemyAI != null)
-        {
-            complecEnemyAI.path.Clear();
-            complecEnemyAI.targetWaypoint = null;
-        }
-
-        pastGeneralState = currentGeneralState;
-        currentGeneralState = newState;
-        Debug.Log($"State Changed to: {newState}");
-    }
-
-    private bool PerformRaycastDetection()
-    {
-        if (player == null) return false;
-
-        Vector3 dir = player.transform.position - transform.position;
-        RaycastHit hit;
-
-        if (Physics.Raycast(transform.position, dir.normalized, out hit, detectionRadius, detectionMask))
-        {
-            if (hit.collider.CompareTag("Player"))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+    #region Light Detection Logic
 
     private bool DetectPlayerFlashLight()
     {
         if (!isLightOn) return false;
 
-        
+
 
         return false;
     }
@@ -501,11 +709,64 @@ public class EnemyStateMachine : MonoBehaviour
 
                 if (Physics.Raycast(transform.position, rayDirection, out RaycastHit hit, range))
                 {
-                    
+
                     // Add hit logic here
                 }
             }
         }
+    }
+    #endregion
+
+    #region State Tools
+    public void ChangeSpecificState(SpecificEnemyState newState)
+    {
+        if (currentSpecificState == newState) return;
+
+        // Clear pathing when changing states to prevent "Ghost Paths"
+        if (complexEnemyAI != null)
+        {
+            complexEnemyAI.path.Clear();
+            complexEnemyAI.targetWaypoint = null;
+        }
+
+        pastSpecificState = currentSpecificState;
+        currentSpecificState = newState;
+        //Debug.Log($"State Changed to: {newState}");
+    }
+
+    public void ChangeGeneralState(GeneralEnemyState newState)
+    {
+        if (currentGeneralState == newState) return;
+
+        // Clear pathing when changing states to prevent "Ghost Paths"
+        if (complexEnemyAI != null)
+        {
+            complexEnemyAI.path.Clear();
+            complexEnemyAI.targetWaypoint = null;
+        }
+
+        pastGeneralState = currentGeneralState;
+        currentGeneralState = newState;
+        //Debug.Log($"State Changed to: {newState}");
+    }
+
+    private bool PerformRaycastDetection()
+    {
+        if (player == null) return false;
+
+        Vector3 dir = player.transform.position - transform.position;
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, dir.normalized, out hit, detectionRadius, detectionMask))
+        {
+
+            if (hit.collider.CompareTag("Player"))
+            {
+                //Debug.Log("Can Detect Player");
+                return true;
+            }
+        }
+        return false;
     }
     #endregion
 

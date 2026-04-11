@@ -105,7 +105,11 @@ public class ComplexEnemyAI : MonoBehaviour
 
     [SerializeField] private Waypoint FailSafe; //This point will be the failsafe for if the retreating doesn't work correctly
 
-    
+    [Header("Throw")]
+    public Vector3 throwLocation; // set via SetThrowLocation()
+    public float minThrowDistance = 5f;
+    [SerializeField] private float throwForce = 20f;
+
 
     void Start()
     {
@@ -151,6 +155,8 @@ public class ComplexEnemyAI : MonoBehaviour
 
     void Update()
     {
+        hasLineOfSight = enemyStateMachine.canDetectPlayer;
+
         if (enemyStateMachine.enemyVersion == EnemyVersion.Simple)
         {
 
@@ -162,6 +168,8 @@ public class ComplexEnemyAI : MonoBehaviour
                 resetCooldown -= Time.deltaTime;
                 return;
             }
+
+            sqrDist = (player.transform.position - transform.position).sqrMagnitude;
 
             enemyStateMachine.GeneralLogic();
 
@@ -180,6 +188,14 @@ public class ComplexEnemyAI : MonoBehaviour
                 case SpecificEnemyState.Retreat:
                     TrackPath();
                     break;
+                case SpecificEnemyState.Stunned:
+                    break;
+                    /*
+                case SpecificEnemyState.Lunge:
+                case SpecificEnemyState.Charge:
+                    Chargelunge();
+                    break;
+                    */
             }
 
             CalculateDirection();
@@ -190,7 +206,12 @@ public class ComplexEnemyAI : MonoBehaviour
             {
                 // Only check progress if the AI is in a state where it should be moving
                 bool shouldBeMoving = enemyStateMachine.currentSpecificState != SpecificEnemyState.Kill &&
-                                      enemyStateMachine.currentSpecificState != SpecificEnemyState.Stunned;
+                                      enemyStateMachine.currentSpecificState != SpecificEnemyState.Stunned &&
+                                      enemyStateMachine.currentSpecificState != SpecificEnemyState.Lunge &&
+                                      //enemyStateMachine.currentSpecificState != SpecificEnemyState.Charge &&
+                                      enemyStateMachine.currentSpecificState != SpecificEnemyState.Grab &&
+                                      enemyStateMachine.currentSpecificState != SpecificEnemyState.Throw
+                                      ;
 
                 if (shouldBeMoving)
                 {
@@ -240,6 +261,7 @@ public class ComplexEnemyAI : MonoBehaviour
         Debug.Log("<color=orange>Geist stuck! Clearing path and finding nearest waypoint.</color>");
         stuckTimer = 0f;
         /*
+         * 
         path.Clear();
         targetWaypoint = null;
         */
@@ -295,7 +317,8 @@ public class ComplexEnemyAI : MonoBehaviour
             RoamLimited();
         }
     }
-
+    #region Investigation
+    #endregion
     public void IsInvestigating()
     {
 
@@ -346,44 +369,6 @@ public class ComplexEnemyAI : MonoBehaviour
 
         if (currentWaypoint == investigatingWaypoint)
         {
-
-        }
-    }
-
-    // Called by Unity when this collider hits another collider
-    private void OnCollisionEnter(Collision collision)
-    {
-        GameObject other = collision.gameObject;
-
-        // 1) If its a thrown pickup object, stun
-        if (other.CompareTag("PickupObject"))
-        {
-            Rigidbody objRb = collision.rigidbody;
-            if (objRb != null && objRb.linearVelocity.magnitude >= stunVelocityThreshold)
-            {
-                Debug.Log("Object hit at this speed: " + objRb.linearVelocity.magnitude);
-                //StartCoroutine(StunCoroutine());
-            }
-        }
-        // 2) If its the player, kill them
-        else if (other.CompareTag("Player"))
-        {
-
-            if (!playerController.IsDead)
-            {
-                Debug.Log("Player killed by alien");
-                playerController.IsDead = true;
-                isChasingPlayer = false;
-                //EndLunge();
-            }
-            Rigidbody playerRb = other.GetComponent<Rigidbody>();
-            if (playerRb != null)
-            {
-                Vector3 forceDirection = (other.transform.position - transform.position).normalized;
-                float knockbackStrength = lungeSpeed * 2f; // adjust multiplier as needed
-
-                playerRb.AddForce(forceDirection * knockbackStrength, ForceMode.Impulse);
-            }
 
         }
     }
@@ -520,27 +505,310 @@ public class ComplexEnemyAI : MonoBehaviour
     }
     #endregion
 
-    #region Throw/Attack
+    #region Throw/Attack/Lunge
 
-    private void GrabPlayer()
+    
+    private void Chargelunge()
     {
-        //Disable Player Inputs
-        player.GetComponent<ZeroGravity>().CanMove = false;
+        if (isLunging)
+        {
+            lungeTimer += Time.deltaTime;
+            if (lungeTimer >= lungeDuration)
+                EndLunge();
+            return;
+        }
+        // 4) If mid-charge, skip normal AI
+        if (isCharging)
+        {
+            ForceLookAtPlayer(); // Always rotate toward player during charge
+            return;
+        }
+        // 5) Check if player is within lungeDistance, the enemy has line of sight with the player, and not charging or lunging → start charging
+        if (hasLineOfSight && sqrDist < (lungeDistance * lungeDistance) && !isCharging && !isLunging)
+        {
 
 
+            Vector3 toPlayer = player.transform.position - transform.position;
+            float checkDistance = toPlayer.magnitude;
+            Vector3 direction = toPlayer.normalized;
+
+            // Perform a SphereCast in the direction of the player
+            float sphereRadius = 0.5f * transform.localScale.x; // adjust based on your alien's size
+
+
+            //check to see if there's anything in the way before we lunge into a wall
+            if (!Physics.SphereCast(transform.position, sphereRadius, direction, out RaycastHit hit, 5f, barrierLayer))
+            {
+                isCharging = true;
+                StartCoroutine(ChargeAndLunge());
+                return;
+            }
+            else
+            {
+                // Optional: debug visualization
+                Debug.DrawRay(transform.position, direction * 5.0f, Color.red, 0.2f);
+                //Debug.Log("Lunge blocked by: " + hit.collider.name);
+            }
+        }
+    }
+    
+    private void LungeAtPlayer()
+    {
+        Vector3 dir = (player.transform.position - transform.position).normalized;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.isKinematic = false;
+        rb.linearVelocity = dir * lungeSpeed;
+
+        isLunging = true;
+        lungeTimer = 0f;
+        rotationSpeed = setRotationSpeed;
+
+        isCharging = false;
     }
 
-    private void ThrowPlayer()
+    private void EndLunge()
     {
+        if (!isLunging) return;
 
+        isLunging = false;
+        isCharging = false;
+
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.linearVelocity = Vector3.zero;
+        rb.isKinematic = true;
     }
 
-    private void KillPlayer()
+    void ForceLookAtPlayer()
     {
+        Vector3 toPlayer = (player.transform.position - transform.position);
+        if (toPlayer.sqrMagnitude < 0.01f) return;
 
+        Quaternion targetRotation = Quaternion.LookRotation(toPlayer.normalized, Vector3.up);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+    }
+
+    private void ThrowPlayerAt(Vector3 throwLocation)
+    {
+        // Direction from the enemy toward the computed throw target
+        Vector3 direction = (throwLocation - transform.position).normalized;
+
+
+        playerController.GetThrown(direction, throwForce);
+    }
+
+    private void ThrowPlayer() => StartCoroutine(ThrowSequence());
+    
+    private IEnumerator ThrowSequence()
+    {
+        ForceLookAtPlayer();
+        // Wait for the grab animation / hold duration
+        yield return enemyStateMachine.GrabAndWait();
+
+        // Now actually apply the throw
+        ThrowPlayerAt(throwLocation);
+
+        // Return control to the enemy
+        enemyStateMachine.UnlockPlayerInputs();
+        enemyStateMachine.GoIdle();
+    }
+
+    private void KillPlayer() => StartCoroutine(KillSequence());
+
+    private IEnumerator KillSequence()
+    {
+        ForceLookAtPlayer();
+        yield return StartCoroutine(enemyStateMachine.GrabAndWait());
+        if (!playerController.IsDead)
+        {
+            playerController.IsDead = true;
+            isChasingPlayer = false;
+        }
+    }
+
+    public void ExecuteKinematicThrow(Vector3 targetPos, float force)
+    {
+        // Calculate direction from player to the landing spot
+        Vector3 dir = (targetPos - player.transform.position).normalized;
+
+        // Tell the player controller to move kinematically towards that direction
+        if (playerController != null)
+        {
+            // Use the "GetThrown" logic we discussed to apply velocity over time
+            playerController.GetThrown(dir, force);
+        }
+    }
+
+    public bool DetermineThrowTarget()
+    {
+        Vector3 origin = player.transform.position;
+        // Direction directly away from the Geist
+        Vector3 primaryDir = (player.transform.position - transform.position).normalized;
+
+        // 1. Check the primary direction first
+        if (IsSpaceClear(origin, primaryDir, minThrowDistance, out throwLocation))
+        {
+            return true;
+        }
+
+        // 2. If primary is blocked, check 5 random offsets
+        // We create a "cone" of search directions
+        for (int i = 0; i < 5; i++)
+        {
+            // Generate a random offset vector
+            Vector3 randomOffset = new Vector3(
+                Random.Range(-0.4f, 0.4f),
+                Random.Range(-0.4f, 0.4f),
+                Random.Range(-0.4f, 0.4f)
+            );
+
+            Vector3 branchedDir = (primaryDir + randomOffset).normalized;
+
+            if (IsSpaceClear(origin, branchedDir, minThrowDistance, out throwLocation))
+            {
+                return true;
+            }
+        }
+
+        // 3. Fallback: Find a Waypoint that is "far enough" but still "close enough"
+        return FindFallbackWaypoint();
+    }
+
+    private bool IsSpaceClear(Vector3 origin, Vector3 direction, float distance, out Vector3 hitPoint)
+    {
+        RaycastHit hit;
+        // We use a SphereCast to ensure the PLAYER fits through the gap, not just a thin line
+        if (Physics.SphereCast(origin, 0.5f, direction, out hit, distance))
+        {
+            hitPoint = hit.point;
+            return false; // Hit a wall
+        }
+
+        // Path is clear! Set target to the end of the ray
+        hitPoint = origin + (direction * distance);
+        return true;
+    }
+
+    private bool FindFallbackWaypoint()
+    {
+        // Filter waypoints: Distance between 5m and 15m away
+        var validWaypoints = allWaypoints.Where(wp => {
+            float d = Vector3.Distance(player.transform.position, wp.transform.position);
+            return d >= 5f && d <= 15f;
+        }).ToList();
+
+        if (validWaypoints.Count > 0)
+        {
+            throwLocation = validWaypoints[Random.Range(0, validWaypoints.Count)].transform.position;
+            return true;
+        }
+
+        // Absolute Last Resort: Just throw them exactly where the Geist is (a shove)
+        throwLocation = transform.position;
+        return false;
+    }
+
+    private IEnumerator ChargeAndLunge()
+    {
+        Debug.Log("Charging Coroutine called");
+        rotationSpeed = 20f;
+        isChasingPlayer = false;
+
+        // Wait until the enemy is facing the player before continuing
+        Vector3 toPlayer = (player.transform.position - transform.position).normalized;
+        float angle = Vector3.Angle(transform.forward, toPlayer);
+
+        while (angle > 20f) // or whatever threshold feels right
+        {
+            toPlayer = (player.transform.position - transform.position).normalized;
+            angle = Vector3.Angle(transform.forward, toPlayer);
+            //Debug.Log(angle);
+            yield return null;
+        }
+
+
+        float timer = 0f;
+        while (timer < chargeUpTime)
+        {
+            if (isStunned)
+            {
+                isCharging = false;
+                yield break;
+            }
+
+            // Pull-back motion
+            toPlayer = (player.transform.position - transform.position).normalized;
+            Vector3 pullBackDirection = -toPlayer; // Opposite of direction to player
+            float pullBackSpeed = 1.5f; // tweak as needed
+
+            float pullBackDistance = pullBackSpeed * Time.deltaTime;
+            float radius = 0.5f * transform.localScale.x;
+
+            // Raycast to prevent backing into a wall
+            RaycastHit hit;
+            if (!Physics.SphereCast(transform.position, radius, pullBackDirection, out hit, pullBackDistance + 0.25f, barrierLayer))
+            {
+                transform.position += pullBackDirection * pullBackDistance;
+            }
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        foreach (TendrilOrigin origin in backwardsOrigins)
+        {
+            if (origin.activeTendril != null)
+            {
+                origin.activeTendril.Retract();
+            }
+        }
+
+        LungeAtPlayer();
+
+        EndLunge();
+
+        isCharging = false;
     }
 
     #endregion
+
+    // Called by Unity when this collider hits another collider
+    private void OnCollisionEnter(Collision collision)
+    {
+        GameObject other = collision.gameObject;
+
+        if (other.CompareTag("PickupObject"))
+        {
+            Rigidbody objRb = collision.rigidbody;
+            if (objRb != null && objRb.linearVelocity.magnitude >= stunVelocityThreshold)
+            {
+                Debug.Log("Object hit at this speed: " + objRb.linearVelocity.magnitude);
+                // StartCoroutine(StunCoroutine());
+            }
+        }
+        else if (other.CompareTag("Player"))
+        {
+            enemyStateMachine.GrabAttackLogic();
+
+            if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Grab)
+            {
+                ThrowPlayer();
+            }
+            else if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill)
+            {
+                KillPlayer();
+            }
+
+            // Knockback regardless of state
+            Rigidbody playerRb = other.GetComponent<Rigidbody>();
+            if (playerRb != null)
+            {
+                Vector3 forceDirection = (other.transform.position - transform.position).normalized;
+                float knockbackStrength = lungeSpeed * 2f;
+                playerRb.AddForce(forceDirection * knockbackStrength, ForceMode.Impulse);
+            }
+        }
+    }
+
     #region Path Finding
     Queue<Waypoint> BFS(Waypoint start, Waypoint goal)
     {
@@ -601,11 +869,11 @@ public class ComplexEnemyAI : MonoBehaviour
 
     public Waypoint FindClosestWaypoint(Vector3 position)
     {
-        Waypoint[] waypoints = waypointGroup.GetComponentsInChildren<Waypoint>();
+        // Use the cached list from Start() — zero allocation:
         Waypoint closest = null;
         float minSqrDist = Mathf.Infinity;
 
-        foreach (Waypoint waypoint in waypoints)
+        foreach (Waypoint waypoint in allWaypoints)
         {
             float sqrDist = (position - waypoint.transform.position).sqrMagnitude;
             if (sqrDist < minSqrDist)
@@ -614,7 +882,6 @@ public class ComplexEnemyAI : MonoBehaviour
                 minSqrDist = sqrDist;
             }
         }
-
         return closest;
     }
 
@@ -694,6 +961,7 @@ public class ComplexEnemyAI : MonoBehaviour
     }
 
     #endregion
+
     /// <summary>
     /// Resets the alien to its original position and state.
     /// </summary>
