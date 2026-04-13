@@ -286,7 +286,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             }
         }
     }
-    public float NoClipMoveSpeed { get; set; } = 10f;
+    public float NoClipMoveSpeed { get; set; } = 3f;
 
     #endregion
 
@@ -512,6 +512,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         if (PlayerFreeMoveNoClip)
         {
             FreeMoveNoClip();
+            
             return;
         }
         // if the player is allowed to move
