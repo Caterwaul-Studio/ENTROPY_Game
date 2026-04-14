@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class TutorialManager : MonoBehaviour
@@ -9,10 +10,25 @@ public class TutorialManager : MonoBehaviour
 
     public GameObject ZeroGPlayer;
     private ZeroGravity playerController;
+    public GameObject PlayerCanvases;
     public DialogueManager dialogueManager;
     public DoorScript doorToOpen;
     //public DoorScript endingDoor;
     private PickupScript pickupScript;
+    private string playerTag = "Player";
+    private string playerCanvasesTag = "PlayerCanvases";
+
+    private string grabCanvasGroupobj = "GrabTutorialPanel";
+    private string propelCanvasGroupobj = "Propel TutorialPanel";
+
+    private string pickUpObjectTutPanel = "GrabObjectTutorialPanel";
+    private string throwObjectTutPanel = "ThrowObjectTutorialPanel";
+    private string rollQTutPanel = "RollQTutorialPanel";
+    private string rollETutPanel = "RollETutorialPanel";
+    private string enterSkipTutPanel = "EnterSkipPanel";
+
+    private string rollSliderObj = "RollSlider";
+
 
     //keep track when inside of the tutorial
     public bool inTutorial = false;
@@ -88,6 +104,16 @@ public class TutorialManager : MonoBehaviour
     }
 
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
     private void Awake()
     {
         if (Instance == null)
@@ -98,6 +124,8 @@ public class TutorialManager : MonoBehaviour
 
     void Start()
     {
+        ZeroGPlayer = GameObject.FindWithTag(playerTag);
+        PlayerCanvases = GameObject.FindWithTag(playerCanvasesTag);
         playerController = ZeroGPlayer.GetComponent<ZeroGravity>();
         pickupScript = ZeroGPlayer.GetComponent<PickupScript>();
         playerGrabRange = playerController.GrabRange;
@@ -121,6 +149,7 @@ public class TutorialManager : MonoBehaviour
 
     void Update()
     {
+
         // Skip tutorial with Enter
         if (!tutorialSkipped && inTutorial)
         {
@@ -668,9 +697,6 @@ public class TutorialManager : MonoBehaviour
             FadeOut(pickUpItemCanvasGroup);
         }
     }
-
-
-
     private void HandleTutorialSkip()
     {
         if (Keyboard.current.enterKey.isPressed)
@@ -725,6 +751,44 @@ public class TutorialManager : MonoBehaviour
             }
         }
     }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Player persists via DDOL so just re-cache its components
+        if (ZeroGPlayer != null)
+        {
+            playerController = ZeroGPlayer.GetComponent<ZeroGravity>();
+            pickupScript = ZeroGPlayer.GetComponent<PickupScript>();
+            playerGrabRange = playerController.GrabRange;
+        }
+
+        // These are scene-bound, so re-find them fresh each load
+        PlayerCanvases = GameObject.FindWithTag(playerCanvasesTag);
+        if (PlayerCanvases != null)
+        {
+            grabCanvasGroup = GameObject.Find(grabCanvasGroupobj).GetComponent<CanvasGroup>();
+            propelCanvasGroup = GameObject.Find(propelCanvasGroupobj).GetComponent<CanvasGroup>();
+
+            pickUpItemCanvasGroup = GameObject.Find(pickUpObjectTutPanel).GetComponent<CanvasGroup>();
+            throwItemCanvasGroup = GameObject.Find(throwObjectTutPanel).GetComponent<CanvasGroup>();
+            rollQCanvasGroup = GameObject.Find(rollQTutPanel).GetComponent<CanvasGroup>();
+            rollECanvasGroup = GameObject.Find(rollETutPanel).GetComponent<CanvasGroup>();
+            enterCanvasGroup = GameObject.Find(enterSkipTutPanel).GetComponent<CanvasGroup>();
+
+            rollSliderObj = GameObject.Find(rollSliderObj).GetComponent<Slider>();
+
+            if (grabCanvasGroup == null || propelCanvasGroup == null || pickUpItemCanvasGroup == null || throwItemCanvasGroup == null || rollQCanvasGroup == null || rollECanvasGroup == null || enterCanvasGroup == null)
+            {
+                Debug.LogError("One or more tutorial canvas groups could not be found. Please check the names and tags.");
+            }
+        }
+        else
+        {
+            Debug.LogError("PlayerCanvases object not found in scene. Please ensure it is tagged correctly.");
+        }
+
+    }
 }
+
 
 

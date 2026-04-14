@@ -15,6 +15,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 {
     #region Inspector Variables
     [Header("== Player Elements ==")]
+    private static ZeroGravity Instance;    
     [SerializeField]
     private Rigidbody rb;
     [SerializeField]
@@ -421,6 +422,16 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;              // no one exists yet, so I'm the one
+            DontDestroyOnLoad(gameObject); // persist across scenes
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject); // an instance already exists, I'm a duplicate
+        }
+
         //set the player health
         playerHealth = 3;
         //make sure there are no stims in teh plaeyr inventory
