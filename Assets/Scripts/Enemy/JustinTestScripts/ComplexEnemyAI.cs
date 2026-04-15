@@ -207,8 +207,6 @@ public class ComplexEnemyAI : MonoBehaviour
                 // Only check progress if the AI is in a state where it should be moving
                 bool shouldBeMoving = enemyStateMachine.currentSpecificState != SpecificEnemyState.Kill &&
                                       enemyStateMachine.currentSpecificState != SpecificEnemyState.Stunned &&
-                                      enemyStateMachine.currentSpecificState != SpecificEnemyState.Lunge &&
-                                      //enemyStateMachine.currentSpecificState != SpecificEnemyState.Charge &&
                                       enemyStateMachine.currentSpecificState != SpecificEnemyState.Grab &&
                                       enemyStateMachine.currentSpecificState != SpecificEnemyState.Throw
                                       ;
@@ -317,8 +315,9 @@ public class ComplexEnemyAI : MonoBehaviour
             RoamLimited();
         }
     }
+
     #region Investigation
-    #endregion
+
     public void IsInvestigating()
     {
 
@@ -372,6 +371,8 @@ public class ComplexEnemyAI : MonoBehaviour
 
         }
     }
+
+    #endregion
 
     void ChasePlayer()
     {

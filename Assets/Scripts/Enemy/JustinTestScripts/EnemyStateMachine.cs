@@ -10,8 +10,6 @@ public enum SpecificEnemyState
     Track,
     Investigate,
     Patrol,
-    Charge,
-    Lunge,
     Grab,
     Throw,
     Kill,
@@ -207,7 +205,6 @@ public class EnemyStateMachine : MonoBehaviour
 
                 if (currentSpecificState == SpecificEnemyState.Chase)
                     complexEnemyAI.IsChasingPlayer();
-                //LungeLogic();
 
                 if (!canDetectPlayer)
                 {
@@ -524,6 +521,7 @@ public class EnemyStateMachine : MonoBehaviour
         yield return new WaitForSeconds(3.0f);
     }
 
+    /*
     private Vector3 GetFallbackThrowPosition(Vector3 offset)
     {
         Vector3 startPos = transform.position + transform.TransformDirection(offset);
@@ -543,6 +541,7 @@ public class EnemyStateMachine : MonoBehaviour
         Vector3 direction = -transform.forward;
         complexEnemyAI.throwLocation = (startPos + direction * throwDistanceCheck);
     }
+    */
 
     public bool HasSpaceBehind(float distance, float radius, Vector3 offset)
     {
@@ -637,44 +636,6 @@ public class EnemyStateMachine : MonoBehaviour
 
         // Ensure it finishes exactly at the target
         playerController.cam.transform.LookAt(target);
-    }
-
-    #endregion
-
-    #region Lunge Logic
-
-    private void LungeLogic()
-    {
-        ChargeLunge();
-
-        float sqrDist = (complexEnemyAI.transform.position - player.transform.position).sqrMagnitude;
-        if (canDetectPlayer && sqrDist < (lungeDistanceMaxCheck * lungeDistanceMaxCheck)
-            && currentSpecificState != SpecificEnemyState.Charge)
-        {
-            ChangeSpecificState(SpecificEnemyState.Charge);
-            lungeTimer = lungeTimerDuration;
-        }
-
-        if (!canDetectPlayer)
-        {
-            ChangeSpecificState(SpecificEnemyState.Chase);
-        }
-    }
-
-    public void ChargeLunge()
-    {
-        // Only tick down if we're actually in the Charge state
-        if (currentSpecificState != SpecificEnemyState.Charge) return;
-
-        Debug.Log("hi");
-
-        lungeTimer -= Time.deltaTime;
-        if (lungeTimer <= 0)
-        {
-            ChangeSpecificState(SpecificEnemyState.Lunge);
-        }
-
-        Debug.Log("hi 2");
     }
 
     #endregion
