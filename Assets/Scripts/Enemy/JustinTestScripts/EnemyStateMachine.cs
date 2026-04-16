@@ -7,7 +7,6 @@ using static UnityEngine.Rendering.DebugUI.Table;
 public enum SpecificEnemyState
 {
     Chase,
-    Track,
     Investigate,
     Patrol,
     Grab,
@@ -312,98 +311,6 @@ public class EnemyStateMachine : MonoBehaviour
     #endregion
 
     #region Retreat Logic
-    /*
-    private void HandleRetreatLogic()
-    {
-        retreatTimer -= Time.deltaTime;
-
-        // 1. Exit Condition
-        if (retreatTimer <= 0)
-        {
-            ChangeGeneralState(GeneralEnemyState.Active);
-            ChangeSpecificState(SpecificEnemyState.Patrol);
-            return;
-        }
-
-        // 2. Logic based on Player Line of Sight
-        if (IsPlayerLookingAtMe())
-        {
-            // Only calculate a path if we don't have one or the current one is bad
-            if (complexEnemyAI.path.Count == 0 || complexEnemyAI.CheckIfPlayerInWay())
-            {
-                bool foundSafePath = false;
-
-                // Try to find a path that doesn't go through the player
-                for (int i = 0; i < 5; i++)
-                {
-                    complexEnemyAI.FindRetreatPath(); // This picks a random point and BFSs
-
-                    if (!complexEnemyAI.CheckIfPlayerInWay())
-                    {
-                        foundSafePath = true;
-                        break;
-                    }
-                }
-
-                // If we tried 5 times and the player is STILL in the way of every path
-                if (!foundSafePath)
-                {
-                    // Force "Ghost Mode" through walls toward a retreat point
-                    complexEnemyAI.MoveThanTeleportInPointDirection();
-                    return; // Exit this frame to let it move
-                }
-            }
-
-            // Move along the path we found
-            complexEnemyAI.TrackPath();
-        }
-        else
-        {
-            // Player ISN'T looking: Escape quickly
-            complexEnemyAI.TeleportToWaypoint();
-
-            // Optionally end retreat early since we escaped
-            retreatTimer = 0;
-        }
-    }
-    */
-    /*
-    private void HandleRetreatLogic()
-    {
-        retreatTimer -= Time.deltaTime;
-
-        if (retreatTimer <= 0)
-        {
-            ChangeGeneralState(GeneralEnemyState.Active);
-            ChangeSpecificState(SpecificEnemyState.Patrol);
-            return;
-        }
-
-        if (IsPlayerLookingAtMe())
-        {
-            // Only calculate a path if we don't have one or the current one is "blocked"
-            if (complexEnemyAI.path.Count == 0)
-            {
-                complexEnemyAI.FindRetreatPath(); // BFS is called ONCE here
-
-                // If the only available path goes through the player, force "Ghost Mode"
-                if (complexEnemyAI.CheckIfPlayerInWay())
-                {
-                    complexEnemyAI.MoveThanTeleportInPointDirection();
-                    return;
-                }
-            }
-
-            complexEnemyAI.TrackPath(); // Moves using the path found above
-        }
-        else
-        {
-            complexEnemyAI.TeleportToWaypoint();
-            retreatTimer = 0;
-        }
-    }
-    */
-
     private void HandleRetreatLogic()
     {
         retreatTimer -= Time.deltaTime;
