@@ -90,23 +90,22 @@ public class EnemyStateMachine : MonoBehaviour
     [Header("Grab Settings")]
     [SerializeField] private float forceLookSpeedTime;
 
-    [Header("Lunging")]
-
-    [SerializeField] private float lungeTimerDuration;
-    [SerializeField] private float lungeTimer;
-    [SerializeField] private float lungeDistanceMaxCheck;
-
-    [Header("Gizmos")]
-    [SerializeField] private bool showDetectionRadius;
-    [SerializeField] private bool showRetreatRadius;
-
     [Header("Light Detection")]
-
     private bool isLightOn;
     private float lightDetectionRange;
     private float lightDetectionCooldown = 3f;
     private float lightDetectionDuration = 0f;
     private float lightDetectionTimer = 0f;
+
+    [Header("Dynamic Value Stuff")]
+    [SerializeField] private float minChaseDistance;
+    [SerializeField] private float maxChaseDistance;
+    [SerializeField] private float maxChaseSpeed;
+    [SerializeField] private float minChaseSpeed;
+
+    [Header("Gizmos")]
+    [SerializeField] private bool showDetectionRadius;
+    [SerializeField] private bool showRetreatRadius;
 
     private void Start()
     {
@@ -165,7 +164,7 @@ public class EnemyStateMachine : MonoBehaviour
         
     }
 
- 
+
 
     #region Active Logic
     private void HandleActiveLogic()
@@ -181,6 +180,8 @@ public class EnemyStateMachine : MonoBehaviour
                 {
                     if (!chasePlayer)
                     {
+                      
+
                         detectionTimer -= Time.deltaTime;
                         if (detectionTimer <= 0)
                         {
@@ -203,6 +204,7 @@ public class EnemyStateMachine : MonoBehaviour
                 detectionRadius = chaseDetectionRadius;
 
                 if (currentSpecificState == SpecificEnemyState.Chase)
+                    //Add audio que here
                     complexEnemyAI.IsChasingPlayer();
 
                 if (!canDetectPlayer)
@@ -261,6 +263,16 @@ public class EnemyStateMachine : MonoBehaviour
                 }
                 break;
         }
+    }
+
+    public float DetermineGeistSpeedChange()
+    {
+        float distance = Vector3.Distance(transform.position, player.transform.position);
+        float t = Mathf.Clamp01(distance / maxChaseDistance);
+        //MinChaseSpeed is the base speed, maxChaseSpeed is the max speed the geist can go
+        float currentSpeed = Mathf.Lerp(minChaseSpeed, maxChaseSpeed, t);
+
+        return currentSpeed;
     }
     #endregion
 

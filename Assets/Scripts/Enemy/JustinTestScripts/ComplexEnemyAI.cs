@@ -64,10 +64,6 @@ public class ComplexEnemyAI : MonoBehaviour
     public bool isChasingPlayer = false;
     public bool isStunned = false;
 
-    public bool isCharging = false;
-    public bool isLunging = false;
-    public float lungeTimer = 0f;
-
     public bool shouldPlaySting = true;
     //public bool isAwake = false;
 
@@ -153,6 +149,8 @@ public class ComplexEnemyAI : MonoBehaviour
 
         if (enemyStateMachine.enemyVersion == EnemyVersion.Complex)
         {
+            speed = enemyStateMachine.DetermineGeistSpeedChange();
+
             if (resetCooldown > 0f || isStunned)
             {
                 resetCooldown -= Time.deltaTime;
@@ -219,12 +217,6 @@ public class ComplexEnemyAI : MonoBehaviour
                     }
                 }
                 nextProgressCheckTime = Time.time + progressCheckFrequency;
-            }
-
-            if (!isLunging && Time.time - lastTendrilTime >= spawnInterval)
-            {
-                SpawnTendril();
-                lastTendrilTime = Time.time;
             }
         }
 
@@ -833,8 +825,6 @@ public class ComplexEnemyAI : MonoBehaviour
         StopAllCoroutines();
         //isAwake = false;
         isStunned = false;
-        isCharging = false;
-        isLunging = false;
         isChasingPlayer = false;
 
         // Reset cooldown to block Update logic for 0.1s

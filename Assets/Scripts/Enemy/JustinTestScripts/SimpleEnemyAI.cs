@@ -446,59 +446,6 @@ public class SimpleEnemyAI : MonoBehaviour
 
     }
 
-    #region Retreat
-
-    public void TeleportToWaypoint()
-    {
-        if (retreatWaypoint == null) return;
-
-        currentWaypoint = retreatWaypoint;
-    }
-
-    public void MoveThanTeleportInPointDirection()
-    {
-        if (retreatDirection == Vector3.zero)
-        {
-            retreatDirection = GetRandomPointOpposite(player.transform.position, 5, 45);
-        }
-
-        transform.position = Vector3.MoveTowards(transform.position, retreatDirection, speed * Time.deltaTime);
-
-        if (Vector3.Distance(transform.position, retreatDirection) < 0.4f)
-        {
-            TeleportToWaypoint();
-        }
-    }
-
-    public bool CheckIfPlayerInWay()
-    {
-        Waypoint tempPlayerWaypoint = FindClosestWaypoint(player.transform.position);
-
-        Queue<Waypoint> tempPath = BFS(currentWaypoint, retreatWaypoint);
-
-        foreach (Waypoint temp in tempPath)
-        {
-            if (temp == tempPlayerWaypoint)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public Vector3 GetRandomPointOpposite(Vector3 targetPos, float distance, float angleSpread)
-    {
-        Vector3 awayDir = (transform.position - targetPos).normalized;
-
-        float randomAngle = Random.Range(-angleSpread, angleSpread);
-        Quaternion rotation = Quaternion.Euler(0, randomAngle, 0);
-        Vector3 randomDir = rotation * awayDir;
-
-        return transform.position + (randomDir * distance);
-    }
-    #endregion
-
     #region Path Finding
     Queue<Waypoint> BFS(Waypoint start, Waypoint goal)
     {

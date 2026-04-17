@@ -54,6 +54,7 @@ public class EnemyEffects : MonoBehaviour
 
     private void EyeColorLogic()
     {
+        /*
         if (stateMachine.currentSpecificState == SpecificEnemyState.Chase || SpecificEnemyState.Grab || SpecificEnemyState.Kill)
         {
             
@@ -74,6 +75,7 @@ public class EnemyEffects : MonoBehaviour
         {
 
         }
+        */
             switch (stateMachine.currentSpecificState)
             {
                 case SpecificEnemyState.Chase:
