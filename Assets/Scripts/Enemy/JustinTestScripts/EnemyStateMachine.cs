@@ -430,6 +430,7 @@ public class EnemyStateMachine : MonoBehaviour
         }
         else
         {
+            //Can place the audio call here (place 2)
             ChangeSpecificState(SpecificEnemyState.Grab);
         }
 
@@ -437,6 +438,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     public IEnumerator GrabAndWait()
     {
+        //Can place the audio call here (place 1)
         yield return new WaitForSeconds(3.0f);
     }
 
