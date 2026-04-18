@@ -775,7 +775,7 @@ public class TutorialManager : MonoBehaviour
             rollECanvasGroup = GameObject.Find(rollETutPanel).GetComponent<CanvasGroup>();
             enterCanvasGroup = GameObject.Find(enterSkipTutPanel).GetComponent<CanvasGroup>();
 
-            rollSliderObj = GameObject.Find(rollSliderObj).GetComponent<Slider>();
+            rollProgressBar = GameObject.Find(rollSliderObj).GetComponent<Slider>();
 
             if (grabCanvasGroup == null || propelCanvasGroup == null || pickUpItemCanvasGroup == null || throwItemCanvasGroup == null || rollQCanvasGroup == null || rollECanvasGroup == null || enterCanvasGroup == null)
             {
