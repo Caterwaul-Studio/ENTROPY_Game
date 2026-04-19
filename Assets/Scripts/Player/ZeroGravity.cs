@@ -556,13 +556,13 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         if (canMove)
         {
-            if (!canRoll || !canPropel || !canPushOff || !canGrab)
-            {
-                canRoll = true;
-                canPropel = true;
-                canPushOff = true;
-                canGrab = true;
-            }
+            //if (!canRoll || !canPropel || !canPushOff || !canGrab)
+            //{
+            //    canRoll = true;
+            //    canPropel = true;
+            //    canPushOff = true;
+            //    canGrab = true;
+            //}
 
             RotateCam();
         }
