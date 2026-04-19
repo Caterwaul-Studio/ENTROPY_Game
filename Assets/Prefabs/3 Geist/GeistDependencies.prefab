@@ -1347,8 +1347,10 @@ MonoBehaviour:
   ikConstraint: {fileID: 5288697582134118160}
   ikRestAnchor: {fileID: 4239764641396506143}
   neckBendOffset: 0.3
-  ikFollowSpeed: 10
+  ikFollowSpeed: 5
   lookRotationOffset: {x: -90, y: 0, z: 180}
+  centerDeadzoneRadius: 0.04
+  defaultLateralDirection: {x: 0, y: -1, z: 0}
 --- !u!4 &2075189202744910125 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6251875347606971434, guid: 827968890063e6b4ca1483d5fe78ea6b, type: 3}
