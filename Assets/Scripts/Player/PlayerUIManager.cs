@@ -1211,8 +1211,6 @@ public class PlayerUIManager : MonoBehaviour
         terminalManager = FindFirstObjectByType<TerminalManager>();
         stimDispenserContainer = FindFirstObjectByType<StimDispenserManager>();
         stimDispensers = stimDispenserContainer.GetComponentsInChildren<StimDispenser>();
-        billboardObject = GameObject.Instantiate(billboardPrefab);
-        billboardObject.SetActive(false);
         wristMonitor = FindFirstObjectByType<WristMonitor>();
 
         // event calls hardcoded in for playtest, need to be fixed later
