@@ -144,14 +144,14 @@ public class SceneLoader : MonoBehaviour
         _hasPendingTransfer = false;
 
         PlayerUIManager uiManager = FindFirstObjectByType<PlayerUIManager>();
-        if(uiManager != null)
-        {
-            uiManager.OnSceneLoaded();
-        }
-        else
-        {
-            Debug.LogWarning("SceneLoader: No PlayerUIManager found in scene to notify of scene load.");
-        }
+        //if(uiManager != null)
+        //{
+        //    uiManager.OnSceneLoaded();
+        //}
+        //else
+        //{
+        //    Debug.LogWarning("SceneLoader: No PlayerUIManager found in scene to notify of scene load.");
+        //}
 
         //Debug.Log("Transfer applied. Player placed at: " + worldPos);
     }

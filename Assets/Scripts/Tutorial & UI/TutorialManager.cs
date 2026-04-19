@@ -770,6 +770,7 @@ public class TutorialManager : MonoBehaviour
         // Player persists via DDOL so just re-cache its components
         if (ZeroGPlayer != null)
         {
+            playerController = ZeroGPlayer.GetComponent<ZeroGravity>();
             pickupScript = ZeroGPlayer.GetComponent<PickupScript>();
             playerGrabRange = playerController.GrabRange;
             Debug.Log("PickupScript found on player: " + (pickupScript != null));

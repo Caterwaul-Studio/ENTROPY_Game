@@ -194,6 +194,15 @@ public class PlayerUIManager : MonoBehaviour
     }
     #endregion
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
     private void Awake()
     {
         // scene - level managers
@@ -1195,7 +1204,7 @@ public class PlayerUIManager : MonoBehaviour
         inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
     }
 
-    public void OnSceneLoaded()
+    public void OnSceneLoaded(Scene scene, LoadSceneMode mod)
     {
         // scene - level managers need to be refound
         doorManager = FindFirstObjectByType<DoorManager>();
@@ -1205,7 +1214,10 @@ public class PlayerUIManager : MonoBehaviour
         billboardObject = GameObject.Instantiate(billboardPrefab);
         billboardObject.SetActive(false);
         wristMonitor = FindFirstObjectByType<WristMonitor>();
-        
+
+        // event calls hardcoded in for playtest, need to be fixed later
+        dormHallEvent = FindFirstObjectByType<DormHallEvent>();
+        lockdownEvent = FindFirstObjectByType<LockdownEvent>();
     }
 
     //void OnDrawGizmos()
