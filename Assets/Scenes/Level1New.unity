@@ -523,7 +523,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6de3ba696ef259244a747cf6d061a89d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 583031184887658994}
+  manager: {fileID: 0}
   delay: 0
   player: {fileID: 5554847401302445143}
   monitor: {fileID: 373523040}
@@ -1344,7 +1344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6de3ba696ef259244a747cf6d061a89d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 583031184887658994}
+  manager: {fileID: 0}
   delay: 0
   player: {fileID: 5554847401302445143}
   monitor: {fileID: 373523040}
@@ -13122,7 +13122,6 @@ Transform:
   - {fileID: 600651792}
   - {fileID: 1700974382}
   - {fileID: 968720436}
-  - {fileID: 1774461999}
   - {fileID: 259890861}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -21594,7 +21593,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6de3ba696ef259244a747cf6d061a89d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 583031184887658994}
+  manager: {fileID: 0}
   delay: 0
   player: {fileID: 5554847401302445143}
   monitor: {fileID: 373523040}
@@ -30201,7 +30200,7 @@ Transform:
   m_GameObject: {fileID: 1774461998}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -56.527, y: -8.5774, z: 31.814}
+  m_LocalPosition: {x: -56.527, y: -6.3880005, z: 31.814}
   m_LocalScale: {x: 0.67002, y: 0.67002, z: 0.67002}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -30226,7 +30225,7 @@ Transform:
   - {fileID: 248998096}
   - {fileID: 926403864}
   - {fileID: 2014920335}
-  m_Father: {fileID: 540189441}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &1783369844 stripped
 AudioSource:
@@ -36174,7 +36173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6de3ba696ef259244a747cf6d061a89d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 583031184887658994}
+  manager: {fileID: 0}
   delay: 0
   player: {fileID: 5554847401302445143}
   monitor: {fileID: 373523040}
@@ -37263,21 +37262,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
   m_IsActive: 1
---- !u!4 &389505136969798775
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4765942250067213145}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.42, y: 3.04, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8506786234058232378}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &394516936250948500
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -37310,28 +37294,100 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1707283283828637602, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1755350479971851534, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+    - target: {fileID: 1287919964214855020, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1755350479971851534, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+    - target: {fileID: 1287919964214855020, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchorMin.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1755350479971851534, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+    - target: {fileID: 1287919964214855020, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1755350479971851534, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+    - target: {fileID: 1287919964214855020, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1287919964214855020, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1287919964214855020, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1696311947089158245, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1696311947089158245, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1696311947089158245, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1696311947089158245, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1696311947089158245, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1696311947089158245, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1707283283828637602, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 28.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 1755350479971851534, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1755350479971851534, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1755350479971851534, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 85
+      objectReference: {fileID: 0}
+    - target: {fileID: 1755350479971851534, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 28
+      objectReference: {fileID: 0}
     - target: {fileID: 1755350479971851534, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchoredPosition.x
+      value: 192.81499
+      objectReference: {fileID: 0}
+    - target: {fileID: 2533794327072587537, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2533794327072587537, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2533794327072587537, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2533794327072587537, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2533794327072587537, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2533794327072587537, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2590286984093703087, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
@@ -37354,6 +37410,30 @@ PrefabInstance:
       propertyPath: ObjectContainer
       value: 
       objectReference: {fileID: 1774461998}
+    - target: {fileID: 2780573802306910336, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2780573802306910336, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2780573802306910336, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2780573802306910336, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2780573802306910336, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2780573802306910336, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3052353125201336112, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: 'exempt.Array.data[8]'
       value: 
@@ -37497,7 +37577,7 @@ PrefabInstance:
     - target: {fileID: 5260962018019044910, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: stimDispenserContainer
       value: 
-      objectReference: {fileID: 1052034576}
+      objectReference: {fileID: 1052034578}
     - target: {fileID: 5456537753069029703, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -37520,23 +37600,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5713777265780373027, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5713777265780373027, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5713777265780373027, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 304.47
       objectReference: {fileID: 0}
     - target: {fileID: 5713777265780373027, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 28.01
       objectReference: {fileID: 0}
     - target: {fileID: 5713777265780373027, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 435.05
       objectReference: {fileID: 0}
     - target: {fileID: 6098206002228567906, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_LocalPosition.x
@@ -37578,6 +37658,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6226735836470113939, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6226735836470113939, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6226735836470113939, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6226735836470113939, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6226735836470113939, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6226735836470113939, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6747280328412214446, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_text
       value: '[ Esc ]'
@@ -37610,6 +37714,54 @@ PrefabInstance:
       propertyPath: doorsContainer
       value: 
       objectReference: {fileID: 8694779195880317731}
+    - target: {fileID: 8309431941715903292, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8309431941715903292, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8309431941715903292, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8309431941715903292, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8309431941715903292, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8309431941715903292, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8650118923138878683, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8650118923138878683, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8650118923138878683, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8650118923138878683, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8650118923138878683, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8650118923138878683, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8698634747969419465, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -37737,285 +37889,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7447758541439508037}
   m_CullTransparentMesh: 1
---- !u!114 &583031184887658994
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4765942250067213145}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9b2e9330b6674bf0a2d99ffd0b9377f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialogueSequences:
-  - dialogues:
-    - characterName: alan:\
-      dialogueLines:
-      - " Good, Dr. Sanchez, you\u2019re finally awake."
-      - 'Unfortunately, this will not be a pleasant wake-up call. '
-      - 'There is concerning information to be shared. '
-      audioClip: {fileID: 0}
-      advancesTutorial: 0
-      skipWithTutorial: 1
-      incrementsDialogue: 0
-      delayBetweenDialogues: 2
-      delayBetweenLines: 1
-    - characterName: alan:\
-      dialogueLines:
-      - However, in an effort to maintain procedures, we must first complete preliminary
-        tests.
-      - "Please don\u2019t be alarmed by the absence of a floor."
-      - 'Remember, you are in zero gravity. '
-      - 'Exam part A: <Roll Out of Bed> begin.'
-      - Please start by grabbing onto a bar within reach.
-      audioClip: {fileID: 0}
-      advancesTutorial: 1
-      skipWithTutorial: 1
-      incrementsDialogue: 0
-      delayBetweenDialogues: 2
-      delayBetweenLines: 1
-    - characterName: alan:\
-      dialogueLines:
-      - "Now, to re-acclimate to our ship\u2019s environment. Roll left."
-      audioClip: {fileID: 0}
-      advancesTutorial: 1
-      skipWithTutorial: 1
-      incrementsDialogue: 0
-      delayBetweenDialogues: 0
-      delayBetweenLines: 1
-    - characterName: alan:\
-      dialogueLines:
-      - Roll yourself back.
-      audioClip: {fileID: 0}
-      advancesTutorial: 1
-      skipWithTutorial: 1
-      incrementsDialogue: 0
-      delayBetweenDialogues: 0
-      delayBetweenLines: 1
-    - characterName: alan:\
-      dialogueLines:
-      - Exam part A complete. Getting better acquainted?
-      - Remember, if you ever feel uncomfortable. It is advised to stop, take a breath,
-        and roll to a view that feels best.
-      audioClip: {fileID: 0}
-      advancesTutorial: 0
-      skipWithTutorial: 1
-      incrementsDialogue: 0
-      delayBetweenDialogues: 1.5
-      delayBetweenLines: 1
-    - characterName: alan:\
-      dialogueLines:
-      - 'Proceeding with exam part B: <Dexterity Evaluation>'
-      - Please, again, grab and hold onto a bar within your reach. Then, get comfortable
-        moving around the chamber.
-      audioClip: {fileID: 0}
-      advancesTutorial: 1
-      skipWithTutorial: 1
-      incrementsDialogue: 0
-      delayBetweenDialogues: 1.5
-      delayBetweenLines: 1
-    - characterName: alan:\
-      dialogueLines:
-      - 'Exam part B complete. Well done Dr. Sanchez. You''ll get the swing of it
-        soon enough. '
-      - Now onto the news!
-      audioClip: {fileID: 0}
-      advancesTutorial: 1
-      skipWithTutorial: 1
-      incrementsDialogue: 0
-      delayBetweenDialogues: 1.5
-      delayBetweenLines: 1
-    - characterName: alan:\
-      dialogueLines:
-      - ...
-      - No information for the alan crash.
-      - Apologies, Dr. Sanchez. This is a bit concerning.
-      - ...
-      - Procedure instructs us to reconnect all alan terminals, one by one.
-      - "It shouldn\u2019t be too difficult for you to handle."
-      audioClip: {fileID: 0}
-      advancesTutorial: 1
-      skipWithTutorial: 1
-      incrementsDialogue: 0
-      delayBetweenDialogues: 1.5
-      delayBetweenLines: 1
-    audioSource: {fileID: 1641590646}
-  - dialogues:
-    - characterName: alan:\
-      dialogueLines:
-      - Get your wrist monitor from your dorm. We'll begin there.
-      - Good luck, Dr. Sanchez.
-      audioClip: {fileID: 0}
-      advancesTutorial: 1
-      skipWithTutorial: 1
-      incrementsDialogue: 0
-      delayBetweenDialogues: 1.5
-      delayBetweenLines: 1
-    audioSource: {fileID: 1641590646}
-  - dialogues:
-    - characterName: alan:\
-      dialogueLines:
-      - 'First alan terminal restored, Thank you, Dr. Valentina Sanchez! :] '
-      audioClip: {fileID: 0}
-      advancesTutorial: 0
-      skipWithTutorial: 0
-      incrementsDialogue: 0
-      delayBetweenDialogues: 2
-      delayBetweenLines: 2
-    - characterName: alan:\
-      dialogueLines:
-      - Check your wrist monitor. You seem a little depleted.
-      audioClip: {fileID: 0}
-      advancesTutorial: 0
-      skipWithTutorial: 0
-      incrementsDialogue: 0
-      delayBetweenDialogues: 2
-      delayBetweenLines: 4
-    - characterName: alan:\
-      dialogueLines:
-      - We can get a remedy in the Medical Bay.
-      audioClip: {fileID: 0}
-      advancesTutorial: 0
-      skipWithTutorial: 0
-      incrementsDialogue: 0
-      delayBetweenDialogues: 2
-      delayBetweenLines: 2
-    audioSource: {fileID: 1448511332}
-  - dialogues:
-    - characterName: alan:\
-      dialogueLines:
-      - Medical Bay alan reboot successful! Bravo.
-      - 'Use an e-stim to nurse your headache. '
-      audioClip: {fileID: 0}
-      advancesTutorial: 0
-      skipWithTutorial: 0
-      incrementsDialogue: 0
-      delayBetweenDialogues: 0
-      delayBetweenLines: 1.3
-    audioSource: {fileID: 1139123315}
-  - dialogues:
-    - characterName: alan:\
-      dialogueLines:
-      - Last terminal in the Dining Room. Go through this short cut.
-      audioClip: {fileID: 0}
-      advancesTutorial: 0
-      skipWithTutorial: 0
-      incrementsDialogue: 0
-      delayBetweenDialogues: 1
-      delayBetweenLines: 1.5
-    audioSource: {fileID: 1139123315}
-  - dialogues:
-    - characterName: alan:\
-      dialogueLines:
-      - 'Congratulations. all Living Quarters alan terminals are back online. '
-      - And in proper working order. Better than expected.
-      - ...
-      - Again, nothing about the alan crash. Disappointing.
-      - "Afraid we\u2019ll have to keep searching. "
-      audioClip: {fileID: 0}
-      advancesTutorial: 0
-      skipWithTutorial: 0
-      incrementsDialogue: 0
-      delayBetweenDialogues: 1.5
-      delayBetweenLines: 1
-    - characterName: alan:\
-      dialogueLines:
-      - 'Crap, '
-      - a manual lockdown is active. The sector doors are locked.
-      - Initiated in Server Farm. The door is obstructed.
-      - Searching for solutions.
-      - ...
-      audioClip: {fileID: 0}
-      advancesTutorial: 0
-      skipWithTutorial: 0
-      incrementsDialogue: 0
-      delayBetweenDialogues: 1
-      delayBetweenLines: 1
-    - characterName: alan:\
-      dialogueLines:
-      - 'Surging the door, hopefully, will force it open. '
-      audioClip: {fileID: 0}
-      advancesTutorial: 0
-      skipWithTutorial: 0
-      incrementsDialogue: 0
-      delayBetweenDialogues: 2.5
-      delayBetweenLines: 1
-    - characterName: alan:\
-      dialogueLines:
-      - Oops, that was not intended.
-      - "You\u2019ll need to make it through."
-      - 'Please be careful. '
-      audioClip: {fileID: 0}
-      advancesTutorial: 0
-      skipWithTutorial: 0
-      incrementsDialogue: 0
-      delayBetweenDialogues: 1.5
-      delayBetweenLines: 1
-    audioSource: {fileID: 2128927597}
-  - dialogues:
-    - characterName: alan:\
-      dialogueLines:
-      - The manual lockdown has been lifted, and we can now continue to the Vocational
-        Wing.
-      - Dr. Tadesse's, untraceable. Condolences.
-      - Proceed with caution.
-      audioClip: {fileID: 0}
-      advancesTutorial: 0
-      skipWithTutorial: 0
-      incrementsDialogue: 0
-      delayBetweenDialogues: 2.2
-      delayBetweenLines: 1
-    audioSource: {fileID: 1628078939}
-  failureDialogues:
-    dialogues:
-    - characterName: ALAN
-      dialogueLines:
-      - 'My sensors detected that you were not successful. Hopefully, you only sustain
-        a bruise. You may still be unsteady from your long nap.  '
-      - "I\u2019ll mark the exam as complete given the circumstances. I do advise
-        you to take some more time to practice this maneuver."
-      - "You\u2019ll get the swing of it soon, I promise. "
-      audioClip: {fileID: 8300000, guid: 30ec8ae17b41c804198239de9eeff5b6, type: 3}
-      advancesTutorial: 1
-      skipWithTutorial: 0
-      incrementsDialogue: 1
-      delayBetweenDialogues: 1
-      delayBetweenLines: 1
-    - characterName: ALAN
-      dialogueLines:
-      - Very funny, Dr. Sanchez. There are many ways to do the same thing.
-      - Please humor me and do it by rolling.
-      audioClip: {fileID: 8300000, guid: c4e9c601bf19d8b4ebd3787bf2540dae, type: 3}
-      advancesTutorial: 0
-      skipWithTutorial: 0
-      incrementsDialogue: 0
-      delayBetweenDialogues: 1
-      delayBetweenLines: 1
-    audioSource: {fileID: 0}
-  dialogueCanvas: {fileID: 1886071226749602260}
-  dialogueCanvasGroup: {fileID: 2517449878438318875}
-  nameTextUI: {fileID: 4259200650379639958}
-  dialogueTextUI: {fileID: 5089271874430932409}
-  defaultAudioSource: {fileID: 2828074667897644198}
-  sourceList: []
-  fillerLineBeep: {fileID: 8300000, guid: 5a989c7f9085d344fb1468f00038ac0f, type: 3}
-  defaultTextSpeed: 0.04
-  textSpeedMultiplier: 1.6
-  dialogueAudio: {fileID: 1553404877855230132}
-  fadeDuration: 0.5
-  skipPauseDuration: 0.3
-  tutorialManager: {fileID: 1556074131656840221}
-  player: {fileID: 2677586050311584025}
-  playerManager: {fileID: 0}
-  sfxSource: {fileID: 7694901829816407023}
-  skipSfxClip: {fileID: 8300000, guid: 46da25644e12c82429d79846cec77d46, type: 3}
-  currentState: 0
-  isPlayingFailureDialogue: 0
-  skipDialogueRequested: 0
-  currentSequenceIndex: -1
-  currentDialogueIndex: 0
 --- !u!65 &708924089646891189
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -38406,6 +38279,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8506786234058232378}
   - component: {fileID: 1553404877855230132}
+  - component: {fileID: 8506786234058232379}
   m_Layer: 0
   m_Name: Dialogue&Tutorial
   m_TagString: Untagged
@@ -38545,7 +38419,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ZeroGPlayer: {fileID: 2677586050311584025}
-  dialogueManager: {fileID: 583031184887658994}
+  PlayerCanvases: {fileID: 0}
+  dialogueManager: {fileID: 8506786234058232379}
   doorToOpen: {fileID: 2057266809044454524}
   inTutorial: 0
   currentStep: 0
@@ -40739,23 +40614,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &4765942250067213145
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 389505136969798775}
-  - component: {fileID: 583031184887658994}
-  m_Layer: 0
-  m_Name: DialogueManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!114 &4766867236424829512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43227,7 +43085,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 389505136969798775}
   - {fileID: 9132995995614558312}
   - {fileID: 4924029022739243315}
   - {fileID: 8447415719632150430}
@@ -43238,6 +43095,285 @@ Transform:
   - {fileID: 1628078938}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8506786234058232379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365713253479824388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9b2e9330b6674bf0a2d99ffd0b9377f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dialogueSequences:
+  - dialogues:
+    - characterName: alan:\
+      dialogueLines:
+      - " Good, Dr. Sanchez, you\u2019re finally awake."
+      - 'Unfortunately, this will not be a pleasant wake-up call. '
+      - 'There is concerning information to be shared. '
+      audioClip: {fileID: 0}
+      advancesTutorial: 0
+      skipWithTutorial: 1
+      incrementsDialogue: 0
+      delayBetweenDialogues: 2
+      delayBetweenLines: 1
+    - characterName: alan:\
+      dialogueLines:
+      - However, in an effort to maintain procedures, we must first complete preliminary
+        tests.
+      - "Please don\u2019t be alarmed by the absence of a floor."
+      - 'Remember, you are in zero gravity. '
+      - 'Exam part A: <Roll Out of Bed> begin.'
+      - Please start by grabbing onto a bar within reach.
+      audioClip: {fileID: 0}
+      advancesTutorial: 1
+      skipWithTutorial: 1
+      incrementsDialogue: 0
+      delayBetweenDialogues: 2
+      delayBetweenLines: 1
+    - characterName: alan:\
+      dialogueLines:
+      - "Now, to re-acclimate to our ship\u2019s environment. Roll left."
+      audioClip: {fileID: 0}
+      advancesTutorial: 1
+      skipWithTutorial: 1
+      incrementsDialogue: 0
+      delayBetweenDialogues: 0
+      delayBetweenLines: 1
+    - characterName: alan:\
+      dialogueLines:
+      - Roll yourself back.
+      audioClip: {fileID: 0}
+      advancesTutorial: 1
+      skipWithTutorial: 1
+      incrementsDialogue: 0
+      delayBetweenDialogues: 0
+      delayBetweenLines: 1
+    - characterName: alan:\
+      dialogueLines:
+      - Exam part A complete. Getting better acquainted?
+      - Remember, if you ever feel uncomfortable. It is advised to stop, take a breath,
+        and roll to a view that feels best.
+      audioClip: {fileID: 0}
+      advancesTutorial: 0
+      skipWithTutorial: 1
+      incrementsDialogue: 0
+      delayBetweenDialogues: 1.5
+      delayBetweenLines: 1
+    - characterName: alan:\
+      dialogueLines:
+      - 'Proceeding with exam part B: <Dexterity Evaluation>'
+      - Please, again, grab and hold onto a bar within your reach. Then, get comfortable
+        moving around the chamber.
+      audioClip: {fileID: 0}
+      advancesTutorial: 1
+      skipWithTutorial: 1
+      incrementsDialogue: 0
+      delayBetweenDialogues: 1.5
+      delayBetweenLines: 1
+    - characterName: alan:\
+      dialogueLines:
+      - 'Exam part B complete. Well done Dr. Sanchez. You''ll get the swing of it
+        soon enough. '
+      - Now onto the news!
+      audioClip: {fileID: 0}
+      advancesTutorial: 1
+      skipWithTutorial: 1
+      incrementsDialogue: 0
+      delayBetweenDialogues: 1.5
+      delayBetweenLines: 1
+    - characterName: alan:\
+      dialogueLines:
+      - ...
+      - No information for the alan crash.
+      - Apologies, Dr. Sanchez. This is a bit concerning.
+      - ...
+      - Procedure instructs us to reconnect all alan terminals, one by one.
+      - "It shouldn\u2019t be too difficult for you to handle."
+      audioClip: {fileID: 0}
+      advancesTutorial: 1
+      skipWithTutorial: 1
+      incrementsDialogue: 0
+      delayBetweenDialogues: 1.5
+      delayBetweenLines: 1
+    audioSource: {fileID: 1641590646}
+  - dialogues:
+    - characterName: alan:\
+      dialogueLines:
+      - Get your wrist monitor from your dorm. We'll begin there.
+      - Good luck, Dr. Sanchez.
+      audioClip: {fileID: 0}
+      advancesTutorial: 1
+      skipWithTutorial: 1
+      incrementsDialogue: 0
+      delayBetweenDialogues: 1.5
+      delayBetweenLines: 1
+    audioSource: {fileID: 1641590646}
+  - dialogues:
+    - characterName: alan:\
+      dialogueLines:
+      - 'First alan terminal restored, Thank you, Dr. Valentina Sanchez! :] '
+      audioClip: {fileID: 0}
+      advancesTutorial: 0
+      skipWithTutorial: 0
+      incrementsDialogue: 0
+      delayBetweenDialogues: 2
+      delayBetweenLines: 2
+    - characterName: alan:\
+      dialogueLines:
+      - Check your wrist monitor. You seem a little depleted.
+      audioClip: {fileID: 0}
+      advancesTutorial: 0
+      skipWithTutorial: 0
+      incrementsDialogue: 0
+      delayBetweenDialogues: 2
+      delayBetweenLines: 4
+    - characterName: alan:\
+      dialogueLines:
+      - We can get a remedy in the Medical Bay.
+      audioClip: {fileID: 0}
+      advancesTutorial: 0
+      skipWithTutorial: 0
+      incrementsDialogue: 0
+      delayBetweenDialogues: 2
+      delayBetweenLines: 2
+    audioSource: {fileID: 1448511332}
+  - dialogues:
+    - characterName: alan:\
+      dialogueLines:
+      - Medical Bay alan reboot successful! Bravo.
+      - 'Use an e-stim to nurse your headache. '
+      audioClip: {fileID: 0}
+      advancesTutorial: 0
+      skipWithTutorial: 0
+      incrementsDialogue: 0
+      delayBetweenDialogues: 0
+      delayBetweenLines: 1.3
+    audioSource: {fileID: 1139123315}
+  - dialogues:
+    - characterName: alan:\
+      dialogueLines:
+      - Last terminal in the Dining Room. Go through this short cut.
+      audioClip: {fileID: 0}
+      advancesTutorial: 0
+      skipWithTutorial: 0
+      incrementsDialogue: 0
+      delayBetweenDialogues: 1
+      delayBetweenLines: 1.5
+    audioSource: {fileID: 1139123315}
+  - dialogues:
+    - characterName: alan:\
+      dialogueLines:
+      - 'Congratulations. all Living Quarters alan terminals are back online. '
+      - And in proper working order. Better than expected.
+      - ...
+      - Again, nothing about the alan crash. Disappointing.
+      - "Afraid we\u2019ll have to keep searching. "
+      audioClip: {fileID: 0}
+      advancesTutorial: 0
+      skipWithTutorial: 0
+      incrementsDialogue: 0
+      delayBetweenDialogues: 1.5
+      delayBetweenLines: 1
+    - characterName: alan:\
+      dialogueLines:
+      - 'Crap, '
+      - a manual lockdown is active. The sector doors are locked.
+      - Initiated in Server Farm. The door is obstructed.
+      - Searching for solutions.
+      - ...
+      audioClip: {fileID: 0}
+      advancesTutorial: 0
+      skipWithTutorial: 0
+      incrementsDialogue: 0
+      delayBetweenDialogues: 1
+      delayBetweenLines: 1
+    - characterName: alan:\
+      dialogueLines:
+      - 'Surging the door, hopefully, will force it open. '
+      audioClip: {fileID: 0}
+      advancesTutorial: 0
+      skipWithTutorial: 0
+      incrementsDialogue: 0
+      delayBetweenDialogues: 2.5
+      delayBetweenLines: 1
+    - characterName: alan:\
+      dialogueLines:
+      - Oops, that was not intended.
+      - "You\u2019ll need to make it through."
+      - 'Please be careful. '
+      audioClip: {fileID: 0}
+      advancesTutorial: 0
+      skipWithTutorial: 0
+      incrementsDialogue: 0
+      delayBetweenDialogues: 1.5
+      delayBetweenLines: 1
+    audioSource: {fileID: 2128927597}
+  - dialogues:
+    - characterName: alan:\
+      dialogueLines:
+      - The manual lockdown has been lifted, and we can now continue to the Vocational
+        Wing.
+      - Dr. Tadesse's, untraceable. Condolences.
+      - Proceed with caution.
+      audioClip: {fileID: 0}
+      advancesTutorial: 0
+      skipWithTutorial: 0
+      incrementsDialogue: 0
+      delayBetweenDialogues: 2.2
+      delayBetweenLines: 1
+    audioSource: {fileID: 1628078939}
+  failureDialogues:
+    dialogues:
+    - characterName: ALAN
+      dialogueLines:
+      - 'My sensors detected that you were not successful. Hopefully, you only sustain
+        a bruise. You may still be unsteady from your long nap.  '
+      - "I\u2019ll mark the exam as complete given the circumstances. I do advise
+        you to take some more time to practice this maneuver."
+      - "You\u2019ll get the swing of it soon, I promise. "
+      audioClip: {fileID: 8300000, guid: 30ec8ae17b41c804198239de9eeff5b6, type: 3}
+      advancesTutorial: 1
+      skipWithTutorial: 0
+      incrementsDialogue: 1
+      delayBetweenDialogues: 1
+      delayBetweenLines: 1
+    - characterName: ALAN
+      dialogueLines:
+      - Very funny, Dr. Sanchez. There are many ways to do the same thing.
+      - Please humor me and do it by rolling.
+      audioClip: {fileID: 8300000, guid: c4e9c601bf19d8b4ebd3787bf2540dae, type: 3}
+      advancesTutorial: 0
+      skipWithTutorial: 0
+      incrementsDialogue: 0
+      delayBetweenDialogues: 1
+      delayBetweenLines: 1
+    audioSource: {fileID: 0}
+  dialogueCanvas: {fileID: 1886071226749602260}
+  dialogueCanvasGroup: {fileID: 2517449878438318875}
+  nameTextUI: {fileID: 4259200650379639958}
+  dialogueTextUI: {fileID: 5089271874430932409}
+  defaultAudioSource: {fileID: 2828074667897644198}
+  sourceList: []
+  fillerLineBeep: {fileID: 8300000, guid: 5a989c7f9085d344fb1468f00038ac0f, type: 3}
+  defaultTextSpeed: 0.04
+  textSpeedMultiplier: 1.6
+  dialogueAudio: {fileID: 1553404877855230132}
+  fadeDuration: 0.5
+  skipPauseDuration: 0.3
+  tutorialManager: {fileID: 1556074131656840221}
+  player: {fileID: 2677586050311584025}
+  playerManager: {fileID: 0}
+  sfxSource: {fileID: 7694901829816407023}
+  skipSfxClip: {fileID: 8300000, guid: 46da25644e12c82429d79846cec77d46, type: 3}
+  currentState: 0
+  isPlayingFailureDialogue: 0
+  skipDialogueRequested: 0
+  currentSequenceIndex: -1
+  currentDialogueIndex: 0
 --- !u!1001 &8564947513243603852
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -44249,6 +44385,7 @@ SceneRoots:
   - {fileID: 394516936250948500}
   - {fileID: 709835022806116377}
   - {fileID: 8506786234058232378}
+  - {fileID: 1774461999}
   - {fileID: 1369874523}
   - {fileID: 7581236399361672468}
   - {fileID: 1165611647}

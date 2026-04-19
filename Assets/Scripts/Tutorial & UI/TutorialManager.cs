@@ -761,16 +761,27 @@ public class TutorialManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        if (ZeroGPlayer == null)
+        {
+            ZeroGPlayer = GameObject.FindWithTag(playerTag);
+            Debug.Log("Player found on scene load: " + (ZeroGPlayer != null));
+        }
+
         // Player persists via DDOL so just re-cache its components
         if (ZeroGPlayer != null)
         {
-            playerController = ZeroGPlayer.GetComponent<ZeroGravity>();
             pickupScript = ZeroGPlayer.GetComponent<PickupScript>();
             playerGrabRange = playerController.GrabRange;
+            Debug.Log("PickupScript found on player: " + (pickupScript != null));
         }
 
         // These are scene-bound, so re-find them fresh each load
-        PlayerCanvases = GameObject.FindWithTag(playerCanvasesTag);
+        if (PlayerCanvases == null)
+        {
+            PlayerCanvases = GameObject.FindWithTag(playerCanvasesTag);
+            Debug.Log("PlayerCanvases found on scene load: " + (PlayerCanvases != null));
+        }
+            
         if (PlayerCanvases != null)
         {
             grabCanvasGroup = GameObject.Find(grabCanvasGroupobj).GetComponent<CanvasGroup>();
@@ -793,6 +804,19 @@ public class TutorialManager : MonoBehaviour
         {
             Debug.LogError("PlayerCanvases object not found in scene. Please ensure it is tagged correctly.");
         }
+
+        // Re-fetch scene-bound manager references
+        if (dialogueManager == null)
+            dialogueManager = FindFirstObjectByType<DialogueManager>(); 
+
+        if (dialogueAudio == null)
+            dialogueAudio = FindFirstObjectByType<DialogueAudio>();
+
+        if (stingerManager == null)
+            stingerManager = FindFirstObjectByType<StingerManager>();
+
+        if (doorToOpen == null)
+            doorToOpen = FindFirstObjectByType<DoorScript>();
 
     }
 }
