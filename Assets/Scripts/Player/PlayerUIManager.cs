@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -24,7 +25,7 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField]
     private DormHallEvent dormHallEvent;
     [SerializeField]
-    private StimDispenserManager stimDispenserContainer;
+    private GameObject stimDispenserContainer;
     private StimDispenser[] stimDispensers;
     private bool lookingAtStim;
 
@@ -203,6 +204,7 @@ public class PlayerUIManager : MonoBehaviour
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
+
     private void Awake()
     {
         // scene - level managers
@@ -228,7 +230,7 @@ public class PlayerUIManager : MonoBehaviour
         }
         if(stimDispenserContainer == null)
         {
-            stimDispenserContainer = FindFirstObjectByType<StimDispenserManager>();
+            stimDispenserContainer = GameObject.Find("StimDispensers");
         }
 
         if (stimDispenserContainer != null)
@@ -1081,6 +1083,7 @@ public class PlayerUIManager : MonoBehaviour
     public void ShowBillboardUI(Sprite icon, Transform parent = null, String text = "", bool hideCrosshair = false)
     {
         ShowBillboardUI(icon, new Color(1f, 1f, 1f, 1f), parent, text, hideCrosshair);
+        //Debug.Log("hiding crosshair icon");
     }
 
     public void ShowBillboardUI(Sprite icon, Color color, Transform parent = null, String text = "", bool hideCrosshair = false)
@@ -1106,16 +1109,19 @@ public class PlayerUIManager : MonoBehaviour
                 tmp.text = text;
 
                 // sets parent, defaults to null if no parent is provided
-                billboardObject.transform.SetParent(parent,true);
+                billboardObject.transform.SetParent(parent, false);
                 // resets position to center on the parent
                 billboardObject.transform.localPosition = Vector3.zero;
 
                 // make visible
                 billboardObject.SetActive(true);
-
+                Debug.Log("showing billboard with text: " + text);
             }
         }
-
+        else
+        {
+            Debug.LogError("billboardObject is NULL - not assigned in Inspector!");
+        }
     }
 
     public void HideBillboardUI()
@@ -1141,10 +1147,12 @@ public class PlayerUIManager : MonoBehaviour
                 // deactivates billboard while not needed
                 billboardObject.SetActive(false);
                 // removes itself as child of a parent
-                billboardObject.transform.SetParent(null,true);
+                billboardObject.transform.SetParent(null,false);
 
                 TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
                 Image image = billboardObject.GetComponentInChildren<Image>(true);
+
+                Debug.Log("hiding billboard with text: " + tmp.text);
 
                 // clear display settings
                 // text - empty
@@ -1204,20 +1212,34 @@ public class PlayerUIManager : MonoBehaviour
         inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
     }
 
-    public void OnSceneLoaded(Scene scene, LoadSceneMode mod)
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // scene - level managers need to be refound
-        doorManager = FindFirstObjectByType<DoorManager>();
-        terminalManager = FindFirstObjectByType<TerminalManager>();
-        stimDispenserContainer = FindFirstObjectByType<StimDispenserManager>();
-        stimDispensers = stimDispenserContainer.GetComponentsInChildren<StimDispenser>();
-        wristMonitor = FindFirstObjectByType<WristMonitor>();
-
-        // event calls hardcoded in for playtest, need to be fixed later
-        dormHallEvent = FindFirstObjectByType<DormHallEvent>();
-        lockdownEvent = FindFirstObjectByType<LockdownEvent>();
+        StartCoroutine(ReinitializeAfterFrame());
     }
 
+    private IEnumerator ReinitializeAfterFrame()
+    {
+        // Wait for the end of the frame to ensure all objects are initialized
+        yield return new WaitForEndOfFrame();
+        // destroy stale instance of billboard UI
+        if(billboardObject != null )
+        {
+            Destroy(billboardObject);
+        }
+        //reinstantiate from prefab
+        if (billboardPrefab != null)
+        {
+            billboardObject = Instantiate(billboardPrefab);
+            billboardObject.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError("billboardPrefab is NULL - not assigned in Inspector!");
+        }
+
+
+        // Optionally, you can also reset or update any UI elements here if needed
+    }
     //void OnDrawGizmos()
     //{
     //    // Visualize the crosshair padding as a box in front of the camera
