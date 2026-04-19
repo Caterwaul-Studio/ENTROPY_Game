@@ -266,7 +266,21 @@ public class PlayerUIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        HandleHealthUI();
+        //if the player is in free move noclip mode, hide all the UI elements, we don't need them and it just gets in the way
+        if (player.PlayerFreeMoveNoClip)
+        {
+            crosshair.enabled = false;
+            HideGrabber();
+            HideInteractables();
+            HideBillboardUI();
+            return;
+        }
+        else if(!player.PlayerFreeMoveNoClip)
+        {
+            crosshair.enabled = true;
+        }
+
+            HandleHealthUI();
         if (!player.IsGrabbing)
         {
             //if there are no bars in the raycast 

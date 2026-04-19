@@ -15,7 +15,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 {
     #region Inspector Variables
     [Header("== Player Elements ==")]
-    private static ZeroGravity Instance;    
     [SerializeField]
     private Rigidbody rb;
     [SerializeField]
@@ -224,6 +223,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     // Track if the movement keys were released
     private bool movementKeysReleased;
 
+    [SerializeField] private bool playerInputs = false;
+
     [SerializeField] private bool useManualPullIn = false;
     private bool isPullingIn;
 
@@ -240,6 +241,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     // for storing the respawn information
     public PlayerData playerData;
+
+    [Header("== Kinematic Throw Settings ==")]
+    public bool isBeingGrabbed = false;
+    private Vector3 kinematicVelocity;
+    public float throwDecay = 3.0f; // How fast you slow down in space
+    public bool IsBeingThrown => kinematicVelocity.magnitude > 0.1f;
     #endregion 
 
     #region Properties
@@ -279,11 +286,18 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             }
         }
     }
-    public float NoClipMoveSpeed { get; set; } = 10f;
+    public float NoClipMoveSpeed { get; set; } = 3f;
 
     #endregion
 
     #region Other Properties
+
+    public bool IsBeingGrabbed
+    {
+        get { return isBeingGrabbed; }
+        set { isBeingGrabbed = value; }
+    }
+
     public float GrabPadding
     {
         get { return grabPadding; }
@@ -322,6 +336,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         get { return tutorialMode; }
         set { tutorialMode = value; }
+    }
+
+    public Rigidbody RB
+    {
+        get { return rb; }
     }
 
     public bool CanMove
@@ -377,7 +396,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         set { totalRotation = value; }
     }
 
-    public int PlayerHealth { get { return playerHealth; } }
+    public int PlayerHealth { get { return playerHealth; } set { playerHealth = value; } }
 
     public int MaxHealth { get { return maxHealth; } }
 
@@ -422,16 +441,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;              // no one exists yet, so I'm the one
-            DontDestroyOnLoad(gameObject); // persist across scenes
-        }
-        else if (Instance != this)
-        {
-            Destroy(gameObject); // an instance already exists, I'm a duplicate
-        }
-
         //set the player health
         playerHealth = 3;
         //make sure there are no stims in teh plaeyr inventory
@@ -457,6 +466,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             canPushOff = false;
             canPropel = false;
             canRoll = false;
+            playerInputs = true;
         }
         //not in tutorial mode
         else
@@ -492,9 +502,17 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     #region Update Methods
     void FixedUpdate()
     {
+        if (isBeingGrabbed)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            return; // skip all other movement
+        }
+
         if (PlayerFreeMoveNoClip)
         {
             FreeMoveNoClip();
+            
             return;
         }
         // if the player is allowed to move
@@ -538,7 +556,22 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         if (canMove)
         {
+            if (!canRoll || !canPropel || !canPushOff || !canGrab)
+            {
+                canRoll = true;
+                canPropel = true;
+                canPushOff = true;
+                canGrab = true;
+            }
+
             RotateCam();
+        }
+        else if (!canMove)
+        {
+            canRoll = false;
+            canPropel = false;
+            canPushOff = false;
+            canGrab = false;
         }
     }
     #endregion
@@ -1477,6 +1510,13 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         canGrab = false;
     }
 
+    public void Respawn()
+    {
+        // whether or not we load from save depends on whether temp data exists
+        GlobalSaveManager.LoadFromSave = GlobalSaveManager.TempDataExists();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
     #endregion
     #endregion
 
@@ -1568,6 +1608,39 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             UseStimCharge();
         }
     }
+
+    #region Throw Movement
+
+    public void GetThrown(Vector3 direction, float force)
+    {
+        StartCoroutine(ThrownRoutine(direction.normalized * force));
+    }
+
+    private IEnumerator ThrownRoutine(Vector3 impulse)
+    {
+        // rb may already be kinematic from the grab lock — ensure it's off for physics
+        rb.isKinematic = false;
+        boundingSphere.enabled = true;
+
+        // Wait one fixed frame so the physics engine acknowledges the kinematic change
+        yield return new WaitForFixedUpdate();
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.AddForce(impulse, ForceMode.Impulse);
+
+        // Wait until throw decays
+        while (rb.linearVelocity.magnitude > 0.5f)
+        {
+            yield return new WaitForFixedUpdate();
+        }
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
+
+    #endregion
+
     #endregion
 
 
@@ -1586,13 +1659,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     #endregion
 
     #region Global Save Manager Integration
-
-    public void Respawn()
-    {
-        // whether or not we load from save depends on whether temp data exists
-        GlobalSaveManager.LoadFromSave = GlobalSaveManager.TempDataExists();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
 
     // backs up player data for saving
     public void StorePlayerData(Vector3 _position) // takes the checkpoints respawn point

@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+
 public class UniversalDevTools : EditorWindow
 {
     //declare a gameobject so we can set the player as a reference.
@@ -11,7 +12,7 @@ public class UniversalDevTools : EditorWindow
     private GameObject player;
 
     //booleans for the all toggleable elements
-    private bool god;
+    private bool invincible;
     private bool playerFreeMoveNoClip;
 
     // A float created to store the value of the no clip move speed, this is used for the slider in the dev tools
@@ -58,7 +59,7 @@ public class UniversalDevTools : EditorWindow
         // Create a toggle to allow the player to go into god mode
         // While in god mode, the bool will block the Health related methods inside of ZeroGravity.cs
         // Therefore, we cannot die
-        god = EditorGUILayout.Toggle("->God Mode", god);
+        invincible = EditorGUILayout.Toggle("->God Mode", invincible);
         playerFreeMoveNoClip = EditorGUILayout.Toggle("->Free Move with No Clip",  playerFreeMoveNoClip);
         //method calls to set up each section of the dev tools window
         PlayerControlsTools();
@@ -137,7 +138,7 @@ public class UniversalDevTools : EditorWindow
                 {
                     EditorGUILayout.HelpBox("No FPS Display component found on the player object!", MessageType.Warning);
                 }
-                //this is where we store logic for all player controller tools
+                // where we store logic for all player controller tools
                 //calling methods that create and display the tools
                 GodMode(playerScript, godModeProp);
                 FreeMoveNoClip(playerScript, freeMoveNoClipProp);  
@@ -181,7 +182,7 @@ public class UniversalDevTools : EditorWindow
         if (godModeProp != null)
         {
             //set the GodMode bool within ZeroGravity.cs to the toggle we created for the EditorWindow
-            godModeProp.SetValue(playerScript, god);
+            godModeProp.SetValue(playerScript, invincible);
         }
         else
         {

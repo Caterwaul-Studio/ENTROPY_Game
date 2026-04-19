@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public class GeistLookAt : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class GeistLookAt : MonoBehaviour
     [Header("IK Target")]
     [SerializeField]
     private Transform ikTarget;
+    [SerializeField] 
+    private ChainIKConstraint ikConstraint;
     public Transform ikRestAnchor;
     public float neckBendOffset = 0.3f;
     public float ikFollowSpeed = 5f;
@@ -31,6 +34,7 @@ public class GeistLookAt : MonoBehaviour
     private void LateUpdate()
     {
         TargetVisible = CheckVisibility();
+        ikConstraint.weight = TargetVisible ? 1f : 0f;
         SetIKTargetPosition();
     }
 

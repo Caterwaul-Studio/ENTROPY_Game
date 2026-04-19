@@ -129,7 +129,14 @@ public class TutorialManager : MonoBehaviour
         playerController = ZeroGPlayer.GetComponent<ZeroGravity>();
         pickupScript = ZeroGPlayer.GetComponent<PickupScript>();
         playerGrabRange = playerController.GrabRange;
-        playerController.TutorialMode = true;
+        //playerController.TutorialMode = true;
+
+        // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
+        // checks if dialogue is at the beginning (tutorial)
+        if (dialogueManager.currentSequenceIndex == -1)
+        {
+            playerController.TutorialMode = true;
+        }
 
         //determines if the player is to be in tutorial from the player controller's "TutorialMode" bool, which is saved by the GSM
         if (playerController.TutorialMode == true && !GlobalSaveManager.LoadFromSave)

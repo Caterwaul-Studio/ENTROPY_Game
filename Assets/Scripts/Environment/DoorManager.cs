@@ -37,15 +37,15 @@ public class DoorManager : MonoBehaviour, ISaveable
     public Texture2D lockedTexture;
 
     public Color LockedLightColor { get { return new Color(4.24f, 0.36f, 0.3f, 1.0f) * EmissiveMapIntensity; } }
-    public Color LockedHoloBackColor = new Color(0.58f, 0.1f, 0.08f, 1.0f);
-    public Color LockedHoloTextColor = new Color(1.0f, 0.3f, 0.2f, 1.0f);
+    public Color LockedHoloBackColor = new Color(0.26f, 0.014f, 0f, 1.0f);
+    public Color LockedHoloTextColor = new Color(1.0f, 0.45f, 0.37f, 1.0f);
 
     // unlocked colors
     [SerializeField]
     public Texture2D unlockedTexture;
 
     public Color UnlockedLightColor { get { return new Color(0.5f, 1.0f, 1.12f, 1.0f) * EmissiveMapIntensity; } }
-    public Color UnlockedHoloBackColor = new Color(0.05f, 0.19f, 0.3f, 1.0f);
+    public Color UnlockedHoloBackColor = new Color(0.06f, 0.17f, 0.19f, 1.0f);
     public Color UnlockedHoloTextColor = new Color(0.63f, 0.87f, 0.85f, 1.0f);
 
     // broken colors
@@ -53,7 +53,7 @@ public class DoorManager : MonoBehaviour, ISaveable
     public Texture2D warningTexture;
 
     public Color WarningLightColor { get { return new Color(4.2f, 0.43f, 0.1f, 1.0f) * EmissiveMapIntensity; } }
-    public Color WarningHoloBackColor = new Color(0.44f, 0.26f, 0.16f, 1.0f);
+    public Color WarningHoloBackColor = new Color(0.51f, 0.19f, 0.06f, 1.0f);
     public Color WarningHoloTextColor = new Color(0.95f, 0.64f, 0.32f, 1.0f);
 
     public GameObject CurrentSelectedDoor
