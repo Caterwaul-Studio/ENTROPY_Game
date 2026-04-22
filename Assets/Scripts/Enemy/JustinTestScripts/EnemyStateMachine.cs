@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -111,6 +112,11 @@ public class EnemyStateMachine : MonoBehaviour
     private float lightDetectionDuration = 0f;
     private float lightDetectionTimer = 0f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip[] roarBank;
+    [SerializeField] private AudioSource roarSource;
+    private bool roaring = false;
+
     private void Start()
     {
         if (player == null) player = GameObject.FindGameObjectWithTag("Player");
@@ -203,6 +209,7 @@ public class EnemyStateMachine : MonoBehaviour
                 break;
 
             case SpecificEnemyState.Chase:
+
                 detectionRadius = chaseDetectionRadius;
 
                 if (currentSpecificState == SpecificEnemyState.Chase)
@@ -219,6 +226,12 @@ public class EnemyStateMachine : MonoBehaviour
                 break;
 
             case SpecificEnemyState.Investigate:
+                //play roar audio
+                if (!roaring) //if not currently roaring...
+                {//do a roar.
+                    StartCoroutine(PlayRoar());
+                }
+
                 interestTimer -= Time.deltaTime;
 
                 if (canDetectPlayer)
@@ -257,7 +270,7 @@ public class EnemyStateMachine : MonoBehaviour
                         if (searchOrigin != null && !isInvestigating)
                         {
                             complexEnemyAI.investigatingWaypoint = GetRandomInvestPoint(searchOrigin);
-                            shouldFollow = (Random.value > 0.5f);
+                            shouldFollow = (UnityEngine.Random.value > 0.5f);
                             isInvestigating = true;
                         }
                     }
@@ -301,7 +314,7 @@ public class EnemyStateMachine : MonoBehaviour
             return OriginPoint;
         }
 
-        return waypoints[Random.Range(0, waypoints.Count)];
+        return waypoints[UnityEngine.Random.Range(0, waypoints.Count)];
     }
     private void GetLastSeenLocation()
     {
@@ -459,7 +472,7 @@ public class EnemyStateMachine : MonoBehaviour
             }
 
             if (validPoints.Count > 0)
-                return validPoints[Random.Range(0, validPoints.Count)];
+                return validPoints[UnityEngine.Random.Range(0, validPoints.Count)];
 
             currentMax += 5f; // Expand search area
         }
@@ -507,7 +520,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     public void GrabAttackLogic()
     {
-        if (player.GetComponent<ZeroGravity>().PlayerHealth <= 1)
+        if (playerController.PlayerHealth <= 1)
         {
             ChangeSpecificState(SpecificEnemyState.Kill);
 
@@ -585,7 +598,7 @@ public class EnemyStateMachine : MonoBehaviour
         Debug.Log("player control unlocked");
         playerController.CanMove = true;
 
-        // Restore physics — but only if we're not about to throw
+        // Restore physics but only if we're not about to throw
         // (GetThrown handles its own kinematic transition)
         if (!playerController.IsBeingThrown)
         {
@@ -794,5 +807,21 @@ public class EnemyStateMachine : MonoBehaviour
             Gizmos.DrawWireSphere(transform.position, minRadius);
             Gizmos.DrawWireSphere(transform.position, maxRadius);
         }
+    }
+
+    IEnumerator PlayRoar()
+    {
+        roarSource.clip = roarBank[UnityEngine.Random.Range(1, roarBank.Length)]; //start at 1 not 0 as 0 should always be attack sound
+        roarSource.Play();
+        roaring = true;
+        yield return new WaitForSeconds(UnityEngine.Random.Range(5,15));
+        roaring = false;
+    }
+
+    public void AttackRoar()
+    {
+        roarSource.clip = roarBank[0]; //please make sure roarbank 0 is always the attack sound, it helps with consolidating audio voices.
+        Debug.Log("roar attack");
+        roarSource.Play();
     }
 }
