@@ -578,7 +578,7 @@ public class EnemySimpleAI : MonoBehaviour
             TendrilBehavior tb = t.GetComponent<TendrilBehavior>();
             if (tb != null)
             {
-                tb.Initialize(origin, this, true); // true = manualRetract
+                //tb.Initialize(origin, this, true); // true = manualRetract
                 origin.activeTendril = tb;
             }
         }
@@ -764,7 +764,7 @@ public class EnemySimpleAI : MonoBehaviour
         TendrilBehavior tb = t.GetComponent<TendrilBehavior>();
         if (tb != null)
         {
-            tb.Initialize(origin, this, false);  // Pass the origin and owner
+            //tb.Initialize(origin, this, false);  // Pass the origin and owner
             origin.activeTendril = tb;
         }
 

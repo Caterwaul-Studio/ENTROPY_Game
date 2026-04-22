@@ -5,6 +5,7 @@ public class EnemyEffects : MonoBehaviour
     [Header("Effect Ranges")]
     //Closest
     [SerializeField] private float distance1;
+    //Middle
     [SerializeField] private float distance2;
     //Farthest
     [SerializeField] private float distance3;
@@ -17,13 +18,12 @@ public class EnemyEffects : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        if (player == null) player = GameObject.FindGameObjectWithTag("Player");
     }
 
-    // Update is called once per frame
-    void Update()
+    private void FixedUpdate()
     {
-        
+        CheckEffectDistance();
     }
 
     private void CheckEffectDistance()
