@@ -505,7 +505,7 @@ public class EnemyStateMachine : MonoBehaviour
         Debug.Log("player control unlocked");
         playerController.CanMove = true;
 
-        // Restore physics — but only if we're not about to throw
+        // Restore physics - but only if we're not about to throw
         // (GetThrown handles its own kinematic transition)
         if (!playerController.IsBeingThrown)
         {
