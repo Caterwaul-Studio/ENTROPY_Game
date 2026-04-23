@@ -954,15 +954,16 @@ MonoBehaviour:
   pastSpecificState: 0
   player: {fileID: 0}
   playerController: {fileID: 0}
-  complecEnemyAI: {fileID: 0}
+  complexEnemyAI: {fileID: 0}
+  simpleEnemyEnemyAI: {fileID: 0}
   detectionMask:
     serializedVersion: 2
     m_Bits: 16577
-  detectionRadius: 10
-  defaultDetectionRadius: 7
-  chaseDetectionRadius: 9
-  detectionDuration: 2
-  detectionTimer: 0
+  detectionRadius: 12
+  defaultDetectionRadius: 9
+  chaseDetectionRadius: 7
+  detectionDuration: 3
+  detectionTimer: 3
   canDetectPlayer: 0
   chasePlayer: 0
   interestDuration: 5
@@ -977,7 +978,7 @@ MonoBehaviour:
   waypointLayer:
     serializedVersion: 2
     m_Bits: 65536
-  minRadius: 12
+  minRadius: 13
   maxRadius: 16
   retreatTimer: 0
   retreatPointReroll: 0
@@ -990,7 +991,12 @@ MonoBehaviour:
     m_Bits: 64
   throwCheckLimit: 0
   throwCheckOffset: {x: 0, y: 0, z: 0}
-  lungeTimer: 0
+  canTakeHealth: 0
+  forceLookSpeedTime: 0
+  minChaseDistance: 0
+  maxChaseDistance: 4
+  maxChaseSpeed: 2
+  minChaseSpeed: 1
   showDetectionRadius: 1
   showRetreatRadius: 0
 --- !u!114 &8811146767685563550
@@ -1008,10 +1014,6 @@ MonoBehaviour:
   speed: 1.5
   useRandomRoaming: 0
   setRotationSpeed: 2.5
-  lungeDistance: 5
-  chargeUpTime: 1.5
-  lungeSpeed: 3.5
-  lungeDuration: 3
   stunSeconds: 3
   stunVelocityThreshold: 4
   player: {fileID: 0}
@@ -1043,14 +1045,13 @@ MonoBehaviour:
   investigatingWaypoint: {fileID: 0}
   isChasingPlayer: 0
   isStunned: 0
-  isCharging: 0
-  isLunging: 0
-  lungeTimer: 0
   shouldPlaySting: 1
   stuckThreshold: 2
   availableOrigins: []
   FailSafe: {fileID: 0}
   throwLocation: {x: 0, y: 0, z: 0}
+  minThrowDistance: 5
+  throwForce: 60
 --- !u!114 &6365921600599371455
 MonoBehaviour:
   m_ObjectHideFlags: 0

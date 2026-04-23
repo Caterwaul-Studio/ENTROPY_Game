@@ -12,12 +12,6 @@ public class ComplexEnemyAI : MonoBehaviour
     public float setRotationSpeed = 2.5f;
     private float rotationSpeed = 2.5f;
 
-    [Header("Lunge Settings")]
-    public float lungeDistance = 5f;
-    public float chargeUpTime = 1.5f;
-    public float lungeSpeed = 3.5f;
-    public float lungeDuration = 3f;
-
     [Header("Stun Settings")]
     public float stunSeconds = 3f;
     public float stunVelocityThreshold = 4f;
@@ -69,10 +63,6 @@ public class ComplexEnemyAI : MonoBehaviour
     private float sqrDist;
     public bool isChasingPlayer = false;
     public bool isStunned = false;
-
-    public bool isCharging = false;
-    public bool isLunging = false;
-    public float lungeTimer = 0f;
 
     public bool shouldPlaySting = true;
     //public bool isAwake = false;
@@ -157,12 +147,10 @@ public class ComplexEnemyAI : MonoBehaviour
     {
         hasLineOfSight = enemyStateMachine.canDetectPlayer;
 
-        if (enemyStateMachine.enemyVersion == EnemyVersion.Simple)
+        if (enemyStateMachine.enemyVersion == EnemyVersion.Complex)
         {
+            speed = enemyStateMachine.DetermineGeistSpeedChange();
 
-        }
-        else if (enemyStateMachine.enemyVersion == EnemyVersion.Complex)
-        {
             if (resetCooldown > 0f || isStunned)
             {
                 resetCooldown -= Time.deltaTime;
@@ -207,8 +195,6 @@ public class ComplexEnemyAI : MonoBehaviour
                 // Only check progress if the AI is in a state where it should be moving
                 bool shouldBeMoving = enemyStateMachine.currentSpecificState != SpecificEnemyState.Kill &&
                                       enemyStateMachine.currentSpecificState != SpecificEnemyState.Stunned &&
-                                      enemyStateMachine.currentSpecificState != SpecificEnemyState.Lunge &&
-                                      //enemyStateMachine.currentSpecificState != SpecificEnemyState.Charge &&
                                       enemyStateMachine.currentSpecificState != SpecificEnemyState.Grab &&
                                       enemyStateMachine.currentSpecificState != SpecificEnemyState.Throw
                                       ;
@@ -231,12 +217,6 @@ public class ComplexEnemyAI : MonoBehaviour
                     }
                 }
                 nextProgressCheckTime = Time.time + progressCheckFrequency;
-            }
-
-            if (!isLunging && Time.time - lastTendrilTime >= spawnInterval)
-            {
-                SpawnTendril();
-                lastTendrilTime = Time.time;
             }
         }
 
@@ -317,8 +297,9 @@ public class ComplexEnemyAI : MonoBehaviour
             RoamLimited();
         }
     }
+
     #region Investigation
-    #endregion
+
     public void IsInvestigating()
     {
 
@@ -372,6 +353,8 @@ public class ComplexEnemyAI : MonoBehaviour
 
         }
     }
+
+    #endregion
 
     void ChasePlayer()
     {
@@ -505,78 +488,7 @@ public class ComplexEnemyAI : MonoBehaviour
     }
     #endregion
 
-    #region Throw/Attack/Lunge
-
-    
-    private void Chargelunge()
-    {
-        if (isLunging)
-        {
-            lungeTimer += Time.deltaTime;
-            if (lungeTimer >= lungeDuration)
-                EndLunge();
-            return;
-        }
-        // 4) If mid-charge, skip normal AI
-        if (isCharging)
-        {
-            ForceLookAtPlayer(); // Always rotate toward player during charge
-            return;
-        }
-        // 5) Check if player is within lungeDistance, the enemy has line of sight with the player, and not charging or lunging → start charging
-        if (hasLineOfSight && sqrDist < (lungeDistance * lungeDistance) && !isCharging && !isLunging)
-        {
-
-
-            Vector3 toPlayer = player.transform.position - transform.position;
-            float checkDistance = toPlayer.magnitude;
-            Vector3 direction = toPlayer.normalized;
-
-            // Perform a SphereCast in the direction of the player
-            float sphereRadius = 0.5f * transform.localScale.x; // adjust based on your alien's size
-
-
-            //check to see if there's anything in the way before we lunge into a wall
-            if (!Physics.SphereCast(transform.position, sphereRadius, direction, out RaycastHit hit, 5f, barrierLayer))
-            {
-                isCharging = true;
-                StartCoroutine(ChargeAndLunge());
-                return;
-            }
-            else
-            {
-                // Optional: debug visualization
-                Debug.DrawRay(transform.position, direction * 5.0f, Color.red, 0.2f);
-                //Debug.Log("Lunge blocked by: " + hit.collider.name);
-            }
-        }
-    }
-    
-    private void LungeAtPlayer()
-    {
-        Vector3 dir = (player.transform.position - transform.position).normalized;
-        Rigidbody rb = GetComponent<Rigidbody>();
-        rb.isKinematic = false;
-        rb.linearVelocity = dir * lungeSpeed;
-
-        isLunging = true;
-        lungeTimer = 0f;
-        rotationSpeed = setRotationSpeed;
-
-        isCharging = false;
-    }
-
-    private void EndLunge()
-    {
-        if (!isLunging) return;
-
-        isLunging = false;
-        isCharging = false;
-
-        Rigidbody rb = GetComponent<Rigidbody>();
-        rb.linearVelocity = Vector3.zero;
-        rb.isKinematic = true;
-    }
+    #region Throw/Attack
 
     void ForceLookAtPlayer()
     {
@@ -707,68 +619,6 @@ public class ComplexEnemyAI : MonoBehaviour
         return false;
     }
 
-    private IEnumerator ChargeAndLunge()
-    {
-        Debug.Log("Charging Coroutine called");
-        rotationSpeed = 20f;
-        isChasingPlayer = false;
-
-        // Wait until the enemy is facing the player before continuing
-        Vector3 toPlayer = (player.transform.position - transform.position).normalized;
-        float angle = Vector3.Angle(transform.forward, toPlayer);
-
-        while (angle > 20f) // or whatever threshold feels right
-        {
-            toPlayer = (player.transform.position - transform.position).normalized;
-            angle = Vector3.Angle(transform.forward, toPlayer);
-            //Debug.Log(angle);
-            yield return null;
-        }
-
-
-        float timer = 0f;
-        while (timer < chargeUpTime)
-        {
-            if (isStunned)
-            {
-                isCharging = false;
-                yield break;
-            }
-
-            // Pull-back motion
-            toPlayer = (player.transform.position - transform.position).normalized;
-            Vector3 pullBackDirection = -toPlayer; // Opposite of direction to player
-            float pullBackSpeed = 1.5f; // tweak as needed
-
-            float pullBackDistance = pullBackSpeed * Time.deltaTime;
-            float radius = 0.5f * transform.localScale.x;
-
-            // Raycast to prevent backing into a wall
-            RaycastHit hit;
-            if (!Physics.SphereCast(transform.position, radius, pullBackDirection, out hit, pullBackDistance + 0.25f, barrierLayer))
-            {
-                transform.position += pullBackDirection * pullBackDistance;
-            }
-
-            timer += Time.deltaTime;
-            yield return null;
-        }
-
-        foreach (TendrilOrigin origin in backwardsOrigins)
-        {
-            if (origin.activeTendril != null)
-            {
-                origin.activeTendril.Retract();
-            }
-        }
-
-        LungeAtPlayer();
-
-        EndLunge();
-
-        isCharging = false;
-    }
-
     #endregion
 
     // Called by Unity when this collider hits another collider
@@ -799,6 +649,7 @@ public class ComplexEnemyAI : MonoBehaviour
             }
 
             // Knockback regardless of state
+            /*
             Rigidbody playerRb = other.GetComponent<Rigidbody>();
             if (playerRb != null)
             {
@@ -806,6 +657,7 @@ public class ComplexEnemyAI : MonoBehaviour
                 float knockbackStrength = lungeSpeed * 2f;
                 playerRb.AddForce(forceDirection * knockbackStrength, ForceMode.Impulse);
             }
+            */
         }
     }
 
@@ -973,8 +825,6 @@ public class ComplexEnemyAI : MonoBehaviour
         StopAllCoroutines();
         //isAwake = false;
         isStunned = false;
-        isCharging = false;
-        isLunging = false;
         isChasingPlayer = false;
 
         // Reset cooldown to block Update logic for 0.1s
