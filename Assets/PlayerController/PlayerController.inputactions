@@ -700,6 +700,54 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "FunctionKeyShortCuts",
+            "id": "dd22a79d-c37c-4b6d-a949-d63163b8e755",
+            "actions": [
+                {
+                    "name": "FreeMoveNoClip",
+                    "type": "Button",
+                    "id": "552fecbd-9172-4475-a89b-c5f59fa30c86",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SkipLevel1",
+                    "type": "Button",
+                    "id": "e5dfa9c3-f315-4f34-804a-da5b32fe298f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "a1826233-23e8-4757-bc2c-0b77ab445926",
+                    "path": "<Keyboard>/f11",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "FreeMoveNoClip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c12ac897-1505-4d88-a888-b962f2498f07",
+                    "path": "<Keyboard>/f12",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SkipLevel1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

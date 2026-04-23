@@ -15,6 +15,11 @@ public class SceneFadeTransition : MonoBehaviour
     [SerializeField] private float fadeOutDuration = 1f;  // Fade to black duration
     [SerializeField] private float fadeInDuration = 1f;   // Fade from black duration
 
+    public Image GetFadeImage()
+    {
+        return fadeImage;
+    }
+
     private void Awake()
     {
         // Singleton pattern with DontDestroyOnLoad
