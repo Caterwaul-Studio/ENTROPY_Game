@@ -21,6 +21,7 @@ public class SimpleEnemyAI : MonoBehaviour
     public Waypoint startingWaypoint;
     public Transform waypointGroup;
     public EnemyStateMachine enemyStateMachine;
+    public CutSceneList currentCutsceneList;
     public AudioSource farMusic; //part of temp system
     public AudioSource nearMusic; //part of temp system
     public AudioSource hitSource; //part of temp system

@@ -115,6 +115,8 @@ public class EnemyStateMachine : MonoBehaviour
         if (complexEnemyAI == null) complexEnemyAI = GetComponent<ComplexEnemyAI>(); 
 
         currentSpecificState = SpecificEnemyState.Patrol;
+
+        detectionTimer = detectionDuration;
     }
 
     public void GeneralLogic()
@@ -181,7 +183,6 @@ public class EnemyStateMachine : MonoBehaviour
                     if (!chasePlayer)
                     {
                       
-
                         detectionTimer -= Time.deltaTime;
                         if (detectionTimer <= 0)
                         {
