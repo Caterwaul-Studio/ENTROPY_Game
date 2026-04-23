@@ -166,6 +166,9 @@ public class SimpleEnemyAI : MonoBehaviour
                 case SpecificEnemyState.Chase:
                     IsChasingPlayer();
                     break;
+                case SpecificEnemyState.Patrol:
+                    isPatroling();
+                    break;
                 case SpecificEnemyState.Stunned:
                     break;
             }
@@ -425,6 +428,61 @@ public class SimpleEnemyAI : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position, player.transform.position, speed * Time.deltaTime);
 
         UpdateCurrentWaypointToClosest();
+    }
+
+    public void isPatroling()
+    {
+
+        if (currentWaypoint.type == Waypoint.WaypointType.General)
+        {
+            RoamArea();
+
+        }
+        else
+        {
+            RoamLimited();
+        }
+    }
+
+    void RoamArea()
+    {
+        // Only pick a new goal if we are done with the current path
+        if (path.Count == 0)
+        {
+            /*
+            List<Waypoint> farWaypoints = allWaypoints.Where(wp =>
+                Vector3.Distance(transform.position, wp.transform.position) > 20f
+            ).ToList();
+            */
+            List<Waypoint> farWaypoints = allWaypoints.Where(wp => wp != currentWaypoint).ToList();
+
+            if (farWaypoints.Count > 0)
+            {
+                goalWaypoint = farWaypoints[Random.Range(0, farWaypoints.Count)];
+                path = BFS(currentWaypoint, goalWaypoint);
+            }
+        }
+
+        TrackPath(); // This actually moves the Geist
+    }
+
+    void RoamLimited()
+    {
+        // If we finished the current waypoint, pick a neighbor and put it in the path
+        if (path.Count == 0)
+        {
+            List<Waypoint> roamingNeighbors = currentWaypoint.neighbors
+                .Where(n => n != null && n.type == Waypoint.WaypointType.Roaming)
+                .ToList();
+
+            if (roamingNeighbors.Count > 0)
+            {
+                Waypoint next = roamingNeighbors[Random.Range(0, roamingNeighbors.Count)];
+                path.Enqueue(next);
+            }
+        }
+
+        TrackPath(); // Move!
     }
 
     void FindPlayerPath()

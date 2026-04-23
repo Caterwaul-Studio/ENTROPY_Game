@@ -260,7 +260,17 @@ public class EnemyStateMachine : MonoBehaviour
                             isInvestigating = true;
                         }
                     }
-                    complexEnemyAI.IsInvestigating();
+
+                    if (complexEnemyAI.investigatingWaypoint != null)
+                    {
+                        complexEnemyAI.IsInvestigating();
+                    }
+                    else
+                    {
+                        complexEnemyAI.investigatingWaypoint = GetRandomInvestPoint(complexEnemyAI.FindClosestWaypoint(playersLastKnownLocation));
+                        complexEnemyAI.IsInvestigating();
+                    }
+                    
                 }
                 break;
         }
@@ -317,8 +327,6 @@ public class EnemyStateMachine : MonoBehaviour
         playersLastKnownLocation = player.transform.position;
 
         complexEnemyAI.lastSeenWaypoint = complexEnemyAI.FindClosestWaypoint(playersLastKnownLocation);
-
-
     }
 
     #endregion
@@ -424,7 +432,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     public void GrabAttackLogic()
     {
-        if (player.GetComponent<ZeroGravity>().PlayerHealth <= 1)
+        if (playerController.PlayerHealth <= 1)
         {
             ChangeSpecificState(SpecificEnemyState.Kill);
 
