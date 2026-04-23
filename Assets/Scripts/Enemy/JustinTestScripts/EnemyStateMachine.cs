@@ -494,7 +494,7 @@ public class EnemyStateMachine : MonoBehaviour
     }
     private void LockPlayerInputs()
     {
-        Debug.Log("player control locked");
+        //Debug.Log("player control locked");
 
         playerController.CanMove = false;
         playerController.StopRollingQuickly();
@@ -511,7 +511,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     public void UnlockPlayerInputs()
     {
-        Debug.Log("player control unlocked");
+        //Debug.Log("player control unlocked");
         playerController.CanMove = true;
         playerController.IsBeingGrabbed = false;
 
@@ -524,7 +524,7 @@ public class EnemyStateMachine : MonoBehaviour
 
         if (canTakeHealth)
         {
-            Debug.Log("player took damage");
+            //Debug.Log("player took damage");
             playerController.PlayerHealth -= 1;
             canTakeHealth = false;
         }
