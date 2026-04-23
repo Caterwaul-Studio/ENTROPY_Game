@@ -435,7 +435,6 @@ public class EnemyStateMachine : MonoBehaviour
         if (playerController.PlayerHealth <= 1)
         {
             ChangeSpecificState(SpecificEnemyState.Kill);
-
         }
         else
         {
@@ -505,6 +504,7 @@ public class EnemyStateMachine : MonoBehaviour
         playerController.RB.angularVelocity = Vector3.zero;
         playerController.RB.isKinematic = true;
 
+        playerController.IsBeingGrabbed = true;
         canTakeHealth = true;
 
     }
@@ -513,6 +513,7 @@ public class EnemyStateMachine : MonoBehaviour
     {
         Debug.Log("player control unlocked");
         playerController.CanMove = true;
+        playerController.IsBeingGrabbed = false;
 
         // Restore physics - but only if we're not about to throw
         // (GetThrown handles its own kinematic transition)
