@@ -13,9 +13,9 @@ public class BuildVersionDate : MonoBehaviour
     {
         //initialize 
         currDate = DateTime.Today;
-        Debug.Log(currDate.ToString());
+        //Debug.Log(currDate.ToString());
         buildDateTxt = GetComponent<TextMeshProUGUI>();
-        Debug.Log(buildDateTxt.text);
+        //Debug.Log(buildDateTxt.text);
 
         //set text
         buildDateTxt.text = "test build v:/"+ currDate.ToShortDateString();
