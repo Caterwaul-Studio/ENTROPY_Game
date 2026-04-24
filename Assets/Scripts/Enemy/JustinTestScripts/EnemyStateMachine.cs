@@ -107,6 +107,11 @@ public class EnemyStateMachine : MonoBehaviour
     [SerializeField] private bool showDetectionRadius;
     [SerializeField] private bool showRetreatRadius;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip[] roarBank;
+    [SerializeField] private AudioSource roarSource;
+    private bool roaring = false;
+
     private void Start()
     {
         if (player == null) player = GameObject.FindGameObjectWithTag("Player");
@@ -218,6 +223,12 @@ public class EnemyStateMachine : MonoBehaviour
                 break;
 
             case SpecificEnemyState.Investigate:
+                //play roar audio
+                if (!roaring) //if not currently roaring...
+                {//do a roar.
+                    StartCoroutine(PlayRoar());
+                }
+
                 interestTimer -= Time.deltaTime;
 
                 if (canDetectPlayer)
@@ -687,4 +698,20 @@ public class EnemyStateMachine : MonoBehaviour
             Gizmos.DrawWireSphere(transform.position, maxRadius);
         }
     }
+    IEnumerator PlayRoar()
+    {
+        roarSource.clip = roarBank[UnityEngine.Random.Range(1, roarBank.Length)]; //start at 1 not 0 as 0 should always be attack sound
+        roarSource.Play();
+        roaring = true;
+        yield return new WaitForSeconds(UnityEngine.Random.Range(5, 15));
+        roaring = false;
+    }
+
+    public void AttackRoar()
+    {
+        roarSource.clip = roarBank[0]; //please make sure roarbank 0 is always the attack sound, it helps with consolidating audio voices.
+        Debug.Log("roar attack");
+        roarSource.Play();
+    }
+
 }

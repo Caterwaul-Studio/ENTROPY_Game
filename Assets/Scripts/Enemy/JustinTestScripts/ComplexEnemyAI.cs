@@ -513,6 +513,7 @@ public class ComplexEnemyAI : MonoBehaviour
     private IEnumerator ThrowSequence()
     {
         ForceLookAtPlayer();
+        enemyStateMachine.AttackRoar();
         // Wait for the grab animation / hold duration
         yield return enemyStateMachine.GrabAndWait();
 
