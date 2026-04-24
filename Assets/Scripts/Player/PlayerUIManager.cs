@@ -1114,7 +1114,6 @@ public class PlayerUIManager : MonoBehaviour
         {
             // make sure nothing currently needs the billboard
             // fence that prevents hiding the billboard if its currently being used by one of these said properties
-
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // check for the event calls that are hardcoded into this script for some reason.
             // need to remove them later but I am currently deep into this task
@@ -1122,8 +1121,8 @@ public class PlayerUIManager : MonoBehaviour
                 !CanPushOffNow &&
                 (terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated) &&
                 !lookingAtStim &&
-                (dormHallEvent != null && !dormHallEvent.CanGrab) && 
-                (lockdownEvent != null && !lockdownEvent.CanPull))
+                (dormHallEvent == null || !dormHallEvent.CanGrab) && 
+                (lockdownEvent == null || !lockdownEvent.CanPull))
             {
                 // returns crosshair to full opacity
                 crosshair.color = crosshair.color = new Color(1f, 1f, 1f, 1f);
@@ -1150,8 +1149,8 @@ public class PlayerUIManager : MonoBehaviour
                 //Debug.Log(!pickupScript.CanPickUp);
                 //Debug.Log(!CanPushOffNow);
                 //Debug.Log(terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated);
-                //Debug.Log(!dormHallEvent.CanGrab);
-                //Debug.Log(!lockdownEvent.CanPull);
+                //Debug.Log((dormHallEvent != null || !dormHallEvent.CanGrab));
+                //Debug.Log((lockdownEvent != null || !lockdownEvent.CanPull));
                 //Debug.Log(!lookingAtStim);
             }
 
