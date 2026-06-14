@@ -12,7 +12,7 @@ public class FireScript : MonoBehaviour
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Update()
-    {
+    {//This is the most basic possible 'optimization' solution just for now, in the future there will be something closer to the audiozones system
         if (Vector3.Distance(player.transform.position,transform.position) < distanceAway)
             for (int i = 0; i < myFireNodes.Count; i++)
                 myFireNodes[i].SetActive(true);

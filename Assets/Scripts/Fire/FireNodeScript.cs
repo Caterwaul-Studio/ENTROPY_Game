@@ -49,7 +49,7 @@ public class FireNodeScript : MonoBehaviour
     void Update()
     {
         for (int i = 0; i < extinguishNodes.Count; i++)
-        {
+        { //collision detection is done via bounds in the hope it will be less resource intensive, may need to be tested
             if (bounds.Contains(extinguishNodes[i].transform.position))
                 DampenFlame(extinguishNodes[i]);
         }
@@ -57,18 +57,19 @@ public class FireNodeScript : MonoBehaviour
 
     private void DampenFlame(GameObject other)
     {
-        flameStrength -= flameLoss;
+        flameStrength -= flameLoss; //dampening
         changeFlame();
         other.transform.position = new Vector3(0, 0, 0);
-        if (flameStrength < 1)
+        if (flameStrength < 1) //when flame strength is under a certain value, destroy the flame node
         {
-            myFire.myFireNodes.Remove(this.gameObject);
+            myFire.myFireNodes.Remove(this.gameObject); //make sure to update the parent with the destruction of the node
             Destroy(this.gameObject);
         }
     }
 
     private void changeFlame()
     {
+        //all changes to the flame particle system are to happen here
         sysMain.startSize = originalStartSize * (flameStrength / 100);
         sysShape.radius = originalShapeRadius * (flameStrength / 100);
     }

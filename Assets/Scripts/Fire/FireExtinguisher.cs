@@ -21,7 +21,7 @@ public class FireExtinguisher : MonoBehaviour
     {
     }
     System.Collections.IEnumerator MakePuff()
-    {
+    { //instead of creating nodes, just moving around existing nodes is used again in the hopes it will help with optimization
         puffObjects[puffCycle].GetComponent<PuffMovement>().Shoot(fireExtinguisherPosition);
         puffCycle++;
         if (puffCycle >= puffObjects.Count)
