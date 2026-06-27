@@ -24309,20 +24309,32 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 506635545}
     - target: {fileID: 5193662425567147664, guid: 71de55e2565b51344880e742bbfaf1dd, type: 3}
+      propertyPath: maxChaseSpeed
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5193662425567147664, guid: 71de55e2565b51344880e742bbfaf1dd, type: 3}
+      propertyPath: minChaseSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5193662425567147664, guid: 71de55e2565b51344880e742bbfaf1dd, type: 3}
       propertyPath: complecEnemyAI
       value: 
       objectReference: {fileID: 9150345880895799568}
     - target: {fileID: 5193662425567147664, guid: 71de55e2565b51344880e742bbfaf1dd, type: 3}
       propertyPath: detectionTimer
-      value: 10
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5193662425567147664, guid: 71de55e2565b51344880e742bbfaf1dd, type: 3}
       propertyPath: detectionRadius
       value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5193662425567147664, guid: 71de55e2565b51344880e742bbfaf1dd, type: 3}
+      propertyPath: maxChaseDistance
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5193662425567147664, guid: 71de55e2565b51344880e742bbfaf1dd, type: 3}
       propertyPath: detectionDuration
-      value: 10
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5193662425567147664, guid: 71de55e2565b51344880e742bbfaf1dd, type: 3}
       propertyPath: showRetreatRadius
@@ -24400,6 +24412,10 @@ PrefabInstance:
       propertyPath: FailSafe
       value: 
       objectReference: {fileID: 824842918}
+    - target: {fileID: 8811146767685563550, guid: 71de55e2565b51344880e742bbfaf1dd, type: 3}
+      propertyPath: throwForce
+      value: 60
+      objectReference: {fileID: 0}
     - target: {fileID: 8811146767685563550, guid: 71de55e2565b51344880e742bbfaf1dd, type: 3}
       propertyPath: waypointGroup
       value: 
@@ -24858,7 +24874,7 @@ Transform:
   m_GameObject: {fileID: 9048097917459578928}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 28.623, y: -5.901, z: -6.464}
+  m_LocalPosition: {x: 28.623, y: -5.901, z: -9.52}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -28214,7 +28230,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8212061845775604770, guid: d85d2de73afa837409f59fdc7310d96f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 59.684
+      value: 61.72
       objectReference: {fileID: 0}
     - target: {fileID: 8212061845775604770, guid: d85d2de73afa837409f59fdc7310d96f, type: 3}
       propertyPath: m_LocalRotation.w

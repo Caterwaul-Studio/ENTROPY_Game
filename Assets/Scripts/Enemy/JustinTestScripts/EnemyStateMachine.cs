@@ -7,11 +7,8 @@ using static UnityEngine.Rendering.DebugUI.Table;
 public enum SpecificEnemyState
 {
     Chase,
-    Track,
     Investigate,
     Patrol,
-    Charge,
-    Lunge,
     Grab,
     Throw,
     Kill,
@@ -93,23 +90,27 @@ public class EnemyStateMachine : MonoBehaviour
     [Header("Grab Settings")]
     [SerializeField] private float forceLookSpeedTime;
 
-    [Header("Lunging")]
-
-    [SerializeField] private float lungeTimerDuration;
-    [SerializeField] private float lungeTimer;
-    [SerializeField] private float lungeDistanceMaxCheck;
-
-    [Header("Gizmos")]
-    [SerializeField] private bool showDetectionRadius;
-    [SerializeField] private bool showRetreatRadius;
-
     [Header("Light Detection")]
-
     private bool isLightOn;
     private float lightDetectionRange;
     private float lightDetectionCooldown = 3f;
     private float lightDetectionDuration = 0f;
     private float lightDetectionTimer = 0f;
+
+    [Header("Dynamic Value Stuff")]
+    [SerializeField] private float minChaseDistance;
+    [SerializeField] private float maxChaseDistance;
+    [SerializeField] private float maxChaseSpeed;
+    [SerializeField] private float minChaseSpeed;
+
+    [Header("Gizmos")]
+    [SerializeField] private bool showDetectionRadius;
+    [SerializeField] private bool showRetreatRadius;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip[] roarBank;
+    [SerializeField] private AudioSource roarSource;
+    private bool roaring = false;
 
     private void Start()
     {
@@ -119,6 +120,8 @@ public class EnemyStateMachine : MonoBehaviour
         if (complexEnemyAI == null) complexEnemyAI = GetComponent<ComplexEnemyAI>(); 
 
         currentSpecificState = SpecificEnemyState.Patrol;
+
+        detectionTimer = detectionDuration;
     }
 
     public void GeneralLogic()
@@ -168,7 +171,7 @@ public class EnemyStateMachine : MonoBehaviour
         
     }
 
- 
+
 
     #region Active Logic
     private void HandleActiveLogic()
@@ -184,6 +187,7 @@ public class EnemyStateMachine : MonoBehaviour
                 {
                     if (!chasePlayer)
                     {
+                      
                         detectionTimer -= Time.deltaTime;
                         if (detectionTimer <= 0)
                         {
@@ -206,8 +210,8 @@ public class EnemyStateMachine : MonoBehaviour
                 detectionRadius = chaseDetectionRadius;
 
                 if (currentSpecificState == SpecificEnemyState.Chase)
+                    //Add audio que here
                     complexEnemyAI.IsChasingPlayer();
-                //LungeLogic();
 
                 if (!canDetectPlayer)
                 {
@@ -219,6 +223,12 @@ public class EnemyStateMachine : MonoBehaviour
                 break;
 
             case SpecificEnemyState.Investigate:
+                //play roar audio
+                if (!roaring) //if not currently roaring...
+                {//do a roar.
+                    StartCoroutine(PlayRoar());
+                }
+
                 interestTimer -= Time.deltaTime;
 
                 if (canDetectPlayer)
@@ -261,10 +271,30 @@ public class EnemyStateMachine : MonoBehaviour
                             isInvestigating = true;
                         }
                     }
-                    complexEnemyAI.IsInvestigating();
+
+                    if (complexEnemyAI.investigatingWaypoint != null)
+                    {
+                        complexEnemyAI.IsInvestigating();
+                    }
+                    else
+                    {
+                        complexEnemyAI.investigatingWaypoint = GetRandomInvestPoint(complexEnemyAI.FindClosestWaypoint(playersLastKnownLocation));
+                        complexEnemyAI.IsInvestigating();
+                    }
+                    
                 }
                 break;
         }
+    }
+
+    public float DetermineGeistSpeedChange()
+    {
+        float distance = Vector3.Distance(transform.position, player.transform.position);
+        float t = Mathf.Clamp01(distance / maxChaseDistance);
+        //MinChaseSpeed is the base speed, maxChaseSpeed is the max speed the geist can go
+        float currentSpeed = Mathf.Lerp(minChaseSpeed, maxChaseSpeed, t);
+
+        return currentSpeed;
     }
     #endregion
 
@@ -308,105 +338,11 @@ public class EnemyStateMachine : MonoBehaviour
         playersLastKnownLocation = player.transform.position;
 
         complexEnemyAI.lastSeenWaypoint = complexEnemyAI.FindClosestWaypoint(playersLastKnownLocation);
-
-
     }
 
     #endregion
 
     #region Retreat Logic
-    /*
-    private void HandleRetreatLogic()
-    {
-        retreatTimer -= Time.deltaTime;
-
-        // 1. Exit Condition
-        if (retreatTimer <= 0)
-        {
-            ChangeGeneralState(GeneralEnemyState.Active);
-            ChangeSpecificState(SpecificEnemyState.Patrol);
-            return;
-        }
-
-        // 2. Logic based on Player Line of Sight
-        if (IsPlayerLookingAtMe())
-        {
-            // Only calculate a path if we don't have one or the current one is bad
-            if (complexEnemyAI.path.Count == 0 || complexEnemyAI.CheckIfPlayerInWay())
-            {
-                bool foundSafePath = false;
-
-                // Try to find a path that doesn't go through the player
-                for (int i = 0; i < 5; i++)
-                {
-                    complexEnemyAI.FindRetreatPath(); // This picks a random point and BFSs
-
-                    if (!complexEnemyAI.CheckIfPlayerInWay())
-                    {
-                        foundSafePath = true;
-                        break;
-                    }
-                }
-
-                // If we tried 5 times and the player is STILL in the way of every path
-                if (!foundSafePath)
-                {
-                    // Force "Ghost Mode" through walls toward a retreat point
-                    complexEnemyAI.MoveThanTeleportInPointDirection();
-                    return; // Exit this frame to let it move
-                }
-            }
-
-            // Move along the path we found
-            complexEnemyAI.TrackPath();
-        }
-        else
-        {
-            // Player ISN'T looking: Escape quickly
-            complexEnemyAI.TeleportToWaypoint();
-
-            // Optionally end retreat early since we escaped
-            retreatTimer = 0;
-        }
-    }
-    */
-    /*
-    private void HandleRetreatLogic()
-    {
-        retreatTimer -= Time.deltaTime;
-
-        if (retreatTimer <= 0)
-        {
-            ChangeGeneralState(GeneralEnemyState.Active);
-            ChangeSpecificState(SpecificEnemyState.Patrol);
-            return;
-        }
-
-        if (IsPlayerLookingAtMe())
-        {
-            // Only calculate a path if we don't have one or the current one is "blocked"
-            if (complexEnemyAI.path.Count == 0)
-            {
-                complexEnemyAI.FindRetreatPath(); // BFS is called ONCE here
-
-                // If the only available path goes through the player, force "Ghost Mode"
-                if (complexEnemyAI.CheckIfPlayerInWay())
-                {
-                    complexEnemyAI.MoveThanTeleportInPointDirection();
-                    return;
-                }
-            }
-
-            complexEnemyAI.TrackPath(); // Moves using the path found above
-        }
-        else
-        {
-            complexEnemyAI.TeleportToWaypoint();
-            retreatTimer = 0;
-        }
-    }
-    */
-
     private void HandleRetreatLogic()
     {
         retreatTimer -= Time.deltaTime;
@@ -507,13 +443,13 @@ public class EnemyStateMachine : MonoBehaviour
 
     public void GrabAttackLogic()
     {
-        if (player.GetComponent<ZeroGravity>().PlayerHealth <= 1)
+        if (playerController.PlayerHealth <= 1)
         {
             ChangeSpecificState(SpecificEnemyState.Kill);
-
         }
         else
         {
+            //Can place the audio call here (place 2)
             ChangeSpecificState(SpecificEnemyState.Grab);
         }
 
@@ -521,9 +457,11 @@ public class EnemyStateMachine : MonoBehaviour
 
     public IEnumerator GrabAndWait()
     {
+        //Can place the audio call here (place 1)
         yield return new WaitForSeconds(3.0f);
     }
 
+    /*
     private Vector3 GetFallbackThrowPosition(Vector3 offset)
     {
         Vector3 startPos = transform.position + transform.TransformDirection(offset);
@@ -543,6 +481,7 @@ public class EnemyStateMachine : MonoBehaviour
         Vector3 direction = -transform.forward;
         complexEnemyAI.throwLocation = (startPos + direction * throwDistanceCheck);
     }
+    */
 
     public bool HasSpaceBehind(float distance, float radius, Vector3 offset)
     {
@@ -566,7 +505,7 @@ public class EnemyStateMachine : MonoBehaviour
     }
     private void LockPlayerInputs()
     {
-        Debug.Log("player control locked");
+        //Debug.Log("player control locked");
 
         playerController.CanMove = false;
         playerController.StopRollingQuickly();
@@ -576,16 +515,18 @@ public class EnemyStateMachine : MonoBehaviour
         playerController.RB.angularVelocity = Vector3.zero;
         playerController.RB.isKinematic = true;
 
+        playerController.IsBeingGrabbed = true;
         canTakeHealth = true;
 
     }
 
     public void UnlockPlayerInputs()
     {
-        Debug.Log("player control unlocked");
+        //Debug.Log("player control unlocked");
         playerController.CanMove = true;
+        playerController.IsBeingGrabbed = false;
 
-        // Restore physics — but only if we're not about to throw
+        // Restore physics - but only if we're not about to throw
         // (GetThrown handles its own kinematic transition)
         if (!playerController.IsBeingThrown)
         {
@@ -594,7 +535,7 @@ public class EnemyStateMachine : MonoBehaviour
 
         if (canTakeHealth)
         {
-            Debug.Log("player took damage");
+            //Debug.Log("player took damage");
             playerController.PlayerHealth -= 1;
             canTakeHealth = false;
         }
@@ -637,44 +578,6 @@ public class EnemyStateMachine : MonoBehaviour
 
         // Ensure it finishes exactly at the target
         playerController.cam.transform.LookAt(target);
-    }
-
-    #endregion
-
-    #region Lunge Logic
-
-    private void LungeLogic()
-    {
-        ChargeLunge();
-
-        float sqrDist = (complexEnemyAI.transform.position - player.transform.position).sqrMagnitude;
-        if (canDetectPlayer && sqrDist < (lungeDistanceMaxCheck * lungeDistanceMaxCheck)
-            && currentSpecificState != SpecificEnemyState.Charge)
-        {
-            ChangeSpecificState(SpecificEnemyState.Charge);
-            lungeTimer = lungeTimerDuration;
-        }
-
-        if (!canDetectPlayer)
-        {
-            ChangeSpecificState(SpecificEnemyState.Chase);
-        }
-    }
-
-    public void ChargeLunge()
-    {
-        // Only tick down if we're actually in the Charge state
-        if (currentSpecificState != SpecificEnemyState.Charge) return;
-
-        Debug.Log("hi");
-
-        lungeTimer -= Time.deltaTime;
-        if (lungeTimer <= 0)
-        {
-            ChangeSpecificState(SpecificEnemyState.Lunge);
-        }
-
-        Debug.Log("hi 2");
     }
 
     #endregion
@@ -795,4 +698,20 @@ public class EnemyStateMachine : MonoBehaviour
             Gizmos.DrawWireSphere(transform.position, maxRadius);
         }
     }
+    IEnumerator PlayRoar()
+    {
+        roarSource.clip = roarBank[UnityEngine.Random.Range(1, roarBank.Length)]; //start at 1 not 0 as 0 should always be attack sound
+        roarSource.Play();
+        roaring = true;
+        yield return new WaitForSeconds(UnityEngine.Random.Range(5, 15));
+        roaring = false;
+    }
+
+    public void AttackRoar()
+    {
+        roarSource.clip = roarBank[0]; //please make sure roarbank 0 is always the attack sound, it helps with consolidating audio voices.
+        Debug.Log("roar attack");
+        roarSource.Play();
+    }
+
 }

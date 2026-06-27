@@ -9,12 +9,16 @@ public class EnemyEffects : MonoBehaviour
     [SerializeField] private float distance2;
     //Farthest
     [SerializeField] private float distance3;
-
     [SerializeField] protected float intensity;
+
+    [Header("Eye Effects")]
+    [SerializeField] private Color currentEyeColor;
+    [SerializeField] private Light eyeLight;
 
     [Header("References")]
     [SerializeField] private GameObject player;
     [SerializeField] private Material screenMaterials;
+    [SerializeField] private EnemyStateMachine stateMachine;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -46,6 +50,57 @@ public class EnemyEffects : MonoBehaviour
         {
             intensity = 1f;
         }
+    }
+
+    private void EyeColorLogic()
+    {
+        /*
+        if (stateMachine.currentSpecificState == SpecificEnemyState.Chase || SpecificEnemyState.Grab || SpecificEnemyState.Kill)
+        {
+            
+        }
+        else if (stateMachine.currentSpecificState)
+        {
+
+        }
+        else if (stateMachine.currentSpecificState)
+        {
+
+        }
+        else if (stateMachine.currentSpecificState)
+        {
+
+        }
+        else
+        {
+
+        }
+        */
+            switch (stateMachine.currentSpecificState)
+            {
+                case SpecificEnemyState.Chase:
+
+                    break;
+                case SpecificEnemyState.Patrol:
+
+                    break;
+                case SpecificEnemyState.Investigate:
+
+                    break;
+                case SpecificEnemyState.Retreat:
+
+                    break;
+                case SpecificEnemyState.Stunned:
+                    break;
+                case SpecificEnemyState.Grab:
+                    break;
+            }
+
+    }
+
+    private void ChangeEyeColor(Color newColor)
+    {
+        eyeLight.color = newColor;
     }
 
     void OnDrawGizmosSelected()

@@ -247,6 +247,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     private Vector3 kinematicVelocity;
     public float throwDecay = 3.0f; // How fast you slow down in space
     public bool IsBeingThrown => kinematicVelocity.magnitude > 0.1f;
+
+
+
+    [Header("== Temporary Variables for HotFixes ==")]
+    bool openedLevel2 = false;
     #endregion 
 
     #region Properties
@@ -496,6 +501,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         }
         // continue from save
         if (GlobalSaveManager.LoadFromSave) GlobalSaveManager.LoadSavable(this, false);
+
+        if (SceneManager.GetActiveScene().name == "Level2")
+        {
+            //Debug.Log("Setting player defaults for level 2");
+            Level2DefaultValues();
+        }
     }
 
     // Update is called once per frame
@@ -1656,6 +1667,26 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         rotationVert = 0f;
         rotationZ = 0f;
     }
+
+    /// <summary>
+    /// This method is created to set default values for the player at the beginning of level 2
+    /// This will not be necessary when persistant data is working
+    /// </summary>
+    public void Level2DefaultValues()
+    {
+        if(SceneManager.GetActiveScene().name == "Level2" && !openedLevel2)
+        {
+            //set the player health to 4
+            playerHealth = 4;
+            //set Stims to 3
+            numStims = 3;
+
+            
+
+            openedLevel2 = true;
+        }
+    }
+
     #endregion
 
     #region Global Save Manager Integration

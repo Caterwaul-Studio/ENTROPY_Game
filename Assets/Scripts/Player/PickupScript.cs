@@ -37,6 +37,7 @@ public class PickupScript : MonoBehaviour
     private float pickUpRange = 1.3f; //how far the player can pickup the object from
     private GameObject heldObj; //object which we pick up
     private Rigidbody heldObjRb; //rigidbody of object we pick up
+    private Collider heldObjCollider;
 
     [SerializeField]
     private Collider playerCollider;
@@ -223,6 +224,8 @@ public class PickupScript : MonoBehaviour
             heldObj = pickUpObj; //assign heldObj to the object that was hit by the raycast (no longer == null)
             uiManager.HideBillboardUI();
             heldObjRb = pickUpObj.GetComponent<Rigidbody>(); //assign Rigidbody
+            heldObjCollider = pickUpObj.GetComponent<Collider>();
+            heldObjCollider.enabled = false;
             heldObjRb.isKinematic = true;
             heldObjRb.transform.parent = holdPos.transform; //parent object to holdposition
             heldObj.layer = 8; //change the object layer to the holdLayer
@@ -266,6 +269,7 @@ public class PickupScript : MonoBehaviour
         {
             child.gameObject.layer = 0;
         }
+        heldObjCollider.enabled = true;
         heldObjRb.isKinematic = false;
         heldObj.transform.parent = ObjectContainer.transform; //unparent object
         heldObj = null; //undefine game object
@@ -297,6 +301,7 @@ public class PickupScript : MonoBehaviour
         {
             child.gameObject.layer = 0;
         }
+        heldObjCollider.enabled = true;
         heldObjRb.isKinematic = false;
         heldObj.transform.parent = ObjectContainer.transform;
         heldObjRb.AddForce(cam.transform.forward.normalized * throwForce, ForceMode.VelocityChange);
