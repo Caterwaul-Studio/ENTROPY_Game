@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.Controls;
 
 public class FireNodeScript : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class FireNodeScript : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private List<GameObject> extinguishNodes;
     [SerializeField] private float flameStrength;
+    [SerializeField] private int flameSteady; //should be 1-5
+    [SerializeField] private int regenRate;
     [SerializeField] private float flameLoss; //this variable is how much strength the flame loses every time it gets hit.
     [SerializeField] private ParticleSystem sys;
     [SerializeField] private ParticleSystem.MainModule sysMain;
@@ -53,6 +56,29 @@ public class FireNodeScript : MonoBehaviour
             if (bounds.Contains(extinguishNodes[i].transform.position))
                 DampenFlame(extinguishNodes[i]);
         }
+
+        //flame regeneration
+        if (flameStrength < flameSteady * 20)
+        {
+            flameStrength += Time.deltaTime * regenRate;
+        }
+
+        if (flameStrength > 81)
+        {
+            flameSteady = 5;
+        } else if (flameStrength > 61)
+        {
+            flameSteady = 4;
+        } else if (flameStrength > 41)
+        {
+            flameSteady = 3;
+        } else if (flameStrength > 21)
+        {
+            flameSteady = 2;
+        } else if (flameStrength > 11)
+        {
+            flameSteady = 1;
+        }
     }
 
     private void DampenFlame(GameObject other)
@@ -62,7 +88,7 @@ public class FireNodeScript : MonoBehaviour
         other.transform.position = new Vector3(0, 0, 0);
         if (flameStrength < 1) //when flame strength is under a certain value, destroy the flame node
         {
-            myFire.myFireNodes.Remove(this.gameObject); //make sure to update the parent with the destruction of the node
+            myFire.myFireNodes.Remove(this.gameObject); //update the parent with the destruction of the node
             Destroy(this.gameObject);
         }
     }

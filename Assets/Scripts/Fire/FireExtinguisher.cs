@@ -8,7 +8,23 @@ public class FireExtinguisher : MonoBehaviour
     [SerializeField] private List<GameObject> puffObjects;
     [SerializeField] private int puffCycle = 0;
     [SerializeField] private Transform fireExtinguisherPosition;
+    [SerializeField] private ParticleSystem sys;
+    [SerializeField] private ParticleSystem.MainModule sysMain;
+    [SerializeField] private ParticleSystem.EmissionModule sysEmission;
+    private float initialEmission;
 
+
+    private void OnEnable()
+    {
+        sysMain = sys.main;
+        sysEmission = sys.emission;
+    }
+
+    private void Start()
+    {
+        initialEmission = sysEmission.rateOverTimeMultiplier;
+        sysEmission.rateOverTime = 0;
+    }
 
     public void OnThrow(InputAction.CallbackContext context)
     {
@@ -27,7 +43,9 @@ public class FireExtinguisher : MonoBehaviour
         if (puffCycle >= puffObjects.Count)
             puffCycle = 0;
         canPuff = false;
-        yield return new WaitForSeconds(1f);
+        sysEmission.rateOverTimeMultiplier = initialEmission;
+        yield return new WaitForSeconds(0.15f);
+        sysEmission.rateOverTime = 0;
         canPuff = true;
     }
 }
