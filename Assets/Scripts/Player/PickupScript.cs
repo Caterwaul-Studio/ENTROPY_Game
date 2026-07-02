@@ -281,6 +281,10 @@ public class PickupScript : MonoBehaviour
 
     void ThrowObject()
     {
+        if (heldObj.GetComponent<ExtinguisherObject>() != null)
+        {
+            return; //this makes it so the fire extinguisher cant be thrown, necessary because the throw input is used for the fire extinguisher behavior.
+        }
         //same as drop function, but add force to object before undefining it
         Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, false);
         //heldObj.GetComponent<Collider>().enabled = true;

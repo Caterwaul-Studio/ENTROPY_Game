@@ -5,12 +5,14 @@ using UnityEngine.InputSystem;
 public class FireExtinguisher : MonoBehaviour
 {
     [SerializeField] private bool canPuff = true;
+    [SerializeField] private bool hasExtinguisher = true;
     [SerializeField] private List<GameObject> puffObjects;
     [SerializeField] private int puffCycle = 0;
     [SerializeField] private Transform fireExtinguisherPosition;
     [SerializeField] private ParticleSystem sys;
     [SerializeField] private ParticleSystem.MainModule sysMain;
     [SerializeField] private ParticleSystem.EmissionModule sysEmission;
+    [SerializeField] private PickupScript pickupScript;
     private float initialEmission;
 
 
@@ -28,13 +30,20 @@ public class FireExtinguisher : MonoBehaviour
 
     public void OnThrow(InputAction.CallbackContext context)
     {
-        if (canPuff)
+        if (canPuff && hasExtinguisher)
             StartCoroutine(MakePuff());
     }
 
         // Update is called once per frame
     void Update()
     {
+        if (pickupScript.current != null)
+            if (pickupScript.current.GetComponent<ExtinguisherObject>() != null && !pickupScript.CanPickUp)
+                hasExtinguisher = true;
+            else
+                hasExtinguisher = false;
+        else
+            hasExtinguisher = false;
     }
     System.Collections.IEnumerator MakePuff()
     { //instead of creating nodes, just moving around existing nodes is used again in the hopes it will help with optimization
