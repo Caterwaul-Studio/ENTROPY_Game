@@ -29,8 +29,18 @@ public class PersistantManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
+        
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    private void Update()
+    {
+        //if the current scene is the main menu, destroy the persistent object
+        if (SceneManager.GetActiveScene().name == "MainMenu")
+        {
+            Destroy(gameObject);
+            Debug.Log("Destroyed persistent object because the current scene is the main menu.");
+        }
     }
 }
