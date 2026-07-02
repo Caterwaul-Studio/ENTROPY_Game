@@ -14,10 +14,12 @@ public class PuffMovement : MonoBehaviour
         transform.rotation = MainCamera.transform.rotation;
         Vector3 direction = new Vector3(0, 0, 0);
         direction = transform.forward;
-        direction.x = direction.x * Random.RandomRange(0.9f, 1.1f);
+        //direction.x = direction.x * Random.Range(0.9f, 1.1f);
         gameObject.GetComponent<Rigidbody>().linearVelocity = transform.forward;
-        //gameObject.GetComponent<Rigidbody>().AddForce(player.GetComponent<Rigidbody>().linearVelocity,ForceMode.VelocityChange); //doesnt do anything
-        player.GetComponent<Rigidbody>().linearVelocity = -transform.forward * playerPushForce;
+        gameObject.GetComponent<Rigidbody>().AddForce(player.GetComponent<Rigidbody>().linearVelocity,ForceMode.VelocityChange);
+        //player.GetComponent<Rigidbody>().AddForce(player.GetComponent<Rigidbody>().linearVelocity * -playerPushForce, ForceMode.VelocityChange); //slows you down gradually, cant go backwards.
+        player.GetComponent<Rigidbody>().AddForce(transform.forward * -playerPushForce, ForceMode.VelocityChange);
+        //player.GetComponent<Rigidbody>().linearVelocity = -transform.forward * playerPushForce;
         Debug.Log(player.GetComponent<Rigidbody>().angularVelocity);
     }
 }
