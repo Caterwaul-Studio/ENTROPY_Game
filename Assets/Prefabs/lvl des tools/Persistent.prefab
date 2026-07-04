@@ -885,6 +885,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63685c7fcfbd51842b6c54dbed941873, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 3700987545340591992}
+  persistentObj: {fileID: 3855290445853417195}
 --- !u!1 &4816483700730387825
 GameObject:
   m_ObjectHideFlags: 0
@@ -1894,6 +1896,10 @@ PrefabInstance:
       propertyPath: itemAudioHandler
       value: 
       objectReference: {fileID: 6515995860818661541}
+    - target: {fileID: 3393512655811625816, guid: caf585d0aca53234bb31ac4e46431bf3, type: 3}
+      propertyPath: m_CullingMask.m_Bits
+      value: 1791
+      objectReference: {fileID: 0}
     - target: {fileID: 3651812894113086138, guid: caf585d0aca53234bb31ac4e46431bf3, type: 3}
       propertyPath: m_ActionEvents.Array.data[6].m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -1981,7 +1987,7 @@ PrefabInstance:
     - target: {fileID: 4963548833321525119, guid: caf585d0aca53234bb31ac4e46431bf3, type: 3}
       propertyPath: wristMonitor
       value: 
-      objectReference: {fileID: 4650902725583548589}
+      objectReference: {fileID: 0}
     - target: {fileID: 4963548833321525119, guid: caf585d0aca53234bb31ac4e46431bf3, type: 3}
       propertyPath: inputIndicator
       value: 
@@ -2310,7 +2316,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2409261648242158736, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 28.01
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2810681366512555614, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_AnchorMax.y
@@ -2346,23 +2352,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3351336023755574844, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3351336023755574844, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3351336023755574844, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 85
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3351336023755574844, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 28
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3351336023755574844, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 192.81499
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3897069122535847714, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_AnchorMax.y
@@ -2594,23 +2600,23 @@ PrefabInstance:
       objectReference: {fileID: 3700987545340591992}
     - target: {fileID: 8761046689989125393, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8761046689989125393, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8761046689989125393, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 304.47
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8761046689989125393, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 28.01
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8761046689989125393, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 435.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8818112943574293219, guid: abde8d6b8a140db46a9a172bcbe17d0e, type: 3}
       propertyPath: m_AnchorMax.y

@@ -399,10 +399,6 @@ public class TutorialManager : MonoBehaviour
 
             CompleteStep();
         }
-
-
-
-
     }
 
     public void CompleteStep()
@@ -759,7 +755,12 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    /// <summary>
+    /// This method is used to restore references to all necessary player-related objects
+    /// and components after a scene load. It ensures that the TutorialManager can continue functioning correctly even if the scene has changed, 
+    /// by re-finding the player GameObject, its components, and other scene-bound objects like canvases and managers.
+    /// </summary>
+    public void RestorePlayerInformation()
     {
         if (ZeroGPlayer == null)
         {
@@ -782,7 +783,7 @@ public class TutorialManager : MonoBehaviour
             PlayerCanvases = GameObject.FindWithTag(playerCanvasesTag);
             Debug.Log("PlayerCanvases found on scene load: " + (PlayerCanvases != null));
         }
-            
+
         if (PlayerCanvases != null)
         {
             grabCanvasGroup = GameObject.Find(grabCanvasGroupobj).GetComponent<CanvasGroup>();
@@ -808,7 +809,7 @@ public class TutorialManager : MonoBehaviour
 
         // Re-fetch scene-bound manager references
         if (dialogueManager == null)
-            dialogueManager = FindFirstObjectByType<DialogueManager>(); 
+            dialogueManager = FindFirstObjectByType<DialogueManager>();
 
         if (dialogueAudio == null)
             dialogueAudio = FindFirstObjectByType<DialogueAudio>();
@@ -818,7 +819,11 @@ public class TutorialManager : MonoBehaviour
 
         if (doorToOpen == null)
             doorToOpen = FindFirstObjectByType<DoorScript>();
+    }
 
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        RestorePlayerInformation();
     }
 }
 

@@ -28,11 +28,9 @@ public class PlayerUIManager : MonoBehaviour
     private GameObject stimDispenserContainer;
     private StimDispenser[] stimDispensers;
     private bool lookingAtStim;
-
     private bool barInRaycast;
     private bool barInPeripheral;
     private bool floatingObjInRaycast;
-
     private bool canPushOffWall;
 
     [SerializeField]
@@ -112,6 +110,9 @@ public class PlayerUIManager : MonoBehaviour
     private List<string> interactables = new List<string>() { }; //populated in inspector
 
     //optimizing
+
+    //helper bools
+    bool billBoardObjNeeded = false;
 
     //components to cache the grabber rect transform and crosshair
     private RectTransform grabberRectTransform;
@@ -1082,13 +1083,14 @@ public class PlayerUIManager : MonoBehaviour
     // billboard UI interactions
     public void ShowBillboardUI(Sprite icon, Transform parent = null, String text = "", bool hideCrosshair = false)
     {
+        billBoardObjNeeded = true;
         ShowBillboardUI(icon, new Color(1f, 1f, 1f, 1f), parent, text, hideCrosshair);
         //Debug.Log("hiding crosshair icon");
     }
 
     public void ShowBillboardUI(Sprite icon, Color color, Transform parent = null, String text = "", bool hideCrosshair = false)
     {
-        if (billboardObject != null)
+        if (billboardObject != null && billBoardObjNeeded)
         {
             TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
             Image image = billboardObject.GetComponentInChildren<Image>(true);
@@ -1115,18 +1117,18 @@ public class PlayerUIManager : MonoBehaviour
 
                 // make visible
                 billboardObject.SetActive(true);
-                Debug.Log("showing billboard with text: " + text);
+                //Debug.Log("showing billboard with text: " + text);
             }
         }
         else
         {
-            Debug.LogError("billboardObject is NULL - not assigned in Inspector!");
+            //Debug.LogError("billboardObject is NULL - not assigned in Inspector!");
         }
     }
 
     public void HideBillboardUI()
     {
-        if (billboardObject != null)
+        if (billboardObject != null && billBoardObjNeeded)
         {
             // make sure nothing currently needs the billboard
             // fence that prevents hiding the billboard if its currently being used by one of these said properties
@@ -1151,13 +1153,16 @@ public class PlayerUIManager : MonoBehaviour
                 TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
                 Image image = billboardObject.GetComponentInChildren<Image>(true);
 
-                Debug.Log("hiding billboard with text: " + tmp.text);
+                //Debug.Log("hiding billboard with text: " + tmp.text);
 
                 // clear display settings
                 // text - empty
                 // sprite - empty
                 tmp.text = "";
                 image.sprite = null;
+
+                //helper bool to ensure we only hide once
+                billBoardObjNeeded = false;
             }
 
             else

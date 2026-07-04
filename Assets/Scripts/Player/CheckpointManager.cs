@@ -7,21 +7,33 @@ public class CheckpointManager : MonoBehaviour, ISaveable
     [Tooltip("Ordered list of your checkpoints in scene")]
     [SerializeField]
     public List<Checkpoint> checkpoints;
-    public ZeroGravity playerZeroG;    // drag your player�s ZeroGravity component here
-
+    public ZeroGravity playerZeroG;    // keep as inspector fallback only
+    public GameObject persistentPrefab;
     int _currentIndex = 0;
 
     void Start()
     {
-        // Wire up each checkpoint and only enable the first one
-        for (int i = 0; i < checkpoints.Count; i++)
+        if(GlobalSaveManager.LoadFromSave)
         {
-            var cp = checkpoints[i];
-            cp.OnReached += HandleCheckpointReached;
-            cp.Initialize(playerZeroG, i == 0);
+            HandleRestorePlayerFromSave();
         }
-        // continue from save
-        if (GlobalSaveManager.LoadFromSave) GlobalSaveManager.LoadSavable(this, false);
+        //prefer the persistant player over whatever was dragged in this scene
+        else if (PersistantManager.Instance != null && PersistantManager.Instance.Player != null)
+        {
+            playerZeroG = PersistantManager.Instance.Player;
+        }
+        else
+        {
+            // Wire up each checkpoint and only enable the first one
+            for (int i = 0; i < checkpoints.Count; i++)
+            {
+                var cp = checkpoints[i];
+                cp.OnReached += HandleCheckpointReached;
+                cp.Initialize(playerZeroG, i == 0);
+            }
+            // continue from save
+            if (GlobalSaveManager.LoadFromSave) GlobalSaveManager.LoadSavable(this, false);
+        }
     }
 
     void HandleCheckpointReached(Checkpoint reached)
@@ -84,4 +96,26 @@ public class CheckpointManager : MonoBehaviour, ISaveable
         string path = Application.persistentDataPath;
         GlobalSaveManager.SaveTextToFile(path, fileName, json);
     }
+
+    public void HandleRestorePlayerFromSave()
+    {
+
+            GameObject newPersistentObj = Instantiate(persistentPrefab, checkpoints[_currentIndex].respawnPoint.transform.position, Quaternion.identity);
+            playerZeroG = newPersistentObj.GetComponent<ZeroGravity>();
+
+            if(TutorialManager.Instance != null)
+            {
+                TutorialManager.Instance.RestorePlayerInformation();
+            }
+
+        // Wire up each checkpoint and only enable the first one
+        for (int i = 0; i < checkpoints.Count; i++)
+            {
+                var cp = checkpoints[i];
+                cp.OnReached += HandleCheckpointReached;
+                cp.Initialize(playerZeroG, i == 0);
+            }
+            Debug.Log("Restored player from save at checkpoint " + _currentIndex);
+    }
+
 }

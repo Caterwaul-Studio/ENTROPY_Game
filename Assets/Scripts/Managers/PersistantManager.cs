@@ -4,22 +4,42 @@ using UnityEngine.SceneManagement;
 
 public class PersistantManager : MonoBehaviour
 {
-    private ZeroGravity player;
+    [SerializeField] private ZeroGravity player;
+    public ZeroGravity Player => player;
 
-    private ObjectiveUpdate objectiveUpdate;
+    //private ObjectiveUpdate objectiveUpdate;
+    private CheckpointManager checkpointManager;
+    public GameObject persistentObj;
+
+    public static PersistantManager Instance { get; private set; }
 
     public void OnEnable()
     {
         SceneManager.sceneUnloaded += OnSceneUnloaded;
-        //SceneManager.sceneUnloaded += OnSceneUnloaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
         
     private void OnSceneUnloaded(Scene scene)
     {
-        player = null; // clears the destroyed reference
+        //player = null; // clears the destroyed reference
     }
 
-    public static PersistantManager Instance { get; private set; }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        checkpointManager = FindFirstObjectByType<CheckpointManager>();
+
+        //if the player selects last checkpoint/ the GSM is called, destroy the persistent object
+        if (GlobalSaveManager.LoadFromSave && checkpointManager != null)
+        {
+            //GlobalSaveManager.LoadFromSave = false;
+            //GlobalSaveManager.LoadSavable(checkpointManager, true);
+            Debug.Log("restarted from last checkpoint");
+
+            Instance = null;
+            Destroy(gameObject);
+            return;
+        }
+    }
 
     private void Awake()
     {
@@ -31,6 +51,12 @@ public class PersistantManager : MonoBehaviour
         }
         
         Instance = this;
+
+        if(player == null)
+        {
+            player = GetComponentInChildren<ZeroGravity>();
+        }
+
         DontDestroyOnLoad(gameObject);
     }
 
@@ -41,6 +67,7 @@ public class PersistantManager : MonoBehaviour
         {
             Destroy(gameObject);
             Debug.Log("Destroyed persistent object because the current scene is the main menu.");
+            return;
         }
     }
 }

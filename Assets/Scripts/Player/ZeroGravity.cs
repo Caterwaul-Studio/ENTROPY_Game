@@ -454,7 +454,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         //hard code isKinematic is false to ensure the No-Clip logic works and doesn't force the player into kinematic when they shouldn't be
         rb.isKinematic = false;
         boundingSphere.enabled = true;
-        cam = Camera.main;
+        //find the camera in the child of this gameobject
+        cam = this.GetComponentInChildren<Camera>();
+        if (tutorialManager == null)
+        {
+            tutorialManager = FindFirstObjectByType<TutorialManager>();
+        }
     }
 
     // Start is called before the first frame update
@@ -502,6 +507,9 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         // continue from save
         if (GlobalSaveManager.LoadFromSave) GlobalSaveManager.LoadSavable(this, false);
 
+        //--------------------------------------------------------------------------------------------------------------------
+        //remove this once persistent data complete
+        //--------------------------------------------------------------------------------------------------------------------
         if (SceneManager.GetActiveScene().name == "Level2")
         {
             //Debug.Log("Setting player defaults for level 2");
