@@ -7,6 +7,7 @@ public class FireNodeScript : MonoBehaviour
     [SerializeField] private Bounds bounds;
     [SerializeField] private FireScript myFire;
     [SerializeField] private GameObject player;
+    [SerializeField] private Camera camera;
     [SerializeField] private List<GameObject> extinguishNodes;
     [SerializeField] private float flameStrength;
     [SerializeField] private int flameSteady; //should be 1-5
@@ -55,6 +56,12 @@ public class FireNodeScript : MonoBehaviour
         { //collision detection is done via bounds in the hope it will be less resource intensive, may need to be tested
             if (bounds.Contains(extinguishNodes[i].transform.position))
                 DampenFlame(extinguishNodes[i]);
+        }
+
+        if (bounds.Contains(player.transform.position))
+        {
+            player.GetComponent<ZeroGravity>().GetThrown(camera.transform.forward * -1, 20);
+
         }
 
         //flame regeneration
