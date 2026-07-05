@@ -510,11 +510,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         //--------------------------------------------------------------------------------------------------------------------
         //remove this once persistent data complete
         //--------------------------------------------------------------------------------------------------------------------
-        if (SceneManager.GetActiveScene().name == "Level2")
-        {
-            //Debug.Log("Setting player defaults for level 2");
-            Level2DefaultValues();
-        }
+        //if (SceneManager.GetActiveScene().name == "Level2")
+        //{
+        //    //Debug.Log("Setting player defaults for level 2");
+        //    Level2DefaultValues();
+        //}
     }
 
     // Update is called once per frame

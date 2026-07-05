@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 
 public class DormHallEvent : MonoBehaviour, ISaveable
 {
+    public PersistantManager persistManager;
     [SerializeField]
     private ZeroGravity player;
     [SerializeField]
@@ -24,6 +25,7 @@ public class DormHallEvent : MonoBehaviour, ISaveable
 
     [SerializeField]
     private CanvasGroup wristMonitorTutorial;
+    private string wristMonitorTutorialCanvasGroupObj = "WristMonitorTutorialPanel";
 
     private bool tutorialMonitorFaded = false;
 
@@ -61,6 +63,23 @@ public class DormHallEvent : MonoBehaviour, ISaveable
         blinkCoroutine = StartCoroutine(BlinkMonitor());
     }
 
+
+    void Update()
+    {
+        //if the persistant manager is null, find it and assign it to the variable.
+        if (persistManager == null)
+        {
+            persistManager = FindFirstObjectByType<PersistantManager>();
+            //then restore the other necessary references from the persistant manager.
+            if (player == null)
+            {
+                player = persistManager.Player;
+            }
+            wristMonitor = FindFirstObjectByType<WristMonitor>();
+            wristMonitorTutorial = GameObject.Find(wristMonitorTutorialCanvasGroupObj).GetComponent<CanvasGroup>();
+            stingerManager = FindFirstObjectByType<StingerManager>();
+        }
+    }
     private void OnDestroy()
     {
         if (wristMonitor != null)
