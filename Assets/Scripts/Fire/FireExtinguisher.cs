@@ -14,6 +14,7 @@ public class FireExtinguisher : MonoBehaviour
     [SerializeField] private ParticleSystem.EmissionModule sysEmission;
     [SerializeField] private PickupScript pickupScript;
     private float initialEmission;
+    private bool holding;
 
 
     private void OnEnable()
@@ -30,13 +31,18 @@ public class FireExtinguisher : MonoBehaviour
 
     public void OnThrow(InputAction.CallbackContext context)
     {
-        if (canPuff && hasExtinguisher)
-            StartCoroutine(MakePuff());
+        if (context.phase == InputActionPhase.Started)
+            holding = true;
+        else if (context.phase == InputActionPhase.Canceled)
+            holding = false;
     }
 
         // Update is called once per frame
     void Update()
     {
+        if (holding && canPuff && hasExtinguisher)
+            StartCoroutine(MakePuff());
+
         if (pickupScript.current != null)
             if (pickupScript.current.GetComponent<ExtinguisherObject>() != null && !pickupScript.CanPickUp)
                 hasExtinguisher = true;
