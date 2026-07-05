@@ -24,6 +24,7 @@ public class FireNodeScript : MonoBehaviour
     //Particle system original param containers
     private float originalStartSize;
     private float originalShapeRadius;
+    private float throwCooldown;
 
     private void OnEnable()
     {
@@ -52,23 +53,22 @@ public class FireNodeScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        throwCooldown += Time.deltaTime;
         for (int i = 0; i < extinguishNodes.Count; i++)
         { //collision detection is done via bounds in the hope it will be less resource intensive, may need to be tested
             if (bounds.Contains(extinguishNodes[i].transform.position))
                 DampenFlame(extinguishNodes[i]);
         }
 
-        if (bounds.Contains(player.transform.position))
+        if (bounds.Contains(player.transform.position) && throwCooldown > 0.5f)
         {
-            player.GetComponent<ZeroGravity>().GetThrown(camera.transform.forward * -1, 20);
-
+            player.GetComponent<ZeroGravity>().GetThrown(camera.transform.forward * -1, 30);
+            throwCooldown = 0;
         }
 
         //flame regeneration
         if (flameStrength < flameSteady * 20)
-        {
             flameStrength += Time.deltaTime * regenRate;
-        }
 
         if (flameStrength > 81)
         {
