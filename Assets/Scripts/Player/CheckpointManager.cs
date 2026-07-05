@@ -7,18 +7,15 @@ public class CheckpointManager : MonoBehaviour, ISaveable
     [Tooltip("Ordered list of your checkpoints in scene")]
     [SerializeField]
     public List<Checkpoint> checkpoints;
-    public ZeroGravity playerZeroG;    // keep as inspector fallback only
-    public GameObject persistentPrefab;
+    [SerializeField] private ZeroGravity playerZeroG;    // keep as inspector fallback only
+    [SerializeField] private GameObject persistentPrefab;
+    [SerializeField] private Camera playerCam;
     int _currentIndex = 0;
 
     void Start()
     {
-        if(GlobalSaveManager.LoadFromSave)
-        {
-            HandleRestorePlayerFromSave();
-        }
         //prefer the persistant player over whatever was dragged in this scene
-        else if (PersistantManager.Instance != null && PersistantManager.Instance.Player != null)
+        if (PersistantManager.Instance != null && PersistantManager.Instance.Player != null)
         {
             playerZeroG = PersistantManager.Instance.Player;
         }
@@ -32,7 +29,11 @@ public class CheckpointManager : MonoBehaviour, ISaveable
                 cp.Initialize(playerZeroG, i == 0);
             }
             // continue from save
-            if (GlobalSaveManager.LoadFromSave) GlobalSaveManager.LoadSavable(this, false);
+            if (GlobalSaveManager.LoadFromSave)
+            {
+                GlobalSaveManager.LoadSavable(this, false);
+            }   
+            HandleRestorePlayerFromSave();
         }
     }
 
@@ -100,22 +101,25 @@ public class CheckpointManager : MonoBehaviour, ISaveable
     public void HandleRestorePlayerFromSave()
     {
 
-            GameObject newPersistentObj = Instantiate(persistentPrefab, checkpoints[_currentIndex].respawnPoint.transform.position, Quaternion.identity);
-            playerZeroG = newPersistentObj.GetComponent<ZeroGravity>();
+        //clean up lingering persistent instance before creating a new one
+        if (PersistantManager.Instance != null)
+        {
+            Debug.Log("destroying lingering persistent instance before creating a new one");
+            Destroy(PersistantManager.Instance.gameObject);
+            PersistantManager.Instance = null;
+        }
 
-            if(TutorialManager.Instance != null)
-            {
-                TutorialManager.Instance.RestorePlayerInformation();
-            }
+        GameObject newPersistentObj = Instantiate(persistentPrefab, Vector3.zero, Quaternion.identity);
+        playerZeroG = newPersistentObj.GetComponentInChildren<ZeroGravity>();
+        playerCam = playerZeroG.GetComponentInChildren<Camera>();
 
-        // Wire up each checkpoint and only enable the first one
-        for (int i = 0; i < checkpoints.Count; i++)
-            {
-                var cp = checkpoints[i];
-                cp.OnReached += HandleCheckpointReached;
-                cp.Initialize(playerZeroG, i == 0);
-            }
-            Debug.Log("Restored player from save at checkpoint " + _currentIndex);
+        playerZeroG.transform.position = checkpoints[_currentIndex].respawnPoint.transform.position;
+        playerCam.transform.rotation = checkpoints[_currentIndex].respawnPoint.transform.rotation;
+
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.RestorePlayerInformation();
+        }
+        Debug.Log("Restored player from save at checkpoint " + _currentIndex);
     }
-
 }

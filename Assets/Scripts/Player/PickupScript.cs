@@ -20,6 +20,8 @@ public class PickupScript : MonoBehaviour
 
     [SerializeField]
     private GameObject ObjectContainer;
+    //string to help find the object container in the scene, if it is not assigned in the inspector
+    private string objectContainerName = "FloatingObjects";
 
     [SerializeField]
     private bool canPickUp = false;
@@ -95,6 +97,11 @@ public class PickupScript : MonoBehaviour
     private void Start()
     {
          coolDown = 0;
+
+        if(ObjectContainer == null)
+        {
+            ObjectContainer = GameObject.Find(objectContainerName);
+        }
     }
 
 

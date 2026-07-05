@@ -9,35 +9,45 @@ public class PersistantManager : MonoBehaviour
 
     //private ObjectiveUpdate objectiveUpdate;
     private CheckpointManager checkpointManager;
+    private MenuManager menuManager;
     public GameObject persistentObj;
 
-    public static PersistantManager Instance { get; private set; }
+    public static PersistantManager Instance { get; set; }
 
     public void OnEnable()
     {
         SceneManager.sceneUnloaded += OnSceneUnloaded;
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
-        
+
+    public void OnDisable()
+    {
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
     private void OnSceneUnloaded(Scene scene)
     {
         //player = null; // clears the destroyed reference
+        //Instance = null;
+        //Destroy(gameObject);
+        //^ this is unnecessary because the persistent object is not destroyed when the scene is unloaded
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         checkpointManager = FindFirstObjectByType<CheckpointManager>();
-
+        menuManager = FindFirstObjectByType<MenuManager>();
         //if the player selects last checkpoint/ the GSM is called, destroy the persistent object
-        if (GlobalSaveManager.LoadFromSave && checkpointManager != null)
+        if (GlobalSaveManager.lastCheckpointSelected == true)
         {
-            //GlobalSaveManager.LoadFromSave = false;
-            //GlobalSaveManager.LoadSavable(checkpointManager, true);
-            Debug.Log("restarted from last checkpoint");
-
+            Debug.Log("restarted from last checkpoint using the flag: " + GlobalSaveManager.lastCheckpointSelected);
             Instance = null;
             Destroy(gameObject);
-            return;
+
+            GlobalSaveManager.lastCheckpointSelected = false; // reset the flag
+            Debug.Log("Last checkpoint selected, flag set to: " + GlobalSaveManager.lastCheckpointSelected);
+        return;
         }
     }
 
@@ -65,8 +75,9 @@ public class PersistantManager : MonoBehaviour
         //if the current scene is the main menu, destroy the persistent object
         if (SceneManager.GetActiveScene().name == "MainMenu")
         {
+            Instance = null;
             Destroy(gameObject);
-            Debug.Log("Destroyed persistent object because the current scene is the main menu.");
+            //Debug.Log("Destroyed persistent object because the current scene is the main menu.");
             return;
         }
     }

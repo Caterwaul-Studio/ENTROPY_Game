@@ -15,6 +15,8 @@ public class TutorialManager : MonoBehaviour
     public DoorScript doorToOpen;
     //public DoorScript endingDoor;
     private PickupScript pickupScript;
+
+    //these strings are used to find the player and the player canvases in the scene, as well as the tutorial panels by name in the hierarchy
     private string playerTag = "Player";
     private string playerCanvasesTag = "PlayerCanvases";
 
@@ -28,6 +30,7 @@ public class TutorialManager : MonoBehaviour
     private string enterSkipTutPanel = "EnterSkipPanel";
 
     private string rollSliderObj = "RollSlider";
+    private string skipSliderObj = "SkipTutorialSlider";
 
 
     //keep track when inside of the tutorial
@@ -51,6 +54,10 @@ public class TutorialManager : MonoBehaviour
 
     [SerializeField] private Slider rollProgressBar;
     [SerializeField] private float requiredRotation = 180f; // how much roll needed
+
+    [SerializeField] private Slider skipProgressSlider;
+    [SerializeField] private float holdDuration = 1f;
+    private float currentHoldTime = 0f;
 
     //[SerializeField] private AudioClip tutorialStingerClip;
 
@@ -93,10 +100,6 @@ public class TutorialManager : MonoBehaviour
     private float upsideDownTimer = 0f;
     private const float upsideDownDuration = 3f;
 
-    [SerializeField] private Slider skipProgressSlider;
-    [SerializeField] private float holdDuration = 1f;
-    private float currentHoldTime = 0f;
-
 
     public bool IsTutorialSkipped
     {
@@ -132,6 +135,7 @@ public class TutorialManager : MonoBehaviour
         //playerController.TutorialMode = true;
 
         // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
+        // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
         // checks if dialogue is at the beginning (tutorial)
         if (dialogueManager.currentSequenceIndex == -1)
         {
@@ -156,6 +160,10 @@ public class TutorialManager : MonoBehaviour
 
     void Update()
     {
+        if(ZeroGPlayer == null || playerController == null || pickupScript == null)
+        {
+            RestorePlayerInformation();
+        }
 
         // Skip tutorial with Enter
         if (!tutorialSkipped && inTutorial)
@@ -568,12 +576,15 @@ public class TutorialManager : MonoBehaviour
 
         while (timeElapsed < fadeDuration)
         {
+            if (canvasGroup == null) yield break; // Exit if the canvasGroup is destroyed
+
             // Lerp alpha from start to end
             canvasGroup.alpha = Mathf.Lerp(startAlpha, endAlpha, timeElapsed / fadeDuration);
             timeElapsed += Time.deltaTime;
             yield return null; // Wait until the next frame
         }
 
+        if (canvasGroup != null)
         canvasGroup.alpha = endAlpha; // Ensure it's set to the final alpha
     }
 
@@ -765,7 +776,7 @@ public class TutorialManager : MonoBehaviour
         if (ZeroGPlayer == null)
         {
             ZeroGPlayer = GameObject.FindWithTag(playerTag);
-            Debug.Log("Player found on scene load: " + (ZeroGPlayer != null));
+            //Debug.Log("Player found on scene load: " + (ZeroGPlayer != null));
         }
 
         // Player persists via DDOL so just re-cache its components
@@ -774,14 +785,14 @@ public class TutorialManager : MonoBehaviour
             playerController = ZeroGPlayer.GetComponent<ZeroGravity>();
             pickupScript = ZeroGPlayer.GetComponent<PickupScript>();
             playerGrabRange = playerController.GrabRange;
-            Debug.Log("PickupScript found on player: " + (pickupScript != null));
+            //Debug.Log("PickupScript found on player: " + (pickupScript != null));
         }
 
         // These are scene-bound, so re-find them fresh each load
         if (PlayerCanvases == null)
         {
             PlayerCanvases = GameObject.FindWithTag(playerCanvasesTag);
-            Debug.Log("PlayerCanvases found on scene load: " + (PlayerCanvases != null));
+            //Debug.Log("PlayerCanvases found on scene load: " + (PlayerCanvases != null));
         }
 
         if (PlayerCanvases != null)
@@ -796,8 +807,9 @@ public class TutorialManager : MonoBehaviour
             enterCanvasGroup = GameObject.Find(enterSkipTutPanel).GetComponent<CanvasGroup>();
 
             rollProgressBar = GameObject.Find(rollSliderObj).GetComponent<Slider>();
+            skipProgressSlider = GameObject.Find(skipSliderObj).GetComponent<Slider>();
 
-            if (grabCanvasGroup == null || propelCanvasGroup == null || pickUpItemCanvasGroup == null || throwItemCanvasGroup == null || rollQCanvasGroup == null || rollECanvasGroup == null || enterCanvasGroup == null)
+            if (grabCanvasGroup == null || propelCanvasGroup == null || pickUpItemCanvasGroup == null || throwItemCanvasGroup == null || rollQCanvasGroup == null || rollECanvasGroup == null || enterCanvasGroup == null || skipSliderObj == null)
             {
                 Debug.LogError("One or more tutorial canvas groups could not be found. Please check the names and tags.");
             }
