@@ -1225,8 +1225,16 @@ public class PlayerUIManager : MonoBehaviour
     {
         // Wait for the end of the frame to ensure all objects are initialized
         yield return new WaitForEndOfFrame();
+
+        // re-fetch scene bound manager references
+        doorManager = FindFirstObjectByType<DoorManager>();
+        lockdownEvent = FindFirstObjectByType<LockdownEvent>();
+        dormHallEvent = FindFirstObjectByType<DormHallEvent>();
+        terminalManager = FindFirstObjectByType<TerminalManager>();
+        wristMonitor = FindFirstObjectByType<WristMonitor>();
+
         // destroy stale instance of billboard UI
-        if(billboardObject != null )
+        if (billboardObject != null )
         {
             Destroy(billboardObject);
         }

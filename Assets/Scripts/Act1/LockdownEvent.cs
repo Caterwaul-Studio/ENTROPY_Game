@@ -7,8 +7,6 @@ public class LockdownEvent : MonoBehaviour
     [SerializeField]
     private GameObject playerObject;
     private ZeroGravity player;
-    [SerializeField]
-    private Collider playerCollider;
 
     [SerializeField]
     private BoxCollider DoorTrigger;
@@ -116,6 +114,7 @@ public class LockdownEvent : MonoBehaviour
 
     public Transform panelMovePos;
 
+    [SerializeField] private InputActionReference interactActionReference;
 
     public bool LeverPulled
     {
@@ -137,7 +136,21 @@ public class LockdownEvent : MonoBehaviour
         get { return isComplete; }
     }
 
+    private void OnEnable()
+    {
+        if (interactActionReference)
+        {
+            interactActionReference.action.performed += OnInteract;
+        }
+    }
 
+    private void OnDisable()
+    {
+        if (interactActionReference)
+        {
+            interactActionReference.action.performed -= OnInteract;
+        }
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -152,7 +165,9 @@ public class LockdownEvent : MonoBehaviour
             grateMovePos = grateMoveLocation.transform.position;
         }
 
+        playerObject = PersistantManager.Instance.PlayerObject;
         player = playerObject.GetComponent<ZeroGravity>();
+        wristMonitor = PersistantManager.Instance.WristMonitor;
 
         DoorTrigger.enabled = false;
         //MusicTrigger.enabled = false;
@@ -170,6 +185,7 @@ public class LockdownEvent : MonoBehaviour
         isGrabbable = true;
 
         dialogueManager = FindFirstObjectByType<DialogueManager>();
+        ambientController = FindFirstObjectByType<AmbientController>();
 
 
         // Renderer rend = serverObj.GetComponent<Renderer>();

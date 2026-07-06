@@ -11,6 +11,7 @@ public static class GlobalSaveManager
     public static bool SavedWithTerminal = false;
     //bool created to check when the last checkpoint button is selected, so persistant manager can destroy the persistent object and load the scene from the last checkpoint
     public static bool lastCheckpointSelected = false;
+    public static bool tutorialCompleted = false;
     public static void SaveGame(bool permanent)
     {
         ISaveable[] saveables = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ISaveable>().ToArray();

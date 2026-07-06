@@ -137,7 +137,7 @@ public class TutorialManager : MonoBehaviour
         // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
         // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
         // checks if dialogue is at the beginning (tutorial)
-        if (dialogueManager.currentSequenceIndex == -1)
+        if (!GlobalSaveManager.tutorialCompleted)
         {
             playerController.TutorialMode = true;
         }
@@ -156,6 +156,7 @@ public class TutorialManager : MonoBehaviour
             skipProgressSlider.value = 0f;
         }
 
+        RestorePlayerInformation();
     }
 
     void Update()
@@ -248,6 +249,12 @@ public class TutorialManager : MonoBehaviour
                 FadeOut(throwItemCanvasGroup);
                 inItemThrowTutorial = false;
             }
+        }
+
+        if(rollProgressBar == null && !GlobalSaveManager.tutorialCompleted)
+        {
+            RestorePlayerInformation();
+            Debug.Log("restoring roll progress bar reference");
         }
     }
 
@@ -448,12 +455,7 @@ public class TutorialManager : MonoBehaviour
         isWaitingForAction = false;
         playerController.TutorialMode = false;
         playerController.GrabRange = playerGrabRange;
-
-
         // Fade out tutorial stinger
-
-
-
         //remove all tutorial panels
         HideAllPanels();
         //ambientController.Progress();
@@ -496,6 +498,8 @@ public class TutorialManager : MonoBehaviour
             stingerManager.StopTutorialStinger(fadeOutDuration: 12f);
         }
 
+        // Mark tutorial as completed in the GlobalSaveManager once the final dialogue sequence is finished and the door is opened
+        GlobalSaveManager.tutorialCompleted = true;
     }
 
     /*    private void HandleDialogueFinished(int sequenceIndex)
@@ -668,7 +672,7 @@ public class TutorialManager : MonoBehaviour
         {
             FadeOut(propelCanvasGroup);
         }
-        if (rollProgressBar.gameObject.activeSelf == true)
+        if (rollProgressBar != null && rollProgressBar.gameObject.activeSelf == true)
         {
             rollProgressBar.gameObject.SetActive(false);
         }
@@ -797,19 +801,29 @@ public class TutorialManager : MonoBehaviour
 
         if (PlayerCanvases != null)
         {
-            grabCanvasGroup = GameObject.Find(grabCanvasGroupobj).GetComponent<CanvasGroup>();
-            propelCanvasGroup = GameObject.Find(propelCanvasGroupobj).GetComponent<CanvasGroup>();
+            grabCanvasGroup =       FindCanvasGroupByName(grabCanvasGroupobj);
+            propelCanvasGroup =     FindCanvasGroupByName(propelCanvasGroupobj);
+            pickUpItemCanvasGroup = FindCanvasGroupByName(pickUpObjectTutPanel);
+            throwItemCanvasGroup =  FindCanvasGroupByName(throwObjectTutPanel);
+            rollQCanvasGroup =      FindCanvasGroupByName(rollQTutPanel);
+            rollECanvasGroup =      FindCanvasGroupByName(rollETutPanel);
+            enterCanvasGroup =      FindCanvasGroupByName(enterSkipTutPanel);
 
-            pickUpItemCanvasGroup = GameObject.Find(pickUpObjectTutPanel).GetComponent<CanvasGroup>();
-            throwItemCanvasGroup = GameObject.Find(throwObjectTutPanel).GetComponent<CanvasGroup>();
-            rollQCanvasGroup = GameObject.Find(rollQTutPanel).GetComponent<CanvasGroup>();
-            rollECanvasGroup = GameObject.Find(rollETutPanel).GetComponent<CanvasGroup>();
-            enterCanvasGroup = GameObject.Find(enterSkipTutPanel).GetComponent<CanvasGroup>();
+            var rollSliderObjRef = GameObject.Find(rollSliderObj);
+            rollProgressBar = rollSliderObjRef != null ? rollSliderObjRef.GetComponent<Slider>() : null;
 
-            rollProgressBar = GameObject.Find(rollSliderObj).GetComponent<Slider>();
-            skipProgressSlider = GameObject.Find(skipSliderObj).GetComponent<Slider>();
+            var skipSliderObjRef = GameObject.Find(skipSliderObj);
+            skipProgressSlider = skipSliderObjRef != null ? skipSliderObjRef.GetComponent<Slider>() : null;
 
-            if (grabCanvasGroup == null || propelCanvasGroup == null || pickUpItemCanvasGroup == null || throwItemCanvasGroup == null || rollQCanvasGroup == null || rollECanvasGroup == null || enterCanvasGroup == null || skipSliderObj == null)
+            if (grabCanvasGroup == null || 
+                propelCanvasGroup == null || 
+                pickUpItemCanvasGroup == null || 
+                throwItemCanvasGroup == null || 
+                rollQCanvasGroup == null || 
+                rollECanvasGroup == null || 
+                enterCanvasGroup == null ||
+                rollProgressBar == null ||
+                skipSliderObj == null)
             {
                 Debug.LogError("One or more tutorial canvas groups could not be found. Please check the names and tags.");
             }
@@ -826,11 +840,21 @@ public class TutorialManager : MonoBehaviour
         if (dialogueAudio == null)
             dialogueAudio = FindFirstObjectByType<DialogueAudio>();
 
-        if (stingerManager == null)
-            stingerManager = FindFirstObjectByType<StingerManager>();
+        if (stingerManager == null && PersistantManager.Instance != null)
+            stingerManager = PersistantManager.Instance.GetComponentInChildren<StingerManager>();
 
         if (doorToOpen == null)
             doorToOpen = FindFirstObjectByType<DoorScript>();
+    }
+
+    private CanvasGroup FindCanvasGroupByName(string name)
+    {
+        GameObject obj = GameObject.Find(name);
+        if (obj != null)
+        {
+            return obj.GetComponent<CanvasGroup>();
+        }
+        return null;
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

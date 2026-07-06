@@ -4,8 +4,14 @@ using UnityEngine.SceneManagement;
 
 public class PersistantManager : MonoBehaviour
 {
+    [SerializeField] private GameObject playerObject;
+    public GameObject PlayerObject => playerObject;
+
     [SerializeField] private ZeroGravity player;
     public ZeroGravity Player => player;
+
+    [SerializeField] private WristMonitor wristMonitor;
+    public WristMonitor WristMonitor => wristMonitor;
 
     //private ObjectiveUpdate objectiveUpdate;
     private CheckpointManager checkpointManager;
@@ -36,19 +42,19 @@ public class PersistantManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        checkpointManager = FindFirstObjectByType<CheckpointManager>();
-        menuManager = FindFirstObjectByType<MenuManager>();
-        //if the player selects last checkpoint/ the GSM is called, destroy the persistent object
-        if (GlobalSaveManager.lastCheckpointSelected == true)
-        {
-            Debug.Log("restarted from last checkpoint using the flag: " + GlobalSaveManager.lastCheckpointSelected);
-            Instance = null;
-            Destroy(gameObject);
+        //checkpointManager = FindFirstObjectByType<CheckpointManager>();
+        //menuManager = FindFirstObjectByType<MenuManager>();
+        ////if the player selects last checkpoint/ the GSM is called, destroy the persistent object
+        //if (GlobalSaveManager.lastCheckpointSelected == true)
+        //{
+        //    Debug.Log("restarted from last checkpoint using the flag: " + GlobalSaveManager.lastCheckpointSelected);
+        //    Instance = null;
+        //    Destroy(gameObject);
 
-            GlobalSaveManager.lastCheckpointSelected = false; // reset the flag
-            Debug.Log("Last checkpoint selected, flag set to: " + GlobalSaveManager.lastCheckpointSelected);
-        return;
-        }
+        //    GlobalSaveManager.lastCheckpointSelected = false; // reset the flag
+        //    Debug.Log("Last checkpoint selected, flag set to: " + GlobalSaveManager.lastCheckpointSelected);
+        //return;
+        //}
     }
 
     private void Awake()

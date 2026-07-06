@@ -15,6 +15,7 @@ public class StimEvent : MonoBehaviour
 
     [SerializeField]
     private CanvasGroup stimUseCanvasGroup;
+    private string stimUseCanvasGroupObj = "StimTutorialPanel";
 
     [SerializeField]
     private WristMonitor wristMonitor;
@@ -36,7 +37,16 @@ public class StimEvent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        //refetch the necessary references if they are null, in case the scene was reloaded or objects were destroyed
+        if (wristMonitor == null)
+        {
+            wristMonitor = PersistantManager.Instance.WristMonitor;
+        }
+        if(stimUseCanvasGroup == null)
+        {
+            stimUseCanvasGroup = FindCanvasGroupByName(stimUseCanvasGroupObj);
+        }
+
     }
 
     public void StartStimEvent()
@@ -97,5 +107,15 @@ public class StimEvent : MonoBehaviour
         air2.TurnOn();
         yield return new WaitForSeconds(0.5f);
         air3.TurnOn();
+    }
+
+    private CanvasGroup FindCanvasGroupByName(string name)
+    {
+        GameObject obj = GameObject.Find(name);
+        if (obj != null)
+        {
+            return obj.GetComponent<CanvasGroup>();
+        }
+        return null;
     }
 }

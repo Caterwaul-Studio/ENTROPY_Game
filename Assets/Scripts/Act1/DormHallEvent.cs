@@ -15,6 +15,7 @@ public class DormHallEvent : MonoBehaviour, ISaveable
     [SerializeField]
     private bool canGrab;
     //can the wrist monitor be picked up yet?
+    [SerializeField]
     private bool isGrabbable;
     [SerializeField]
     private WristMonitor wristMonitor;
@@ -38,6 +39,8 @@ public class DormHallEvent : MonoBehaviour, ISaveable
     private bool blinking = true;
     private Coroutine blinkCoroutine;
 
+    [SerializeField] private InputActionReference interactActionReference;
+
     public bool CanGrab
     {
         get { return canGrab; }
@@ -47,6 +50,22 @@ public class DormHallEvent : MonoBehaviour, ISaveable
     public bool IsGrabbable
     {
         get { return isGrabbable; }
+    }
+
+    private void OnEnable()
+    {
+        if (interactActionReference)
+        {
+            interactActionReference.action.performed += OnInteract;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (interactActionReference)
+        {
+            interactActionReference.action.performed -= OnInteract;
+        }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

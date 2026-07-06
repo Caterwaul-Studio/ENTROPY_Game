@@ -56,6 +56,9 @@ public class DoorManager : MonoBehaviour, ISaveable
     public Color WarningHoloBackColor = new Color(0.51f, 0.19f, 0.06f, 1.0f);
     public Color WarningHoloTextColor = new Color(0.95f, 0.64f, 0.32f, 1.0f);
 
+    [SerializeField]
+    private InputActionReference interactActionReference;
+
     public GameObject CurrentSelectedDoor
     {
         get { return currentSelectedDoor; }
@@ -75,6 +78,22 @@ public class DoorManager : MonoBehaviour, ISaveable
     public Material WarningMaterial
     {
         get { return brokenMaterial; }
+    }
+
+    private void OnEnable()
+    {
+        if (interactActionReference)
+        {
+            interactActionReference.action.performed += OnInteract;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (interactActionReference)
+        {
+            interactActionReference.action.performed -= OnInteract;
+        }
     }
 
     // Start is called before the first frame update
