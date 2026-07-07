@@ -1163,6 +1163,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             rb.linearVelocity *= .7f;
             //add the force to the rb
             rb.AddForce(propelDirection * Time.deltaTime, ForceMode.VelocityChange);
+            //play the kick off wall sound
+            playerAudio.PlayKickOffWall();
         }
     }
 
@@ -1629,7 +1631,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     private IEnumerator ThrownRoutine(Vector3 impulse)
     {
-        // rb may already be kinematic from the grab lock — ensure it's off for physics
+        // rb may already be kinematic from the grab lock ï¿½ ensure it's off for physics
         rb.isKinematic = false;
         boundingSphere.enabled = true;
 

@@ -20,6 +20,8 @@ public class PlayerAudio : MonoBehaviour
     public AudioClip grabItem;
     public AudioClip throwItem;
 
+    [Header("Movement SFX")]
+    public AudioClip kickOffWall;
 
     public AudioMixerGroup playerGroup;
 
@@ -56,6 +58,12 @@ public class PlayerAudio : MonoBehaviour
         if (throwItem == null) return;
         playerAudioSource.clip = throwItem;
         playerAudioSource.Play();
+    }
+
+    public void PlayKickOffWall()
+    {
+        if (kickOffWall == null) return;
+        playerAudioSource.PlayOneShot(kickOffWall);
     }
 
 
