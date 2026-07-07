@@ -60,10 +60,10 @@ public class PlayerAudio : MonoBehaviour
         playerAudioSource.Play();
     }
 
-    public void PlayKickOffWall()
+    public void PlayKickOffWall(Vector3 position)
     {
         if (kickOffWall == null) return;
-        playerAudioSource.PlayOneShot(kickOffWall);
+        PlayBounceSoundAtPosition(kickOffWall, position, 0.5f);
     }
 
 

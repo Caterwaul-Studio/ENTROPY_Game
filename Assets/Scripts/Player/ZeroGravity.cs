@@ -1155,6 +1155,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         if (rb.linearVelocity.magnitude <= pushSpeed && canPushOff && !uiManager.BarInRaycast && !uiManager.BarInPeripheral)
         {
+            playerAudio.PlayKickOffWall(transform.position);
             //create a vector for the new velocity
             Vector3 propelDirection = Vector3.zero;
             propelDirection -= cam.transform.forward * propelOffWallThrust;
@@ -1164,7 +1165,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             //add the force to the rb
             rb.AddForce(propelDirection * Time.deltaTime, ForceMode.VelocityChange);
             //play the kick off wall sound
-            playerAudio.PlayKickOffWall();
         }
     }
 
