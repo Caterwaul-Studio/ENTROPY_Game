@@ -13,10 +13,15 @@ public class PersistantManager : MonoBehaviour
     [SerializeField] private WristMonitor wristMonitor;
     public WristMonitor WristMonitor => wristMonitor;
 
+    [SerializeField] private Camera mainCamera;
+    public Camera MainCamera => mainCamera;
+
     //private ObjectiveUpdate objectiveUpdate;
     private CheckpointManager checkpointManager;
     private MenuManager menuManager;
     public GameObject persistentObj;
+
+    public static bool tutorialCompleted = false;
 
     public static PersistantManager Instance { get; set; }
 
@@ -34,27 +39,12 @@ public class PersistantManager : MonoBehaviour
 
     private void OnSceneUnloaded(Scene scene)
     {
-        //player = null; // clears the destroyed reference
-        //Instance = null;
-        //Destroy(gameObject);
-        //^ this is unnecessary because the persistent object is not destroyed when the scene is unloaded
+
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        //checkpointManager = FindFirstObjectByType<CheckpointManager>();
-        //menuManager = FindFirstObjectByType<MenuManager>();
-        ////if the player selects last checkpoint/ the GSM is called, destroy the persistent object
-        //if (GlobalSaveManager.lastCheckpointSelected == true)
-        //{
-        //    Debug.Log("restarted from last checkpoint using the flag: " + GlobalSaveManager.lastCheckpointSelected);
-        //    Instance = null;
-        //    Destroy(gameObject);
-
-        //    GlobalSaveManager.lastCheckpointSelected = false; // reset the flag
-        //    Debug.Log("Last checkpoint selected, flag set to: " + GlobalSaveManager.lastCheckpointSelected);
-        //return;
-        //}
+        
     }
 
     private void Awake()
@@ -73,6 +63,7 @@ public class PersistantManager : MonoBehaviour
             player = GetComponentInChildren<ZeroGravity>();
         }
 
+        tutorialCompleted = false;
         DontDestroyOnLoad(gameObject);
     }
 

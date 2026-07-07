@@ -9,16 +9,20 @@ public class TutorialManager : MonoBehaviour
     public static TutorialManager Instance;
 
     public GameObject ZeroGPlayer;
-    private ZeroGravity playerController;
-    public GameObject PlayerCanvases;
+    public Camera mainCamera;
+    public ZeroGravity playerController;
+    public GameObject TutorialCanvases;
     public DialogueManager dialogueManager;
     public DoorScript doorToOpen;
     //public DoorScript endingDoor;
     private PickupScript pickupScript;
 
+    public GameObject tutorialStartPoint;
+    public CheckpointManager checkpointManager;
+
     //these strings are used to find the player and the player canvases in the scene, as well as the tutorial panels by name in the hierarchy
-    private string playerTag = "Player";
-    private string playerCanvasesTag = "PlayerCanvases";
+    private string tutorialCanvasesObj = "TutorialCanvas";
+    private string tutorialStartPointObj = "TutorialStartPoint";
 
     private string grabCanvasGroupobj = "GrabTutorialPanel";
     private string propelCanvasGroupobj = "Propel TutorialPanel";
@@ -35,6 +39,7 @@ public class TutorialManager : MonoBehaviour
 
     //keep track when inside of the tutorial
     public bool inTutorial = false;
+    public bool GSMTutorialCompleted = false;
 
     public int currentStep = 0;
     private bool isWaitingForAction = false;
@@ -119,27 +124,54 @@ public class TutorialManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
+        if (Instance != null && Instance != this)
+        {
+            // An old instance is still hanging around from a scene that
+            // didn't get cleaned up — replace it with the new one instead
+            // of killing the one that's actually wired to the current scene.
+            Destroy(Instance.gameObject);
+        }
+        Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     void Start()
     {
-        ZeroGPlayer = GameObject.FindWithTag(playerTag);
-        PlayerCanvases = GameObject.FindWithTag(playerCanvasesTag);
+        Debug.Log("TutorialManager Start called. Restoring player information and hiding all panels.");
+        RestorePlayerInformation();
+        HideAllPanels();
+
         playerController = ZeroGPlayer.GetComponent<ZeroGravity>();
         pickupScript = ZeroGPlayer.GetComponent<PickupScript>();
+        checkpointManager = GameObject.FindFirstObjectByType<CheckpointManager>();
         playerGrabRange = playerController.GrabRange;
         //playerController.TutorialMode = true;
+
 
         // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
         // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
         // checks if dialogue is at the beginning (tutorial)
-        if (!GlobalSaveManager.tutorialCompleted)
+        if (!PersistantManager.tutorialCompleted)
         {
             playerController.TutorialMode = true;
+            if (ZeroGPlayer != null && tutorialStartPointObj != null)
+            {
+                playerController.ForceResetForTutorial();
+                playerController.transform.position = tutorialStartPoint.transform.position;
+                mainCamera.transform.rotation = tutorialStartPoint.transform.rotation;
+                Debug.Log("Player position and rotation set to tutorial start point.");
+            }
+            else
+            {
+                Debug.Log("zeroGPlayer or tutorialStartPoint is null. Cannot reset position and rotation.");
+            }
         }
 
         //determines if the player is to be in tutorial from the player controller's "TutorialMode" bool, which is saved by the GSM
@@ -156,12 +188,24 @@ public class TutorialManager : MonoBehaviour
             skipProgressSlider.value = 0f;
         }
 
-        RestorePlayerInformation();
+        GSMTutorialCompleted = PersistantManager.tutorialCompleted;
     }
 
     void Update()
     {
-        if(ZeroGPlayer == null || playerController == null || pickupScript == null)
+        if(ZeroGPlayer == null || 
+            playerController == null || 
+            pickupScript == null ||
+            TutorialCanvases == null ||
+            grabCanvasGroup == null ||
+            propelCanvasGroup == null ||
+            pickUpItemCanvasGroup == null ||
+            throwItemCanvasGroup == null ||
+            rollQCanvasGroup == null ||
+            rollECanvasGroup == null ||
+            enterCanvasGroup == null ||
+            rollProgressBar == null ||
+            skipProgressSlider == null)
         {
             RestorePlayerInformation();
         }
@@ -226,6 +270,12 @@ public class TutorialManager : MonoBehaviour
             }
         }
 
+        if(checkpointManager != null && checkpointManager.CurrentIndex > 0)
+        {
+            //Debug.Log("Checkpoint is active, ending tutorial");
+            PersistantManager.tutorialCompleted = true;
+        }
+
         //When the player enters the dorm hall there's an optional tutorial to handle grabbing items.
         if (inItemGrabTutorial)
         {
@@ -251,16 +301,15 @@ public class TutorialManager : MonoBehaviour
             }
         }
 
-        if(rollProgressBar == null && !GlobalSaveManager.tutorialCompleted)
-        {
-            RestorePlayerInformation();
-            Debug.Log("restoring roll progress bar reference");
-        }
+        GSMTutorialCompleted = PersistantManager.tutorialCompleted;
     }
 
     //Starts the tutoral and sets up player actions, audio, and UI
     private IEnumerator StartTutorial()
     {
+        Debug.Log("starting tutorial");
+        //set the player's position and rotation to the tutorial start point, which is set in the scene
+
         SetPlayerAbilities(false, false, false, false, false);
 
         //temporarily reduce grab range so the player can only grab the closest bar to them.
@@ -275,6 +324,7 @@ public class TutorialManager : MonoBehaviour
             StartCoroutine(DelayedStinger(8f));
         }
 
+        HideAllPanels();
 
         FadeIn(enterCanvasGroup);
         dialogueManager.StartDialogueSequence(0, 2f); // Ensure correct tutorial sequence index
@@ -457,7 +507,7 @@ public class TutorialManager : MonoBehaviour
         playerController.GrabRange = playerGrabRange;
         // Fade out tutorial stinger
         //remove all tutorial panels
-        HideAllPanels();
+        HideAllPanelsFadeOut();
         //ambientController.Progress();
         currentStep = 5;
 
@@ -499,7 +549,6 @@ public class TutorialManager : MonoBehaviour
         }
 
         // Mark tutorial as completed in the GlobalSaveManager once the final dialogue sequence is finished and the door is opened
-        GlobalSaveManager.tutorialCompleted = true;
     }
 
     /*    private void HandleDialogueFinished(int sequenceIndex)
@@ -594,12 +643,22 @@ public class TutorialManager : MonoBehaviour
 
     public void RestartTutorial()
     {
-        //Debug.Log("Restarting tutorial...");
+        Debug.Log("Restarting tutorial...");
 
         StopAllCoroutines();
 
-        // Reset tutorial state
-        inTutorial = true;
+        if(ZeroGPlayer != null && tutorialStartPointObj != null)
+        {
+            playerController.transform.position = tutorialStartPoint.transform.position;
+            mainCamera.transform.rotation = tutorialStartPoint.transform.rotation;
+        }
+        else
+        {
+            Debug.Log("zeroGPlayer or tutorialStartPoint is null. Cannot reset position and rotation.");
+        }
+
+            // Reset tutorial state
+            inTutorial = true;
         currentStep = 0;
         isWaitingForAction = false;
         stepComplete = false;
@@ -650,27 +709,52 @@ public class TutorialManager : MonoBehaviour
 
     private void HideAllPanels()
     {
+        if (enterCanvasGroup != null) enterCanvasGroup.alpha = 0;
+        if (rollQCanvasGroup != null) rollQCanvasGroup.alpha = 0;
+        if (rollECanvasGroup != null) rollECanvasGroup.alpha = 0;
+        if (grabCanvasGroup != null) grabCanvasGroup.alpha = 0;
+        if (propelCanvasGroup != null) propelCanvasGroup.alpha = 0;
+        if (pickUpItemCanvasGroup != null) pickUpItemCanvasGroup.alpha = 0;
+        if (throwItemCanvasGroup != null) throwItemCanvasGroup.alpha = 0;
+        if (rollProgressBar != null && rollProgressBar.gameObject.activeSelf)
+        {
+            rollProgressBar.gameObject.SetActive(false);
+        }
+        if(dialogueManager != null)
+        {
+            // Clear dialogue text and name text to ensure no lingering UI elements
+            dialogueManager.dialogueTextUI.text = "";
+            dialogueManager.nameTextUI.text = "";
+        }
+    }
+    private void HideAllPanelsFadeOut()
+    {
         StopAllCoroutines();
 
         if (enterCanvasGroup.alpha != 0)
         {
-            FadeOut(enterCanvasGroup);
+            enterCanvasGroup.alpha = 0;
+            //FadeOut(enterCanvasGroup);
         }
         if (rollQCanvasGroup.alpha != 0)
         {
-            FadeOut(rollQCanvasGroup);
+            rollQCanvasGroup.alpha = 0;
+            //FadeOut(rollQCanvasGroup);
         }
         if (rollECanvasGroup.alpha != 0)
         {
-            FadeOut(rollECanvasGroup);
+            rollECanvasGroup.alpha = 0;
+            //FadeOut(rollECanvasGroup);
         }
         if (grabCanvasGroup.alpha != 0)
         {
-            FadeOut(grabCanvasGroup);
+            grabCanvasGroup.alpha = 0;
+            //FadeOut(grabCanvasGroup);
         }
         if (propelCanvasGroup.alpha != 0)
         {
-            FadeOut(propelCanvasGroup);
+            propelCanvasGroup.alpha = 0;
+            //FadeOut(propelCanvasGroup);
         }
         if (rollProgressBar != null && rollProgressBar.gameObject.activeSelf == true)
         {
@@ -779,8 +863,14 @@ public class TutorialManager : MonoBehaviour
     {
         if (ZeroGPlayer == null)
         {
-            ZeroGPlayer = GameObject.FindWithTag(playerTag);
+            ZeroGPlayer = PersistantManager.Instance.PlayerObject;
             //Debug.Log("Player found on scene load: " + (ZeroGPlayer != null));
+        }
+
+        if(mainCamera == null)
+        {
+            mainCamera = PersistantManager.Instance.MainCamera;
+            //Debug.Log("Main camera found on scene load: " + (mainCamera != null));
         }
 
         // Player persists via DDOL so just re-cache its components
@@ -792,29 +882,39 @@ public class TutorialManager : MonoBehaviour
             //Debug.Log("PickupScript found on player: " + (pickupScript != null));
         }
 
-        // These are scene-bound, so re-find them fresh each load
-        if (PlayerCanvases == null)
+        // find the tutorial start point in the scene
+        if (tutorialStartPoint == null)
         {
-            PlayerCanvases = GameObject.FindWithTag(playerCanvasesTag);
+            tutorialStartPoint = GameObject.Find(tutorialStartPointObj);
+        }
+
+        // These are scene-bound, so re-find them fresh each load
+        if (TutorialCanvases == null)
+        {
+            TutorialCanvases = GameObject.Find(tutorialCanvasesObj);
             //Debug.Log("PlayerCanvases found on scene load: " + (PlayerCanvases != null));
         }
 
-        if (PlayerCanvases != null)
+        if (TutorialCanvases != null)
         {
-            grabCanvasGroup =       FindCanvasGroupByName(grabCanvasGroupobj);
-            propelCanvasGroup =     FindCanvasGroupByName(propelCanvasGroupobj);
-            pickUpItemCanvasGroup = FindCanvasGroupByName(pickUpObjectTutPanel);
-            throwItemCanvasGroup =  FindCanvasGroupByName(throwObjectTutPanel);
-            rollQCanvasGroup =      FindCanvasGroupByName(rollQTutPanel);
-            rollECanvasGroup =      FindCanvasGroupByName(rollETutPanel);
-            enterCanvasGroup =      FindCanvasGroupByName(enterSkipTutPanel);
+            if(grabCanvasGroup == null)         grabCanvasGroup =       FindCanvasGroupByName(grabCanvasGroupobj);
+            if(propelCanvasGroup == null)       propelCanvasGroup =     FindCanvasGroupByName(propelCanvasGroupobj);
+            if(pickUpItemCanvasGroup == null)   pickUpItemCanvasGroup = FindCanvasGroupByName(pickUpObjectTutPanel);
+            if(throwItemCanvasGroup == null)    throwItemCanvasGroup =  FindCanvasGroupByName(throwObjectTutPanel);
+            if(rollQCanvasGroup == null)        rollQCanvasGroup =      FindCanvasGroupByName(rollQTutPanel);
+            if(rollECanvasGroup == null)        rollECanvasGroup =      FindCanvasGroupByName(rollETutPanel);
+            if(enterCanvasGroup == null)        enterCanvasGroup =      FindCanvasGroupByName(enterSkipTutPanel);
 
-            var rollSliderObjRef = GameObject.Find(rollSliderObj);
-            rollProgressBar = rollSliderObjRef != null ? rollSliderObjRef.GetComponent<Slider>() : null;
+            if(rollProgressBar == null)
+            {
+                rollProgressBar = FindSliderByName(rollSliderObj);
+            }
 
-            var skipSliderObjRef = GameObject.Find(skipSliderObj);
-            skipProgressSlider = skipSliderObjRef != null ? skipSliderObjRef.GetComponent<Slider>() : null;
-
+            if(skipProgressSlider == null)
+            {
+               skipProgressSlider = FindSliderByName(skipSliderObj);
+            }
+           
             if (grabCanvasGroup == null || 
                 propelCanvasGroup == null || 
                 pickUpItemCanvasGroup == null || 
@@ -823,7 +923,7 @@ public class TutorialManager : MonoBehaviour
                 rollECanvasGroup == null || 
                 enterCanvasGroup == null ||
                 rollProgressBar == null ||
-                skipSliderObj == null)
+                skipProgressSlider == null)
             {
                 Debug.LogError("One or more tutorial canvas groups could not be found. Please check the names and tags.");
             }
@@ -849,10 +949,34 @@ public class TutorialManager : MonoBehaviour
 
     private CanvasGroup FindCanvasGroupByName(string name)
     {
-        GameObject obj = GameObject.Find(name);
-        if (obj != null)
+        Transform found = FindDeepChild(TutorialCanvases.transform, name);
+        if (found != null)
         {
-            return obj.GetComponent<CanvasGroup>();
+            return found.GetComponent<CanvasGroup>();
+        }
+        return null;
+    }
+
+    private Slider FindSliderByName(string name)
+    {
+        Transform found = FindDeepChild(TutorialCanvases.transform, name);
+        if (found != null)
+        {
+            return found.GetComponent<Slider>();
+        }
+        return null;
+    }
+
+
+    private Transform FindDeepChild(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name)
+                return child;
+            Transform result = FindDeepChild(child, name);
+            if (result != null)
+                return result;
         }
         return null;
     }
@@ -860,6 +984,7 @@ public class TutorialManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         RestorePlayerInformation();
+        HideAllPanels();
     }
 }
 

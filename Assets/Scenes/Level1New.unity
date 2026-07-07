@@ -2077,6 +2077,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59ca2af0cd475bd4caacb05af16398f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!20 &236255212 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 2519919635387003401, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+  m_PrefabInstance: {fileID: 394516936250948500}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &238822552
 GameObject:
   m_ObjectHideFlags: 0
@@ -3049,6 +3054,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1.2881}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2030990079}
   - {fileID: 489399952}
   - {fileID: 729058148}
   - {fileID: 231595649}
@@ -31150,6 +31156,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2030328796}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &2030990078
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2030990079}
+  m_Layer: 0
+  m_Name: TutorialStartPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2030990079
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2030990078}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.49999925, y: -0.49999925, z: 0.5000007, w: 0.5000007}
+  m_LocalPosition: {x: -16.377092, y: 1.087, z: -24.334253}
+  m_LocalScale: {x: 1, y: 0.77633744, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 307957196}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
 --- !u!1 &2035631173
 GameObject:
   m_ObjectHideFlags: 0
@@ -34763,6 +34800,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5251330229005706661, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: mainCamera
+      value: 
+      objectReference: {fileID: 236255212}
+    - target: {fileID: 5251330229005706661, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: playerObject
       value: 
       objectReference: {fileID: 2677586050311584025}
@@ -35585,10 +35626,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ZeroGPlayer: {fileID: 2677586050311584025}
-  PlayerCanvases: {fileID: 0}
+  tutorialStartPoint: {fileID: 0}
+  mainCamera: {fileID: 0}
+  playerController: {fileID: 0}
+  TutorialCanvases: {fileID: 0}
   dialogueManager: {fileID: 8506786234058232379}
   doorToOpen: {fileID: 2057266809044454524}
   inTutorial: 0
+  GSMTutorialCompleted: 0
   currentStep: 0
   stepComplete: 0
   grabCanvasGroup: {fileID: 892760401235527153}

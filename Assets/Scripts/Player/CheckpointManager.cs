@@ -10,7 +10,12 @@ public class CheckpointManager : MonoBehaviour, ISaveable
     [SerializeField] private ZeroGravity playerZeroG;    // keep as inspector fallback only
     [SerializeField] private GameObject persistentPrefab;
     [SerializeField] private Camera playerCam;
-    int _currentIndex = 0;
+    private int _currentIndex = 0;
+
+    public int CurrentIndex
+    {
+        get { return _currentIndex; }
+    }
 
     void Start()
     {
@@ -18,6 +23,7 @@ public class CheckpointManager : MonoBehaviour, ISaveable
         if (PersistantManager.Instance != null && PersistantManager.Instance.Player != null)
         {
             playerZeroG = PersistantManager.Instance.Player;
+            playerCam = PersistantManager.Instance.MainCamera;
         }
         // Wire up each checkpoint and only enable the first one
         for (int i = 0; i < checkpoints.Count; i++)

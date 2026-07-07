@@ -1155,6 +1155,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
 
     }
+    public void ForceResetForTutorial()
+    {
+        ReleaseBar();               // destroys any active SpringJoint / clears isGrabbing
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
 
     /// <summary>
     /// player uses the space bar to push off the wall when they are stuck
@@ -1533,7 +1539,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         // whether or not we load from save depends on whether temp data exists
         GlobalSaveManager.LoadFromSave = GlobalSaveManager.TempDataExists();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex, LoadSceneMode.Single); //ensure this is in single mode to ensure the player is not loaded into the scene twice
     }
 
     #endregion
@@ -1726,7 +1732,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         numStims = playerData.Stims;
         hasUsedStim = playerData.HasUsedStim;
         // reset all actions
-        if (playerData.InTutorial)
+        if (playerData.InTutorial && !PersistantManager.tutorialCompleted)
         {
             tutorialManager.RestartTutorial();
         }
