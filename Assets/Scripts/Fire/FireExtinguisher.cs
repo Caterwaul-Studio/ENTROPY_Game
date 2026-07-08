@@ -13,6 +13,7 @@ public class FireExtinguisher : MonoBehaviour
     [SerializeField] private ParticleSystem.MainModule sysMain;
     [SerializeField] private ParticleSystem.EmissionModule sysEmission;
     [SerializeField] private PickupScript pickupScript;
+    [SerializeField] private GameObject pauseMenu;
     private float initialEmission;
     private bool holding;
 
@@ -37,14 +38,17 @@ public class FireExtinguisher : MonoBehaviour
             holding = false;
     }
 
-        // Update is called once per frame
+    // Update is called once per frame
     void Update()
     {
+        if (pauseMenu == null)
+            pauseMenu = GameObject.Find("PauseMenu");
+
         if (holding && canPuff && hasExtinguisher)
             StartCoroutine(MakePuff());
 
         if (pickupScript.current != null)
-            if (pickupScript.current.GetComponent<ExtinguisherObject>() != null && !pickupScript.CanPickUp)
+            if (pickupScript.current.GetComponent<ExtinguisherObject>() != null && !pickupScript.CanPickUp && (pauseMenu == null || !pauseMenu.activeInHierarchy))
                 if (pickupScript.current.GetComponent<ExtinguisherObject>().remainingRetardant > 0)
                     hasExtinguisher = true;
                 else
