@@ -39,7 +39,8 @@ public class TutorialManager : MonoBehaviour
 
     //keep track when inside of the tutorial
     public bool inTutorial = false;
-    public bool GSMTutorialCompleted = false;
+    public bool tutorialCompleted = false;
+    private bool initialStartComplete = false;
 
     public int currentStep = 0;
     private bool isWaitingForAction = false;
@@ -124,22 +125,12 @@ public class TutorialManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            // An old instance is still hanging around from a scene that
-            // didn't get cleaned up — replace it with the new one instead
-            // of killing the one that's actually wired to the current scene.
-            Destroy(Instance.gameObject);
-        }
         Instance = this;
     }
 
     private void OnDestroy()
     {
-        if (Instance == this)
-        {
-            Instance = null;
-        }
+        Instance = this;
     }
 
     void Start()
@@ -158,7 +149,7 @@ public class TutorialManager : MonoBehaviour
         // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
         // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
         // checks if dialogue is at the beginning (tutorial)
-        if (!PersistantManager.tutorialCompleted)
+        if (!tutorialCompleted)
         {
             playerController.TutorialMode = true;
             if (ZeroGPlayer != null && tutorialStartPointObj != null)
@@ -175,7 +166,7 @@ public class TutorialManager : MonoBehaviour
         }
 
         //determines if the player is to be in tutorial from the player controller's "TutorialMode" bool, which is saved by the GSM
-        if (playerController.TutorialMode == true && !GlobalSaveManager.LoadFromSave)
+        if (playerController.TutorialMode == true && !GlobalSaveManager.lastCheckpointSelected)
         {
             dialogueManager.OnDialogueEndTutorial += OnDialogueComplete;
             StartCoroutine(StartTutorial());
@@ -188,7 +179,8 @@ public class TutorialManager : MonoBehaviour
             skipProgressSlider.value = 0f;
         }
 
-        GSMTutorialCompleted = PersistantManager.tutorialCompleted;
+        initialStartComplete = true;
+        tutorialCompleted = false;
     }
 
     void Update()
@@ -273,7 +265,7 @@ public class TutorialManager : MonoBehaviour
         if(checkpointManager != null && checkpointManager.CurrentIndex > 0)
         {
             //Debug.Log("Checkpoint is active, ending tutorial");
-            PersistantManager.tutorialCompleted = true;
+            tutorialCompleted = true;
         }
 
         //When the player enters the dorm hall there's an optional tutorial to handle grabbing items.
@@ -300,8 +292,6 @@ public class TutorialManager : MonoBehaviour
                 inItemThrowTutorial = false;
             }
         }
-
-        GSMTutorialCompleted = PersistantManager.tutorialCompleted;
     }
 
     //Starts the tutoral and sets up player actions, audio, and UI
@@ -309,6 +299,8 @@ public class TutorialManager : MonoBehaviour
     {
         Debug.Log("starting tutorial");
         //set the player's position and rotation to the tutorial start point, which is set in the scene
+
+        dialogueManager.ForceStopAll();
 
         SetPlayerAbilities(false, false, false, false, false);
 
@@ -649,6 +641,7 @@ public class TutorialManager : MonoBehaviour
 
         if(ZeroGPlayer != null && tutorialStartPointObj != null)
         {
+            playerController.ForceResetForTutorial();
             playerController.transform.position = tutorialStartPoint.transform.position;
             mainCamera.transform.rotation = tutorialStartPoint.transform.rotation;
         }
@@ -657,8 +650,8 @@ public class TutorialManager : MonoBehaviour
             Debug.Log("zeroGPlayer or tutorialStartPoint is null. Cannot reset position and rotation.");
         }
 
-            // Reset tutorial state
-            inTutorial = true;
+        // Reset tutorial state
+        inTutorial = true;
         currentStep = 0;
         isWaitingForAction = false;
         stepComplete = false;
@@ -679,8 +672,12 @@ public class TutorialManager : MonoBehaviour
         canThrow = true;
         canPropel = true;
 
-        // Set player movement ability to NONE at the start
-        SetPlayerAbilities(false, false, false, false, false);
+        Debug.Log($"[TutorialManager] RestartTutorial state reset — " +
+        $"inTutorial: {inTutorial}, currentStep: {currentStep}, isWaitingForAction: {isWaitingForAction}, " +
+        $"stepComplete: {stepComplete}, tutorialSkipped: {tutorialSkipped}, HasRolled: {playerController.HasRolled}, " +
+        $"hasPlayedPushOffFailure: {hasPlayedPushOffFailure}, hasPlayedRollFailure: {hasPlayedRollFailure}, " +
+        $"rollPanelHidden: {rollPanelHidden}, pushOffPanelHidden: {pushOffPanelHidden}, " +
+        $"canGrab: {canGrab}, canRoll: {canRoll}, canPushOff: {canPushOff}, canThrow: {canThrow}, canPropel: {canPropel}");
 
         // Hide all tutorial canvas elements
         HideAllPanels();
@@ -696,15 +693,7 @@ public class TutorialManager : MonoBehaviour
             doorToOpen.LockDoor();
         }
 
-        // Restart dialogue from the beginning of the tutorial sequence
-        dialogueManager.RestartCurrentDialogue(2f);
-
-        // (Optional) Play intro jingle again
-        dialogueAudio.PlayJingle();
-
-        // Re-show the tutorial skip panel
-        FadeIn(enterCanvasGroup);
-        StartCoroutine(DelayFadeOut(7f, enterCanvasGroup));
+        StartCoroutine(StartTutorial());
     }
 
     private void HideAllPanels()
@@ -759,6 +748,10 @@ public class TutorialManager : MonoBehaviour
         if (rollProgressBar != null && rollProgressBar.gameObject.activeSelf == true)
         {
             rollProgressBar.gameObject.SetActive(false);
+        }
+        if(skipProgressSlider != null)
+        {
+            skipProgressSlider.value = 0f;
         }
     }
 
@@ -881,6 +874,8 @@ public class TutorialManager : MonoBehaviour
             playerGrabRange = playerController.GrabRange;
             //Debug.Log("PickupScript found on player: " + (pickupScript != null));
         }
+        if(checkpointManager == null)
+            checkpointManager = GameObject.FindFirstObjectByType<CheckpointManager>();
 
         // find the tutorial start point in the scene
         if (tutorialStartPoint == null)
@@ -985,6 +980,15 @@ public class TutorialManager : MonoBehaviour
     {
         RestorePlayerInformation();
         HideAllPanels();
+
+        UnityEngine.Debug.Log("Global Save Manager lastCheckpointSelected: " + GlobalSaveManager.lastCheckpointSelected);
+
+        if (initialStartComplete && !tutorialCompleted && 
+            GlobalSaveManager.lastCheckpointSelected)
+        {
+            Debug.Log("Scene loaded and tutorial not completed. Restarting tutorial.");
+            RestartTutorial();
+        }
     }
 }
 

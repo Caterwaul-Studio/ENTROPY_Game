@@ -21,8 +21,6 @@ public class PersistantManager : MonoBehaviour
     private MenuManager menuManager;
     public GameObject persistentObj;
 
-    public static bool tutorialCompleted = false;
-
     public static PersistantManager Instance { get; set; }
 
     public void OnEnable()
@@ -62,8 +60,6 @@ public class PersistantManager : MonoBehaviour
         {
             player = GetComponentInChildren<ZeroGravity>();
         }
-
-        tutorialCompleted = false;
         DontDestroyOnLoad(gameObject);
     }
 

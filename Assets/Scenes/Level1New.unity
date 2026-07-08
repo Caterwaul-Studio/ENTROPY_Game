@@ -35487,6 +35487,7 @@ GameObject:
   - component: {fileID: 8506786234058232378}
   - component: {fileID: 1553404877855230132}
   - component: {fileID: 8506786234058232379}
+  - component: {fileID: 8506786234058232380}
   m_Layer: 0
   m_Name: Dialogue&Tutorial
   m_TagString: Untagged
@@ -35626,14 +35627,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ZeroGPlayer: {fileID: 2677586050311584025}
-  tutorialStartPoint: {fileID: 0}
   mainCamera: {fileID: 0}
   playerController: {fileID: 0}
   TutorialCanvases: {fileID: 0}
   dialogueManager: {fileID: 8506786234058232379}
   doorToOpen: {fileID: 2057266809044454524}
+  tutorialStartPoint: {fileID: 0}
+  checkpointManager: {fileID: 0}
   inTutorial: 0
-  GSMTutorialCompleted: 0
+  tutorialCompleted: 0
   currentStep: 0
   stepComplete: 0
   grabCanvasGroup: {fileID: 892760401235527153}
@@ -40298,6 +40300,20 @@ MonoBehaviour:
   skipDialogueRequested: 0
   currentSequenceIndex: -1
   currentDialogueIndex: 0
+--- !u!114 &8506786234058232380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365713253479824388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f72c9b3264540342bf6711fc4a83eef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  level1SceneNames:
+  - Level1New
 --- !u!1001 &8564947513243603852
 PrefabInstance:
   m_ObjectHideFlags: 0
