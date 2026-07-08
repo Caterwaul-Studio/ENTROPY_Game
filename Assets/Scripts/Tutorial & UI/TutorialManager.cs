@@ -21,6 +21,8 @@ public class TutorialManager : MonoBehaviour
     public CheckpointManager checkpointManager;
 
     //these strings are used to find the player and the player canvases in the scene, as well as the tutorial panels by name in the hierarchy
+    private string doorToOpenObj = "CryoRoomDoor";
+
     private string tutorialCanvasesObj = "TutorialCanvas";
     private string tutorialStartPointObj = "TutorialStartPoint";
 
@@ -218,10 +220,9 @@ public class TutorialManager : MonoBehaviour
             }
             else if (currentStep == 2)
             {
-
                 UpdateRollProgress();
-
                 bool isUpsideDown = playerController.TotalRotation >= requiredRotation;
+                //Debug.Log($"Current Step: {currentStep}, TotalRotation: {playerController.TotalRotation}, RequiredRotation: {requiredRotation}");
 
                 if (isUpsideDown)
                 {
@@ -238,6 +239,7 @@ public class TutorialManager : MonoBehaviour
             {
                 UpdateRollProgress();
                 bool isUpright = playerController.TotalRotation <= requiredRotation;
+                //Debug.Log($"Current Step: {currentStep}, TotalRotation: {playerController.TotalRotation}, RequiredRotation: {requiredRotation}");
 
                 if (isUpright)
                 {
@@ -258,7 +260,6 @@ public class TutorialManager : MonoBehaviour
                 playerController.HasPropelled = false; // Reset to prevent multiple detections
                 SetPlayerAbilities(true, true, true, true, true);
                 StartCoroutine(WaitForSecondGrab());
-
             }
         }
 
@@ -360,7 +361,7 @@ public class TutorialManager : MonoBehaviour
                 //Debug.Log("Tutorial 1: Grab bar");
                 stepComplete = false;
                 isWaitingForAction = true;
-                SetPlayerAbilities(true, false, false, false, false); // Only allow roll
+                SetPlayerAbilities(true, false, false, false, false); // Only allow grab
                 FadeIn(grabCanvasGroup);
 
                 break;
@@ -371,9 +372,11 @@ public class TutorialManager : MonoBehaviour
                 if (!rollProgressBar.gameObject.activeSelf)
                 {
                     rollProgressBar.gameObject.SetActive(true);
+                    playerController.TotalRotation = 0;
                     rollProgressBar.value = 0f; // reset to empty immediately
                 }
-
+                Debug.Log("rollProgressBar value: " + rollProgressBar.value);
+                requiredRotation = 180f;
                 stepComplete = false;
                 isWaitingForAction = true;
                 SetPlayerAbilities(true, false, false, true, false); // grab and roll only
@@ -388,8 +391,10 @@ public class TutorialManager : MonoBehaviour
                 if (!rollProgressBar.gameObject.activeSelf)
                 {
                     rollProgressBar.gameObject.SetActive(true);
+                    playerController.TotalRotation = 0;
                     rollProgressBar.value = 0f; // reset to empty immediately
                 }
+                Debug.Log("rollProgressBar value: " + rollProgressBar.value);
                 requiredRotation = -180f;
                 stepComplete = false;
                 isWaitingForAction = true;
@@ -404,6 +409,7 @@ public class TutorialManager : MonoBehaviour
                 //Debug.Log("Tutorial 4: Propel and grab another bar");
                 stepComplete = false;
                 isWaitingForAction = true;
+
                 playerController.GrabRange = playerGrabRange;
                 SetPlayerAbilities(true, true, true, true, true); // Enable all
                 FadeIn(propelCanvasGroup);
@@ -658,19 +664,16 @@ public class TutorialManager : MonoBehaviour
         tutorialSkipped = false;
 
         playerController.HasRolled = false;
+        playerController.TutorialMode = true;
+        playerController.CurrentRollSpeed = 0;
 
         // Reset failure flags
         hasPlayedPushOffFailure = false;
         hasPlayedRollFailure = false;
         rollPanelHidden = false;
         pushOffPanelHidden = false;
-
-        // Reset ability flags
-        canGrab = true;
-        canRoll = true;
-        canPushOff = true;
-        canThrow = true;
-        canPropel = true;
+        // reset the roll progress bar
+        rollProgressBar.value = 0f;
 
         Debug.Log($"[TutorialManager] RestartTutorial state reset — " +
         $"inTutorial: {inTutorial}, currentStep: {currentStep}, isWaitingForAction: {isWaitingForAction}, " +
@@ -772,7 +775,6 @@ public class TutorialManager : MonoBehaviour
             progress = Mathf.Clamp01(playerController.TotalRotation / requiredRotation);
         }
         // else progress = 0
-
 
         rollProgressBar.value = progress;
     }
@@ -939,7 +941,7 @@ public class TutorialManager : MonoBehaviour
             stingerManager = PersistantManager.Instance.GetComponentInChildren<StingerManager>();
 
         if (doorToOpen == null)
-            doorToOpen = FindFirstObjectByType<DoorScript>();
+            doorToOpen = GameObject.Find(doorToOpenObj)?.GetComponent<DoorScript>();
     }
 
     private CanvasGroup FindCanvasGroupByName(string name)

@@ -372,11 +372,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         set { canPushOff = value; }
     }
 
-    public float PushSpeed
-    {
-        get { return pushSpeed; }
-    }
-
     public bool CanRoll 
     { 
         get { return canRoll; }
@@ -399,6 +394,17 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         get { return totalRotation; }
         set { totalRotation = value; }
+    }
+
+    public float PushSpeed
+    {
+        get { return pushSpeed; }
+    }
+
+    public float CurrentRollSpeed
+    {
+        get { return currentRollSpeed; }
+        set { currentRollSpeed = value; }
     }
 
     public int PlayerHealth { get { return playerHealth; } set { playerHealth = value; } }
