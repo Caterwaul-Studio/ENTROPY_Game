@@ -45,7 +45,10 @@ public class FireExtinguisher : MonoBehaviour
 
         if (pickupScript.current != null)
             if (pickupScript.current.GetComponent<ExtinguisherObject>() != null && !pickupScript.CanPickUp)
-                hasExtinguisher = true;
+                if (pickupScript.current.GetComponent<ExtinguisherObject>().remainingRetardant > 0)
+                    hasExtinguisher = true;
+                else
+                    hasExtinguisher = false;
             else
                 hasExtinguisher = false;
         else
@@ -58,6 +61,7 @@ public class FireExtinguisher : MonoBehaviour
         if (puffCycle >= puffObjects.Count)
             puffCycle = 0;
         canPuff = false;
+        pickupScript.current.GetComponent<ExtinguisherObject>().remainingRetardant -= 0.15f;
         sysEmission.rateOverTimeMultiplier = initialEmission;
         yield return new WaitForSeconds(0.15f);
         sysEmission.rateOverTime = 0;
