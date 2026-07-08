@@ -10034,8 +10034,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &90892597
@@ -18028,8 +18028,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &191134707
@@ -40693,37 +40693,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8df0cf370eeb67a4c923d31891d90d8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounds:
+  fireBounds:
     m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 10, y: 10, z: 10}
+    m_Extent: {x: 0, y: 0, z: 0}
+  playerBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
   myFire: {fileID: 485721138}
-  player: {fileID: 273146031863362122}
-  camera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   extinguishNodes:
-  - {fileID: 1737351938}
-  - {fileID: 90892593}
-  - {fileID: 1797737336}
-  - {fileID: 1174101019}
-  - {fileID: 420591372}
-  - {fileID: 1510376609}
-  - {fileID: 1977312561}
-  - {fileID: 1954874987}
-  - {fileID: 1081107585}
-  - {fileID: 1386200486}
-  - {fileID: 1649177208}
-  - {fileID: 1247790047}
-  - {fileID: 1233878746}
-  - {fileID: 606242855}
-  - {fileID: 191134703}
-  - {fileID: 1292487623}
-  - {fileID: 1530322527}
-  - {fileID: 686879535}
-  - {fileID: 419158539}
-  - {fileID: 693628889}
-  flameStrength: 100
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   flameSteady: 0
   regenRate: 5
   flameLoss: 25
+  flameStrength: 100
+  playerHitBoxSizeModifier: 0.5
   sys: {fileID: 416544100}
 --- !u!199 &416544102
 ParticleSystemRenderer:
@@ -40929,8 +40933,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &419158543
@@ -41113,8 +41117,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &420591376
@@ -51525,8 +51529,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &606242859
@@ -56293,8 +56297,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &686879539
@@ -56551,8 +56555,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &693628892
@@ -92360,8 +92364,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1081107589
@@ -100613,8 +100617,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1174101023
@@ -103755,8 +103759,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1233878750
@@ -104446,8 +104450,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1247790051
@@ -105892,8 +105896,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1292487627
@@ -111170,8 +111174,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1386200490
@@ -119119,8 +119123,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1510376613
@@ -120409,8 +120413,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1530322531
@@ -129597,7 +129601,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.5, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
@@ -129613,37 +129617,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8df0cf370eeb67a4c923d31891d90d8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounds:
+  fireBounds:
     m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 10, y: 10, z: 10}
+    m_Extent: {x: 0, y: 0, z: 0}
+  playerBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
   myFire: {fileID: 485721138}
-  player: {fileID: 273146031863362122}
-  camera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   extinguishNodes:
-  - {fileID: 1737351938}
-  - {fileID: 90892593}
-  - {fileID: 1797737336}
-  - {fileID: 1174101019}
-  - {fileID: 420591372}
-  - {fileID: 1510376609}
-  - {fileID: 1977312561}
-  - {fileID: 1954874987}
-  - {fileID: 1081107585}
-  - {fileID: 1386200486}
-  - {fileID: 1649177208}
-  - {fileID: 1247790047}
-  - {fileID: 1233878746}
-  - {fileID: 606242855}
-  - {fileID: 191134703}
-  - {fileID: 1292487623}
-  - {fileID: 1530322527}
-  - {fileID: 686879535}
-  - {fileID: 419158539}
-  - {fileID: 693628889}
-  flameStrength: 100
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   flameSteady: 0
   regenRate: 5
   flameLoss: 25
+  flameStrength: 100
+  playerHitBoxSizeModifier: 0.5
   sys: {fileID: 1595777458}
 --- !u!1 &1596639000
 GameObject:
@@ -141011,8 +141019,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1649177212
@@ -148701,8 +148709,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1737351942
@@ -155051,8 +155059,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1797737340
@@ -168368,8 +168376,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1954874991
@@ -169737,8 +169745,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95422ffffba05d346bb0715c93829dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 273146031863362122}
-  MainCamera: {fileID: 2519919636320056840}
+  player: {fileID: 0}
+  MainCamera: {fileID: 0}
   playerPushForce: 0.3
   puffSpeed: 2
 --- !u!33 &1977312565

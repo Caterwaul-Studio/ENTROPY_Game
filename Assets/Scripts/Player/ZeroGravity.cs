@@ -1405,7 +1405,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         }
     }
     //decreases the health of the player
-    private void DecreaseHealth(int i)
+    public void DecreaseHealth(int i)
     {
         //if we are in GodMode
         if (GodMode)
@@ -1629,7 +1629,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     private IEnumerator ThrownRoutine(Vector3 impulse)
     {
-        // rb may already be kinematic from the grab lock ó ensure it's off for physics
+        // rb may already be kinematic from the grab lock ÅEensure it's off for physics
         rb.isKinematic = false;
         boundingSphere.enabled = true;
 

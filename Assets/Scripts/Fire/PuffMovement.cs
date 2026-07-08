@@ -9,6 +9,16 @@ public class PuffMovement : MonoBehaviour
     [SerializeField] private Camera MainCamera;
     [SerializeField] private float playerPushForce;
     [SerializeField] private float puffSpeed;
+
+    void Start()
+    {
+        if (player == null || MainCamera == null)
+        {
+            player = GameObject.FindAnyObjectByType<ZeroGravity>().gameObject;
+            MainCamera = player.GetComponent<ZeroGravity>().cam;
+        }
+    }
+
     public void Shoot(Transform firePosition)
     {
         transform.position = firePosition.transform.position;

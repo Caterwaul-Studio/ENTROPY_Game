@@ -1,18 +1,21 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem.Controls;
 
 public class FireNodeScript : MonoBehaviour
 {
-    [SerializeField] private Bounds bounds;
+    [SerializeField] private Bounds fireBounds;
+    [SerializeField] private Bounds playerBounds;
     [SerializeField] private FireScript myFire;
     [SerializeField] private GameObject player;
-    [SerializeField] private Camera camera;
-    [SerializeField] private List<GameObject> extinguishNodes;
-    [SerializeField] private float flameStrength;
+    [SerializeField] private Camera MainCamera;
+    [SerializeField] private PuffMovement[] extinguishNodes;
     [SerializeField] private int flameSteady; //should be 1-5
     [SerializeField] private int regenRate;
     [SerializeField] private float flameLoss; //this variable is how much strength the flame loses every time it gets hit.
+    [SerializeField] private float flameStrength;
+    [SerializeField] private float playerHitBoxSizeModifier;
     [SerializeField] private ParticleSystem sys;
     [SerializeField] private ParticleSystem.MainModule sysMain;
     [SerializeField] private ParticleSystem.EmissionModule sysEmission;
@@ -35,15 +38,23 @@ public class FireNodeScript : MonoBehaviour
         sysSOL = sys.sizeOverLifetime;
         sysLight = sys.lights;
     }
-
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if (player == null || MainCamera == null)
+        {
+            player = GameObject.FindAnyObjectByType<ZeroGravity>().gameObject;
+            MainCamera = player.GetComponent<ZeroGravity>().cam;
+        }
+
+        extinguishNodes = FindObjectsByType<PuffMovement>(FindObjectsSortMode.None);
+
         //this method is similar to the audiozone method however this time the boxcolider size is used instead of the object scale
         //the reason for this difference is because changing the object scale is not arbitrary for fire nodes, it will affect the size of their particle systems
-        bounds = new Bounds(transform.position,this.gameObject.GetComponent<BoxCollider>().size);
+        fireBounds = new Bounds(transform.position,this.gameObject.GetComponent<BoxCollider>().size);
+        playerBounds = new Bounds(transform.position, this.gameObject.GetComponent<BoxCollider>().size * playerHitBoxSizeModifier);
         Destroy(this.gameObject.GetComponent<BoxCollider>());
-        //please edit the bounds via editing the box collider, do not change the center of the box collider, just move the whole object
+        //please edit the fireBounds via editing the box collider, do not change the center of the box collider, just move the whole object
 
         //setting original params
         originalStartSize = sysMain.startSize.constant;
@@ -54,15 +65,16 @@ public class FireNodeScript : MonoBehaviour
     void Update()
     {
         throwCooldown += Time.deltaTime;
-        for (int i = 0; i < extinguishNodes.Count; i++)
-        { //collision detection is done via bounds in the hope it will be less resource intensive, may need to be tested
-            if (bounds.Contains(extinguishNodes[i].transform.position))
-                DampenFlame(extinguishNodes[i]);
+        for (int i = 0; i < extinguishNodes.Length; i++)
+        { //collision detection is done via fireBounds in the hope it will be less resource intensive, may need to be tested
+            if (fireBounds.Contains(extinguishNodes[i].transform.position))
+                DampenFlame(extinguishNodes[i].gameObject);
         }
 
-        if (bounds.Contains(player.transform.position) && throwCooldown > 0.5f)
+        if (playerBounds.Contains(player.transform.position) && throwCooldown > 0.5f)
         {
-            player.GetComponent<ZeroGravity>().GetThrown(camera.transform.forward * -1, 30);
+            StartCoroutine(BurnPlayer());
+            player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
             throwCooldown = 0;
         }
 
@@ -100,6 +112,14 @@ public class FireNodeScript : MonoBehaviour
         }
     }
 
+    System.Collections.IEnumerator BurnPlayer()
+    {
+        Debug.Log("Burn 1");
+        player.GetComponent<ZeroGravity>().DecreaseHealth(1);
+        yield return new WaitForSeconds(2f);
+        Debug.Log("Burn 2");
+        player.GetComponent<ZeroGravity>().DecreaseHealth(1);
+    }
     private void changeFlame()
     {
         //all changes to the flame particle system are to happen here
