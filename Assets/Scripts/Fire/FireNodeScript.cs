@@ -114,10 +114,8 @@ public class FireNodeScript : MonoBehaviour
 
     System.Collections.IEnumerator BurnPlayer()
     {
-        Debug.Log("Burn 1");
         player.GetComponent<ZeroGravity>().DecreaseHealth(1);
-        yield return new WaitForSeconds(2f);
-        Debug.Log("Burn 2");
+        yield return new WaitForSeconds(3f);
         player.GetComponent<ZeroGravity>().DecreaseHealth(1);
     }
     private void changeFlame()
