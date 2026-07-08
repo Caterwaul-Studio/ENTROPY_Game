@@ -604,9 +604,7 @@ public class PlayerUIManager : MonoBehaviour
                     {
                         ShowBillboardUI(spaceIndicator, null, "SPACE", true);
                         billboardObject.transform.position = hit.Value.point;
-
                         canPushOffWall = true;
-
                     }
                 }
             }
@@ -907,6 +905,20 @@ public class PlayerUIManager : MonoBehaviour
         if (bar == null)
         {
             player.CurrentGrabPosition = Vector3.zero;
+
+            //if in tutorial mode
+            if (player.TutorialMode)
+            {
+                //grabUIText.text = "press and hold 'RIGHT MOUSE BUTTON'";
+                //set the sprite for the right click
+                //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                if (player.PotentialGrabbedBar == null)
+                {
+                    inputIndicator.sprite = null;
+                    inputIndicator.color = new Color(0f, 0f, 0f, 0f);
+                }
+            }
+
             return;
         }
 
@@ -950,13 +962,16 @@ public class PlayerUIManager : MonoBehaviour
                     grabber.color = Color.white;
 
                     //if in tutorial mode
-                    if (player.TutorialMode && player.CanGrab)
+                    if (player.TutorialMode)
                     {
                         //grabUIText.text = "press and hold 'RIGHT MOUSE BUTTON'";
                         //set the sprite for the right click
                         //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                        inputIndicator.sprite = rightClickIndicator;
-                        inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
+                        if(player.PotentialGrabbedBar != null)
+                        {
+                            inputIndicator.sprite = rightClickIndicator;
+                            inputIndicator.color = new Color(1f, 1f, 1f, 0.5f);
+                        }
                     }
                 }
                 //set closed hand icon if grabbing
