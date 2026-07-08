@@ -296,7 +296,7 @@ public class WristMonitor : MonoBehaviour
         int healthState;
         if (player.PlayerHealth <= 1)
         {
-            healthText.text = "<Color=red>Status: DYING</color>";
+            healthText.text = "<Color=red>Status: CRITICAL</color>";
             fullHealthAnimationImage.SetActive(false);
             injuredAnimationImage.SetActive(false);
             lowHealthAnimationImage.SetActive(true);
