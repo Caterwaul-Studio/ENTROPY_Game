@@ -109,7 +109,11 @@ public class DormHallEvent : MonoBehaviour, ISaveable
 
     private void HandleWristMonitorAcquired(bool acquired)
     {
-        if (acquired) blinking = false;
+        if (acquired)
+        {
+            blinking = false;
+            wristMonitorPickupObject.SetActive(false);
+        }  
     }
 
     private IEnumerator BlinkMonitor()

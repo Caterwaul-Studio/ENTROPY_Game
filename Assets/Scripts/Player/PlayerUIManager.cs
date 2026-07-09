@@ -724,12 +724,9 @@ public class PlayerUIManager : MonoBehaviour
                 }
                 else
                 {
-
                     terminal.isLookedAt = true;
                     ShowBillboardUI(keyFIndicator, null, "press to reconnect alan", true);
                     billboardObject.transform.position = hit.Value.point;
-
-
                     //Debug.Log("Deactivated TERMINAL HIT");
                 }
             }

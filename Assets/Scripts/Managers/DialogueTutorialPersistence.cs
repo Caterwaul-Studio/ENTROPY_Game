@@ -28,6 +28,18 @@ public class DialogueTutorialPersistence : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    private void Update()
+    {
+        //if the current scene is the main menu, destroy the persistent object
+        if (SceneManager.GetActiveScene().name != "Level1New")
+        {
+            Instance = null;
+            Destroy(gameObject);
+            //Debug.Log("Destroyed persistent object because the current scene is the main menu.");
+            return;
+        }
+    }
+
     private void OnDestroy()
     {
         if (Instance == this) Instance = null;
