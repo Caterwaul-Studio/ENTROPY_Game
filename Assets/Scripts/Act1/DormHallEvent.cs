@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-public class DormHallEvent : MonoBehaviour, ISaveable
+public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
 {
     public PersistantManager persistManager;
     [SerializeField]
@@ -40,6 +40,18 @@ public class DormHallEvent : MonoBehaviour, ISaveable
     private Coroutine blinkCoroutine;
 
     [SerializeField] private InputActionReference interactActionReference;
+
+    //IInteractable components
+    [Header("IInteractable Components")]
+    [SerializeField] private Sprite promptIcon;
+    public bool IsAvailableForInteraction => isGrabbable;
+    public bool HideCrosshairOnLook => false;
+    public Sprite PromptIcon => promptIcon;
+    public Color PromptColor => Color.white;
+    public Transform BillboardParent => null;
+    public string PromptText => "take wrist monitor";
+    public void OnLookEnter() => canGrab = true;
+    public void OnLookExit() => canGrab = false;
 
     public bool CanGrab
     {

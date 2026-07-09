@@ -19,12 +19,6 @@ public class PlayerUIManager : MonoBehaviour
     private PickupScript pickupScript;
     [SerializeField]
     private DoorManager doorManager;
-    // eventually replace with gameplay manager
-    [SerializeField]
-    private LockdownEvent lockdownEvent;
-    [SerializeField]
-    private DormHallEvent dormHallEvent;
-    [SerializeField]
     private GameObject stimDispenserContainer;
     private StimDispenser[] stimDispensers;
     private bool lookingAtStim;
@@ -48,6 +42,9 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField]
     private GameObject billboardPrefab;
     private GameObject billboardObject;
+
+    [SerializeField]
+    private float iconScale = 0.05f;
 
 
     //canvas elements
@@ -119,6 +116,8 @@ public class PlayerUIManager : MonoBehaviour
     private RectTransform crosshairRectTransform;
 
     public Collider uiBar;
+
+    private IInteractable currentInteractable;
 
     #region properties
     public bool BarInRaycast
@@ -212,14 +211,6 @@ public class PlayerUIManager : MonoBehaviour
         if(doorManager == null)
         {
             doorManager = FindFirstObjectByType<DoorManager>();
-        }
-        if(lockdownEvent == null)
-        {
-                lockdownEvent = FindFirstObjectByType<LockdownEvent>();
-        }
-        if(dormHallEvent == null)
-        {
-            dormHallEvent = FindFirstObjectByType<DormHallEvent>();
         }
         if(terminalManager == null)
         {
@@ -433,27 +424,36 @@ public class PlayerUIManager : MonoBehaviour
             }
         }
 
-        //Debug.Log(barHit.HasValue.ToString());
-
-        //now we take all that ish and process them here to determine the methods that shall be show base on simple hierarchy
-        //1. available bar grabs should always be shown 
-        //2. push off wall indicators should only be shown when there are no present bars
-        //2. interactable items should always be shown
         if (interactableHit != null)
         {
             string interactTag = interactableHit.Value.collider.tag;
+            //set the IInterctable Proxy collider to a reference so we can use it here dynamically
+            IInteractable hitInteractable = interactableHit.Value.collider.GetComponentInParent<IInteractable>();
+
+            Debug.Log($"[UI] hit collider: {interactableHit.Value.collider.name}, " +
+             $"tag: {interactableHit.Value.collider.tag}, " +
+             $"found IInteractable: {(hitInteractable != null ? hitInteractable.GetType().Name : "NULL")}");
+
+            //set it to the current IInteractable locally stored
+            if (hitInteractable != null && hitInteractable.IsAvailableForInteraction)
+            {
+                if (currentInteractable != hitInteractable)
+                {
+                    currentInteractable?.OnLookExit();
+                    hitInteractable.OnLookEnter();
+                    currentInteractable = hitInteractable;
+                }
+            }
+            else if (currentInteractable != null)
+            {
+                currentInteractable.OnLookExit();
+                currentInteractable = null;
+            }
+            
             switch (interactTag)
             {
                 case "DoorButton":
                     RayCastHandleDoorButton(interactableHit);
-                    break;
-                case "LockdownLever":
-                    //Debug.Log("LockdownLever detected");
-                    RayCastHandleManualLockdown(interactableHit);
-                    break;
-                case "WristGrab":
-                    //Debug.Log("WristMonitor Detected");
-                    RayCastHandleManualLockdown(interactableHit);
                     break;
                 case "StimDispenser":
                     //Debug.Log("WristMonitor Detected");
@@ -467,11 +467,20 @@ public class PlayerUIManager : MonoBehaviour
                 //    RayCastHandleFloatingObject(interactableHit);
                 //    break;
                 default:
+                    ShowBillboardUI(
+                        hitInteractable.PromptIcon,
+                        hitInteractable.PromptColor,
+                        hitInteractable.BillboardParent,
+                        hitInteractable.PromptText,
+                        hitInteractable.HideCrosshairOnLook
+                        );
                     break;
             }
         }
         else if (interactableHit == null)
         {
+            currentInteractable?.OnLookExit();
+            currentInteractable = null;
             //Debug.Log("interactable null");
             HideInteractables();
             if (lookingAtStim)
@@ -482,23 +491,10 @@ public class PlayerUIManager : MonoBehaviour
                     stim.CanRefill = false;
                 }
             }
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            //dorm hall event call for some reason hardcoded into this script, need to come back and make this more efficient and less hardcoded,
-            //but for now this works for the playtest
-            if (dormHallEvent != null && dormHallEvent.CanGrab)
-            {
-                dormHallEvent.CanGrab = false;
-            }
-            //lockdown event call also hardcoded in, also needs to be fixed but works for now
-            if (lockdownEvent != null && lockdownEvent.CanPull)
-            {
-                lockdownEvent.CanPull = false;
-            }
             if (terminalManager.CurrentTerminal != null)
             {
                 terminalManager.CurrentTerminal = null;
             }
-
         }
 
         if (barHit != null && player.CanGrab && !player.IsGrabbing)
@@ -614,46 +610,6 @@ public class PlayerUIManager : MonoBehaviour
                 HidePushIndicator();
 
             }
-        }
-    }
-
-    public void RayCastHandleManualLockdown(RaycastHit? hit)
-    {
-        // lever has been pulled, manual terminal is "active" to be used
-        if (hit.Value.transform.CompareTag("LockdownLever") && lockdownEvent && lockdownEvent.LeverPulled && !lockdownEvent.IsComplete && lockdownEvent.IsActive)
-        {
-            lockdownEvent.CanPull = true;
-
-            ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "deactivate manual lockdown");
-           
-        }
-        // manual terminal still needs lever pulled first
-        else if (hit.Value.transform.CompareTag("LockdownLever") && lockdownEvent && !lockdownEvent.LeverPulled && !lockdownEvent.IsComplete && !lockdownEvent.IsActive)
-        {
-            lockdownEvent.CanPull = true;
-
-            ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "Initiate Lever Release");
-        }
-        else if (hit.Value.transform.CompareTag("WristGrab") && dormHallEvent && dormHallEvent.IsGrabbable)
-        {
-            if (dormHallEvent.IsGrabbable)
-            {
-                dormHallEvent.CanGrab = true;
-                ShowBillboardUI(keyFIndicator, hit.Value.transform.parent.transform, "take wrist monitor");
-       
-            }
-            else if (!dormHallEvent.IsGrabbable)
-            {
-                dormHallEvent.CanGrab = false;
-                HideInteractables();
-            }
-        }
-        else
-        {
-
-            lockdownEvent.CanPull = false;
-            dormHallEvent.CanGrab = false;
-            HideInteractables();
         }
     }
 
@@ -1095,13 +1051,14 @@ public class PlayerUIManager : MonoBehaviour
     // billboard UI interactions
     public void ShowBillboardUI(Sprite icon, Transform parent = null, String text = "", bool hideCrosshair = false)
     {
-        billBoardObjNeeded = true;
         ShowBillboardUI(icon, new Color(1f, 1f, 1f, 1f), parent, text, hideCrosshair);
         //Debug.Log("hiding crosshair icon");
     }
 
     public void ShowBillboardUI(Sprite icon, Color color, Transform parent = null, String text = "", bool hideCrosshair = false)
     {
+        billBoardObjNeeded = true;
+        //Debug.Log($"[Billboard] ShowBillboardUI called: icon={icon}, parent={parent?.name ?? "NULL"}, text='{text}'");
         if (billboardObject != null && billBoardObjNeeded)
         {
             TextMeshProUGUI tmp = billboardObject.GetComponentInChildren<TextMeshProUGUI>(true);
@@ -1113,6 +1070,7 @@ public class PlayerUIManager : MonoBehaviour
                 tmp.text != text ||
                 billboardObject.transform.parent != parent)
             {
+                //Debug.Log("[Billboard] change detected, updating display");
                 // hides crosshair while billboard visible
                 if (hideCrosshair)
                     crosshair.color = crosshair.color = new Color(1f, 1f, 1f, 0f);
@@ -1122,19 +1080,23 @@ public class PlayerUIManager : MonoBehaviour
                 image.color = color;
                 tmp.text = text;
 
-                // sets parent, defaults to null if no parent is provided
                 billboardObject.transform.SetParent(parent, false);
-                // resets position to center on the parent
                 billboardObject.transform.localPosition = Vector3.zero;
+                billboardObject.transform.localScale = new Vector3(iconScale,iconScale,iconScale);
+                billboardObject.transform.rotation = Quaternion.identity;
 
                 // make visible
                 billboardObject.SetActive(true);
                 //Debug.Log("showing billboard with text: " + text);
             }
+            else
+            {
+                //Debug.Log("[Billboard] SKIPPED - no change detected (icon/text/parent identical to current state)");
+            }
         }
         else
         {
-            //Debug.LogError("billboardObject is NULL - not assigned in Inspector!");
+            Debug.LogError($"[Billboard] billboardObject null={billboardObject == null}, billBoardObjNeeded={billBoardObjNeeded}");
         }
     }
 
@@ -1142,17 +1104,22 @@ public class PlayerUIManager : MonoBehaviour
     {
         if (billboardObject != null && billBoardObjNeeded)
         {
+            bool canHide = !pickupScript.CanPickUp &&
+                      !CanPushOffNow &&
+                      (terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated) &&
+                      !lookingAtStim &&
+                      currentInteractable == null;
+
+            Debug.Log($"[HideBillboard] canHide={canHide} | pickup={pickupScript.CanPickUp} " +
+                 $"push={CanPushOffNow} terminal={terminalManager.currentTerminal} " +
+                 $"stim={lookingAtStim} interactable={currentInteractable}");
+
             // make sure nothing currently needs the billboard
             // fence that prevents hiding the billboard if its currently being used by one of these said properties
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // check for the event calls that are hardcoded into this script for some reason.
             // need to remove them later but I am currently deep into this task
-            if (!pickupScript.CanPickUp &&
-                !CanPushOffNow &&
-                (terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated) &&
-                !lookingAtStim &&
-                (dormHallEvent == null || !dormHallEvent.CanGrab) && 
-                (lockdownEvent == null || !lockdownEvent.CanPull))
+            if (canHide)
             {
                 // returns crosshair to full opacity
                 crosshair.color = crosshair.color = new Color(1f, 1f, 1f, 1f);
@@ -1240,10 +1207,10 @@ public class PlayerUIManager : MonoBehaviour
 
         // re-fetch scene bound manager references
         doorManager = FindFirstObjectByType<DoorManager>();
-        lockdownEvent = FindFirstObjectByType<LockdownEvent>();
-        dormHallEvent = FindFirstObjectByType<DormHallEvent>();
         terminalManager = FindFirstObjectByType<TerminalManager>();
         wristMonitor = FindFirstObjectByType<WristMonitor>();
+
+        currentInteractable = null;
 
         // destroy stale instance of billboard UI
         if (billboardObject != null )

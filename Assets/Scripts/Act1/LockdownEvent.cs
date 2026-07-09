@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class LockdownEvent : MonoBehaviour
+public class LockdownEvent : MonoBehaviour, IInteractable
 {
     [SerializeField]
     private GameObject playerObject;
@@ -48,6 +48,7 @@ public class LockdownEvent : MonoBehaviour
 
     // lockdown bools
     private bool leverPulled;
+    private bool lockdownDeactivated;
     private bool isActive;
     private bool canPull;
     private bool isComplete;
@@ -115,6 +116,18 @@ public class LockdownEvent : MonoBehaviour
     public Transform panelMovePos;
 
     [SerializeField] private InputActionReference interactActionReference;
+
+    //IInteractable components
+    [Header("IInteractable Components")]
+    [SerializeField] private Sprite promptIcon;
+    public bool IsAvailableForInteraction => !isComplete;
+    public bool HideCrosshairOnLook => false;
+    public Sprite PromptIcon => promptIcon;
+    public Color PromptColor => Color.white;
+    public Transform BillboardParent => null;
+    public string PromptText => isActive ? "deactivate manual lockdown" : "initiate lever release";
+    public void OnLookEnter() => canPull = true;
+    public void OnLookExit() => canPull = false;
 
     public bool LeverPulled
     {
