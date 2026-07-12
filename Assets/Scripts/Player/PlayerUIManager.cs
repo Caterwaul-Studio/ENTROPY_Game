@@ -443,38 +443,38 @@ public class PlayerUIManager : MonoBehaviour
                     hitInteractable.OnLookEnter();
                     currentInteractable = hitInteractable;
                 }
+                switch (interactTag)
+                {
+                    case "DoorButton":
+                        RayCastHandleDoorButton(interactableHit);
+                        break;
+                    case "StimDispenser":
+                        //Debug.Log("WristMonitor Detected");
+                        RayCastHandleStimDispenser(interactableHit);
+                        break;
+                    case "Terminal":
+                        //Debug.Log("Terminal Detected");
+                        RayCastHandleTerminal(interactableHit);
+                        break;
+                    //case "PickupObject":
+                    //    RayCastHandleFloatingObject(interactableHit);
+                    //    break;
+                    default:
+                        ShowBillboardUI(
+                            hitInteractable.PromptIcon,
+                            hitInteractable.PromptColor,
+                            hitInteractable.BillboardParent,
+                            hitInteractable.PromptText,
+                            hitInteractable.HideCrosshairOnLook
+                            );
+                        break;
+                }
             }
             else if (currentInteractable != null)
             {
                 currentInteractable.OnLookExit();
                 currentInteractable = null;
-            }
-            
-            switch (interactTag)
-            {
-                case "DoorButton":
-                    RayCastHandleDoorButton(interactableHit);
-                    break;
-                case "StimDispenser":
-                    //Debug.Log("WristMonitor Detected");
-                    RayCastHandleStimDispenser(interactableHit);
-                    break;
-                case "Terminal":
-                    //Debug.Log("Terminal Detected");
-                    RayCastHandleTerminal(interactableHit);
-                    break;
-                //case "PickupObject":
-                //    RayCastHandleFloatingObject(interactableHit);
-                //    break;
-                default:
-                    ShowBillboardUI(
-                        hitInteractable.PromptIcon,
-                        hitInteractable.PromptColor,
-                        hitInteractable.BillboardParent,
-                        hitInteractable.PromptText,
-                        hitInteractable.HideCrosshairOnLook
-                        );
-                    break;
+                HideInteractables();
             }
         }
         else if (interactableHit == null)

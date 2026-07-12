@@ -120,7 +120,7 @@ public class LockdownEvent : MonoBehaviour, IInteractable
     //IInteractable components
     [Header("IInteractable Components")]
     [SerializeField] private Sprite promptIcon;
-    public bool IsAvailableForInteraction => !isComplete;
+    public bool IsAvailableForInteraction => !lockdownDeactivated;
     public bool HideCrosshairOnLook => false;
     public Sprite PromptIcon => promptIcon;
     public Color PromptColor => Color.white;
@@ -346,17 +346,15 @@ public class LockdownEvent : MonoBehaviour, IInteractable
         }
         
     }
-
     private IEnumerator ActivateLever()
     {
-
         leverPulled = true;
         yield return StartCoroutine(lockdownPanel.PlayLeverAnimation());
 
         lockdownPanel.SwitchToDeactivate();
 
         //genuinely idk if this sequence is used??? it doesnt play so is it just a empty line idk???
-        dialogueManager.StartDialogueSequence(9, 0.5f);
+        //dialogueManager.StartDialogueSequence(9, 0.5f);
 
         // I need isactive to be true when dialogue concludes
         yield return new WaitForSeconds(1f);
@@ -367,7 +365,7 @@ public class LockdownEvent : MonoBehaviour, IInteractable
     {
         //Wait for button Press
         yield return new WaitForSeconds(0.5f);
-        
+
         //Lock the Entrance Door;
         StartCoroutine(LockServerEntrance());
         MusicTrigger.enabled = true;
@@ -392,8 +390,6 @@ public class LockdownEvent : MonoBehaviour, IInteractable
         StartCoroutine(FadeEmission(barsMaterials, initBarEmissive, initBarEmissive, 1f, -10, 8f, 0f));
 
         StartCoroutine(FadeEmission(lightMaterials, initLightEmissiveColor, endLightEmissiveColor, initLightEmissiveMultiplier, -10, 6.5f, 0f));
-
-
 
         poweringDown = true;
         
@@ -576,10 +572,6 @@ public class LockdownEvent : MonoBehaviour, IInteractable
         
         alienBody.SetActive(false);
         alienAnimator.SetTrigger("ReturnToIdle");
-
-
-
-
     }
 
     IEnumerator FadeAlienLight()
@@ -628,6 +620,7 @@ public class LockdownEvent : MonoBehaviour, IInteractable
     /// <returns></returns>
     private IEnumerator LerpPosition(Vector3 destination, float duration)
     {
+        lockdownDeactivated = true;
         Vector3 start = player.transform.position;
         float elapsed = 0f;
 
@@ -660,9 +653,6 @@ public class LockdownEvent : MonoBehaviour, IInteractable
 
     private void GetLightMaterials()
     {
-
-
-
         for (int i = 0; i < lightMeshes.Length; i++)
         {
             lightMaterials[i] = lightMeshes[i].material;
