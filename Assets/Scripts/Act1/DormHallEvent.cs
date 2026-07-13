@@ -189,6 +189,8 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
 
     private IEnumerator TerminalComplete()
     {
+        StopAllCoroutines();
+
         medDoor.SetState(DoorScript.States.Closed);
         dialogueManager.StartDialogueSequence(2, 1f);
         stingerManager.PlayDormRoomStinger();

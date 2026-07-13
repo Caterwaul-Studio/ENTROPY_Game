@@ -430,12 +430,12 @@ public class PlayerUIManager : MonoBehaviour
             //set the IInterctable Proxy collider to a reference so we can use it here dynamically
             IInteractable hitInteractable = interactableHit.Value.collider.GetComponentInParent<IInteractable>();
 
-            Debug.Log($"[UI] hit collider: {interactableHit.Value.collider.name}, " +
-             $"tag: {interactableHit.Value.collider.tag}, " +
-             $"found IInteractable: {(hitInteractable != null ? hitInteractable.GetType().Name : "NULL")}");
+            //Debug.Log($"[UI] hit collider: {interactableHit.Value.collider.name}, " +
+            // $"tag: {interactableHit.Value.collider.tag}, " +
+            // $"found IInteractable: {(hitInteractable != null ? hitInteractable.GetType().Name : "NULL")}");
 
             //set it to the current IInteractable locally stored
-            if (hitInteractable != null && hitInteractable.IsAvailableForInteraction)
+            if (hitInteractable != null)
             {
                 if (currentInteractable != hitInteractable)
                 {
@@ -443,23 +443,33 @@ public class PlayerUIManager : MonoBehaviour
                     hitInteractable.OnLookEnter();
                     currentInteractable = hitInteractable;
                 }
-                switch (interactTag)
-                {
-                    case "DoorButton":
-                        RayCastHandleDoorButton(interactableHit);
-                        break;
-                    case "StimDispenser":
-                        //Debug.Log("WristMonitor Detected");
-                        RayCastHandleStimDispenser(interactableHit);
-                        break;
-                    case "Terminal":
-                        //Debug.Log("Terminal Detected");
-                        RayCastHandleTerminal(interactableHit);
-                        break;
-                    //case "PickupObject":
-                    //    RayCastHandleFloatingObject(interactableHit);
-                    //    break;
-                    default:
+            }
+            else if (currentInteractable != null)
+            {
+                currentInteractable.OnLookExit();
+                currentInteractable = null;
+                HideInteractables();
+            }
+
+            switch (interactTag)
+            {
+                case "DoorButton":
+                    RayCastHandleDoorButton(interactableHit);
+                    break;
+                case "StimDispenser":
+                    //Debug.Log("WristMonitor Detected");
+                    RayCastHandleStimDispenser(interactableHit);
+                    break;
+                case "Terminal":
+                    Debug.Log("Terminal Detected");
+                    RayCastHandleTerminal(interactableHit);
+                    break;
+                //case "PickupObject":
+                //    RayCastHandleFloatingObject(interactableHit);
+                //    break;
+                default:
+                    if (hitInteractable != null && hitInteractable.IsAvailableForInteraction)
+                    {
                         ShowBillboardUI(
                             hitInteractable.PromptIcon,
                             hitInteractable.PromptColor,
@@ -467,14 +477,8 @@ public class PlayerUIManager : MonoBehaviour
                             hitInteractable.PromptText,
                             hitInteractable.HideCrosshairOnLook
                             );
-                        break;
-                }
-            }
-            else if (currentInteractable != null)
-            {
-                currentInteractable.OnLookExit();
-                currentInteractable = null;
-                HideInteractables();
+                    }
+                    break;
             }
         }
         else if (interactableHit == null)
@@ -661,7 +665,7 @@ public class PlayerUIManager : MonoBehaviour
         if (hit.Value.transform.CompareTag("Terminal"))
         {
             Terminal terminal = hit.Value.transform.parent.GetComponent<Terminal>();
-
+            Debug.Log("terminal activated? " + terminal.isActivated);
             if (terminal != null)
             {
                 terminalManager.CurrentTerminal = terminal;
