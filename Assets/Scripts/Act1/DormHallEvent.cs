@@ -32,6 +32,7 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
     private bool tutorialMonitorFaded = false;
 
     private DialogueManager dialogueManager;
+    private int openWristMonitorLine = 2;
 
     [SerializeField] private Light monitorLight;
 
@@ -93,6 +94,7 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
 
         wristMonitor.OnWristMonitorAcquired += HandleWristMonitorAcquired;
         blinkCoroutine = StartCoroutine(BlinkMonitor());
+        wristMonitor.OnWristMonitorOpened += FadeOutMonitorTutorial;
     }
 
 
@@ -110,6 +112,12 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
             wristMonitor = FindFirstObjectByType<WristMonitor>();
             wristMonitorTutorial = GameObject.Find(wristMonitorTutorialCanvasGroupObj).GetComponent<CanvasGroup>();
             stingerManager = FindFirstObjectByType<StingerManager>();
+
+            // resubscribe now that the wristmonitor reference is confirmed valid
+            wristMonitor.OnWristMonitorAcquired -= HandleWristMonitorAcquired; // defensive, avoid double-sub
+            wristMonitor.OnWristMonitorAcquired += HandleWristMonitorAcquired;
+            wristMonitor.OnWristMonitorOpened -= FadeOutMonitorTutorial;
+            wristMonitor.OnWristMonitorOpened += FadeOutMonitorTutorial;
         }
     }
     private void OnDestroy()
@@ -117,6 +125,7 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
         if (wristMonitor != null)
         {
             wristMonitor.OnWristMonitorAcquired -= HandleWristMonitorAcquired;
+            wristMonitor.OnWristMonitorOpened -= FadeOutMonitorTutorial;
         }
     }
 
@@ -168,10 +177,6 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
             if (wristMonitorPickupObject != null)
                 wristMonitorPickupObject.SetActive(false);
 
-            StartCoroutine(FadeCanvasGroup(wristMonitorTutorial, 0f, 1f));
-
-            StartCoroutine(FadeTutorialPanelTimer());
-
             //medDoor.SetState(DoorScript.States.Closed);
 
             //ambientController.Progress();
@@ -191,17 +196,24 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
 
     private IEnumerator TerminalComplete()
     {
-        StopAllCoroutines();
         medDoor.SetState(DoorScript.States.Closed);
         dialogueManager.StartDialogueSequence(2, 1f);
         stingerManager.PlayDormRoomStinger();
-        yield return new WaitUntil(() => dialogueManager.IsDialogueActive == false);
-        wristMonitor.CompleteObjective();
+        Debug.Log($"[TerminalComplete] numQueued={dialogueManager.numDialoguesQueued}, IsActive={dialogueManager.IsDialogueActive}, dialogueManager instanceID={dialogueManager.GetInstanceID()}");
 
+        // Step 1: wait until the dialogue system actually leaves Idle (confirms it started)
+        yield return new WaitUntil(() => dialogueManager.currentState != DialogueManager.DialogueState.Idle);
+
+        // Step 2: wait until it returns to Idle (confirms it fully finished)
+        yield return new WaitUntil(() => dialogueManager.currentState == DialogueManager.DialogueState.Idle);
+
+        //start the wrist monitor tutorial
+        StartCoroutine(FadeCanvasGroup(wristMonitorTutorial, 0f, 1f));
+        wristMonitor.CompleteObjective();
     }
-    private IEnumerator FadeTutorialPanelTimer()
+    private void FadeTutorialPanelTimer()
     {
-        yield return new WaitForSeconds(8f);
+        //yield return new WaitForSeconds(8f);
 
         if (tutorialMonitorFaded == false)
         {
@@ -209,7 +221,6 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
             StartCoroutine(FadeCanvasGroup(wristMonitorTutorial, 1f, 0f));
         }
     }
-
     public void FadeOutMonitorTutorial()
     {
         if (tutorialMonitorFaded == false)
@@ -219,11 +230,12 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
         }
 
     }
-
     private IEnumerator FadeCanvasGroup(CanvasGroup canvasGroup, float startAlpha, float endAlpha)
     {
         float timeElapsed = 0f;
         float fadeDuration = 1f;
+
+        Debug.Log("fade canvas goup called");
 
         while (timeElapsed < fadeDuration)
         {

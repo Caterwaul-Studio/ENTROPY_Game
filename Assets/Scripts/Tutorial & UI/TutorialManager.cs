@@ -278,30 +278,33 @@ public class TutorialManager : MonoBehaviour, ISaveable
             CreateSaveFile("TutorialManager_Temp.json");
         }
 
-        //When the player enters the dorm hall there's an optional tutorial to handle grabbing items.
-        if (inItemGrabTutorial)
-        {
-            if (pickupScript.HeldObject != null && !detectedPickup)
-            {
-                detectedPickup = true;
-                inItemGrabTutorial = false;
-                if (pickUpItemCanvasGroup.alpha > 0)
-                {
-                    pickUpItemCanvasGroup.alpha = 0;
-                }
-                FadeIn(throwItemCanvasGroup);
-                inItemThrowTutorial = true;
-            }
-        }
+        //------------------------------------------------------------------------------------------------------
+        //COMMENTED OUT THIS ITEM GRAB TUTORIAL, DOESN'T SEEM NECESSARY ANYMORE CAUSE WE HAVE THE BILLBOARDS
 
-        if (inItemThrowTutorial)
-        {
-            if (pickupScript.HeldObject == null)
-            {
-                FadeOut(throwItemCanvasGroup);
-                inItemThrowTutorial = false;
-            }
-        }
+        ////When the player enters the dorm hall there's an optional tutorial to handle grabbing items.
+        //if (inItemGrabTutorial)
+        //{
+        //    if (pickupScript.HeldObject != null && !detectedPickup)
+        //    {
+        //        detectedPickup = true;
+        //        inItemGrabTutorial = false;
+        //        if (pickUpItemCanvasGroup.alpha > 0)
+        //        {
+        //            pickUpItemCanvasGroup.alpha = 0;
+        //        }
+        //        FadeIn(throwItemCanvasGroup);
+        //        inItemThrowTutorial = true;
+        //    }
+        //}
+
+        //if (inItemThrowTutorial)
+        //{
+        //    if (pickupScript.HeldObject == null)
+        //    {
+        //        FadeOut(throwItemCanvasGroup);
+        //        inItemThrowTutorial = false;
+        //    }
+        //}
     }
 
     //Starts the tutoral and sets up player actions, audio, and UI
@@ -788,12 +791,12 @@ public class TutorialManager : MonoBehaviour, ISaveable
         rollProgressBar.value = progress;
     }
 
-    public void ItemGrabTutorial()
-    {
-        //Debug.Log("Item Grab Tutorial Started");
-        inItemGrabTutorial = true;
-        StartCoroutine(StartGrabTutorial());
-    }
+    //public void ItemGrabTutorial()
+    //{
+    //    //Debug.Log("Item Grab Tutorial Started");
+    //    inItemGrabTutorial = true;
+    //    StartCoroutine(StartGrabTutorial());
+    //}
     private IEnumerator StartGrabTutorial()
     {
         FadeIn(pickUpItemCanvasGroup);

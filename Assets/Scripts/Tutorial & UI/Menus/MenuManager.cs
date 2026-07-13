@@ -125,7 +125,7 @@ public class MenuManager : MonoBehaviour
     public void LastCheckpoint()
     {
         // Need state machine for player to be reset
-        Debug.Log("Load Last Checkpoint selected");
+        //Debug.Log("Load Last Checkpoint selected");
         Resume();
         
         Time.timeScale = 1f; // Ensure normal game speed
@@ -141,7 +141,7 @@ public class MenuManager : MonoBehaviour
 
     public void LoadMenu()
     {
-        Debug.Log("Menu selected");
+        //Debug.Log("Menu selected");
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }

@@ -132,9 +132,7 @@ public static class GlobalSaveManager
                 Debug.LogWarning($"Failed to delete file: {file}\n{e.Message}");
             }
         }
-        Debug.Log($"Deleted {deletedCount} save files for New Game");
-
-
+        //Debug.Log($"Deleted {deletedCount} save files for New Game");
     }
     //this method is used to verify if there are gamefiles or not. used for gating the New Game button on Main Menu
     public static bool FindSaveFiles()

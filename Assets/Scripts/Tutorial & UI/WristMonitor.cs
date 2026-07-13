@@ -65,6 +65,7 @@ public class WristMonitor : MonoBehaviour
     }
 
     public event System.Action<bool> OnWristMonitorAcquired;
+    public event System.Action OnWristMonitorOpened;
     /// <summary>
     /// Public class used to display vital information to the player of how they must proceed
     /// </summary>
@@ -216,6 +217,11 @@ public class WristMonitor : MonoBehaviour
         if (hasWristMonitor)
         {
             isActive = !isActive;
+
+            if (isActive)
+            {
+                OnWristMonitorOpened?.Invoke();
+            }
         }
     }
 

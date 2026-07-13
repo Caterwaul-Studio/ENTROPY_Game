@@ -2786,7 +2786,7 @@ MonoBehaviour:
   - {fileID: 2006703510}
   - {fileID: 821829370}
   - {fileID: 1992492652}
-  stingerManager: {fileID: 0}
+  stingerManager: {fileID: 1918133088}
   diningCheckpoint: {fileID: 231595648}
   floatingObjectContainer: {fileID: 1774461999}
   sparksToEnable: {fileID: 473631102}
@@ -19542,6 +19542,7 @@ Transform:
   - {fileID: 740639645}
   - {fileID: 1446593154}
   - {fileID: 809592406}
+  - {fileID: 1369874523}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &972621044
@@ -24257,7 +24258,7 @@ Transform:
   m_GameObject: {fileID: 1369874522}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8.6423, y: 1.81882, z: 7.22815}
+  m_LocalPosition: {x: 7.5849395, y: 0.09419, z: -1.11165}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -24270,7 +24271,7 @@ Transform:
   - {fileID: 418430442}
   - {fileID: 503839706}
   - {fileID: 2054392624}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 969165147}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1377608005
 GameObject:
@@ -33698,7 +33699,7 @@ PrefabInstance:
     - target: {fileID: 523133996991289118, guid: 030ca38db5a058f47a1f28de0193f80d, type: 3}
       propertyPath: ambientController
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1299523142}
     - target: {fileID: 523133996991289118, guid: 030ca38db5a058f47a1f28de0193f80d, type: 3}
       propertyPath: cuttingOutTrigger
       value: 
@@ -36325,6 +36326,10 @@ PrefabInstance:
     - target: {fileID: 7971110690878986016, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8079650369202515866, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: audioContainer
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8309431941715903292, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchorMax.y
@@ -42583,7 +42588,6 @@ SceneRoots:
   - {fileID: 709835022806116377}
   - {fileID: 8506786234058232378}
   - {fileID: 1774461999}
-  - {fileID: 1369874523}
   - {fileID: 7581236399361672468}
   - {fileID: 9132995995614558312}
   - {fileID: 1165611647}
