@@ -1,10 +1,11 @@
 using System.Collections;
+using System.IO.Enumeration;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class TutorialManager : MonoBehaviour
+public class TutorialManager : MonoBehaviour, ISaveable
 {
     public static TutorialManager Instance;
 
@@ -137,6 +138,8 @@ public class TutorialManager : MonoBehaviour
 
     void Start()
     {
+        if (GlobalSaveManager.LoadFromSave)
+            GlobalSaveManager.LoadSavable(this, false);
         //Debug.Log("TutorialManager Start called. Restoring player information and hiding all panels.");
         RestorePlayerInformation();
         HideAllPanels();
@@ -147,7 +150,6 @@ public class TutorialManager : MonoBehaviour
         stingerManager = FindFirstObjectByType<StingerManager>();
         playerGrabRange = playerController.GrabRange;
         //playerController.TutorialMode = true;
-
 
         // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
         // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
@@ -183,7 +185,6 @@ public class TutorialManager : MonoBehaviour
         }
 
         initialStartComplete = true;
-        tutorialCompleted = false;
     }
 
     void Update()
@@ -269,10 +270,12 @@ public class TutorialManager : MonoBehaviour
             }
         }
 
-        if(checkpointManager != null && checkpointManager.CurrentIndex > 0)
+        if(checkpointManager != null && checkpointManager.CurrentIndex > 0 && !tutorialCompleted)
         {
             //Debug.Log("Checkpoint is active, ending tutorial");
             tutorialCompleted = true;
+            CreateSaveFile("TutorialManager_Save.json");
+            CreateSaveFile("TutorialManager_Temp.json");
         }
 
         //When the player enters the dorm hall there's an optional tutorial to handle grabbing items.
@@ -982,6 +985,22 @@ public class TutorialManager : MonoBehaviour
                 return result;
         }
         return null;
+    }
+
+    public void LoadSaveFile(string fileName)
+    {
+        string path = Application.persistentDataPath;
+        string loadedData = GlobalSaveManager.LoadTextFromFile(path, fileName);
+        if (!string.IsNullOrEmpty(loadedData))
+        {
+            tutorialCompleted = loadedData == "True";
+        }
+    }
+
+    public void CreateSaveFile(string fileName)
+    {
+        string path = Application.persistentDataPath;
+        GlobalSaveManager.SaveTextToFile(path, fileName, tutorialCompleted.ToString());
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
