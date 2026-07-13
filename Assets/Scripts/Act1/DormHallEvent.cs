@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
@@ -184,13 +185,13 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
 
     public void CompleteDormTerminal()
     {
+        Debug.Log("completeDormTerminal called");
         StartCoroutine(TerminalComplete());
     }
 
     private IEnumerator TerminalComplete()
     {
         StopAllCoroutines();
-
         medDoor.SetState(DoorScript.States.Closed);
         dialogueManager.StartDialogueSequence(2, 1f);
         stingerManager.PlayDormRoomStinger();
@@ -258,6 +259,17 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
         // this will create a file backing up the data we give it
         string path = Application.persistentDataPath;
         GlobalSaveManager.SaveTextToFile(path, fileName, isGrabbable.ToString());
+    }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        UnityEngine.Debug.Log("Global Save Manager lastCheckpointSelected: " + GlobalSaveManager.lastCheckpointSelected);
+
+        if (
+            GlobalSaveManager.lastCheckpointSelected)
+        {
+            CompleteDormTerminal();
+            Debug.Log("Scene loaded and tutorial not completed. Restarting tutorial.");
+        }
     }
 }
 

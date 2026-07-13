@@ -7,13 +7,14 @@ public class AudioCulling : MonoBehaviour
     public AudioSource[] exempt;
     public AudioSource[] cullable;
     [SerializeField] private AudioZone[] audioZones;
-    [SerializeField] private GameObject player;
+    [SerializeField] private ZeroGravity player;
 
     public AudioZone currentZone;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Rebuild();
+        player = FindFirstObjectByType<ZeroGravity>();
     }
 
     // Update is called once per frame
@@ -43,6 +44,11 @@ public class AudioCulling : MonoBehaviour
                     }
                 }
             }
+        }
+
+        if(player == null)
+        {
+            player = FindFirstObjectByType<ZeroGravity>();
         }
     }
 

@@ -665,7 +665,7 @@ public class PlayerUIManager : MonoBehaviour
         if (hit.Value.transform.CompareTag("Terminal"))
         {
             Terminal terminal = hit.Value.transform.parent.GetComponent<Terminal>();
-            Debug.Log("terminal activated? " + terminal.isActivated);
+            //Debug.Log("terminal activated? " + terminal.isActivated);
             if (terminal != null)
             {
                 terminalManager.CurrentTerminal = terminal;
@@ -1114,9 +1114,9 @@ public class PlayerUIManager : MonoBehaviour
                       !lookingAtStim &&
                       currentInteractable == null;
 
-            Debug.Log($"[HideBillboard] canHide={canHide} | pickup={pickupScript.CanPickUp} " +
-                 $"push={CanPushOffNow} terminal={terminalManager.currentTerminal} " +
-                 $"stim={lookingAtStim} interactable={currentInteractable}");
+            //Debug.Log($"[HideBillboard] canHide={canHide} | pickup={pickupScript.CanPickUp} " +
+            //     $"push={CanPushOffNow} terminal={terminalManager.currentTerminal} " +
+            //     $"stim={lookingAtStim} interactable={currentInteractable}");
 
             // make sure nothing currently needs the billboard
             // fence that prevents hiding the billboard if its currently being used by one of these said properties

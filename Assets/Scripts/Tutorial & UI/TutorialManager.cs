@@ -137,13 +137,14 @@ public class TutorialManager : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("TutorialManager Start called. Restoring player information and hiding all panels.");
+        //Debug.Log("TutorialManager Start called. Restoring player information and hiding all panels.");
         RestorePlayerInformation();
         HideAllPanels();
 
         playerController = ZeroGPlayer.GetComponent<ZeroGravity>();
         pickupScript = ZeroGPlayer.GetComponent<PickupScript>();
         checkpointManager = GameObject.FindFirstObjectByType<CheckpointManager>();
+        stingerManager = FindFirstObjectByType<StingerManager>();
         playerGrabRange = playerController.GrabRange;
         //playerController.TutorialMode = true;
 
@@ -159,7 +160,7 @@ public class TutorialManager : MonoBehaviour
                 playerController.ForceResetForTutorial();
                 playerController.transform.position = tutorialStartPoint.transform.position;
                 mainCamera.transform.rotation = tutorialStartPoint.transform.rotation;
-                Debug.Log("Player position and rotation set to tutorial start point.");
+                //Debug.Log("Player position and rotation set to tutorial start point.");
             }
             else
             {
@@ -202,6 +203,11 @@ public class TutorialManager : MonoBehaviour
             skipProgressSlider == null)
         {
             RestorePlayerInformation();
+        }
+
+        if(stingerManager == null)
+        {
+            stingerManager = FindFirstObjectByType<StingerManager>();
         }
 
         // Skip tutorial with Enter
@@ -298,7 +304,7 @@ public class TutorialManager : MonoBehaviour
     //Starts the tutoral and sets up player actions, audio, and UI
     private IEnumerator StartTutorial()
     {
-        Debug.Log("starting tutorial");
+        //Debug.Log("starting tutorial");
         //set the player's position and rotation to the tutorial start point, which is set in the scene
 
         dialogueManager.ForceStopAll();
@@ -375,7 +381,7 @@ public class TutorialManager : MonoBehaviour
                     playerController.TotalRotation = 0;
                     rollProgressBar.value = 0f; // reset to empty immediately
                 }
-                Debug.Log("rollProgressBar value: " + rollProgressBar.value);
+                //Debug.Log("rollProgressBar value: " + rollProgressBar.value);
                 requiredRotation = 180f;
                 stepComplete = false;
                 isWaitingForAction = true;
@@ -394,7 +400,7 @@ public class TutorialManager : MonoBehaviour
                     playerController.TotalRotation = 0;
                     rollProgressBar.value = 0f; // reset to empty immediately
                 }
-                Debug.Log("rollProgressBar value: " + rollProgressBar.value);
+                //Debug.Log("rollProgressBar value: " + rollProgressBar.value);
                 requiredRotation = -180f;
                 stepComplete = false;
                 isWaitingForAction = true;
@@ -641,7 +647,7 @@ public class TutorialManager : MonoBehaviour
 
     public void RestartTutorial()
     {
-        Debug.Log("Restarting tutorial...");
+        //Debug.Log("Restarting tutorial...");
 
         StopAllCoroutines();
 
@@ -675,12 +681,12 @@ public class TutorialManager : MonoBehaviour
         // reset the roll progress bar
         rollProgressBar.value = 0f;
 
-        Debug.Log($"[TutorialManager] RestartTutorial state reset — " +
-        $"inTutorial: {inTutorial}, currentStep: {currentStep}, isWaitingForAction: {isWaitingForAction}, " +
-        $"stepComplete: {stepComplete}, tutorialSkipped: {tutorialSkipped}, HasRolled: {playerController.HasRolled}, " +
-        $"hasPlayedPushOffFailure: {hasPlayedPushOffFailure}, hasPlayedRollFailure: {hasPlayedRollFailure}, " +
-        $"rollPanelHidden: {rollPanelHidden}, pushOffPanelHidden: {pushOffPanelHidden}, " +
-        $"canGrab: {canGrab}, canRoll: {canRoll}, canPushOff: {canPushOff}, canThrow: {canThrow}, canPropel: {canPropel}");
+        //Debug.Log($"[TutorialManager] RestartTutorial state reset — " +
+        //$"inTutorial: {inTutorial}, currentStep: {currentStep}, isWaitingForAction: {isWaitingForAction}, " +
+        //$"stepComplete: {stepComplete}, tutorialSkipped: {tutorialSkipped}, HasRolled: {playerController.HasRolled}, " +
+        //$"hasPlayedPushOffFailure: {hasPlayedPushOffFailure}, hasPlayedRollFailure: {hasPlayedRollFailure}, " +
+        //$"rollPanelHidden: {rollPanelHidden}, pushOffPanelHidden: {pushOffPanelHidden}, " +
+        //$"canGrab: {canGrab}, canRoll: {canRoll}, canPushOff: {canPushOff}, canThrow: {canThrow}, canPropel: {canPropel}");
 
         // Hide all tutorial canvas elements
         HideAllPanels();
@@ -983,12 +989,12 @@ public class TutorialManager : MonoBehaviour
         RestorePlayerInformation();
         HideAllPanels();
 
-        UnityEngine.Debug.Log("Global Save Manager lastCheckpointSelected: " + GlobalSaveManager.lastCheckpointSelected);
+        //UnityEngine.Debug.Log("Global Save Manager lastCheckpointSelected: " + GlobalSaveManager.lastCheckpointSelected);
 
         if (initialStartComplete && !tutorialCompleted && 
             GlobalSaveManager.lastCheckpointSelected)
         {
-            Debug.Log("Scene loaded and tutorial not completed. Restarting tutorial.");
+            //Debug.Log("Scene loaded and tutorial not completed. Restarting tutorial.");
             RestartTutorial();
         }
     }

@@ -9,11 +9,11 @@ public class StingerManager : MonoBehaviour
     [SerializeField] private AudioClip brokenDoorStingerClip;
     [SerializeField] private AudioClip explosionClip;
     [SerializeField] private AudioClip bodyScareStingerClip;
-    [SerializeField] private AudioSource tutorialStingerSource;
-    [SerializeField] private AudioSource dormRoomStingerSource;
-    [SerializeField] private AudioSource brokenDoorStingerSource;
-    [SerializeField] private AudioSource explosionSource;
-    [SerializeField] private AudioSource bodyScareStingerSource;
+    [SerializeField] public AudioSource tutorialStingerSource;
+    [SerializeField] public AudioSource dormRoomStingerSource;
+    [SerializeField] public AudioSource brokenDoorStingerSource;
+    [SerializeField] public AudioSource explosionSource;
+    [SerializeField] public AudioSource bodyScareStingerSource;
 
     [SerializeField] private int priority = 10;
 
@@ -69,6 +69,18 @@ public class StingerManager : MonoBehaviour
             StopCoroutine(tutorialFadeCoroutine);
 
         tutorialFadeCoroutine = StartCoroutine(FadeOutAndStop(tutorialStingerSource, fadeOutDuration));
+    }
+
+    public void StopStinger(AudioSource source)
+    {
+        if (!source.isPlaying)
+        {
+            return;
+        }
+        else
+        {
+            source.Stop();
+        }
     }
 
     // --- Internal helpers ---
