@@ -116,6 +116,7 @@ public class CheckpointManager : MonoBehaviour, ISaveable
 
         playerZeroG = PersistantManager.Instance.Player;
         playerCam = playerZeroG.GetComponentInChildren<Camera>();
+        playerZeroG.PlayerCutSceneHandler(false);
 
         GlobalSaveManager.LoadSavable(playerZeroG, false);
 
