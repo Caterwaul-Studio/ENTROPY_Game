@@ -478,7 +478,13 @@ public class PlayerUIManager : MonoBehaviour
                             hitInteractable.HideCrosshairOnLook
                             );
                     }
-                    break;
+                    else if(!hitInteractable.IsAvailableForInteraction)
+                    {
+                        currentInteractable?.OnLookExit();
+                        currentInteractable = null;
+                        HideInteractables();
+                    }
+                        break;
             }
         }
         else if (interactableHit == null)
@@ -1112,7 +1118,7 @@ public class PlayerUIManager : MonoBehaviour
                       !CanPushOffNow &&
                       (terminalManager.currentTerminal == null || terminalManager.currentTerminal.isActivated) &&
                       !lookingAtStim &&
-                      currentInteractable == null;
+                      (currentInteractable == null || !currentInteractable.IsAvailableForInteraction);
 
             //Debug.Log($"[HideBillboard] canHide={canHide} | pickup={pickupScript.CanPickUp} " +
             //     $"push={CanPushOffNow} terminal={terminalManager.currentTerminal} " +
