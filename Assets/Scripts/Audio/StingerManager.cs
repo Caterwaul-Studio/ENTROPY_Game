@@ -155,6 +155,8 @@ public class StingerManager : MonoBehaviour
         bodyScareStingerSource.priority = priority;
         bodyScareStingerSource.clip = bodyScareStingerClip;
         bodyScareStingerSource.loop = false;
+        //this skips a few seconds ahead to try and align it with reveal
+        bodyScareStingerSource.time = 7f;
         bodyScareStingerSource.Play();
         // Fade in at start
         StartCoroutine(FadeAudioSource(bodyScareStingerSource, 0f, 1f, 5f));

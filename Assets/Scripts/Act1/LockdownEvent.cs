@@ -432,7 +432,7 @@ public class LockdownEvent : MonoBehaviour, IInteractable
         
         yield return new WaitForSeconds(4f);
         player.PlayerCutSceneHandler(false);
-        StartCoroutine(MoveDoor(gratePos, grateMovePos, 4f, null));
+        StartCoroutine(MoveDoor(gratePos, grateMovePos, 1f, null));
         
         //Open doors in the doors to open array, this is the dining hall to facilities door.
 

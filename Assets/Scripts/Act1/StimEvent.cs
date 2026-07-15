@@ -31,7 +31,11 @@ public class StimEvent : MonoBehaviour
     void Start()
     {
         manager = FindFirstObjectByType<DialogueManager>();
-        playerScript = FindFirstObjectByType<ZeroGravity>();
+        playerScript = FindFirstObjectByType<ZeroGravity>(); 
+        stimUseCanvasGroup = FindCanvasGroupByName(stimUseCanvasGroupObj);
+        //ensure it sets false on start
+        stimUseCanvasGroup.gameObject.SetActive(false);
+        stimUseCanvasGroup.alpha = 0.0f;
     }
 
     // Update is called once per frame
@@ -62,9 +66,9 @@ public class StimEvent : MonoBehaviour
         dispenser.ToggleUsability(true);
         wristMonitor.CompleteObjective();
 
-
         yield return new WaitUntil(() => playerScript.NumStims == 3);
 
+        stimUseCanvasGroup.gameObject.SetActive(true);
         StartCoroutine(FadeCanvasGroup(stimUseCanvasGroup, 0f, 1f));
 
         yield return new WaitUntil(() => playerScript.NumStims < 3);
