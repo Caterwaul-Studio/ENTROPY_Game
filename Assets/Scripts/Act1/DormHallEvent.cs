@@ -32,7 +32,6 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
     private bool tutorialMonitorFaded = false;
 
     private DialogueManager dialogueManager;
-    private int openWristMonitorLine = 2;
 
     [SerializeField] private Light monitorLight;
 
@@ -40,6 +39,8 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
 
     private bool blinking = true;
     private Coroutine blinkCoroutine;
+ 
+    public bool dormHallEventComplete = false;
 
     [SerializeField] private InputActionReference interactActionReference;
 
@@ -59,6 +60,12 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
     {
         get { return canGrab; }
         set { canGrab = value; }
+    }
+
+    public bool DormHallEventComplete
+    {
+        get { return  dormHallEventComplete; }
+        set { dormHallEventComplete = value; }
     }
 
     public bool IsGrabbable
@@ -210,6 +217,8 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
         //start the wrist monitor tutorial
         StartCoroutine(FadeCanvasGroup(wristMonitorTutorial, 0f, 1f));
         wristMonitor.CompleteObjective();
+        dormHallEventComplete = true;
+
     }
     private void FadeTutorialPanelTimer()
     {
@@ -223,7 +232,7 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
     }
     public void FadeOutMonitorTutorial()
     {
-        if (tutorialMonitorFaded == false)
+        if (tutorialMonitorFaded == false && dormHallEventComplete)
         {
             tutorialMonitorFaded = true;
             StartCoroutine(FadeCanvasGroup(wristMonitorTutorial, 1f, 0f));

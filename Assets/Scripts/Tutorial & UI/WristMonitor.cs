@@ -36,10 +36,6 @@ public class WristMonitor : MonoBehaviour
     [SerializeField] private GameObject[] _displayTexts;
     [SerializeField] ObjectiveUpdate objectiveUpdator;
 
-    private bool tutorialShowing = true;
-    [SerializeField]
-    private DormHallEvent dormHallScript;
-
     [Header("Feedback Sliders")]
     public CanvasGroup tabCanvasGroup;
     public CanvasGroup wristMonitorCanvasGroup;

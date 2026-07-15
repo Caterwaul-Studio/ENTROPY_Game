@@ -49,7 +49,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     private bool usingStimCharge = false;
 
 
-    private bool isDead = false;
+    public bool isDead = false;
     //win tracker
     private bool didWin = false;
     [SerializeField]
@@ -208,17 +208,17 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     [Header("== PLayer Movement Restriction Bools ==")]
     //used for freezing the camera movement while completing the puzzle.
-    private bool canMove = true;
+    public bool canMove = true;
 
     //Fields for the tutorial
     [SerializeField]
     private bool tutorialMode = false;
-    private bool canGrab = false;
-    private bool canPropel = false;
-    private bool canPushOff = false;
-    private bool canRoll = false;
-    private bool hasPropelled = false;
-    private bool hasRolled = false;
+    public bool canGrab = false;
+    public bool canPropel = false;
+    public bool canPushOff = false;
+    public bool canRoll = false;
+    public bool hasPropelled = false;
+    public bool hasRolled = false;
 
     // Track if the movement keys were released
     private bool movementKeysReleased;
@@ -1544,6 +1544,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     public void Respawn()
     {
         // whether or not we load from save depends on whether temp data exists
+        
         GlobalSaveManager.LoadFromSave = GlobalSaveManager.TempDataExists();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex, LoadSceneMode.Single); //ensure this is in single mode to ensure the player is not loaded into the scene twice
     }

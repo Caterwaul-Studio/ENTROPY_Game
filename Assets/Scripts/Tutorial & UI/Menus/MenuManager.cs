@@ -130,6 +130,7 @@ public class MenuManager : MonoBehaviour
         
         Time.timeScale = 1f; // Ensure normal game speed
         playerDead = false;
+        player.IsDead = playerDead;
 
         StartCoroutine(cameraFade.FadeIn(1.5f));
         player.Respawn();
