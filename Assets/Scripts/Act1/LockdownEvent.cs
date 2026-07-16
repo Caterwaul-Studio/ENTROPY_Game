@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class LockdownEvent : MonoBehaviour, IInteractable
+public class LockdownEvent : MonoBehaviour
 {
     [SerializeField]
     private GameObject playerObject;
@@ -117,26 +117,9 @@ public class LockdownEvent : MonoBehaviour, IInteractable
 
     [SerializeField] private InputActionReference interactActionReference;
 
-    //IInteractable components
-    [Header("IInteractable Components")]
-    [SerializeField] private Sprite promptIcon;
-    public bool IsAvailableForInteraction => !lockdownDeactivated;
-    public bool HideCrosshairOnLook => false;
-    public Sprite PromptIcon => promptIcon;
-    public Color PromptColor => Color.white;
-    public Transform BillboardParent => null;
-    public string PromptText => isActive ? "deactivate manual lockdown" : "initiate lever release";
-    public void OnLookEnter() => canPull = true;
-    public void OnLookExit() => canPull = false;
-
     public bool LeverPulled
     {
         get { return leverPulled; }
-    }
-    public bool CanPull
-    {
-        get { return canPull; }
-        set { canPull = value; }
     }
 
     public bool IsActive
@@ -147,22 +130,6 @@ public class LockdownEvent : MonoBehaviour, IInteractable
     public bool IsComplete
     {
         get { return isComplete; }
-    }
-
-    private void OnEnable()
-    {
-        if (interactActionReference)
-        {
-            interactActionReference.action.performed += OnInteract;
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (interactActionReference)
-        {
-            interactActionReference.action.performed -= OnInteract;
-        }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -313,39 +280,28 @@ public class LockdownEvent : MonoBehaviour, IInteractable
 
     }
 
-    public void OnInteract(InputAction.CallbackContext context)
+    public void TryPullLever()
     {
+        if (isActive) return;
 
-        if (context.performed)
-        {
-            //Debug.Log(isActive);
-            //Handle lockdown lever
-            if (canPull && isActive && !isComplete)
-            {
-                audioManager.PlayButtonClick();
-                StartCoroutine(LerpPosition(panelMovePos.position, 1f));
- 
-                // open the broken door first
-                //brokenDoor.SetState(DoorScript.States.Open);
-
-                DoorTrigger.enabled = true;
-                //isActive = false;
-                isComplete = true;
-
-                // begin lighting and audio queues
-                player.PlayerCutSceneHandler(true);
-                StartCoroutine(PlayLockdownFX());
-
-            }
-            else if (canPull && !isActive)
-            {
-                // lever must be pulled first
-                StartCoroutine(ActivateLever());
-                audioManager.playLeverSFX();
-            }
-        }
-        
+        StartCoroutine(ActivateLever());
+        audioManager.playLeverSFX();
     }
+
+    public void TryDeactivateLockdown()
+    {
+        if (!isActive || isComplete) return;
+
+        audioManager.PlayButtonClick();
+        StartCoroutine(LerpPosition(panelMovePos.position, 1f));
+
+        DoorTrigger.enabled = true;
+        isComplete = true;
+
+        player.PlayerCutSceneHandler(true);
+        StartCoroutine(PlayLockdownFX());
+    }
+
     private IEnumerator ActivateLever()
     {
         leverPulled = true;
