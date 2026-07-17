@@ -1183,6 +1183,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             rb.linearVelocity *= .7f;
             //add the force to the rb
             rb.AddForce(propelDirection * Time.deltaTime, ForceMode.VelocityChange);
+
+            playerAudio.PlayKickOffWall(rb.transform.position);
         }
     }
 
@@ -1425,7 +1427,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         }
     }
     //decreases the health of the player
-    private void DecreaseHealth(int i)
+    public void DecreaseHealth(int i)
     {
         //if we are in GodMode
         if (GodMode)
