@@ -43,6 +43,22 @@ public class WristMonitor : MonoBehaviour
     [SerializeField] private float holdDuration = 0.5f;
     private float currentHoldTime = 0f;
 
+// ============ AUDIO ============
+    [Header("Audio")]
+    [SerializeField] private AudioSource uiAudioSource;
+    [SerializeField] private AudioSource heartbeatAudioSource;
+
+    [SerializeField] private AudioClip openSound;
+    [SerializeField] private AudioClip closeSound;
+
+    [SerializeField] private AudioClip heartbeatHealthy;
+    [SerializeField] private AudioClip heartbeatInjured;
+    [SerializeField] private AudioClip heartbeatDying;
+
+    private bool wasActive = false;
+    private int lastHealthState = -1; // 0 = dying, 1 = injured, 2 = healthy
+    // ================================
+
     // Properties
     public bool IsActive
     {
@@ -226,6 +242,22 @@ public class WristMonitor : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
+       // ---- AUDIO: detect the moment the monitor opens or closes ----
+        if (isActive != wasActive)
+        {
+            if (isActive)
+            {
+                PlayUISound(openSound);
+                StartHeartbeat();
+            }
+            else
+            {
+                PlayUISound(closeSound);
+                StopHeartbeat();
+            }
+            wasActive = isActive;
+        }
+        // --------------------------------------------------------------- 
         if (isActive)
         {
             wristMonitorCanvasGroup.alpha = 1f;
@@ -262,28 +294,89 @@ public class WristMonitor : MonoBehaviour
         // Update stim number
         stimText.text = $"{player.NumStims}/3";
 
-        if(player.PlayerHealth <= 1)
+// NOTE: changed to else-if so DYING isn't overwritten by INJURED
+        int healthState;
+        if (player.PlayerHealth <= 1)
         {
-            healthText.text = "<Color=red>Status: DYING</color>";
+            healthText.text = "<Color=red>Status: CRITICAL</color>";
             fullHealthAnimationImage.SetActive(false);
             injuredAnimationImage.SetActive(false);
             lowHealthAnimationImage.SetActive(true);
+            healthState = 0;
         }
-        if (player.PlayerHealth <= 3)
+        else if (player.PlayerHealth <= 3)
         {
             healthText.text = "<Color=yellow>Status: INJURED</color>";
             fullHealthAnimationImage.SetActive(false);
             injuredAnimationImage.SetActive(true);
             lowHealthAnimationImage.SetActive(false);
+            healthState = 1;
         }
-        if (player.PlayerHealth == 4)
+        else
         {
             healthText.text = "<Color=green>Status: HEALTHY</color>";
             fullHealthAnimationImage.SetActive(true);
             injuredAnimationImage.SetActive(false);
             lowHealthAnimationImage.SetActive(false);
+            healthState = 2;
+        }
+
+        // ---- AUDIO: if health state changed while monitor is open, swap heartbeat loop ----
+        if (healthState != lastHealthState)
+        {
+            lastHealthState = healthState;
+            StartHeartbeat();
         }
     }
+    
+    // ============ AUDIO HELPER METHODS ============
+
+    /// <summary>
+    /// Plays a one-shot UI sound (open, close). Safe to call even if a clip is missing.
+    /// </summary>
+    private void PlayUISound(AudioClip clip)
+    {
+        if (uiAudioSource != null && clip != null)
+        {
+            uiAudioSource.PlayOneShot(clip);
+        }
+    }
+
+    /// <summary>
+    /// Starts (or restarts) the looping heartbeat matching the player's current health state.
+    /// </summary>
+    private void StartHeartbeat()
+    {
+        if (heartbeatAudioSource == null || !isActive) return;
+
+        AudioClip clipToPlay;
+        if (player.PlayerHealth <= 1) clipToPlay = heartbeatDying;
+        else if (player.PlayerHealth <= 3) clipToPlay = heartbeatInjured;
+        else clipToPlay = heartbeatHealthy;
+
+        if (clipToPlay == null) return;
+
+        // Only restart if it's a different clip (prevents stuttering)
+        if (heartbeatAudioSource.clip != clipToPlay || !heartbeatAudioSource.isPlaying)
+        {
+            heartbeatAudioSource.clip = clipToPlay;
+            heartbeatAudioSource.loop = true;
+            heartbeatAudioSource.Play();
+        }
+    }
+
+    /// <summary>
+    /// Stops the heartbeat loop (when the monitor closes).
+    /// </summary>
+    private void StopHeartbeat()
+    {
+        if (heartbeatAudioSource != null)
+        {
+            heartbeatAudioSource.Stop();
+        }
+    }
+
+    // ================================================
     /// <summary>
     /// Public method called outside of script (by objective triggers) to complete the first objective in the list
     /// </summary>

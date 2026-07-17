@@ -1,0 +1,128 @@
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.InputSystem.Controls;
+
+public class FireNodeScript : MonoBehaviour
+{
+    [SerializeField] private Bounds fireBounds;
+    [SerializeField] private Bounds playerBounds;
+    [SerializeField] private FireScript myFire;
+    [SerializeField] private GameObject player;
+    [SerializeField] private Camera MainCamera;
+    [SerializeField] private PuffMovement[] extinguishNodes;
+    [SerializeField] private int flameSteady; //should be 1-5
+    [SerializeField] private int regenRate;
+    [SerializeField] private float flameLoss; //this variable is how much strength the flame loses every time it gets hit.
+    [SerializeField] private float flameStrength;
+    [SerializeField] private float playerHitBoxSizeModifier;
+    [SerializeField] private ParticleSystem sys;
+    [SerializeField] private ParticleSystem.MainModule sysMain;
+    [SerializeField] private ParticleSystem.EmissionModule sysEmission;
+    [SerializeField] private ParticleSystem.ShapeModule sysShape;
+    [SerializeField] private ParticleSystem.ColorOverLifetimeModule sysCOL;
+    [SerializeField] private ParticleSystem.SizeOverLifetimeModule sysSOL;
+    [SerializeField] private ParticleSystem.LightsModule sysLight;
+
+    //Particle system original param containers
+    private float originalStartSize;
+    private float originalShapeRadius;
+    private float throwCooldown;
+
+    private void OnEnable()
+    {
+        sysMain = sys.main;
+        sysEmission = sys.emission;
+        sysShape = sys.shape;
+        sysCOL = sys.colorOverLifetime;
+        sysSOL = sys.sizeOverLifetime;
+        sysLight = sys.lights;
+    }
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        if (player == null || MainCamera == null)
+        {
+            player = GameObject.FindAnyObjectByType<ZeroGravity>().gameObject;
+            MainCamera = player.GetComponent<ZeroGravity>().cam;
+        }
+
+        extinguishNodes = FindObjectsByType<PuffMovement>(FindObjectsSortMode.None);
+
+        //this method is similar to the audiozone method however this time the boxcolider size is used instead of the object scale
+        //the reason for this difference is because changing the object scale is not arbitrary for fire nodes, it will affect the size of their particle systems
+        fireBounds = new Bounds(transform.position,this.gameObject.GetComponent<BoxCollider>().size);
+        playerBounds = new Bounds(transform.position, this.gameObject.GetComponent<BoxCollider>().size * playerHitBoxSizeModifier);
+        Destroy(this.gameObject.GetComponent<BoxCollider>());
+        //please edit the fireBounds via editing the box collider, do not change the center of the box collider, just move the whole object
+
+        //setting original params
+        originalStartSize = sysMain.startSize.constant;
+        originalShapeRadius = sysShape.radius;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        throwCooldown += Time.deltaTime;
+        for (int i = 0; i < extinguishNodes.Length; i++)
+        { //collision detection is done via fireBounds in the hope it will be less resource intensive, may need to be tested
+            if (fireBounds.Contains(extinguishNodes[i].transform.position))
+                DampenFlame(extinguishNodes[i].gameObject);
+        }
+
+        if (playerBounds.Contains(player.transform.position) && throwCooldown > 0.5f)
+        {
+            StartCoroutine(BurnPlayer());
+            player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
+            throwCooldown = 0;
+        }
+
+        //flame regeneration
+        if (flameStrength < flameSteady * 20)
+            flameStrength += Time.deltaTime * regenRate;
+
+        if (flameStrength > 81)
+        {
+            flameSteady = 5;
+        } else if (flameStrength > 61)
+        {
+            flameSteady = 4;
+        } else if (flameStrength > 41)
+        {
+            flameSteady = 3;
+        } else if (flameStrength > 21)
+        {
+            flameSteady = 2;
+        } else if (flameStrength > 11)
+        {
+            flameSteady = 1;
+        }
+    }
+
+    private void DampenFlame(GameObject other)
+    {
+        flameStrength -= flameLoss; //dampening
+        changeFlame();
+        other.transform.position = new Vector3(0, 0, 0);
+        if (flameStrength < 1) //when flame strength is under a certain value, destroy the flame node
+        {
+            myFire.myFireNodes.Remove(this.gameObject); //update the parent with the destruction of the node
+            Destroy(this.gameObject);
+        }
+    }
+
+    System.Collections.IEnumerator BurnPlayer()
+    {
+        player.GetComponent<ZeroGravity>().DecreaseHealth(1);
+        yield return new WaitForSeconds(3f);
+        player.GetComponent<ZeroGravity>().DecreaseHealth(1);
+    }
+    private void changeFlame()
+    {
+        //all changes to the flame particle system are to happen here
+        sysMain.startSize = originalStartSize * (flameStrength / 100);
+        sysShape.radius = originalShapeRadius * (flameStrength / 100);
+    }
+
+}

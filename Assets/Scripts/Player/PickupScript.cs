@@ -236,6 +236,10 @@ public class PickupScript : MonoBehaviour
             heldObjRb.isKinematic = true;
             heldObjRb.transform.parent = holdPos.transform; //parent object to holdposition
             heldObj.layer = 8; //change the object layer to the holdLayer
+
+            if (heldObj.GetComponent<ExtinguisherObject>() != null) //we want the extinguisher to always be facing the right way, unlike with grabbed objects.
+                heldObj.transform.eulerAngles = cam.transform.eulerAngles;
+
             foreach (Transform child in heldObj.GetComponentInChildren<Transform>())
             {
                 child.gameObject.layer = 8;
@@ -300,6 +304,10 @@ public class PickupScript : MonoBehaviour
 
     void ThrowObject()
     {
+        if (heldObj.GetComponent<ExtinguisherObject>() != null)
+        {
+            return; //this makes it so the fire extinguisher cant be thrown, necessary because the throw input is used for the fire extinguisher behavior.
+        }
         //same as drop function, but add force to object before undefining it
         Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, false);
         //heldObj.GetComponent<Collider>().enabled = true;
