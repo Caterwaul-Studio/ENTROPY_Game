@@ -63,6 +63,7 @@ public class PlayerAudio : MonoBehaviour
     public void PlayKickOffWall(Vector3 position)
     {
         if (kickOffWall == null) return;
+        
         PlayBounceSoundAtPosition(kickOffWall, position, 0.5f);
     }
 
@@ -79,6 +80,12 @@ public class PlayerAudio : MonoBehaviour
         newSource.outputAudioMixerGroup = playerGroup;
         newSource.volume = volume;
         newSource.pitch = (Random.value / 5f) + 0.85f;
+
+        if(clip == kickOffWall)
+        {
+            newSource.time = .2f;
+        }
+
         newSource.Play();
 
         Destroy(audioObj, clip.length + 0.1f); // Clean up after sound finishes
