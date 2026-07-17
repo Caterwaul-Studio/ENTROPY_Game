@@ -1407,7 +1407,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         }
     }
     //decreases the health of the player
-    private void DecreaseHealth(int i)
+    public void DecreaseHealth(int i)
     {
         //if we are in GodMode
         if (GodMode)
