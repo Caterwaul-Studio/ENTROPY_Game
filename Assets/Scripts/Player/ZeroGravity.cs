@@ -182,8 +182,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
 
     [Header("== World Element Managers ==")]
-    [SerializeField]
-    private TutorialManager tutorialManager;
+    //[SerializeField]
+    //private TutorialManager tutorialManager;
     [SerializeField]
     private EnemyManager enemyManager;
     [SerializeField]
@@ -462,10 +462,10 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         boundingSphere.enabled = true;
         //find the camera in the child of this gameobject
         cam = this.GetComponentInChildren<Camera>();
-        if (tutorialManager == null)
-        {
-            tutorialManager = FindFirstObjectByType<TutorialManager>();
-        }
+        //if (tutorialManager == null)
+        //{
+        //    tutorialManager = FindFirstObjectByType<TutorialManager>();
+        //}
     }
 
     // Start is called before the first frame update
@@ -685,21 +685,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             else if (onlyRollOnGrab && isGrabbing)
             {
                 cam.transform.Rotate(Vector3.forward, currentRollSpeed * Time.deltaTime);
-            }
-            if (tutorialManager != null && tutorialManager.inTutorial)
-            {
-                // inside RotateCam, after applying roll
-                float deltaRoll = currentRollSpeed * Time.deltaTime;
-                totalRotation += deltaRoll;
-                if (totalRotation > 360)
-                {
-                    totalRotation = 0;
-                }
-                if (totalRotation < -360)
-                {
-                    totalRotation = 0;
-                }
-                //Debug.Log(totalRotation);
             }
         }
     }
@@ -1161,11 +1146,22 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
 
     }
-    public void ForceResetForTutorial()
+    public void ForceResetForTutorial(Vector3 position, Quaternion rotation)
     {
         ReleaseBar();               // destroys any active SpringJoint / clears isGrabbing
+
+        var interpMode = rb.interpolation;
+        rb.interpolation = RigidbodyInterpolation.None;
+
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
+
+        transform.position = position;
+        cam.transform.rotation = rotation;
+
+        // Force physics to recognize the new position immediately,
+        // so nothing computes a delta against the old one this frame
+        Physics.SyncTransforms();
     }
 
     /// <summary>
@@ -1723,7 +1719,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             playerHealth, 
             numStims, 
             hasUsedStim,
-            tutorialManager.inTutorial,
             (bool[])accessPermissions.Clone(),
             wristMonitor.HasWristMonitor,
             wristMonitor.IsActive,

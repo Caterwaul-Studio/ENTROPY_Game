@@ -159,9 +159,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
             playerController.TutorialMode = true;
             if (ZeroGPlayer != null && tutorialStartPointObj != null)
             {
-                playerController.ForceResetForTutorial();
-                playerController.transform.position = tutorialStartPoint.transform.position;
-                mainCamera.transform.rotation = tutorialStartPoint.transform.rotation;
+                playerController.ForceResetForTutorial(tutorialStartPoint.transform.position, tutorialStartPoint.transform.rotation);
                 //Debug.Log("Player position and rotation set to tutorial start point.");
             }
             else
@@ -175,6 +173,19 @@ public class TutorialManager : MonoBehaviour, ISaveable
         {
             dialogueManager.OnDialogueEndTutorial += OnDialogueComplete;
             StartCoroutine(StartTutorial());
+        }
+
+        if (playerController.TutorialMode == true && GlobalSaveManager.lastCheckpointSelected)
+        {
+            if (GlobalSaveManager.lastCheckpointSelected && !tutorialCompleted)
+            {
+                RestartTutorial();
+            }
+            else if (!GlobalSaveManager.lastCheckpointSelected)
+            {
+                dialogueManager.OnDialogueEndTutorial += OnDialogueComplete;
+                StartCoroutine(StartTutorial());
+            }
         }
 
         if (skipProgressSlider != null)
@@ -276,6 +287,23 @@ public class TutorialManager : MonoBehaviour, ISaveable
             tutorialCompleted = true;
             CreateSaveFile("TutorialManager_Save.json");
             CreateSaveFile("TutorialManager_Temp.json");
+        }
+
+        if (!tutorialCompleted && isWaitingForAction && (currentStep == 2 || currentStep == 3))
+        {
+            // inside RotateCam, after applying roll
+            float deltaRoll = playerController.CurrentRollSpeed * Time.deltaTime;
+            playerController.TotalRotation += deltaRoll;
+            if (playerController.TotalRotation > 360)
+            {
+                playerController.TotalRotation = 0;
+            }
+            if (playerController.TotalRotation < -360)
+            {
+                playerController.TotalRotation = 0;
+            }
+            //Debug.Log(totalRotation);
+            Debug.Log($"[Tutorial] Frame position: {ZeroGPlayer.transform.position}");
         }
 
         //------------------------------------------------------------------------------------------------------
@@ -381,12 +409,9 @@ public class TutorialManager : MonoBehaviour, ISaveable
             case 2:
                 // Step 2: Roll 180 degrees upside down
                 //Debug.Log("Tutorial 2: Roll upside down");
-                if (!rollProgressBar.gameObject.activeSelf)
-                {
-                    rollProgressBar.gameObject.SetActive(true);
-                    playerController.TotalRotation = 0;
-                    rollProgressBar.value = 0f; // reset to empty immediately
-                }
+                rollProgressBar.gameObject.SetActive(true);
+                playerController.TotalRotation = 0;
+                rollProgressBar.value = 0f; // reset to empty immediately
                 //Debug.Log("rollProgressBar value: " + rollProgressBar.value);
                 requiredRotation = 180f;
                 stepComplete = false;
@@ -659,9 +684,8 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
         if(ZeroGPlayer != null && tutorialStartPointObj != null)
         {
-            playerController.ForceResetForTutorial();
-            playerController.transform.position = tutorialStartPoint.transform.position;
-            mainCamera.transform.rotation = tutorialStartPoint.transform.rotation;
+            playerController.ForceResetForTutorial(tutorialStartPoint.transform.position, tutorialStartPoint.transform.rotation);
+            Debug.Log($"[Tutorial] Position set to {tutorialStartPoint.transform.position}, actual: {playerController.transform.position}");
         }
         else
         {
@@ -678,6 +702,10 @@ public class TutorialManager : MonoBehaviour, ISaveable
         playerController.HasRolled = false;
         playerController.TutorialMode = true;
         playerController.CurrentRollSpeed = 0;
+        playerController.TotalRotation = 0f;
+        playerController.HasPropelled = false;
+        hasAttemptedSecondGrab = false;
+        detectedPickup = false;
 
         // Reset failure flags
         hasPlayedPushOffFailure = false;
@@ -1010,15 +1038,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
     {
         RestorePlayerInformation();
         HideAllPanels();
-
-        //UnityEngine.Debug.Log("Global Save Manager lastCheckpointSelected: " + GlobalSaveManager.lastCheckpointSelected);
-
-        if (initialStartComplete && !tutorialCompleted && 
-            GlobalSaveManager.lastCheckpointSelected)
-        {
-            //Debug.Log("Scene loaded and tutorial not completed. Restarting tutorial.");
-            RestartTutorial();
-        }
     }
 }
 
