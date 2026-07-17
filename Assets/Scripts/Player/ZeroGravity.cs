@@ -1155,7 +1155,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         if (rb.linearVelocity.magnitude <= pushSpeed && canPushOff && !uiManager.BarInRaycast && !uiManager.BarInPeripheral)
         {
-            playerAudio.PlayKickOffWall(transform.position);
             //create a vector for the new velocity
             Vector3 propelDirection = Vector3.zero;
             propelDirection -= cam.transform.forward * propelOffWallThrust;
@@ -1164,7 +1163,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             rb.linearVelocity *= .7f;
             //add the force to the rb
             rb.AddForce(propelDirection * Time.deltaTime, ForceMode.VelocityChange);
-            //play the kick off wall sound
         }
     }
 
@@ -1407,7 +1405,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         }
     }
     //decreases the health of the player
-    private void DecreaseHealth(int i)
+    public void DecreaseHealth(int i)
     {
         //if we are in GodMode
         if (GodMode)
@@ -1631,7 +1629,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     private IEnumerator ThrownRoutine(Vector3 impulse)
     {
-        // rb may already be kinematic from the grab lock ï¿½ ensure it's off for physics
+        // rb may already be kinematic from the grab lock Eensure it's off for physics
         rb.isKinematic = false;
         boundingSphere.enabled = true;
 
