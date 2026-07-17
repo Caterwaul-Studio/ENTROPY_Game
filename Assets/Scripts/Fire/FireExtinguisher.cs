@@ -12,7 +12,9 @@ public class FireExtinguisher : MonoBehaviour
     [SerializeField] private ParticleSystem sys;
     [SerializeField] private ParticleSystem.MainModule sysMain;
     [SerializeField] private ParticleSystem.EmissionModule sysEmission;
+    [SerializeField] private GameObject player;
     [SerializeField] private PickupScript pickupScript;
+    [SerializeField] private ZeroGravity zeroGravity;
     [SerializeField] private GameObject pauseMenu;
     private float initialEmission;
     private bool holding;
@@ -26,6 +28,12 @@ public class FireExtinguisher : MonoBehaviour
 
     private void Start()
     {
+        if (player == null)
+        {
+            player = FindAnyObjectByType<ZeroGravity>().gameObject;
+            zeroGravity = player.GetComponent<ZeroGravity>();
+            pickupScript = player.GetComponent<PickupScript>();
+        }
         initialEmission = sysEmission.rateOverTimeMultiplier;
         sysEmission.rateOverTime = 0;
     }
@@ -47,10 +55,13 @@ public class FireExtinguisher : MonoBehaviour
         if (holding && canPuff && hasExtinguisher)
             StartCoroutine(MakePuff());
 
-        if (pickupScript.current != null)
-            if (pickupScript.current.GetComponent<ExtinguisherObject>() != null && !pickupScript.CanPickUp && (pauseMenu == null || !pauseMenu.activeInHierarchy))
-                if (pickupScript.current.GetComponent<ExtinguisherObject>().remainingRetardant > 0)
-                    hasExtinguisher = true;
+        if (!zeroGravity.IsDead)
+            if (pickupScript.current != null)
+                if (pickupScript.current.GetComponent<ExtinguisherObject>() != null && !pickupScript.CanPickUp && (pauseMenu == null || !pauseMenu.activeInHierarchy))
+                    if (pickupScript.current.GetComponent<ExtinguisherObject>().remainingRetardant > 0)
+                        hasExtinguisher = true;
+                    else
+                        hasExtinguisher = false;
                 else
                     hasExtinguisher = false;
             else
