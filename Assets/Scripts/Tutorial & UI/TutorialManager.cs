@@ -83,11 +83,11 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
 
     //intended tutorial abilities
-    private bool canGrab = true;
-    private bool canRoll = true;
-    private bool canPushOff = true;
-    private bool canThrow = true;
-    private bool canPropel = true;
+    //private bool canGrab = true;
+    //private bool canRoll = true;
+    //private bool canPushOff = true;
+    //private bool canThrow = true;
+    //private bool canPropel = true;
     private float playerGrabRange;
 
     private float initialRollZ;
@@ -138,6 +138,8 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
     void Start()
     {
+        Debug.Log("tutorial manager start");
+
         if (GlobalSaveManager.LoadFromSave)
             GlobalSaveManager.LoadSavable(this, false);
         //Debug.Log("TutorialManager Start called. Restoring player information and hiding all panels.");
@@ -157,7 +159,8 @@ public class TutorialManager : MonoBehaviour, ISaveable
         if (!tutorialCompleted)
         {
             playerController.TutorialMode = true;
-            if (ZeroGPlayer != null && tutorialStartPointObj != null)
+            Debug.Log("tutorialMode = " + playerController.TutorialMode);
+            if (ZeroGPlayer != null && tutorialStartPoint != null)
             {
                 playerController.ForceResetForTutorial(tutorialStartPoint.transform.position, tutorialStartPoint.transform.rotation);
                 //Debug.Log("Player position and rotation set to tutorial start point.");
@@ -181,11 +184,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
             {
                 RestartTutorial();
             }
-            else if (!GlobalSaveManager.lastCheckpointSelected)
-            {
-                dialogueManager.OnDialogueEndTutorial += OnDialogueComplete;
-                StartCoroutine(StartTutorial());
-            }
         }
 
         if (skipProgressSlider != null)
@@ -196,6 +194,8 @@ public class TutorialManager : MonoBehaviour, ISaveable
         }
 
         initialStartComplete = true;
+
+        Debug.Log("player position: " + playerController.transform.position);
     }
 
     void Update()
@@ -510,31 +510,19 @@ public class TutorialManager : MonoBehaviour, ISaveable
     //sets the abilities of the player and has them reflected in the tutorial script
     public void SetPlayerAbilities(bool canGrab, bool canPropel, bool canPushOff, bool canRoll, bool canThrow)
     {
-        playerController.CanGrab = canGrab;
-        playerController.CanPropel = canPropel;
-        playerController.CanPushOff = canPushOff;
-        playerController.CanRoll = canRoll;
-        pickupScript.CanPickUp = canThrow;
+        Debug.Log($"[Tutorial] SetPlayerAbilities({canGrab},{canPropel},{canPushOff},{canRoll},{canThrow}) called\n{System.Environment.StackTrace}");
 
-        this.canGrab = canGrab;
-        this.canPropel = canPropel;
-        this.canPushOff = canPushOff;
-        this.canRoll = canRoll;
-        this.canThrow = canThrow;
-    }
-
-    //Method that sets the abilities of the player back to that which is currently needed in the tutorial.
-    public void SetAbilitiesToTutorial()
-    {
         playerController.CanGrab = canGrab;
         playerController.CanPropel = canPropel;
         playerController.CanPushOff = canPushOff;
         playerController.CanRoll = canRoll;
         pickupScript.CanPickUp = canThrow;
     }
+
 
     void EndTutorial()
     {
+        Debug.Log("End tutorial called");
         SetPlayerAbilities(true, true, true, true, true);
         inTutorial = false;
         isWaitingForAction = false;
@@ -682,7 +670,9 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
         StopAllCoroutines();
 
-        if(ZeroGPlayer != null && tutorialStartPointObj != null)
+        SetPlayerAbilities(false, false, false, false, false);
+
+        if(ZeroGPlayer != null && tutorialStartPoint != null)
         {
             playerController.ForceResetForTutorial(tutorialStartPoint.transform.position, tutorialStartPoint.transform.rotation);
             Debug.Log($"[Tutorial] Position set to {tutorialStartPoint.transform.position}, actual: {playerController.transform.position}");

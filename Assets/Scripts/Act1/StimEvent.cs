@@ -33,8 +33,7 @@ public class StimEvent : MonoBehaviour
         manager = FindFirstObjectByType<DialogueManager>();
         playerScript = FindFirstObjectByType<ZeroGravity>(); 
         stimUseCanvasGroup = FindCanvasGroupByName(stimUseCanvasGroupObj);
-        //ensure it sets false on start
-        stimUseCanvasGroup.gameObject.SetActive(false);
+        //ensure it is invisible on start
         stimUseCanvasGroup.alpha = 0.0f;
     }
 
@@ -49,6 +48,7 @@ public class StimEvent : MonoBehaviour
         if(stimUseCanvasGroup == null)
         {
             stimUseCanvasGroup = FindCanvasGroupByName(stimUseCanvasGroupObj);
+            Debug.Log("search for stim tutorial panel called");
         }
 
     }

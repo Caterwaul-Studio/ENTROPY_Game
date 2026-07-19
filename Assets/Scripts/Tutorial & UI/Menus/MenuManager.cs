@@ -78,6 +78,7 @@ public class MenuManager : MonoBehaviour
             Cursor.visible = true;
             playerCanvas.SetActive(false);
             dialogueCanvas.SetActive(false);
+            if(tutorialCanvas != null)
             tutorialCanvas.SetActive(false);
             _unscaledTime += .01f;
             Shader.SetGlobalFloat("_UnscaledTime", _unscaledTime);
@@ -109,6 +110,7 @@ public class MenuManager : MonoBehaviour
         Cursor.visible = false;
         playerCanvas.SetActive(true);
         dialogueCanvas.SetActive(true);
+        if(tutorialCanvas != null)
         tutorialCanvas.SetActive(true);
         Time.timeScale = 1;
         if (dialogue != null) dialogue.UnPause();

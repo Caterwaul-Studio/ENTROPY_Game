@@ -351,7 +351,10 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     public bool CanMove
     {
         get { return canMove; }
-        set { canMove = value; }
+        set {
+            if (canGrab != value)
+                Debug.Log($"[Tutorial] CanGrab set to {value}\n{System.Environment.StackTrace}");
+            canMove = value; }
     }
 
     public bool CanGrab
@@ -363,19 +366,28 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     public bool CanPropel 
     { 
         get { return canPropel; } 
-        set { canPropel = value; }
+        set {
+            if (canPropel != value)
+                Debug.Log($"[Tutorial] CanPropel set to {value}\n{System.Environment.StackTrace}");
+            canPropel = value; }
     }
 
     public bool CanPushOff 
     { 
         get { return canPushOff; }
-        set { canPushOff = value; }
+        set {
+            if (canPushOff != value)
+                Debug.Log($"[Tutorial] CanPushOff set to {value}\n{System.Environment.StackTrace}");
+            canPushOff = value; }
     }
 
     public bool CanRoll 
     { 
         get { return canRoll; }
-        set { canRoll = value; }
+        set {
+            if (canRoll != value)
+                Debug.Log($"[Tutorial] CanRoll set to {value}\n{System.Environment.StackTrace}");
+            canRoll = value; }
     }
 
     public bool HasPropelled 
@@ -473,8 +485,10 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         Application.targetFrameRate = 120;  // match this with your build target frame rate.
 
-        // give player default permissions
+        Debug.Log("zero gravity script start");
 
+        // give player default permissions
+        Debug.Log("tutorialMode?" + tutorialMode);
         //initial player booleans set if in tutorial mode
         if (tutorialMode)
         {
@@ -759,14 +773,16 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         }
         else if (!inCutScene)
         {
-            //Debug.Log("running player cutscene handler");
-            canGrab = true;
-            canPushOff = true;
-            canPropel = true;
-            canRoll = true;
-            //uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
-            uiManager.Crosshair.color = new Color(1f, 1f, 1f, 1f);
-
+            if (!TutorialMode)
+            {
+                //Debug.Log("running player cutscene handler");
+                canGrab = true;
+                canPushOff = true;
+                canPropel = true;
+                canRoll = true;
+                //uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
+                uiManager.Crosshair.color = new Color(1f, 1f, 1f, 1f);
+            }
         }
     }
 

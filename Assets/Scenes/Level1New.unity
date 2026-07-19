@@ -2913,7 +2913,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1.2881}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2030990079}
   - {fileID: 489399952}
   - {fileID: 729058148}
   - {fileID: 231595649}
@@ -30139,12 +30138,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2030990078}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.49999925, y: -0.49999925, z: 0.5000007, w: 0.5000007}
-  m_LocalPosition: {x: -16.377092, y: 1.087, z: -24.334253}
-  m_LocalScale: {x: 1, y: 0.77633744, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
+  m_LocalPosition: {x: 5.8233213, y: -0.8006836, z: 1.9359074}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 307957196}
+  m_Father: {fileID: 9132995995614558312}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
 --- !u!1 &2036822644
 GameObject:
@@ -33253,7 +33252,7 @@ MonoBehaviour:
   TutorialCanvases: {fileID: 0}
   dialogueManager: {fileID: 8506786234058232379}
   doorToOpen: {fileID: 2057266809044454524}
-  tutorialStartPoint: {fileID: 0}
+  tutorialStartPoint: {fileID: 2030990078}
   checkpointManager: {fileID: 0}
   inTutorial: 0
   tutorialCompleted: 0
@@ -38670,7 +38669,8 @@ Transform:
   m_LocalPosition: {x: -8.132321, y: 0.13768363, z: 8.135094}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2030990079}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &9163222660899648655
