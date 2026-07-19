@@ -31924,6 +31924,42 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9092212022653689627, guid: 640eeb5d20c0f7549849a5de38c8fc45, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.006304674
+      objectReference: {fileID: 0}
+    - target: {fileID: 9092212022653689627, guid: 640eeb5d20c0f7549849a5de38c8fc45, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.146205
+      objectReference: {fileID: 0}
+    - target: {fileID: 9092212022653689627, guid: 640eeb5d20c0f7549849a5de38c8fc45, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.015549481
+      objectReference: {fileID: 0}
+    - target: {fileID: 9092212022653689627, guid: 640eeb5d20c0f7549849a5de38c8fc45, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.5000452
+      objectReference: {fileID: 0}
+    - target: {fileID: 9092212022653689627, guid: 640eeb5d20c0f7549849a5de38c8fc45, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.5000441
+      objectReference: {fileID: 0}
+    - target: {fileID: 9092212022653689627, guid: 640eeb5d20c0f7549849a5de38c8fc45, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.49995598
+      objectReference: {fileID: 0}
+    - target: {fileID: 9092212022653689627, guid: 640eeb5d20c0f7549849a5de38c8fc45, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.4999548
+      objectReference: {fileID: 0}
+    - target: {fileID: 9092212022653689627, guid: 640eeb5d20c0f7549849a5de38c8fc45, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 9092212022653689627, guid: 640eeb5d20c0f7549849a5de38c8fc45, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 630.01
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 862721737248289454, guid: 640eeb5d20c0f7549849a5de38c8fc45, type: 3}
@@ -187579,7 +187615,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
@@ -223186,7 +223222,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '[ Escape ]'
+  m_text: '[ Esc ]'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1d436d86844a1a1459cd6a200e6038db, type: 2}
   m_sharedMaterial: {fileID: 836031216320211621, guid: 1d436d86844a1a1459cd6a200e6038db, type: 2}
@@ -232434,6 +232470,7 @@ MonoBehaviour:
   useStim: {fileID: 8300000, guid: a886b404e6380cd4fbefa1fa33cfc115, type: 3}
   grabItem: {fileID: 8300000, guid: 4552582d8ddfd144fb6aac2cdadef1e5, type: 3}
   throwItem: {fileID: 8300000, guid: 6c9527059043b3a48b7348e7dbd397a8, type: 3}
+  kickOffWall: {fileID: 0}
   playerGroup: {fileID: 1529270391070815761, guid: 720f457489e44c440b5082c1b507453e, type: 2}
 --- !u!114 &8079650368252685212
 MonoBehaviour:
@@ -232473,7 +232510,9 @@ MonoBehaviour:
   puffCycle: 0
   fireExtinguisherPosition: {fileID: 1761032799}
   sys: {fileID: 215557764}
+  player: {fileID: 0}
   pickupScript: {fileID: 2598745841374828148}
+  zeroGravity: {fileID: 0}
   pauseMenu: {fileID: 0}
 --- !u!1 &8086980318969273059
 GameObject:
