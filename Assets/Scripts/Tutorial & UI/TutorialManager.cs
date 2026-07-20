@@ -140,8 +140,8 @@ public class TutorialManager : MonoBehaviour, ISaveable
     {
         Debug.Log("tutorial manager start");
 
-        if (GlobalSaveManager.LoadFromSave)
-            GlobalSaveManager.LoadSavable(this, false);
+        //if (GlobalSaveManager.LoadFromSave)
+        //    GlobalSaveManager.LoadSavable(this, false);
         //Debug.Log("TutorialManager Start called. Restoring player information and hiding all panels.");
         RestorePlayerInformation();
         HideAllPanels();
