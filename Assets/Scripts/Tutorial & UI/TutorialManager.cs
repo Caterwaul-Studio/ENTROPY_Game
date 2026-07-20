@@ -138,7 +138,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
     void Start()
     {
-        Debug.Log("tutorial manager start");
+        //Debug.Log("tutorial manager start");
 
         //if (GlobalSaveManager.LoadFromSave)
         //    GlobalSaveManager.LoadSavable(this, false);
@@ -164,7 +164,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
         initialStartComplete = true;
 
-        Debug.Log("player position: " + playerController.transform.position);
+        //Debug.Log("player position: " + playerController.transform.position);
     }
 
     void Update()
@@ -272,7 +272,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
                 playerController.TotalRotation = 0;
             }
             //Debug.Log(totalRotation);
-            Debug.Log($"[Tutorial] Frame position: {ZeroGPlayer.transform.position}");
+            //Debug.Log($"[Tutorial] Frame position: {ZeroGPlayer.transform.position}");
         }
 
         //------------------------------------------------------------------------------------------------------
@@ -479,7 +479,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
     //sets the abilities of the player and has them reflected in the tutorial script
     public void SetPlayerAbilities(bool canGrab, bool canPropel, bool canPushOff, bool canRoll, bool canThrow)
     {
-        Debug.Log($"[Tutorial] SetPlayerAbilities({canGrab},{canPropel},{canPushOff},{canRoll},{canThrow}) called\n{System.Environment.StackTrace}");
+        //Debug.Log($"[Tutorial] SetPlayerAbilities({canGrab},{canPropel},{canPushOff},{canRoll},{canThrow}) called\n{System.Environment.StackTrace}");
 
         playerController.CanGrab = canGrab;
         playerController.CanPropel = canPropel;
@@ -491,7 +491,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
     void EndTutorial()
     {
-        Debug.Log("End tutorial called");
+        //Debug.Log("End tutorial called");
         SetPlayerAbilities(true, true, true, true, true);
         inTutorial = false;
         isWaitingForAction = false;
@@ -644,7 +644,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
         if(ZeroGPlayer != null && tutorialStartPoint != null)
         {
             playerController.ForceResetForTutorial(tutorialStartPoint.transform.position, tutorialStartPoint.transform.rotation);
-            Debug.Log($"[Tutorial] Position set to {tutorialStartPoint.transform.position}, actual: {playerController.transform.position}");
+            //Debug.Log($"[Tutorial] Position set to {tutorialStartPoint.transform.position}, actual: {playerController.transform.position}");
         }
         else
         {

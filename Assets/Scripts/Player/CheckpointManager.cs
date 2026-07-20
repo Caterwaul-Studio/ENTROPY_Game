@@ -123,6 +123,6 @@ public class CheckpointManager : MonoBehaviour, ISaveable
         //playerZeroG.transform.position = checkpoints[_currentIndex].respawnPoint.transform.position;
         //playerCam.transform.rotation = checkpoints[_currentIndex].respawnPoint.transform.rotation;
 
-        Debug.Log("Restored player from save at checkpoint " + _currentIndex);
+        //Debug.Log("Restored player from save at checkpoint " + _currentIndex);
     }
 }

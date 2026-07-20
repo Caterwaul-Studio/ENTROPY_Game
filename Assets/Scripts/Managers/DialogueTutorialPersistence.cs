@@ -53,7 +53,7 @@ public class DialogueTutorialPersistence : MonoBehaviour
         bool stillInLevel1 = System.Array.IndexOf(level1SceneNames, scene.name) >= 0;
         if (!stillInLevel1)
         {
-            UnityEngine.Debug.Log($"Left Level 1 (loaded '{scene.name}'). Destroying persistent Dialogue&Tutorial.");
+            //UnityEngine.Debug.Log($"Left Level 1 (loaded '{scene.name}'). Destroying persistent Dialogue&Tutorial.");
             Destroy(gameObject);
         }
     }

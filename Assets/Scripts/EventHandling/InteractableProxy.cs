@@ -22,7 +22,7 @@ public class InteractableProxy : MonoBehaviour, IInteractable
     {
         get
         {
-            Debug.Log($"[Proxy:{name}] source={source?.name}, PromptIcon={Source?.PromptIcon}");
+            //Debug.Log($"[Proxy:{name}] source={source?.name}, PromptIcon={Source?.PromptIcon}");
             return Source?.PromptIcon;
         }
     }
@@ -32,7 +32,7 @@ public class InteractableProxy : MonoBehaviour, IInteractable
     {
         get
         {
-            Debug.Log($"[Proxy:{name}] billboardAnchor={billboardAnchor?.name}, resolved={(billboardAnchor != null ? billboardAnchor : transform)?.name}");
+            //Debug.Log($"[Proxy:{name}] billboardAnchor={billboardAnchor?.name}, resolved={(billboardAnchor != null ? billboardAnchor : transform)?.name}");
             return billboardAnchor != null ? billboardAnchor : transform;
         }
     }

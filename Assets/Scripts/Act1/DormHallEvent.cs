@@ -197,7 +197,7 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
 
     public void CompleteDormTerminal()
     {
-        Debug.Log("completeDormTerminal called");
+        //Debug.Log("completeDormTerminal called");
         StartCoroutine(TerminalComplete());
     }
 
@@ -206,7 +206,7 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
         medDoor.SetState(DoorScript.States.Closed);
         dialogueManager.StartDialogueSequence(2, 1f);
         stingerManager.PlayDormRoomStinger();
-        Debug.Log($"[TerminalComplete] numQueued={dialogueManager.numDialoguesQueued}, IsActive={dialogueManager.IsDialogueActive}, dialogueManager instanceID={dialogueManager.GetInstanceID()}");
+        //Debug.Log($"[TerminalComplete] numQueued={dialogueManager.numDialoguesQueued}, IsActive={dialogueManager.IsDialogueActive}, dialogueManager instanceID={dialogueManager.GetInstanceID()}");
 
         // Step 1: wait until the dialogue system actually leaves Idle (confirms it started)
         yield return new WaitUntil(() => dialogueManager.currentState != DialogueManager.DialogueState.Idle);
@@ -244,7 +244,7 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
         float timeElapsed = 0f;
         float fadeDuration = 1f;
 
-        Debug.Log("fade canvas goup called");
+        //Debug.Log("fade canvas goup called");
 
         while (timeElapsed < fadeDuration)
         {
@@ -283,13 +283,13 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
     }
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        UnityEngine.Debug.Log("Global Save Manager lastCheckpointSelected: " + GlobalSaveManager.lastCheckpointSelected);
+        //UnityEngine.Debug.Log("Global Save Manager lastCheckpointSelected: " + GlobalSaveManager.lastCheckpointSelected);
 
         if (
             GlobalSaveManager.lastCheckpointSelected)
         {
             CompleteDormTerminal();
-            Debug.Log("Scene loaded and tutorial not completed. Restarting tutorial.");
+            //Debug.Log("Scene loaded and tutorial not completed. Restarting tutorial.");
         }
     }
 }

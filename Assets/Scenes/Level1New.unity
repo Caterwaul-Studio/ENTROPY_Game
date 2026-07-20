@@ -12469,7 +12469,7 @@ GameObject:
   - component: {fileID: 525172398}
   m_Layer: 10
   m_Name: Cube
-  m_TagString: WristGrab
+  m_TagString: IInteractable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -30934,6 +30934,14 @@ PrefabInstance:
       propertyPath: m_Center.x
       value: -0.22370769
       objectReference: {fileID: 0}
+    - target: {fileID: 7195908029258829520, guid: 030ca38db5a058f47a1f28de0193f80d, type: 3}
+      propertyPath: m_TagString
+      value: IInteractable
+      objectReference: {fileID: 0}
+    - target: {fileID: 8309756377483113343, guid: 030ca38db5a058f47a1f28de0193f80d, type: 3}
+      propertyPath: m_TagString
+      value: IInteractable
+      objectReference: {fileID: 0}
     - target: {fileID: 8327659006920130323, guid: 030ca38db5a058f47a1f28de0193f80d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.02
@@ -32439,6 +32447,30 @@ PrefabInstance:
     - target: {fileID: 5044265848518750084, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5260962018019044910, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: interactables.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5260962018019044910, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: 'interactables.Array.data[2]'
+      value: StimDispenser
+      objectReference: {fileID: 0}
+    - target: {fileID: 5260962018019044910, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: 'interactables.Array.data[3]'
+      value: Terminal
+      objectReference: {fileID: 0}
+    - target: {fileID: 5260962018019044910, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: 'interactables.Array.data[4]'
+      value: IInteractable
+      objectReference: {fileID: 0}
+    - target: {fileID: 5260962018019044910, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: 'interactables.Array.data[5]'
+      value: WristGrab
+      objectReference: {fileID: 0}
+    - target: {fileID: 5260962018019044910, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: 'interactables.Array.data[6]'
+      value: WristGrab
       objectReference: {fileID: 0}
     - target: {fileID: 5456537753069029703, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchorMax.y

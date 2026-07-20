@@ -139,7 +139,7 @@ public class MenuManager : MonoBehaviour
         playerCanvas.SetActive(true);  // Re-enable player UI
 
         GlobalSaveManager.lastCheckpointSelected = true; // Set the flag to indicate last checkpoint was selected
-        Debug.Log("Last checkpoint selected, flag set to: " + GlobalSaveManager.lastCheckpointSelected);
+        //Debug.Log("Last checkpoint selected, flag set to: " + GlobalSaveManager.lastCheckpointSelected);
     }
 
     public void LoadMenu()

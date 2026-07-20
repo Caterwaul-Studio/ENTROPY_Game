@@ -461,7 +461,7 @@ public class PlayerUIManager : MonoBehaviour
                     RayCastHandleStimDispenser(interactableHit);
                     break;
                 case "Terminal":
-                    Debug.Log("Terminal Detected");
+                    //Debug.Log("Terminal Detected");
                     RayCastHandleTerminal(interactableHit);
                     break;
                 //case "PickupObject":

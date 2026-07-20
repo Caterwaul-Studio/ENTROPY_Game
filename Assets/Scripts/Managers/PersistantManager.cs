@@ -17,8 +17,8 @@ public class PersistantManager : MonoBehaviour
     public Camera MainCamera => mainCamera;
 
     //private ObjectiveUpdate objectiveUpdate;
-    private CheckpointManager checkpointManager;
-    private MenuManager menuManager;
+    //private CheckpointManager checkpointManager;
+    //private MenuManager menuManager;
     public GameObject persistentObj;
 
     public static PersistantManager Instance { get; set; }

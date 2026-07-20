@@ -353,7 +353,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         get { return canMove; }
         set {
             if (canGrab != value)
-                Debug.Log($"[Tutorial] CanGrab set to {value}\n{System.Environment.StackTrace}");
+                //Debug.Log($"[Tutorial] CanGrab set to {value}\n{System.Environment.StackTrace}");
             canMove = value; }
     }
 
@@ -368,7 +368,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         get { return canPropel; } 
         set {
             if (canPropel != value)
-                Debug.Log($"[Tutorial] CanPropel set to {value}\n{System.Environment.StackTrace}");
+                //Debug.Log($"[Tutorial] CanPropel set to {value}\n{System.Environment.StackTrace}");
             canPropel = value; }
     }
 
@@ -377,7 +377,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         get { return canPushOff; }
         set {
             if (canPushOff != value)
-                Debug.Log($"[Tutorial] CanPushOff set to {value}\n{System.Environment.StackTrace}");
+                //Debug.Log($"[Tutorial] CanPushOff set to {value}\n{System.Environment.StackTrace}");
             canPushOff = value; }
     }
 
@@ -386,7 +386,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         get { return canRoll; }
         set {
             if (canRoll != value)
-                Debug.Log($"[Tutorial] CanRoll set to {value}\n{System.Environment.StackTrace}");
+                //Debug.Log($"[Tutorial] CanRoll set to {value}\n{System.Environment.StackTrace}");
             canRoll = value; }
     }
 
@@ -485,10 +485,10 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         Application.targetFrameRate = 120;  // match this with your build target frame rate.
 
-        Debug.Log("zero gravity script start");
+        //Debug.Log("zero gravity script start");
 
         // give player default permissions
-        Debug.Log("tutorialMode?" + tutorialMode);
+        //Debug.Log("tutorialMode?" + tutorialMode);
         //initial player booleans set if in tutorial mode
         if (tutorialMode)
         {
