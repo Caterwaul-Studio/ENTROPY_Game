@@ -30926,6 +30926,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: LockdownEvent
       objectReference: {fileID: 0}
+    - target: {fileID: 4160869675005189551, guid: 030ca38db5a058f47a1f28de0193f80d, type: 3}
+      propertyPath: m_Size.x
+      value: 0.5525823
+      objectReference: {fileID: 0}
+    - target: {fileID: 4160869675005189551, guid: 030ca38db5a058f47a1f28de0193f80d, type: 3}
+      propertyPath: m_Center.x
+      value: -0.22370769
+      objectReference: {fileID: 0}
     - target: {fileID: 8327659006920130323, guid: 030ca38db5a058f47a1f28de0193f80d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.02
@@ -37071,6 +37079,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9132995995614558312}
   - component: {fileID: 1556074131656840221}
+  - component: {fileID: 9132995995614558313}
   m_Layer: 0
   m_Name: TutorialManager
   m_TagString: Untagged
@@ -38673,6 +38682,20 @@ Transform:
   - {fileID: 2030990079}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9132995995614558313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7070909888671248471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f72c9b3264540342bf6711fc4a83eef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  level1SceneNames:
+  - Level1New
 --- !u!1001 &9163222660899648655
 PrefabInstance:
   m_ObjectHideFlags: 0

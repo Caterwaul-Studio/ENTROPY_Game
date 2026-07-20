@@ -135,6 +135,11 @@ public class DialogueManager : MonoBehaviour
                 skipDialogueRequested = true;
             }
         }
+        if(tutorialManager == null)
+        {
+            tutorialManager = FindFirstObjectByType<TutorialManager>();
+            Debug.Log("found tutorial manager");
+        }
     }
 
     #region Public API

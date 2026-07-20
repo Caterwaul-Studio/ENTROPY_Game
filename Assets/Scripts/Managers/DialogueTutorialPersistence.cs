@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// This script is used to mark the Dialogue&Tutorial hierarchy as persistent across scene reloads in level 1. 
+/// This script is used to mark the TutorialManager as persistent across scene reloads in level 1. 
 /// </summary>
 
 public class DialogueTutorialPersistence : MonoBehaviour

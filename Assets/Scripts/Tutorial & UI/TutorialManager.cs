@@ -152,39 +152,8 @@ public class TutorialManager : MonoBehaviour, ISaveable
         stingerManager = FindFirstObjectByType<StingerManager>();
         playerGrabRange = playerController.GrabRange;
         //playerController.TutorialMode = true;
-
-        // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
-        // EVENTUALLY REPLACE THIS CHECK FOR A PROPER TUTORIALCOMPLETE VARAIBLE
-        // checks if dialogue is at the beginning (tutorial)
-        if (!tutorialCompleted)
-        {
-            playerController.TutorialMode = true;
-            Debug.Log("tutorialMode = " + playerController.TutorialMode);
-            if (ZeroGPlayer != null && tutorialStartPoint != null)
-            {
-                playerController.ForceResetForTutorial(tutorialStartPoint.transform.position, tutorialStartPoint.transform.rotation);
-                //Debug.Log("Player position and rotation set to tutorial start point.");
-            }
-            else
-            {
-                Debug.Log("zeroGPlayer or tutorialStartPoint is null. Cannot reset position and rotation.");
-            }
-        }
-
-        //determines if the player is to be in tutorial from the player controller's "TutorialMode" bool, which is saved by the GSM
-        if (playerController.TutorialMode == true && !GlobalSaveManager.lastCheckpointSelected)
-        {
-            dialogueManager.OnDialogueEndTutorial += OnDialogueComplete;
-            StartCoroutine(StartTutorial());
-        }
-
-        if (playerController.TutorialMode == true && GlobalSaveManager.lastCheckpointSelected)
-        {
-            if (GlobalSaveManager.lastCheckpointSelected && !tutorialCompleted)
-            {
-                RestartTutorial();
-            }
-        }
+        
+        HandleTutorialStateOnLoad();
 
         if (skipProgressSlider != null)
         {
@@ -879,6 +848,32 @@ public class TutorialManager : MonoBehaviour, ISaveable
         }
     }
 
+    private void HandleTutorialStateOnLoad()
+    {
+        if (!tutorialCompleted)
+        {
+            playerController.TutorialMode = true;
+            if (ZeroGPlayer != null && tutorialStartPoint != null)
+            {
+                playerController.ForceResetForTutorial(
+                    tutorialStartPoint.transform.position,
+                    tutorialStartPoint.transform.rotation);
+            }
+        }
+        if (playerController.TutorialMode == true && !GlobalSaveManager.lastCheckpointSelected)
+        {
+            dialogueManager.OnDialogueEndTutorial -= OnDialogueComplete; // avoid double-subscribe
+            dialogueManager.OnDialogueEndTutorial += OnDialogueComplete;
+            StartCoroutine(StartTutorial());
+        }
+
+        if (playerController.TutorialMode == true && GlobalSaveManager.lastCheckpointSelected
+            && !tutorialCompleted)
+        {
+            RestartTutorial();
+        }
+    }
+
     /// <summary>
     /// This method is used to restore references to all necessary player-related objects
     /// and components after a scene load. It ensures that the TutorialManager can continue functioning correctly even if the scene has changed, 
@@ -1028,6 +1023,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
     {
         RestorePlayerInformation();
         HideAllPanels();
+        HandleTutorialStateOnLoad();
     }
 }
 
