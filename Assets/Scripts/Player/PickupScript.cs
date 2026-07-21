@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.HID;
+using UnityEngine.SceneManagement;
 
 public class PickupScript : MonoBehaviour
 {
@@ -19,6 +20,8 @@ public class PickupScript : MonoBehaviour
 
     [SerializeField]
     private GameObject ObjectContainer;
+    //string to help find the object container in the scene, if it is not assigned in the inspector
+    private string objectContainerName = "FloatingObjects";
 
     [SerializeField]
     private bool canPickUp = false;
@@ -79,15 +82,31 @@ public class PickupScript : MonoBehaviour
         get { return heldObj; }
     }
 
+
+    // onenable and ondisable called on scene load
+    private void OnEnable() { 
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable() {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
          coolDown = 0;
+
+        if(ObjectContainer == null)
+        {
+            ObjectContainer = GameObject.Find(objectContainerName);
+        }
     }
 
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
        
         if (heldObj == null && zeroGPlayer.CanGrab) //if currently not holding anything and is allowed to grab things
@@ -337,6 +356,11 @@ public class PickupScript : MonoBehaviour
     {
         yield return null; // Wait one frame
         hasThrownObject = false;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ObjectContainer = GameObject.Find("FloatingObjects");
     }
 
 }

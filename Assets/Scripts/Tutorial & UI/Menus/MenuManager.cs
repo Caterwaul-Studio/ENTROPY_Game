@@ -78,6 +78,7 @@ public class MenuManager : MonoBehaviour
             Cursor.visible = true;
             playerCanvas.SetActive(false);
             dialogueCanvas.SetActive(false);
+            if(tutorialCanvas != null)
             tutorialCanvas.SetActive(false);
             _unscaledTime += .01f;
             Shader.SetGlobalFloat("_UnscaledTime", _unscaledTime);
@@ -109,6 +110,7 @@ public class MenuManager : MonoBehaviour
         Cursor.visible = false;
         playerCanvas.SetActive(true);
         dialogueCanvas.SetActive(true);
+        if(tutorialCanvas != null)
         tutorialCanvas.SetActive(true);
         Time.timeScale = 1;
         if (dialogue != null) dialogue.UnPause();
@@ -125,20 +127,24 @@ public class MenuManager : MonoBehaviour
     public void LastCheckpoint()
     {
         // Need state machine for player to be reset
-        Debug.Log("Load Last Checkpoint selected");
+        //Debug.Log("Load Last Checkpoint selected");
         Resume();
         
         Time.timeScale = 1f; // Ensure normal game speed
         playerDead = false;
+        player.IsDead = playerDead;
 
         StartCoroutine(cameraFade.FadeIn(1.5f));
         player.Respawn();
         playerCanvas.SetActive(true);  // Re-enable player UI
+
+        GlobalSaveManager.lastCheckpointSelected = true; // Set the flag to indicate last checkpoint was selected
+        //Debug.Log("Last checkpoint selected, flag set to: " + GlobalSaveManager.lastCheckpointSelected);
     }
 
     public void LoadMenu()
     {
-        Debug.Log("Menu selected");
+        //Debug.Log("Menu selected");
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }

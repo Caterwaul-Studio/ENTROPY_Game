@@ -7,12 +7,24 @@ public class CheckpointManager : MonoBehaviour, ISaveable
     [Tooltip("Ordered list of your checkpoints in scene")]
     [SerializeField]
     public List<Checkpoint> checkpoints;
-    public ZeroGravity playerZeroG;    // drag your player�s ZeroGravity component here
+    [SerializeField] private ZeroGravity playerZeroG;    // keep as inspector fallback only
+    [SerializeField] private GameObject persistentPrefab;
+    [SerializeField] private Camera playerCam;
+    private int _currentIndex = 0;
 
-    int _currentIndex = 0;
+    public int CurrentIndex
+    {
+        get { return _currentIndex; }
+    }
 
     void Start()
     {
+        //prefer the persistant player over whatever was dragged in this scene
+        if (PersistantManager.Instance != null && PersistantManager.Instance.Player != null)
+        {
+            playerZeroG = PersistantManager.Instance.Player;
+            playerCam = PersistantManager.Instance.MainCamera;
+        }
         // Wire up each checkpoint and only enable the first one
         for (int i = 0; i < checkpoints.Count; i++)
         {
@@ -21,7 +33,11 @@ public class CheckpointManager : MonoBehaviour, ISaveable
             cp.Initialize(playerZeroG, i == 0);
         }
         // continue from save
-        if (GlobalSaveManager.LoadFromSave) GlobalSaveManager.LoadSavable(this, false);
+        if (GlobalSaveManager.LoadFromSave)
+        {
+            GlobalSaveManager.LoadSavable(this, false);
+            HandleRestorePlayerFromSave();
+        }   
     }
 
     void HandleCheckpointReached(Checkpoint reached)
@@ -83,5 +99,30 @@ public class CheckpointManager : MonoBehaviour, ISaveable
         string json = JsonUtility.ToJson(_checkpointData);
         string path = Application.persistentDataPath;
         GlobalSaveManager.SaveTextToFile(path, fileName, json);
+    }
+
+    public void HandleRestorePlayerFromSave()
+    {
+
+        //clean up lingering persistent instance before creating a new one
+        //if (PersistantManager.Instance != null)
+        //{
+        //    Debug.Log("destroying lingering persistent instance before creating a new one");
+        //    Destroy(PersistantManager.Instance.gameObject);
+        //    PersistantManager.Instance = null;
+        //}
+
+        //GameObject newPersistentObj = Instantiate(persistentPrefab, Vector3.zero, Quaternion.identity);
+
+        playerZeroG = PersistantManager.Instance.Player;
+        playerCam = playerZeroG.GetComponentInChildren<Camera>();
+        playerZeroG.PlayerCutSceneHandler(false);
+
+        GlobalSaveManager.LoadSavable(playerZeroG, false);
+
+        //playerZeroG.transform.position = checkpoints[_currentIndex].respawnPoint.transform.position;
+        //playerCam.transform.rotation = checkpoints[_currentIndex].respawnPoint.transform.rotation;
+
+        //Debug.Log("Restored player from save at checkpoint " + _currentIndex);
     }
 }

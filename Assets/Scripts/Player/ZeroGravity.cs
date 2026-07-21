@@ -49,7 +49,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     private bool usingStimCharge = false;
 
 
-    private bool isDead = false;
+    public bool isDead = false;
     //win tracker
     private bool didWin = false;
     [SerializeField]
@@ -182,8 +182,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
 
     [Header("== World Element Managers ==")]
-    [SerializeField]
-    private TutorialManager tutorialManager;
+    //[SerializeField]
+    //private TutorialManager tutorialManager;
     [SerializeField]
     private EnemyManager enemyManager;
     [SerializeField]
@@ -208,17 +208,17 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     [Header("== PLayer Movement Restriction Bools ==")]
     //used for freezing the camera movement while completing the puzzle.
-    private bool canMove = true;
+    public bool canMove = true;
 
     //Fields for the tutorial
     [SerializeField]
     private bool tutorialMode = false;
-    private bool canGrab = false;
-    private bool canPropel = false;
-    private bool canPushOff = false;
-    private bool canRoll = false;
-    private bool hasPropelled = false;
-    private bool hasRolled = false;
+    public bool canGrab = false;
+    public bool canPropel = false;
+    public bool canPushOff = false;
+    public bool canRoll = false;
+    public bool hasPropelled = false;
+    public bool hasRolled = false;
 
     // Track if the movement keys were released
     private bool movementKeysReleased;
@@ -351,7 +351,10 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     public bool CanMove
     {
         get { return canMove; }
-        set { canMove = value; }
+        set {
+            if (canGrab != value)
+                //Debug.Log($"[Tutorial] CanGrab set to {value}\n{System.Environment.StackTrace}");
+            canMove = value; }
     }
 
     public bool CanGrab
@@ -363,24 +366,28 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     public bool CanPropel 
     { 
         get { return canPropel; } 
-        set { canPropel = value; }
+        set {
+            if (canPropel != value)
+                //Debug.Log($"[Tutorial] CanPropel set to {value}\n{System.Environment.StackTrace}");
+            canPropel = value; }
     }
 
     public bool CanPushOff 
     { 
         get { return canPushOff; }
-        set { canPushOff = value; }
-    }
-
-    public float PushSpeed
-    {
-        get { return pushSpeed; }
+        set {
+            if (canPushOff != value)
+                //Debug.Log($"[Tutorial] CanPushOff set to {value}\n{System.Environment.StackTrace}");
+            canPushOff = value; }
     }
 
     public bool CanRoll 
     { 
         get { return canRoll; }
-        set { canRoll = value; }
+        set {
+            if (canRoll != value)
+                //Debug.Log($"[Tutorial] CanRoll set to {value}\n{System.Environment.StackTrace}");
+            canRoll = value; }
     }
 
     public bool HasPropelled 
@@ -399,6 +406,17 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         get { return totalRotation; }
         set { totalRotation = value; }
+    }
+
+    public float PushSpeed
+    {
+        get { return pushSpeed; }
+    }
+
+    public float CurrentRollSpeed
+    {
+        get { return currentRollSpeed; }
+        set { currentRollSpeed = value; }
     }
 
     public int PlayerHealth { get { return playerHealth; } set { playerHealth = value; } }
@@ -454,7 +472,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         //hard code isKinematic is false to ensure the No-Clip logic works and doesn't force the player into kinematic when they shouldn't be
         rb.isKinematic = false;
         boundingSphere.enabled = true;
-        cam = Camera.main;
+        //find the camera in the child of this gameobject
+        cam = this.GetComponentInChildren<Camera>();
+        //if (tutorialManager == null)
+        //{
+        //    tutorialManager = FindFirstObjectByType<TutorialManager>();
+        //}
     }
 
     // Start is called before the first frame update
@@ -462,8 +485,10 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         Application.targetFrameRate = 120;  // match this with your build target frame rate.
 
-        // give player default permissions
+        //Debug.Log("zero gravity script start");
 
+        // give player default permissions
+        //Debug.Log("tutorialMode?" + tutorialMode);
         //initial player booleans set if in tutorial mode
         if (tutorialMode)
         {
@@ -502,11 +527,14 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         // continue from save
         if (GlobalSaveManager.LoadFromSave) GlobalSaveManager.LoadSavable(this, false);
 
-        if (SceneManager.GetActiveScene().name == "Level2")
-        {
-            //Debug.Log("Setting player defaults for level 2");
-            Level2DefaultValues();
-        }
+        //--------------------------------------------------------------------------------------------------------------------
+        //remove this once persistent data complete
+        //--------------------------------------------------------------------------------------------------------------------
+        //if (SceneManager.GetActiveScene().name == "Level2")
+        //{
+        //    //Debug.Log("Setting player defaults for level 2");
+        //    Level2DefaultValues();
+        //}
     }
 
     // Update is called once per frame
@@ -672,21 +700,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             {
                 cam.transform.Rotate(Vector3.forward, currentRollSpeed * Time.deltaTime);
             }
-            if (tutorialManager != null && tutorialManager.inTutorial)
-            {
-                // inside RotateCam, after applying roll
-                float deltaRoll = currentRollSpeed * Time.deltaTime;
-                totalRotation += deltaRoll;
-                if (totalRotation > 360)
-                {
-                    totalRotation = 0;
-                }
-                if (totalRotation < -360)
-                {
-                    totalRotation = 0;
-                }
-                //Debug.Log(totalRotation);
-            }
         }
     }
 
@@ -760,14 +773,16 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         }
         else if (!inCutScene)
         {
-            //Debug.Log("running player cutscene handler");
-            canGrab = true;
-            canPushOff = true;
-            canPropel = true;
-            canRoll = true;
-            //uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
-            uiManager.Crosshair.color = new Color(1f, 1f, 1f, 1f);
-
+            if (!TutorialMode)
+            {
+                //Debug.Log("running player cutscene handler");
+                canGrab = true;
+                canPushOff = true;
+                canPropel = true;
+                canRoll = true;
+                //uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
+                uiManager.Crosshair.color = new Color(1f, 1f, 1f, 1f);
+            }
         }
     }
 
@@ -1147,6 +1162,23 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
 
     }
+    public void ForceResetForTutorial(Vector3 position, Quaternion rotation)
+    {
+        ReleaseBar();               // destroys any active SpringJoint / clears isGrabbing
+
+        var interpMode = rb.interpolation;
+        rb.interpolation = RigidbodyInterpolation.None;
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        transform.position = position;
+        cam.transform.rotation = rotation;
+
+        // Force physics to recognize the new position immediately,
+        // so nothing computes a delta against the old one this frame
+        Physics.SyncTransforms();
+    }
 
     /// <summary>
     /// player uses the space bar to push off the wall when they are stuck
@@ -1155,7 +1187,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         if (rb.linearVelocity.magnitude <= pushSpeed && canPushOff && !uiManager.BarInRaycast && !uiManager.BarInPeripheral)
         {
-            playerAudio.PlayKickOffWall(transform.position);
             //create a vector for the new velocity
             Vector3 propelDirection = Vector3.zero;
             propelDirection -= cam.transform.forward * propelOffWallThrust;
@@ -1164,7 +1195,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             rb.linearVelocity *= .7f;
             //add the force to the rb
             rb.AddForce(propelDirection * Time.deltaTime, ForceMode.VelocityChange);
-            //play the kick off wall sound
+
+            playerAudio.PlayKickOffWall(rb.transform.position);
         }
     }
 
@@ -1526,8 +1558,9 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     public void Respawn()
     {
         // whether or not we load from save depends on whether temp data exists
+        
         GlobalSaveManager.LoadFromSave = GlobalSaveManager.TempDataExists();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex, LoadSceneMode.Single); //ensure this is in single mode to ensure the player is not loaded into the scene twice
     }
 
     #endregion
@@ -1631,7 +1664,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     private IEnumerator ThrownRoutine(Vector3 impulse)
     {
-        // rb may already be kinematic from the grab lock ï¿½ ensure it's off for physics
+        // rb may already be kinematic from the grab lock — ensure it's off for physics
         rb.isKinematic = false;
         boundingSphere.enabled = true;
 
@@ -1702,7 +1735,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             playerHealth, 
             numStims, 
             hasUsedStim,
-            tutorialManager.inTutorial,
             (bool[])accessPermissions.Clone(),
             wristMonitor.HasWristMonitor,
             wristMonitor.IsActive,
@@ -1719,21 +1751,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         playerHealth = playerData.Health;
         numStims = playerData.Stims;
         hasUsedStim = playerData.HasUsedStim;
-        // reset all actions
-        if (playerData.InTutorial)
-        {
-            tutorialManager.RestartTutorial();
-        }
-        else
-        {
-            // get rid of the tutorial
-            tutorialMode = false;
-            canGrab = true;
-            canMove = true;
-            canPropel = true;
-            canRoll = true;
-            canPushOff = true;
-        }
         // set wrist monitor data
         accessPermissions = (bool[])playerData.AccessPermissions.Clone();
         wristMonitor.HasWristMonitor = playerData.HasWristMonitor;

@@ -36,10 +36,6 @@ public class WristMonitor : MonoBehaviour
     [SerializeField] private GameObject[] _displayTexts;
     [SerializeField] ObjectiveUpdate objectiveUpdator;
 
-    private bool tutorialShowing = true;
-    [SerializeField]
-    private DormHallEvent dormHallScript;
-
     [Header("Feedback Sliders")]
     public CanvasGroup tabCanvasGroup;
     public CanvasGroup wristMonitorCanvasGroup;
@@ -81,6 +77,7 @@ public class WristMonitor : MonoBehaviour
     }
 
     public event System.Action<bool> OnWristMonitorAcquired;
+    public event System.Action OnWristMonitorOpened;
     /// <summary>
     /// Public class used to display vital information to the player of how they must proceed
     /// </summary>
@@ -232,6 +229,11 @@ public class WristMonitor : MonoBehaviour
         if (hasWristMonitor)
         {
             isActive = !isActive;
+
+            if (isActive)
+            {
+                OnWristMonitorOpened?.Invoke();
+            }
         }
     }
 

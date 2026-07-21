@@ -99,15 +99,21 @@ public class ZeroGravityTest : MonoBehaviour
     private Sprite highDangerIndicator;
 
     //used for freezing the camera movement while completing the puzzle.
+    [SerializeField]
     private bool canMove = true;
 
     //Fields for the tutorial
     [SerializeField]
     private bool tutorialMode = false;
+    [SerializeField]
     private bool canGrab = false;
+    [SerializeField]
     private bool canPropel = false;
+    [SerializeField]
     private bool canPushOff = false;
+    [SerializeField]
     private bool canRoll = false;
+    [SerializeField]
     private bool hasPropelled = false;
 
 

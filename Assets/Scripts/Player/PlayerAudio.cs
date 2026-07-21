@@ -72,6 +72,8 @@ public class PlayerAudio : MonoBehaviour
     {
         if (clip == null || audioSourcePrefab == null) return;
 
+        Debug.Log("play bounce called");
+
         GameObject audioObj = Instantiate(audioSourcePrefab, position, Quaternion.identity, audioContainer);
         AudioSource newSource = audioObj.GetComponent<AudioSource>();
         if (newSource == null) return;
@@ -81,7 +83,7 @@ public class PlayerAudio : MonoBehaviour
         newSource.volume = volume;
         newSource.pitch = (Random.value / 5f) + 0.85f;
 
-        if(clip == kickOffWall)
+        if (clip == kickOffWall)
         {
             newSource.time = .2f;
         }

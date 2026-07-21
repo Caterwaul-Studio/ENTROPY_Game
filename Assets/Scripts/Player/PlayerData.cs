@@ -21,9 +21,9 @@ public class PlayerData
     [SerializeField]
     private bool hasUsedStim;
     public bool HasUsedStim {  get { return hasUsedStim; } }
-    [SerializeField]
-    private bool inTutorial;
-    public bool InTutorial { get { return inTutorial; } }
+    //[SerializeField]
+    //private bool inTutorial;
+    //public bool InTutorial { get { return inTutorial; } }
     [SerializeField]
     private bool[] accessPermissions;
     public bool[] AccessPermissions { get { return accessPermissions; } }
@@ -45,7 +45,7 @@ public class PlayerData
         int _health, 
         int _stims, 
         bool _hasUsedStim, 
-        bool _inTutorial,
+        //bool _inTutorial,
         bool[] _accessPermissions,
         bool _hasWristMonitor,
         bool _showingWristMonitor,
@@ -58,7 +58,7 @@ public class PlayerData
         health = _health;
         stims = _stims;
         hasUsedStim = _hasUsedStim;
-        inTutorial = _inTutorial;
+        //inTutorial = _inTutorial;
         accessPermissions = _accessPermissions;
         hasWristMonitor = _hasWristMonitor;
         showingWristMonitor = _showingWristMonitor;
