@@ -37,7 +37,7 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
     public Sprite PromptIcon => promptIcon;
     public Color PromptColor => Color.white;
     public Transform BillboardParent => null;
-    public string PromptText => "take wrist monitor";
+    public string PromptText => "take flashlight";
     public void OnLookEnter() => canGrab = true;
     public void OnLookExit() => canGrab = false;
 
@@ -74,8 +74,26 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
         canGrab = false;
         isGrabbable = true;
 
-        flashlight.OnFlashlightAcquired += HandleFlashlightAcquired;
-        flashlight.OnFlashlightTurnedOn += StartFlashlightTutorial;
+        //if the persistant manager is null, find it and assign it to the variable.
+        if (persistantManager == null)
+        {
+            persistantManager = FindFirstObjectByType<PersistantManager>();
+        }
+        //then restore the other necessary references from the persistant manager.
+        if (player == null)
+        {
+            player = persistantManager.Player;
+        }
+        if(flashlight == null)
+        {
+            flashlight = FindFirstObjectByType<Flashlight>();
+        }
+
+        if(flashlight != null)
+        {
+            flashlight.OnFlashlightAcquired += HandleFlashlightAcquired;
+            flashlight.OnFlashlightTurnedOn += StartFlashlightTutorial;
+        }
     }
 
     // Update is called once per frame
@@ -116,6 +134,7 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
         if (acquired)
         {
             flashlightPickupObject.SetActive(false);
+            flashlight.EquipFlashlightFromScene();
         }
     }
 

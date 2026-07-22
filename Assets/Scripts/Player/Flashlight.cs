@@ -20,9 +20,7 @@ public class Flashlight : MonoBehaviour
     private bool hasFlashlight = false;
 
     [SerializeField]
-    GameObject flashlightObjectParentedToPlayer;
-    [SerializeField]
-    GameObject flashlightObjectInScene;
+    GameObject flashlight;
 
     [SerializeField]
     private bool flashlightEquipped = false;
@@ -38,9 +36,8 @@ public class Flashlight : MonoBehaviour
         get { return flashlightEquipped; }
         set
         {
-            flashlightEquipped = value;
             //Debug.Log("Flashlight equipped: " + flashlightEquipped);
-            flashlightObjectParentedToPlayer.SetActive(flashlightEquipped);
+            flashlight.SetActive(flashlightEquipped);
             //Debug.Log("Flashlight object parented to player active: " + flashlightObjectParentedToPlayer.activeSelf);
         }
     }
@@ -61,8 +58,8 @@ public class Flashlight : MonoBehaviour
             return hasFlashlight;
         }
         set { if (hasFlashlight == value) return;
-            HasFlashlight = value;
-            OnFlashlightAcquired?.Invoke(HasFlashlight);
+            hasFlashlight = value;
+            OnFlashlightAcquired?.Invoke(hasFlashlight);
         }
     }
 
@@ -80,24 +77,16 @@ public class Flashlight : MonoBehaviour
 
     }
 
-    public void EquipFlashlightFromScene(InputAction.CallbackContext context)
+    public void EquipFlashlightFromScene()
     {
-        if (lookingAtFlashlight
-            && !hasFlashlight
-            && !flashlightEquipped
-            && context.performed)
+        if (hasFlashlight
+            && !flashlightEquipped)
         {
-            //go through the lights of the scene object, match what ever their status is with the flashlightOn bool
-            foreach (Light light in flashlightObjectInScene.GetComponentsInChildren<Light>())
-            {
-                flashlightOn = light.enabled;
-                //Debug.Log("Light: " + flashlightOn);
-            }
             hasFlashlight = true; // disables scene flashlight
             flashlightEquipped = true;   // enables player flashlight
             //set the default of the flashlight of the lights of the player flashlight from the scene flashlight
             //Debug.Log("Toggling flashlight " + flashlightOn);
-            foreach (Light light in flashlightObjectParentedToPlayer.GetComponentsInChildren<Light>())
+            foreach (Light light in flashlight.GetComponentsInChildren<Light>())
             {
                 light.enabled = flashlightOn;
             }
@@ -115,7 +104,7 @@ public class Flashlight : MonoBehaviour
             if (flashlightEquipped == true)
             {
                 flashlightOn = false;
-                foreach (Light light in flashlightObjectParentedToPlayer.GetComponentsInChildren<Light>())
+                foreach (Light light in flashlight.GetComponentsInChildren<Light>())
                 {
                     //ensure the flashlight is turned off when equipping it from the inventory
                     light.enabled = flashlightOn;
@@ -132,7 +121,7 @@ public class Flashlight : MonoBehaviour
         {
             flashlightOn = !flashlightOn;
             //Debug.Log("Toggling flashlight" + flashlightOn);
-            foreach (Light light in flashlightObjectParentedToPlayer.GetComponentsInChildren<Light>())
+            foreach (Light light in flashlight.GetComponentsInChildren<Light>())
             {
                 light.enabled = flashlightOn;
             }

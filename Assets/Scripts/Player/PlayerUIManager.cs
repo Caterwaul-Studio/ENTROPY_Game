@@ -470,6 +470,7 @@ public class PlayerUIManager : MonoBehaviour
                 default:
                     if (hitInteractable != null && hitInteractable.IsAvailableForInteraction)
                     {
+                        Debug.Log("IInteractable in raycast");
                         ShowBillboardUI(
                             hitInteractable.PromptIcon,
                             hitInteractable.PromptColor,
