@@ -1063,30 +1063,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TerminalManager, Assembly-CSharp
-        m_MethodName: OnInteract
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: DormHallEvent, Assembly-CSharp
-        m_MethodName: OnInteract
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
     m_ActionId: 0d051d0c-c9b7-4f11-b18e-0c874d16e3be
     m_ActionName: 'PlayerControls/Interact[/Keyboard/z]'
   - m_PersistentCalls:
@@ -1189,6 +1165,14 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 261e9b89-727d-4707-80df-01b3eef10705
     m_ActionName: 'PlayerControls/Up&Down[/Keyboard/c,/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 552fecbd-9172-4475-a89b-c5f59fa30c86
+    m_ActionName: 'FunctionKeyShortCuts/FreeMoveNoClip[/Keyboard/f11]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e5dfa9c3-f315-4f34-804a-da5b32fe298f
+    m_ActionName: 'FunctionKeyShortCuts/SkipLevel1[/Keyboard/f12]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: PlayerControls
@@ -1216,6 +1200,7 @@ MonoBehaviour:
   maxHealth: 4
   numStims: 0
   maxNumStim: 3
+  isDead: 0
   end: {fileID: 0}
   justHitCoolDown: 0.6
   hurtCoolDown: 3.5
@@ -1255,7 +1240,6 @@ MonoBehaviour:
   uiManager: {fileID: 4963548833321525119}
   grab: {fileID: 1289024538108758660, guid: 62bee993b4da21145a34bb9e2304d3d3, type: 3}
   pushOffWall: {fileID: -757749469659553165, guid: 62bee993b4da21145a34bb9e2304d3d3, type: 3}
-  tutorialManager: {fileID: 0}
   enemyManager: {fileID: 0}
   playerAudio: {fileID: 9061259470052302539}
   useIK: 0
@@ -1267,7 +1251,15 @@ MonoBehaviour:
   - {fileID: 6319839147279738420}
   rigBuilder: {fileID: 8792483863225657206}
   animator: {fileID: 2432546500723709812}
+  canMove: 1
   tutorialMode: 0
+  canGrab: 0
+  canPropel: 0
+  canPushOff: 0
+  canRoll: 0
+  hasPropelled: 0
+  hasRolled: 0
+  playerInputs: 0
   useManualPullIn: 0
   onlyRollOnGrab: 0
   playerData:
@@ -1276,12 +1268,13 @@ MonoBehaviour:
     health: 0
     stims: 0
     hasUsedStim: 0
-    inTutorial: 0
     accessPermissions: 
     hasWristMonitor: 0
     showingWristMonitor: 0
     mainObjectives: []
     completedObjectives: []
+  isBeingGrabbed: 0
+  throwDecay: 3
 --- !u!114 &3021978966882329380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1328,14 +1321,12 @@ MonoBehaviour:
   rb: {fileID: 2192679517419319478}
   pickupScript: {fileID: 3021978966882329380}
   doorManager: {fileID: 0}
-  lockdownEvent: {fileID: 0}
-  dormHallEvent: {fileID: 0}
-  stimDispenserContainer: {fileID: 0}
   terminalManager: {fileID: 0}
   wristMonitor: {fileID: 0}
   cameraFade: {fileID: 0}
   grabUIText: {fileID: 0}
   billboardPrefab: {fileID: 6611770611460363364, guid: 220b2b321a232e54482fd6f3efed05eb, type: 3}
+  iconScale: 0.05
   characterPivot: {fileID: 1020848818265474842}
   crosshair: {fileID: 0}
   grabber: {fileID: 0}
@@ -1495,6 +1486,7 @@ MonoBehaviour:
   useStim: {fileID: 8300000, guid: a886b404e6380cd4fbefa1fa33cfc115, type: 3}
   grabItem: {fileID: 8300000, guid: 4552582d8ddfd144fb6aac2cdadef1e5, type: 3}
   throwItem: {fileID: 8300000, guid: 6c9527059043b3a48b7348e7dbd397a8, type: 3}
+  kickOffWall: {fileID: 0}
   playerGroup: {fileID: 1529270391070815761, guid: 720f457489e44c440b5082c1b507453e, type: 2}
 --- !u!114 &2598223832726737249
 MonoBehaviour:
