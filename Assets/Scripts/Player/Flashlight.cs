@@ -68,7 +68,7 @@ public class Flashlight : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        flashlightEquipped = false;
     }
 
     // Update is called once per frame
@@ -79,18 +79,19 @@ public class Flashlight : MonoBehaviour
 
     public void EquipFlashlightFromScene()
     {
+        Debug.Log("equip flashlight called");
         if (hasFlashlight
             && !flashlightEquipped)
         {
-            hasFlashlight = true; // disables scene flashlight
             flashlightEquipped = true;   // enables player flashlight
+            flashlight.SetActive(flashlightEquipped);
             //set the default of the flashlight of the lights of the player flashlight from the scene flashlight
             //Debug.Log("Toggling flashlight " + flashlightOn);
             foreach (Light light in flashlight.GetComponentsInChildren<Light>())
             {
                 light.enabled = flashlightOn;
             }
-            //Debug.Log("Equipping flashlight from scene|| HasFlashlightInScene: " + HasFlashlightInScene + " FlashlightEquipped: " + FlashlightEquipped);
+            Debug.Log("Equipping flashlight from scene|| HasFlashlightInScene: " + hasFlashlight + " FlashlightEquipped: " + FlashlightEquipped);
             lookingAtFlashlight = false;
         }
     }
@@ -100,6 +101,7 @@ public class Flashlight : MonoBehaviour
         if (hasFlashlight && context.performed)
         {
             flashlightEquipped = !flashlightEquipped;
+            flashlight.SetActive(flashlightEquipped);
 
             if (flashlightEquipped == true)
             {
@@ -107,6 +109,7 @@ public class Flashlight : MonoBehaviour
                 foreach (Light light in flashlight.GetComponentsInChildren<Light>())
                 {
                     //ensure the flashlight is turned off when equipping it from the inventory
+                    Debug.Log("light found");
                     light.enabled = flashlightOn;
                 }
             }
@@ -117,12 +120,13 @@ public class Flashlight : MonoBehaviour
 
     public void ToggleFlashlight(InputAction.CallbackContext context)
     {
-        if (hasFlashlight && flashlightEquipped && context.performed)
+        if (hasFlashlight && flashlightEquipped == true && context.performed)
         {
             flashlightOn = !flashlightOn;
             //Debug.Log("Toggling flashlight" + flashlightOn);
             foreach (Light light in flashlight.GetComponentsInChildren<Light>())
             {
+                Debug.Log("light found");
                 light.enabled = flashlightOn;
             }
         }

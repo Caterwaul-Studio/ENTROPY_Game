@@ -208,6 +208,24 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""INV1FlashlightEquip"",
+                    ""type"": ""Button"",
+                    ""id"": ""6b9194ba-fc8c-42ea-b84c-2e3d815aefac"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""INV1FlashlightToggle"",
+                    ""type"": ""Button"",
+                    ""id"": ""2c985bf2-571b-49c2-a9ab-88107fbc55d3"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -661,6 +679,28 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""action"": ""Up&Down"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5423862b-9405-4a3f-b087-c0d520b361af"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""INV1FlashlightEquip"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2dce4e85-38f7-4424-b17b-494e538a1857"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""INV1FlashlightToggle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -854,6 +894,8 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
         m_PlayerControls_Throw = m_PlayerControls.FindAction("Throw", throwIfNotFound: true);
         m_PlayerControls_OffWall = m_PlayerControls.FindAction("OffWall", throwIfNotFound: true);
         m_PlayerControls_OpenWristMonitor = m_PlayerControls.FindAction("OpenWristMonitor", throwIfNotFound: true);
+        m_PlayerControls_INV1FlashlightEquip = m_PlayerControls.FindAction("INV1FlashlightEquip", throwIfNotFound: true);
+        m_PlayerControls_INV1FlashlightToggle = m_PlayerControls.FindAction("INV1FlashlightToggle", throwIfNotFound: true);
         // Dialogue
         m_Dialogue = asset.FindActionMap("Dialogue", throwIfNotFound: true);
         m_Dialogue_ContinueDialogue = m_Dialogue.FindAction("ContinueDialogue", throwIfNotFound: true);
@@ -966,6 +1008,8 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControls_Throw;
     private readonly InputAction m_PlayerControls_OffWall;
     private readonly InputAction m_PlayerControls_OpenWristMonitor;
+    private readonly InputAction m_PlayerControls_INV1FlashlightEquip;
+    private readonly InputAction m_PlayerControls_INV1FlashlightToggle;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerControls".
     /// </summary>
@@ -1029,6 +1073,14 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "PlayerControls/OpenWristMonitor".
         /// </summary>
         public InputAction @OpenWristMonitor => m_Wrapper.m_PlayerControls_OpenWristMonitor;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerControls/INV1FlashlightEquip".
+        /// </summary>
+        public InputAction @INV1FlashlightEquip => m_Wrapper.m_PlayerControls_INV1FlashlightEquip;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerControls/INV1FlashlightToggle".
+        /// </summary>
+        public InputAction @INV1FlashlightToggle => m_Wrapper.m_PlayerControls_INV1FlashlightToggle;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1094,6 +1146,12 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
             @OpenWristMonitor.started += instance.OnOpenWristMonitor;
             @OpenWristMonitor.performed += instance.OnOpenWristMonitor;
             @OpenWristMonitor.canceled += instance.OnOpenWristMonitor;
+            @INV1FlashlightEquip.started += instance.OnINV1FlashlightEquip;
+            @INV1FlashlightEquip.performed += instance.OnINV1FlashlightEquip;
+            @INV1FlashlightEquip.canceled += instance.OnINV1FlashlightEquip;
+            @INV1FlashlightToggle.started += instance.OnINV1FlashlightToggle;
+            @INV1FlashlightToggle.performed += instance.OnINV1FlashlightToggle;
+            @INV1FlashlightToggle.canceled += instance.OnINV1FlashlightToggle;
         }
 
         /// <summary>
@@ -1144,6 +1202,12 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
             @OpenWristMonitor.started -= instance.OnOpenWristMonitor;
             @OpenWristMonitor.performed -= instance.OnOpenWristMonitor;
             @OpenWristMonitor.canceled -= instance.OnOpenWristMonitor;
+            @INV1FlashlightEquip.started -= instance.OnINV1FlashlightEquip;
+            @INV1FlashlightEquip.performed -= instance.OnINV1FlashlightEquip;
+            @INV1FlashlightEquip.canceled -= instance.OnINV1FlashlightEquip;
+            @INV1FlashlightToggle.started -= instance.OnINV1FlashlightToggle;
+            @INV1FlashlightToggle.performed -= instance.OnINV1FlashlightToggle;
+            @INV1FlashlightToggle.canceled -= instance.OnINV1FlashlightToggle;
         }
 
         /// <summary>
@@ -1692,6 +1756,20 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnOpenWristMonitor(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "INV1FlashlightEquip" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnINV1FlashlightEquip(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "INV1FlashlightToggle" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnINV1FlashlightToggle(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Dialogue" which allows adding and removing callbacks.

@@ -122,6 +122,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "INV1FlashlightEquip",
+                    "type": "Button",
+                    "id": "6b9194ba-fc8c-42ea-b84c-2e3d815aefac",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "INV1FlashlightToggle",
+                    "type": "Button",
+                    "id": "2c985bf2-571b-49c2-a9ab-88107fbc55d3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -575,6 +593,28 @@
                     "action": "Up&Down",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "5423862b-9405-4a3f-b087-c0d520b361af",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV1FlashlightEquip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2dce4e85-38f7-4424-b17b-494e538a1857",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV1FlashlightToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
