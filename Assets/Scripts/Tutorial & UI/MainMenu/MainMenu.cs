@@ -13,6 +13,7 @@ public class MainMenu : MonoBehaviour
 {
     [SerializeField] private SettingsMenu settingsMenu;
     [SerializeField] private GameObject confirmationPopUp;
+    [SerializeField] private GameObject newGamePopUp;
     [SerializeField] private GameObject optionsMenu;
     [SerializeField] private Volume volume;
     [SerializeField] private UIAudioManager uiAudio;
@@ -77,12 +78,47 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     public void StartGame()
     {
+        uiAudio?.PlaySelectSound();
+
+        if (GlobalSaveManager.FindSaveFiles())
+        {
+            // existing progress found - warn before wiping it
+            newGamePopUp.SetActive(true);
+        }
+        else
+        {
+            // no save files, begin game
+            BeginNewGame();
+        }
+    }
+
+    public void ConfirmNewGame()
+    {
+        uiAudio?.PlaySelectSound();
+        newGamePopUp.SetActive(false);
+        BeginNewGame();
+    }
+
+    /// <summary>
+    /// cancels the new game pop up and the player returns to the main menu
+    /// </summary>
+    public void CancelNewGamePopup()
+    {
+        uiAudio?.PlaySelectSound();
+        newGamePopUp.SetActive(false);
+    }
+    /// <summary>
+    /// This wipes save data and loads into a fresh game
+    /// </summary>
+    public void BeginNewGame()
+    {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
-        uiAudio?.PlaySelectSound();
+        GlobalSaveManager.DeleteAllSaveData();
         GlobalSaveManager.LoadFromSave = false;
-        GlobalSaveManager.DeleteTempFiles();
+        GlobalSaveManager.SavedWithTerminal = false;
+        GlobalSaveManager.lastCheckpointSelected = false;
 
         LoadWithMusicFade("Level1New");
     }
@@ -140,6 +176,7 @@ public class MainMenu : MonoBehaviour
             uiAudio?.PlayBackSound();
         }
     }
+
     ///</summary>
     /// <summary>
     /// Opens the options menu and turns off lens distortion

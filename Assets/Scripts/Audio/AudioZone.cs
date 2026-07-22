@@ -27,9 +27,18 @@ public class AudioZone : MonoBehaviour
     }
 
 
+    public void Repopulate()
+    {
+        StartCoroutine(Populate());
+    }
+
     IEnumerator Populate()
     {
         yield return new WaitForSeconds(1);
+
+        audioObjects.Clear(); // clear stake references from past scene load
+
+        if (cullingManager == null || cullingManager.cullable == null) yield break;
 
         for (int i = 0; i < cullingManager.cullable.Length; i++)
         {

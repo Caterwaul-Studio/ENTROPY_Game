@@ -6,6 +6,7 @@ public class StimDispenserManager : MonoBehaviour, ISaveable
     public StimDispenser currentStimDispenser;
 
     public List<StimDispenser> dispensers;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

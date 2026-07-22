@@ -7,8 +7,6 @@ public class LockdownEvent : MonoBehaviour
     [SerializeField]
     private GameObject playerObject;
     private ZeroGravity player;
-    [SerializeField]
-    private Collider playerCollider;
 
     [SerializeField]
     private BoxCollider DoorTrigger;
@@ -50,6 +48,7 @@ public class LockdownEvent : MonoBehaviour
 
     // lockdown bools
     private bool leverPulled;
+    private bool lockdownDeactivated;
     private bool isActive;
     private bool canPull;
     private bool isComplete;
@@ -116,15 +115,11 @@ public class LockdownEvent : MonoBehaviour
 
     public Transform panelMovePos;
 
+    [SerializeField] private InputActionReference interactActionReference;
 
     public bool LeverPulled
     {
         get { return leverPulled; }
-    }
-    public bool CanPull
-    {
-        get { return canPull; }
-        set { canPull = value; }
     }
 
     public bool IsActive
@@ -136,8 +131,6 @@ public class LockdownEvent : MonoBehaviour
     {
         get { return isComplete; }
     }
-
-
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -152,7 +145,9 @@ public class LockdownEvent : MonoBehaviour
             grateMovePos = grateMoveLocation.transform.position;
         }
 
+        playerObject = PersistantManager.Instance.PlayerObject;
         player = playerObject.GetComponent<ZeroGravity>();
+        wristMonitor = PersistantManager.Instance.WristMonitor;
 
         DoorTrigger.enabled = false;
         //MusicTrigger.enabled = false;
@@ -170,6 +165,7 @@ public class LockdownEvent : MonoBehaviour
         isGrabbable = true;
 
         dialogueManager = FindFirstObjectByType<DialogueManager>();
+        ambientController = FindFirstObjectByType<AmbientController>();
 
 
         // Renderer rend = serverObj.GetComponent<Renderer>();
@@ -284,50 +280,37 @@ public class LockdownEvent : MonoBehaviour
 
     }
 
-    public void OnInteract(InputAction.CallbackContext context)
+    public void TryPullLever()
     {
+        if (isActive) return;
 
-        if (context.performed)
-        {
-            //Debug.Log(isActive);
-            //Handle lockdown lever
-            if (canPull && isActive && !isComplete)
-            {
-                audioManager.PlayButtonClick();
-                StartCoroutine(LerpPosition(panelMovePos.position, 1f));
- 
-                // open the broken door first
-                //brokenDoor.SetState(DoorScript.States.Open);
+        StartCoroutine(ActivateLever());
+        audioManager.playLeverSFX();
+    }
 
-                DoorTrigger.enabled = true;
-                //isActive = false;
-                isComplete = true;
+    public void TryDeactivateLockdown()
+    {
+        if (!isActive || isComplete) return;
 
-                // begin lighting and audio queues
-                player.PlayerCutSceneHandler(true);
-                StartCoroutine(PlayLockdownFX());
+        audioManager.PlayButtonClick();
+        StartCoroutine(LerpPosition(panelMovePos.position, 1f));
 
-            }
-            else if (canPull && !isActive)
-            {
-                // lever must be pulled first
-                StartCoroutine(ActivateLever());
-                audioManager.playLeverSFX();
-            }
-        }
-        
+        DoorTrigger.enabled = true;
+        isComplete = true;
+
+        player.PlayerCutSceneHandler(true);
+        StartCoroutine(PlayLockdownFX());
     }
 
     private IEnumerator ActivateLever()
     {
-
         leverPulled = true;
         yield return StartCoroutine(lockdownPanel.PlayLeverAnimation());
 
         lockdownPanel.SwitchToDeactivate();
 
         //genuinely idk if this sequence is used??? it doesnt play so is it just a empty line idk???
-        dialogueManager.StartDialogueSequence(9, 0.5f);
+        //dialogueManager.StartDialogueSequence(9, 0.5f);
 
         // I need isactive to be true when dialogue concludes
         yield return new WaitForSeconds(1f);
@@ -338,7 +321,7 @@ public class LockdownEvent : MonoBehaviour
     {
         //Wait for button Press
         yield return new WaitForSeconds(0.5f);
-        
+
         //Lock the Entrance Door;
         StartCoroutine(LockServerEntrance());
         MusicTrigger.enabled = true;
@@ -363,8 +346,6 @@ public class LockdownEvent : MonoBehaviour
         StartCoroutine(FadeEmission(barsMaterials, initBarEmissive, initBarEmissive, 1f, -10, 8f, 0f));
 
         StartCoroutine(FadeEmission(lightMaterials, initLightEmissiveColor, endLightEmissiveColor, initLightEmissiveMultiplier, -10, 6.5f, 0f));
-
-
 
         poweringDown = true;
         
@@ -407,7 +388,7 @@ public class LockdownEvent : MonoBehaviour
         
         yield return new WaitForSeconds(4f);
         player.PlayerCutSceneHandler(false);
-        StartCoroutine(MoveDoor(gratePos, grateMovePos, 4f, null));
+        StartCoroutine(MoveDoor(gratePos, grateMovePos, 1f, null));
         
         //Open doors in the doors to open array, this is the dining hall to facilities door.
 
@@ -547,10 +528,6 @@ public class LockdownEvent : MonoBehaviour
         
         alienBody.SetActive(false);
         alienAnimator.SetTrigger("ReturnToIdle");
-
-
-
-
     }
 
     IEnumerator FadeAlienLight()
@@ -599,6 +576,7 @@ public class LockdownEvent : MonoBehaviour
     /// <returns></returns>
     private IEnumerator LerpPosition(Vector3 destination, float duration)
     {
+        lockdownDeactivated = true;
         Vector3 start = player.transform.position;
         float elapsed = 0f;
 
@@ -631,9 +609,6 @@ public class LockdownEvent : MonoBehaviour
 
     private void GetLightMaterials()
     {
-
-
-
         for (int i = 0; i < lightMeshes.Length; i++)
         {
             lightMaterials[i] = lightMeshes[i].material;

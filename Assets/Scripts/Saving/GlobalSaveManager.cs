@@ -9,6 +9,8 @@ public static class GlobalSaveManager
 {
     public static bool LoadFromSave = false;
     public static bool SavedWithTerminal = false;
+    //bool created to check when the last checkpoint button is selected, so persistant manager can destroy the persistent object and load the scene from the last checkpoint
+    public static bool lastCheckpointSelected = false;
     public static void SaveGame(bool permanent)
     {
         ISaveable[] saveables = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ISaveable>().ToArray();
@@ -105,6 +107,46 @@ public static class GlobalSaveManager
             }
         }
     }
+
+    // this method deletes all player data. used to reset the game on New Game button on Main Menu
+    public static void DeleteAllSaveData()
+    {
+        // Copy any permanent save files to temp save file paths
+        // The path where our save files are stored
+        string path = Application.persistentDataPath;
+        // Find all of the save files
+        string[] files = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+        .Where(f => f.Contains("Save") || f.Contains("Temp"))
+        .ToArray();
+
+        int deletedCount = 0;
+        foreach(string file in files)
+        {
+            try
+            {
+                File.Delete(file);
+                deletedCount++;
+            }
+            catch (IOException e)
+            {
+                Debug.LogWarning($"Failed to delete file: {file}\n{e.Message}");
+            }
+        }
+        //Debug.Log($"Deleted {deletedCount} save files for New Game");
+    }
+    //this method is used to verify if there are gamefiles or not. used for gating the New Game button on Main Menu
+    public static bool FindSaveFiles()
+    {
+        string path = Application.persistentDataPath;
+        string[] files = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+        .Where(f => f.Contains("Save") || f.Contains("Temp"))
+        .ToArray();
+
+        //if there are no game files return false
+        if (files.Length == 0) return false;
+        //if there are game files return true
+        return true;
+    }
     // This function overwrites the temp files with the permanent save files
     public static void OverwriteTempFiles()
     {
@@ -154,4 +196,5 @@ public static class GlobalSaveManager
     {
         return File.Exists(Path.Join(Application.persistentDataPath, fileName));
     }
+
 }

@@ -17,6 +17,25 @@ public class TerminalManager : MonoBehaviour, ISaveable
     [SerializeField]
     private List<Terminal> terminals;
 
+    [SerializeField]
+    private InputActionReference interactActionReference;
+
+    private void OnEnable()
+    {
+        if (interactActionReference)
+        {
+            interactActionReference.action.performed += OnInteract;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (interactActionReference)
+        {
+            interactActionReference.action.performed -= OnInteract;
+        }
+    }
+
     void Start()
     {
         // continue from save

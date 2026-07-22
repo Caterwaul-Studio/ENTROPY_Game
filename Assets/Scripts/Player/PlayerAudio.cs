@@ -20,6 +20,8 @@ public class PlayerAudio : MonoBehaviour
     public AudioClip grabItem;
     public AudioClip throwItem;
 
+    [Header("Movement SFX")]
+    public AudioClip kickOffWall;
 
     public AudioMixerGroup playerGroup;
 
@@ -58,10 +60,19 @@ public class PlayerAudio : MonoBehaviour
         playerAudioSource.Play();
     }
 
+    public void PlayKickOffWall(Vector3 position)
+    {
+        if (kickOffWall == null) return;
+        
+        PlayBounceSoundAtPosition(kickOffWall, position, 0.5f);
+    }
+
 
     private void PlayBounceSoundAtPosition(AudioClip clip, Vector3 position, float volume)
     {
         if (clip == null || audioSourcePrefab == null) return;
+
+        Debug.Log("play bounce called");
 
         GameObject audioObj = Instantiate(audioSourcePrefab, position, Quaternion.identity, audioContainer);
         AudioSource newSource = audioObj.GetComponent<AudioSource>();
@@ -71,6 +82,12 @@ public class PlayerAudio : MonoBehaviour
         newSource.outputAudioMixerGroup = playerGroup;
         newSource.volume = volume;
         newSource.pitch = (Random.value / 5f) + 0.85f;
+
+        if (clip == kickOffWall)
+        {
+            newSource.time = .2f;
+        }
+
         newSource.Play();
 
         Destroy(audioObj, clip.length + 0.1f); // Clean up after sound finishes

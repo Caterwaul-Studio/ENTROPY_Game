@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.HID;
+using UnityEngine.SceneManagement;
 
 public class PickupScript : MonoBehaviour
 {
@@ -19,6 +20,8 @@ public class PickupScript : MonoBehaviour
 
     [SerializeField]
     private GameObject ObjectContainer;
+    //string to help find the object container in the scene, if it is not assigned in the inspector
+    private string objectContainerName = "FloatingObjects";
 
     [SerializeField]
     private bool canPickUp = false;
@@ -79,15 +82,31 @@ public class PickupScript : MonoBehaviour
         get { return heldObj; }
     }
 
+
+    // onenable and ondisable called on scene load
+    private void OnEnable() { 
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable() {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
          coolDown = 0;
+
+        if(ObjectContainer == null)
+        {
+            ObjectContainer = GameObject.Find(objectContainerName);
+        }
     }
 
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
        
         if (heldObj == null && zeroGPlayer.CanGrab) //if currently not holding anything and is allowed to grab things
@@ -217,6 +236,10 @@ public class PickupScript : MonoBehaviour
             heldObjRb.isKinematic = true;
             heldObjRb.transform.parent = holdPos.transform; //parent object to holdposition
             heldObj.layer = 8; //change the object layer to the holdLayer
+
+            if (heldObj.GetComponent<ExtinguisherObject>() != null) //we want the extinguisher to always be facing the right way, unlike with grabbed objects.
+                heldObj.transform.eulerAngles = cam.transform.eulerAngles;
+
             foreach (Transform child in heldObj.GetComponentInChildren<Transform>())
             {
                 child.gameObject.layer = 8;
@@ -281,6 +304,10 @@ public class PickupScript : MonoBehaviour
 
     void ThrowObject()
     {
+        if (heldObj.GetComponent<ExtinguisherObject>() != null)
+        {
+            return; //this makes it so the fire extinguisher cant be thrown, necessary because the throw input is used for the fire extinguisher behavior.
+        }
         //same as drop function, but add force to object before undefining it
         Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, false);
         //heldObj.GetComponent<Collider>().enabled = true;
@@ -329,6 +356,11 @@ public class PickupScript : MonoBehaviour
     {
         yield return null; // Wait one frame
         hasThrownObject = false;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ObjectContainer = GameObject.Find("FloatingObjects");
     }
 
 }
