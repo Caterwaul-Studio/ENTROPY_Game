@@ -16,9 +16,12 @@ public class DialogueManager : MonoBehaviour
 
     [Header("UI")]
     public Canvas dialogueCanvas;
+    private string dialogueCanvasObj = "DialogueCanvas";
     public CanvasGroup dialogueCanvasGroup;
     public TextMeshProUGUI nameTextUI;
+    private string nameTextObj = "NameTextUI";
     public TextMeshProUGUI dialogueTextUI;
+    private string dialogueTextObj = "DialogueTextUI";
 
     [Header("Audio / Typewriter")]
     public AudioSource defaultAudioSource;
@@ -34,7 +37,10 @@ public class DialogueManager : MonoBehaviour
 
     [Header("Tutorial / External")]
     public TutorialManager tutorialManager;
+    //need to restore these references when the player is reloaded from a save, since the player object is destroyed and recreated
+    public PersistantManager persistantManager;
     public GameObject player;
+    private string playerObjectName = "ZeroGPlayer";
     public PlayerController playerController;
     public ZeroGravity playerManager;
 
@@ -79,9 +85,9 @@ public class DialogueManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        //if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        //Instance = this;
+        //DontDestroyOnLoad(gameObject);
 
         if (dialogueCanvasGroup == null && dialogueCanvas != null)
             dialogueCanvasGroup = dialogueCanvas.GetComponent<CanvasGroup>();
@@ -103,6 +109,24 @@ public class DialogueManager : MonoBehaviour
 
     private void Update()
     {
+        // Restore references if player is null (e.g., after scene reload)
+        if (persistantManager == null)
+        {
+            persistantManager = FindFirstObjectByType<PersistantManager>();
+            player = persistantManager.GetComponentInChildren<ZeroGravity>()?.gameObject;
+            if (player != null) playerManager = player.GetComponent<ZeroGravity>();
+
+            dialogueCanvas = GameObject.Find(dialogueCanvasObj)?.GetComponent<Canvas>();
+            if (dialogueCanvas != null)
+            {
+                dialogueCanvasGroup = dialogueCanvas.GetComponent<CanvasGroup>();
+                nameTextUI = GameObject.Find(nameTextObj).GetComponent<TextMeshProUGUI>();
+                dialogueTextUI = GameObject.Find(dialogueTextObj).GetComponent<TextMeshProUGUI>();
+            }
+
+            if (dialogueCanvasGroup == null && dialogueCanvas != null)
+                dialogueCanvasGroup = dialogueCanvas.GetComponent<CanvasGroup>();
+        }
         if (playerController.Dialogue.ContinueDialogue.triggered)
         {
             // Skip requests the current Dialogue entry to end immediately
@@ -110,6 +134,11 @@ public class DialogueManager : MonoBehaviour
             {
                 skipDialogueRequested = true;
             }
+        }
+        if(tutorialManager == null)
+        {
+            tutorialManager = FindFirstObjectByType<TutorialManager>();
+            Debug.Log("found tutorial manager");
         }
     }
 

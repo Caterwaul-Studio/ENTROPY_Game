@@ -15,6 +15,7 @@ public class StimEvent : MonoBehaviour
 
     [SerializeField]
     private CanvasGroup stimUseCanvasGroup;
+    private string stimUseCanvasGroupObj = "StimTutorialPanel";
 
     [SerializeField]
     private WristMonitor wristMonitor;
@@ -30,13 +31,26 @@ public class StimEvent : MonoBehaviour
     void Start()
     {
         manager = FindFirstObjectByType<DialogueManager>();
-        playerScript = FindFirstObjectByType<ZeroGravity>();
+        playerScript = FindFirstObjectByType<ZeroGravity>(); 
+        stimUseCanvasGroup = FindCanvasGroupByName(stimUseCanvasGroupObj);
+        //ensure it is invisible on start
+        stimUseCanvasGroup.alpha = 0.0f;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        //refetch the necessary references if they are null, in case the scene was reloaded or objects were destroyed
+        if (wristMonitor == null)
+        {
+            wristMonitor = PersistantManager.Instance.WristMonitor;
+        }
+        if(stimUseCanvasGroup == null)
+        {
+            stimUseCanvasGroup = FindCanvasGroupByName(stimUseCanvasGroupObj);
+            Debug.Log("search for stim tutorial panel called");
+        }
+
     }
 
     public void StartStimEvent()
@@ -52,9 +66,9 @@ public class StimEvent : MonoBehaviour
         dispenser.ToggleUsability(true);
         wristMonitor.CompleteObjective();
 
-
         yield return new WaitUntil(() => playerScript.NumStims == 3);
 
+        stimUseCanvasGroup.gameObject.SetActive(true);
         StartCoroutine(FadeCanvasGroup(stimUseCanvasGroup, 0f, 1f));
 
         yield return new WaitUntil(() => playerScript.NumStims < 3);
@@ -97,5 +111,15 @@ public class StimEvent : MonoBehaviour
         air2.TurnOn();
         yield return new WaitForSeconds(0.5f);
         air3.TurnOn();
+    }
+
+    private CanvasGroup FindCanvasGroupByName(string name)
+    {
+        GameObject obj = GameObject.Find(name);
+        if (obj != null)
+        {
+            return obj.GetComponent<CanvasGroup>();
+        }
+        return null;
     }
 }

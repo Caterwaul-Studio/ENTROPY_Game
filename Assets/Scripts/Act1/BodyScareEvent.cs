@@ -35,6 +35,8 @@ public class BodyScareEvent : MonoBehaviour, ISaveable
 
     public GameplayBeatAudio audioManager;
 
+    public StingerManager stingerManager;
+
     private AmbientController ambientController;
 
     public LightManager lightManager;
@@ -49,6 +51,7 @@ public class BodyScareEvent : MonoBehaviour, ISaveable
     {
         dialogueManager = FindFirstObjectByType<DialogueManager>();
         ambientController = FindFirstObjectByType<AmbientController>();
+        stingerManager = FindFirstObjectByType<StingerManager>();
         player = FindFirstObjectByType<ZeroGravity>();
         //ensure that the collider is set inactive so we don't have the end dialogue play until we complete the body scare sequence
         colliderTriggerEnd.SetActive(false);
@@ -97,13 +100,12 @@ public class BodyScareEvent : MonoBehaviour, ISaveable
     public void SetOffBarCheck()
     {
         waitForGrabbingBar = true;
+        stingerManager.PlayBodyScareStinger();
     }
 
     public IEnumerator PlayBodyScare()
     {
-
-
-        yield return new WaitForSeconds(2.0f);
+        //yield return new WaitForSeconds(1.0f);
 
         //bodyRb.AddForce(new Vector3(-.5f, -1, 0) * 30f, ForceMode.Impulse);
 
@@ -245,9 +247,14 @@ public class BodyScareEvent : MonoBehaviour, ISaveable
     private IEnumerator playLightAudio()
     {
         lightAudio[0].Play();
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.3f);
         lightAudio[1].Play();
         yield return new WaitForSeconds(0.2f);
         lightAudio[2].Play();
+        yield return new WaitForSeconds(0.1f);
+        lightAudio[1].Play();
+        yield return new WaitForSeconds(0.6f);
+        lightAudio[2].Play();
+
     }
 }

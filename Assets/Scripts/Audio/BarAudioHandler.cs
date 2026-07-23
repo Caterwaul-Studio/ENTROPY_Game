@@ -26,9 +26,6 @@ public class BarAudioHandler : MonoBehaviour
         PlayBarGrabSoundAtPosition(grabSounds[index], position);
     }
     
-
-
-
     /// Play a random release sound.
   
     public void PlayReleaseSound(Vector3 position)
