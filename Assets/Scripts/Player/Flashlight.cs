@@ -20,11 +20,14 @@ public class Flashlight : MonoBehaviour
     private bool hasFlashlight = false;
 
     [SerializeField]
-    GameObject flashlight;
+    GameObject flashlightInHand;
+    [SerializeField]
+    private GameObject flashlightOutHand;
 
     [SerializeField]
     private bool flashlightEquipped = false;
     private bool flashlightOn = false;
+    private bool flashlightClippedToBelt = false;
 
     public event System.Action<bool> OnFlashlightAcquired;
     public event System.Action<bool> OnFlashlightTurnedOn;
@@ -37,7 +40,7 @@ public class Flashlight : MonoBehaviour
         set
         {
             //Debug.Log("Flashlight equipped: " + flashlightEquipped);
-            flashlight.SetActive(flashlightEquipped);
+            flashlightInHand.SetActive(flashlightEquipped);
             //Debug.Log("Flashlight object parented to player active: " + flashlightObjectParentedToPlayer.activeSelf);
         }
     }
@@ -84,10 +87,10 @@ public class Flashlight : MonoBehaviour
             && !flashlightEquipped)
         {
             flashlightEquipped = true;   // enables player flashlight
-            flashlight.SetActive(flashlightEquipped);
+            flashlightInHand.SetActive(flashlightEquipped);
             //set the default of the flashlight of the lights of the player flashlight from the scene flashlight
             //Debug.Log("Toggling flashlight " + flashlightOn);
-            foreach (Light light in flashlight.GetComponentsInChildren<Light>())
+            foreach (Light light in flashlightInHand.GetComponentsInChildren<Light>())
             {
                 light.enabled = flashlightOn;
             }
@@ -98,20 +101,20 @@ public class Flashlight : MonoBehaviour
 
     public void ToggleFlashlightFromInventory(InputAction.CallbackContext context)
     {
+        //if the player has picked up the flashlight and performs key click of 1
         if (hasFlashlight && context.performed)
         {
+            //toggle the flashlight equipped bool
             flashlightEquipped = !flashlightEquipped;
-            flashlight.SetActive(flashlightEquipped);
-
-            if (flashlightEquipped == true)
+            //set the visibility of he flashlight based on it
+            flashlightInHand.SetActive(flashlightEquipped);
+            //if the player currently has equipped the flashlight and its currently on
+            if (flashlightOn)
             {
-                flashlightOn = false;
-                foreach (Light light in flashlight.GetComponentsInChildren<Light>())
-                {
-                    //ensure the flashlight is turned off when equipping it from the inventory
-                    Debug.Log("light found");
-                    light.enabled = flashlightOn;
-                }
+                flashlightClippedToBelt = !flashlightEquipped;
+                //set the config joint flashlight true (clipped to belt)
+                flashlightOutHand.SetActive(flashlightClippedToBelt);
+                flashlightInHand.SetActive(!flashlightClippedToBelt);
             }
         }
         //Debug.Log("Equipping flashlight from inventory|| HasFlashlightInScene: " + HasFlashlightInScene + " FlashlightEquipped: " + FlashlightEquipped);
@@ -124,7 +127,7 @@ public class Flashlight : MonoBehaviour
         {
             flashlightOn = !flashlightOn;
             //Debug.Log("Toggling flashlight" + flashlightOn);
-            foreach (Light light in flashlight.GetComponentsInChildren<Light>())
+            foreach (Light light in flashlightInHand.GetComponentsInChildren<Light>())
             {
                 Debug.Log("light found");
                 light.enabled = flashlightOn;
