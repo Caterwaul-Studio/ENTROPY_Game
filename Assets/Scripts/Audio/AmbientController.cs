@@ -80,6 +80,7 @@ public class AmbientController : MonoBehaviour
             // AudioSource audioObject = looperObject.AddComponent<AudioSource>();
             // loopers[i] = audioObject.AddComponent<Looper>();
             GameObject prefabInstance = Instantiate(looperPrefab);
+            DontDestroyOnLoad(prefabInstance); //persist alonside AmbientController
             loopers[i] = prefabInstance.GetComponent<Looper>();
             layerLookup[i] = -1;
         }

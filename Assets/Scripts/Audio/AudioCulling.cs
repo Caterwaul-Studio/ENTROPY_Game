@@ -1,19 +1,20 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AudioCulling : MonoBehaviour
 {
     public AudioSource[] exempt;
     public AudioSource[] cullable;
     [SerializeField] private AudioZone[] audioZones;
-    [SerializeField] private GameObject player;
+    [SerializeField] private ZeroGravity player;
 
     public AudioZone currentZone;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        cullable = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
-        audioZones = FindObjectsByType<AudioZone>(FindObjectsSortMode.None);
+        Rebuild();
+        player = FindFirstObjectByType<ZeroGravity>();
     }
 
     // Update is called once per frame
@@ -44,5 +45,42 @@ public class AudioCulling : MonoBehaviour
                 }
             }
         }
+
+        if(player == null)
+        {
+            player = FindFirstObjectByType<ZeroGravity>();
+        }
     }
+
+    private void Rebuild()
+    {
+        cullable = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
+        audioZones = FindObjectsByType<AudioZone>(FindObjectsSortMode.None);
+        currentZone = null;
+
+        foreach(AudioZone zone in audioZones)
+        {
+            if(zone != null)
+            {
+                zone.Repopulate();
+            }
+        }
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneUnloaded; ;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneUnloaded;
+    }
+
+    private void OnSceneUnloaded(Scene scene, LoadSceneMode mode)
+    {
+        Rebuild();
+    }
+
+
 }

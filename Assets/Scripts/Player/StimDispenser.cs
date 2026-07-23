@@ -27,10 +27,13 @@ public class StimDispenser : MonoBehaviour
     private Color inactiveScreen = new Color(0.03f, 0.03f, 0.03f, 1);
 
 
-
+    [SerializeField]
     private GameObject playerObj;
+    [SerializeField]
     private ZeroGravity playerScript;
+    [SerializeField]
     private PlayerUIManager uiScript;
+    [SerializeField]
     private WristMonitor wristMonitor;
 
     private float refillTime = 2f;
@@ -39,13 +42,18 @@ public class StimDispenser : MonoBehaviour
     private float maxRefillDistance = 1.5f;
     private float lightIntensity = 0f;
 
+    [SerializeField]
     private Image progressBar;
+    [SerializeField]
     private CanvasGroup progressCanvas;
 
     [SerializeField]
     private AudioSource audioSource;
-    //Getters/Setters
 
+    [SerializeField]
+    private InputActionReference interactActionReference;
+
+    //Properties
     public bool CanRefill
     {
         get { return canRefill; }
@@ -56,6 +64,26 @@ public class StimDispenser : MonoBehaviour
     {
         get { return isUsable; }
         set { isUsable = value; }
+    }
+
+    private void OnEnable()
+    {
+        if (interactActionReference)
+        {
+            interactActionReference.action.started += OnInteract;
+            interactActionReference.action.performed += OnInteract;
+            interactActionReference.action.canceled += OnInteract;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (interactActionReference)
+        {
+            interactActionReference.action.started -= OnInteract;
+            interactActionReference.action.performed -= OnInteract;
+            interactActionReference.action.canceled -= OnInteract;
+        }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
