@@ -5,15 +5,14 @@ using UnityEngine.InputSystem;
 public class Flashlight : MonoBehaviour
 {
     [Header("Flashlight Variables")]
-    public float intensityMax = 300f;
+    public float intensityMax = 1500f;
     public float intensityMin = 5f;
-
-    public float innerSpotAngle = 0f;
-    public float outerSpotAngle = 0f;
 
     public float spotRangeMin = .5f;
     public float spotRangeMax = 30f;
 
+    [SerializeField]
+    private LayerMask barrierLayer; //set layer for barriers
 
     [SerializeField]
     private GameObject player;
@@ -34,6 +33,11 @@ public class Flashlight : MonoBehaviour
     GameObject flashlightInHand;
     [SerializeField]
     private GameObject flashlightOutHand;
+    [SerializeField]
+    private GameObject flashlightOutHandPrefab;
+    private string flashlightOutHandObjectName = "FlashlightOffhand(Clone)";
+    [SerializeField]
+    private GameObject outHandPos;
 
     [SerializeField]
     private bool flashlightEquipped = false;
@@ -138,7 +142,7 @@ public class Flashlight : MonoBehaviour
         ray = new Ray(flashlight.transform.position, flashlight.transform.up);
 
         //create the raycast sending its info to hit, and with a max range of the max range of the spotlight
-        if(Physics.Raycast(ray, out hit, spotRangeMax))
+        if(Physics.Raycast(ray, out hit, spotRangeMax, barrierLayer))
         {
             Debug.Log("ray distance: " + hit.distance);
             Debug.Log("hit tag" + hit.rigidbody);
@@ -196,8 +200,31 @@ public class Flashlight : MonoBehaviour
             {
                 flashlightClippedToBelt = !flashlightEquipped;
                 //set the config joint flashlight true (clipped to belt)
-                flashlightOutHand.SetActive(flashlightClippedToBelt);
-                flashlightInHand.SetActive(!flashlightClippedToBelt);
+                if (flashlightClippedToBelt)
+                {
+                    //instantiate a new outhand flashlight
+                    GameObject outHand = Instantiate(flashlightOutHandPrefab, outHandPos.transform.position, outHandPos.transform.rotation);
+                    //set the parent to the flashlight inventory slot
+                    outHand.transform.SetParent(this.transform, true);
+
+                    //set config joint connected body
+                    //find the rigid body of this gameobject
+                    Rigidbody connectedBody = this.GetComponent<Rigidbody>();
+                    ConfigurableJoint joint = outHand.GetComponent<ConfigurableJoint>();
+                    joint.connectedBody = connectedBody;
+                    //set the new outhand to the outhand flashlight object
+                    flashlightOutHand = outHand;
+                    //set the up to the outHandPos up
+                    flashlightOutHand.transform.up = outHandPos.transform.up;
+                    //finally set it true now that everything is set
+                    flashlightOutHand.SetActive(true);
+                }
+                else if (!flashlightClippedToBelt)
+                {
+                    Destroy(flashlightOutHand);
+                }
+
+                    flashlightInHand.SetActive(!flashlightClippedToBelt);
 
                 RayCastDistance(flashlightInHand);
             }
