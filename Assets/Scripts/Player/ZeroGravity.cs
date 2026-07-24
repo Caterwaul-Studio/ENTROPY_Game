@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using TMPro;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.InputSystem;
@@ -248,6 +249,10 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     public float throwDecay = 3.0f; // How fast you slow down in space
     public bool IsBeingThrown => kinematicVelocity.magnitude > 0.1f;
 
+
+
+    [Header("== Camera Shake ==")]
+    private int safetyTick = 0;
 
 
     [Header("== Temporary Variables for HotFixes ==")]
@@ -722,6 +727,40 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
         currentRollSpeed = 0f; // Snap to 0 at the end
     }
+
+
+    public IEnumerator ShockEffect()
+    {
+        canMove = false;
+        StartCoroutine(CameraShake());
+
+        yield return new WaitForSeconds(1.5f);
+        canMove = true;
+        canRoll = true;
+        canPropel = true;
+        canPushOff = true;
+        canGrab = true;
+        yield return null;
+        safetyTick = 0;
+
+    }
+
+    private IEnumerator CameraShake()
+    {
+        if (!canMove && safetyTick < 200) //safety tick in place to prevent infinite loop
+        {
+            safetyTick += 1;
+            Quaternion camRotation = cam.transform.rotation;
+            cam.transform.rotation = new Quaternion(camRotation.x + UnityEngine.Random.Range(-0.1f, 0.1f), camRotation.y + UnityEngine.Random.Range(-0.1f, 0.1f), camRotation.z + UnityEngine.Random.Range(-0.1f, 0.1f), camRotation.w);
+            yield return new WaitForSeconds(0.01f);
+            StartCoroutine(CameraShake());
+        }
+        else
+        {
+            yield return null;
+        }
+    }
+
     #endregion
 
     #region Dev Tool Methods
@@ -1304,6 +1343,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         {
             if (barrier.tag == "LiveWire")
             {
+                StartCoroutine(ShockEffect());
                 DecreaseHealth(2);
                 justHit = true;
             }

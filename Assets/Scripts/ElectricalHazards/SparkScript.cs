@@ -46,9 +46,10 @@ public class SparkScript : MonoBehaviour
 
     private void DamagePlayer()
     {
-        player.GetComponent<ZeroGravity>().DecreaseHealth(1);
+        zeroG.DecreaseHealth(1);
+        StartCoroutine(zeroG.ShockEffect());
         throwCooldown = 0;
-        player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
+        zeroG.GetThrown(MainCamera.transform.forward * -1, 8);
         if (zeroG.IsGrabbing)
             zeroG.ReleaseBar();
     }

@@ -5064,8 +5064,11 @@ MonoBehaviour:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
   player: {fileID: 0}
+  zeroG: {fileID: 0}
   MainCamera: {fileID: 0}
   sys: {fileID: 2956615127039966887}
+  WireSpark: 0
+  electricActive: 1
 --- !u!65 &5553886581419244254
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5085,7 +5088,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 2, z: 2}
+  m_Size: {x: 2, y: 2, z: 1.5848389}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8201826626637186305
 GameObject:
