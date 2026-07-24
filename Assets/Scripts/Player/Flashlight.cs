@@ -95,11 +95,11 @@ public class Flashlight : MonoBehaviour
     void Update()
     {
         //this determines if the value scaling should be running on the flashlight in hand or out of hand
-        if(flashlightInHand.activeSelf && flashlightOn)
+        if(flashlightInHand && flashlightInHand.activeSelf && flashlightOn)
         {
             ScaleFlashlightValues(flashlightInHand);
         }
-        else if (flashlightOutHand.activeSelf && flashlightOn)
+        else if (flashlightOutHand != null && flashlightOutHand.activeSelf && flashlightOn)
         {
             ScaleFlashlightValues(flashlightOutHand);
         }
@@ -205,11 +205,11 @@ public class Flashlight : MonoBehaviour
                     //instantiate a new outhand flashlight
                     GameObject outHand = Instantiate(flashlightOutHandPrefab, outHandPos.transform.position, outHandPos.transform.rotation);
                     //set the parent to the flashlight inventory slot
-                    outHand.transform.SetParent(this.transform, true);
+                    outHand.transform.SetParent(outHandPos.transform, true);
 
                     //set config joint connected body
                     //find the rigid body of this gameobject
-                    Rigidbody connectedBody = this.GetComponent<Rigidbody>();
+                    Rigidbody connectedBody = outHandPos.GetComponent<Rigidbody>();
                     ConfigurableJoint joint = outHand.GetComponent<ConfigurableJoint>();
                     joint.connectedBody = connectedBody;
                     //set the new outhand to the outhand flashlight object
