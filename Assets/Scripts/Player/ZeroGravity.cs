@@ -825,6 +825,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         {
             barAudioHandler.PlayGrabSound(grabbedBar.transform.position);
         }
+
+        if (grabbedBar.tag == "LiveWire")
+        {
+            Debug.Log("yeah");
+        }
       
 
         //grabbedBar = potentialGrabbedBar;
@@ -1267,6 +1272,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     #endregion
 
     #region Collision Detection and Health Handling
+
+
     private void DetectBarrierAndBounce()
     {
         float detectionRadius = boundingSphere.radius + .01f; // Slightly larger for early detection
@@ -1289,6 +1296,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             return; //no collision, no bounce 
         }
 
+
         Vector3 avgBounceDirection = Vector3.zero;
         int bounceCount = 0;
         float ogSpeed = rb.linearVelocity.magnitude; //store initial velocity magnitude
@@ -1298,7 +1306,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
         foreach (Collider barrier in hitColliders)
         {
-            //Debug.Log("colliding");
+            if (barrier.tag == "LiveWire")
+            {
+                DecreaseHealth(2);
+                justHit = true;
+            }
+
             Vector3 closestPoint = barrier.ClosestPoint(transform.position);
             impactPoint = closestPoint; // Store most recent impact
             Vector3 wallNormal = (transform.position - closestPoint).normalized;
@@ -1316,6 +1329,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             {
                 break;
             }
+
         }
 
         if (bounceCount > 0)
@@ -1356,7 +1370,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         {
             //decrease the player's health by 1
             DecreaseHealth(1);
-            justHit = true; ;
+            justHit = true;
             playerAudio.PlayHardBounce(impactPoint);
         }
         else
@@ -1664,7 +1678,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     private IEnumerator ThrownRoutine(Vector3 impulse)
     {
-        // rb may already be kinematic from the grab lock ó ensure it's off for physics
+        // rb may already be kinematic from the grab lock ÅEensure it's off for physics
         rb.isKinematic = false;
         boundingSphere.enabled = true;
 
