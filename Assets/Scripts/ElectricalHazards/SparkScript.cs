@@ -10,6 +10,9 @@ public class SparkScript : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private Camera MainCamera;
     [SerializeField] private ParticleSystem sys;
+    [SerializeField] private bool WireSpark;
+
+    private Vector3 boxSize;
     private float throwCooldown;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -19,14 +22,17 @@ public class SparkScript : MonoBehaviour
             player = GameObject.FindAnyObjectByType<ZeroGravity>().gameObject;
             MainCamera = player.GetComponent<ZeroGravity>().cam;
         }
-
-        sparkBounds = new Bounds(transform.position, this.gameObject.GetComponent<BoxCollider>().size);
+        boxSize = this.gameObject.GetComponent<BoxCollider>().size;
+        sparkBounds = new Bounds(transform.position, boxSize);
         Destroy(this.gameObject.GetComponent<BoxCollider>());
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (WireSpark)
+            sparkBounds = new Bounds(transform.position, boxSize);
+
         throwCooldown += Time.deltaTime;
         if (sparkBounds.Contains(player.transform.position) && throwCooldown > 1f && sys.particleCount > 0)
             DamagePlayer();

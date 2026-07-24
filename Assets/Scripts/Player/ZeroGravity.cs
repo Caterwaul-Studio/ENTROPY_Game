@@ -818,7 +818,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         justGrabbed = true;
         grabbedBar = potentialGrabbedBar;
 
-        //Debug.Log(grabbedBar.name);
+        Debug.Log(grabbedBar.name);
 
 
         if (barAudioHandler != null)
