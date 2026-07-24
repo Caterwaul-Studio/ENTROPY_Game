@@ -4,6 +4,17 @@ using UnityEngine.InputSystem;
 
 public class Flashlight : MonoBehaviour
 {
+    [Header("Flashlight Variables")]
+    public float intensityMax = 300f;
+    public float intensityMin = 5f;
+
+    public float innerSpotAngle = 0f;
+    public float outerSpotAngle = 0f;
+
+    public float spotRangeMin = .5f;
+    public float spotRangeMax = 30f;
+
+
     [SerializeField]
     private GameObject player;
     [SerializeField]
@@ -31,6 +42,8 @@ public class Flashlight : MonoBehaviour
 
     public event System.Action<bool> OnFlashlightAcquired;
     public event System.Action<bool> OnFlashlightTurnedOn;
+
+    Ray ray;
 
     #region Properties
     [SerializeField]
@@ -77,6 +90,76 @@ public class Flashlight : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //this determines if the value scaling should be running on the flashlight in hand or out of hand
+        if(flashlightInHand.activeSelf && flashlightOn)
+        {
+            ScaleFlashlightValues(flashlightInHand);
+        }
+        else if (flashlightOutHand.activeSelf && flashlightOn)
+        {
+            ScaleFlashlightValues(flashlightOutHand);
+        }
+    }
+
+    /// <summary>
+    /// This method is created to dynamically scale the flashlight variables to feel more realistic at shorter range.
+    /// </summary>
+    /// <param name="flashlight"></param>
+    public void ScaleFlashlightValues(GameObject flashlight)
+    {
+        //get the distance to the nearest object infront of the flashlight
+        float distance = RayCastDistance(flashlight);
+
+        foreach (Light light in flashlight.GetComponentsInChildren<Light>())
+        {
+            //if it's a spotlight
+            if(light.type == UnityEngine.LightType.Spot)
+            {
+                Debug.Log("scaling light intensity");
+                //set the intensity to a ratio scaled by the distance
+                light.intensity = intensityMax / spotRangeMax * distance;
+            }
+        }
+    }
+
+    /// <summary>
+    /// This method is a helper function for ScaleFlashlightValues
+    /// This creates a ray cast out from the flashlight bulb to find the distance between it and the nearest wall. 
+    /// If the wall is beyond the spotlight range, it returns the spotlight range
+    /// </summary>
+    /// <param name="flashlight"></param>
+    /// <returns></returns>
+    public float RayCastDistance(GameObject flashlight)
+    {
+        //performa simple single ray cast to establish the flashlight's distance to the closest object in front of it
+        RaycastHit hit;
+
+        //create the ray
+        ray = new Ray(flashlight.transform.position, flashlight.transform.up);
+
+        //create the raycast sending its info to hit, and with a max range of the max range of the spotlight
+        if(Physics.Raycast(ray, out hit, spotRangeMax))
+        {
+            Debug.Log("ray distance: " + hit.distance);
+            Debug.Log("hit tag" + hit.rigidbody);
+            if (hit.distance <= spotRangeMin)
+            {
+
+                return spotRangeMin;
+            }
+            else
+            {
+                Debug.Log("ray distance: " + hit.distance);
+                return hit.distance;
+            }
+        }
+        //the raycast goes beyond the max range
+        else
+        {
+            Debug.Log("Ray hit nothing, walls are out of range");
+            return spotRangeMax;
+        }
+
 
     }
 
@@ -115,6 +198,8 @@ public class Flashlight : MonoBehaviour
                 //set the config joint flashlight true (clipped to belt)
                 flashlightOutHand.SetActive(flashlightClippedToBelt);
                 flashlightInHand.SetActive(!flashlightClippedToBelt);
+
+                RayCastDistance(flashlightInHand);
             }
         }
         //Debug.Log("Equipping flashlight from inventory|| HasFlashlightInScene: " + HasFlashlightInScene + " FlashlightEquipped: " + FlashlightEquipped);
@@ -133,6 +218,11 @@ public class Flashlight : MonoBehaviour
                 light.enabled = flashlightOn;
             }
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawRay(ray);
     }
 }
 

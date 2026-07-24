@@ -1555,18 +1555,18 @@ ConfigurableJoint:
     damper: 0
   m_LowAngularXLimit:
     limit: -101.53266
-    bounciness: 1
+    bounciness: 0
     contactDistance: 0
   m_HighAngularXLimit:
     limit: 82.201515
-    bounciness: 1
+    bounciness: 0
     contactDistance: 0
   m_AngularYZLimitSpring:
     spring: 0
     damper: 0
   m_AngularYLimit:
     limit: 100.49004
-    bounciness: 1
+    bounciness: 0
     contactDistance: 0
   m_AngularZLimit:
     limit: 177
@@ -15810,6 +15810,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e070cd5cb80e8e4bbfebda1a9823c7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  intensityMax: 1500
+  intensityMin: 2
+  innerSpotAngle: 0
+  outerSpotAngle: 0
+  spotRangeMin: 0.5
+  spotRangeMax: 30
   player: {fileID: 273146030959944558}
   zeroGPlayer: {fileID: 3700987545046739549}
   holdPos: {fileID: 3539124122506938911}
