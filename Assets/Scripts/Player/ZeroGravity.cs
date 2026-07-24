@@ -818,7 +818,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         justGrabbed = true;
         grabbedBar = potentialGrabbedBar;
 
-        Debug.Log(grabbedBar.name);
+        //Debug.Log(grabbedBar.name);
 
 
         if (barAudioHandler != null)
@@ -826,10 +826,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             barAudioHandler.PlayGrabSound(grabbedBar.transform.position);
         }
 
-        if (grabbedBar.tag == "LiveWire")
-        {
-            Debug.Log("yeah");
-        }
       
 
         //grabbedBar = potentialGrabbedBar;
@@ -1131,7 +1127,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
 
     // Release the bar and enable movement again
-    private void ReleaseBar()
+    public void ReleaseBar()
     {
         //stop swinging off the bar
         StopSwing();
