@@ -40,18 +40,21 @@ public class SparkScript : MonoBehaviour
 
             throwCooldown += Time.deltaTime;
             if (sparkBounds.Contains(player.transform.position) && throwCooldown > 1f && sys.particleCount > 0)
-                DamagePlayer();
+                if (!WireSpark)
+                    DamagePlayer();
         }
     }
 
     private void DamagePlayer()
     {
-        zeroG.DecreaseHealth(1);
-        StartCoroutine(zeroG.ShockEffect());
-        throwCooldown = 0;
-        zeroG.GetThrown(MainCamera.transform.forward * -1, 8);
-        if (zeroG.IsGrabbing)
-            zeroG.ReleaseBar();
+        if (!zeroG.hasGloves && !zeroG.IsGrabbing)
+        {
+            zeroG.DecreaseHealth(1);
+            StartCoroutine(zeroG.ShockEffect());
+            throwCooldown = 0;
+            zeroG.GetThrown(MainCamera.transform.forward * -1, 8);
+            if (zeroG.IsGrabbing)
+                zeroG.ReleaseBar();
+        }
     }
-
 }

@@ -251,7 +251,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
 
 
-    [Header("== Camera Shake ==")]
+    [Header("== Electrical Hazard ==")]
+    public bool hasGloves;
     private int safetyTick = 0;
 
 
