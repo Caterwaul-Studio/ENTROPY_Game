@@ -15,7 +15,7 @@ public class SparkScript : MonoBehaviour
     [SerializeField] private bool electricActive;
 
     private Vector3 boxSize;
-    private float throwCooldown;
+    private float damageCoolDown;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -33,13 +33,16 @@ public class SparkScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (zeroG.hasGloves && zeroG.IsGrabbing)
+            damageCoolDown = 0;
+
+        damageCoolDown += Time.deltaTime;
         if (electricActive)
         {
             if (WireSpark)
                 sparkBounds = new Bounds(transform.position, boxSize);
 
-            throwCooldown += Time.deltaTime;
-            if (sparkBounds.Contains(player.transform.position) && throwCooldown > 1f && sys.particleCount > 0)
+            if (sparkBounds.Contains(player.transform.position) && damageCoolDown > 1f && sys.particleCount > 0)
                 if (!WireSpark)
                     DamagePlayer();
         }
@@ -47,11 +50,11 @@ public class SparkScript : MonoBehaviour
 
     private void DamagePlayer()
     {
-        if (!zeroG.hasGloves && !zeroG.IsGrabbing)
+        if (!zeroG.hasGloves || (zeroG.hasGloves && !zeroG.IsGrabbing))
         {
             zeroG.DecreaseHealth(1);
             StartCoroutine(zeroG.ShockEffect());
-            throwCooldown = 0;
+            damageCoolDown = 0;
             zeroG.GetThrown(MainCamera.transform.forward * -1, 8);
             if (zeroG.IsGrabbing)
                 zeroG.ReleaseBar();
