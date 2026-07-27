@@ -16,6 +16,8 @@ public class FireExtinguisher : MonoBehaviour
     [SerializeField] private PickupScript pickupScript;
     [SerializeField] private ZeroGravity zeroGravity;
     [SerializeField] private GameObject pauseMenu;
+    [SerializeField] private UsableItemAudio itemAudio;
+    private bool isSpraying;
     private float initialEmission;
     private bool holding;
 
@@ -33,15 +35,32 @@ public class FireExtinguisher : MonoBehaviour
             player = FindAnyObjectByType<ZeroGravity>().gameObject;
             zeroGravity = player.GetComponent<ZeroGravity>();
             pickupScript = player.GetComponent<PickupScript>();
+            itemAudio = player.GetComponent<UsableItemAudio>();
         }
         initialEmission = sysEmission.rateOverTimeMultiplier;
         sysEmission.rateOverTime = 0;
     }
 
+    // public void OnThrow(InputAction.CallbackContext context)
+    // {
+    //     if (context.phase == InputActionPhase.Started)
+    //         holding = true;
+    //     else if (context.phase == InputActionPhase.Canceled)
+    //         holding = false;
+    // }
+
     public void OnThrow(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Started)
+        {                                                       
             holding = true;
+            if (pickupScript != null && pickupScript.current != null)          
+            {                                                                  
+                ExtinguisherObject ext = pickupScript.current.GetComponent<ExtinguisherObject>(); 
+                if (ext != null && ext.remainingRetardant <= 0)               
+                    itemAudio.PlayExtinguisherEmpty(pickupScript.current.GetComponent<ExtinguisherAudio>());                         
+            }                                                                 
+        }                                                       
         else if (context.phase == InputActionPhase.Canceled)
             holding = false;
     }
@@ -68,6 +87,20 @@ public class FireExtinguisher : MonoBehaviour
                 hasExtinguisher = false;
         else
             hasExtinguisher = false;
+                
+        // Watcher: detect the moment spraying actually starts or stops      
+        bool sprayingNow = holding && hasExtinguisher;                       
+        if (sprayingNow && !isSpraying)                                      
+        {               
+            ExtinguisherAudio extAudio = pickupScript.current.GetComponent<ExtinguisherAudio>();                                                      // <-- NEW
+            itemAudio.PlayExtinguisherStart(extAudio);                                
+            itemAudio.StartExtinguisherSustain(extAudio);                             
+        }                                                                     
+        else if (!sprayingNow && isSpraying)                                  
+        {                                                                    
+            itemAudio.StopExtinguisherSustain();                              
+        }                                                                     
+        isSpraying = sprayingNow;    
     }
     System.Collections.IEnumerator MakePuff()
     { //instead of creating nodes, just moving around existing nodes is used again in the hopes it will help with optimization
