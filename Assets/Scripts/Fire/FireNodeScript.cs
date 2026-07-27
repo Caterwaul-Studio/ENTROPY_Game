@@ -10,6 +10,7 @@ public class FireNodeScript : MonoBehaviour
     [SerializeField] private FireScript myFire;
     [SerializeField] private GameObject player;
     [SerializeField] private Camera MainCamera;
+    [SerializeField] private PlayerAudio playerAudio;
     [SerializeField] private PuffMovement[] extinguishNodes;
     [SerializeField] private int flameSteady; //should be 1-5
     [SerializeField] private int regenRate;
@@ -46,6 +47,8 @@ public class FireNodeScript : MonoBehaviour
             player = GameObject.FindAnyObjectByType<ZeroGravity>().gameObject;
             MainCamera = player.GetComponent<ZeroGravity>().cam;
         }
+        if (playerAudio == null)                               
+            playerAudio = player.GetComponent<PlayerAudio>();
 
         extinguishNodes = FindObjectsByType<PuffMovement>(FindObjectsSortMode.None);
 
@@ -108,15 +111,23 @@ public class FireNodeScript : MonoBehaviour
         if (flameStrength < 1) //when flame strength is under a certain value, destroy the flame node
         {
             myFire.myFireNodes.Remove(this.gameObject); //update the parent with the destruction of the node
+            if (myFire.myFireNodes.Count == 0)                          
+            {                                                           
+                FireAudio fireAudio = myFire.GetComponent<FireAudio>(); 
+                if (fireAudio != null)                                  
+                    fireAudio.Extinguish();                             
+            }
             Destroy(this.gameObject);
         }
     }
 
     System.Collections.IEnumerator BurnPlayer()
     {
+        playerAudio.StartBurning();
         player.GetComponent<ZeroGravity>().DecreaseHealth(1);
         yield return new WaitForSeconds(3f);
         player.GetComponent<ZeroGravity>().DecreaseHealth(1);
+        playerAudio.StopBurning();
     }
     private void changeFlame()
     {

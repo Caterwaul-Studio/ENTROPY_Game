@@ -23,6 +23,12 @@ public class PlayerAudio : MonoBehaviour
     [Header("Movement SFX")]
     public AudioClip kickOffWall;
 
+    [Header("Player Burning SFX")]
+    public AudioClip burningLoop;
+    public AudioSource burningSource;
+
+    private Coroutine burningFade;
+
     public AudioMixerGroup playerGroup;
 
     public void PlaySoftBounce(Vector3 position)
@@ -92,4 +98,41 @@ public class PlayerAudio : MonoBehaviour
 
         Destroy(audioObj, clip.length + 0.1f); // Clean up after sound finishes
     }
+
+    public void StartBurning()
+    {
+        if (burningLoop == null || burningSource == null) return;
+        if (burningSource.isPlaying) return; // already burning, don't restart
+
+        if (burningFade != null) StopCoroutine(burningFade);
+
+        burningSource.clip = burningLoop;
+        burningSource.loop = true;
+        burningSource.volume = 0f;
+        burningSource.Play();
+        burningFade = StartCoroutine(FadeSource(burningSource, 1f, 0.5f, false));
+    }
+
+    public void StopBurning()
+    {
+        if (burningSource == null || !burningSource.isPlaying) return;
+
+        if (burningFade != null) StopCoroutine(burningFade);
+        burningFade = StartCoroutine(FadeSource(burningSource, 0f, 0.75f, true));
+    }
+
+    private System.Collections.IEnumerator FadeSource(AudioSource source, float targetVolume, float duration, bool pauseAtEnd)
+    {
+        float startVolume = source.volume;
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            source.volume = Mathf.Lerp(startVolume, targetVolume, t / duration);
+            yield return null;
+        }
+        source.volume = targetVolume;
+        if (pauseAtEnd) source.Pause(); // Pause keeps the playback position for the sustain resume
+    }
+
 }

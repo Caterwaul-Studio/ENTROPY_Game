@@ -1189,6 +1189,14 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 261e9b89-727d-4707-80df-01b3eef10705
     m_ActionName: 'PlayerControls/Up&Down[/Keyboard/c,/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 552fecbd-9172-4475-a89b-c5f59fa30c86
+    m_ActionName: 'FunctionKeyShortCuts/FreeMoveNoClip[/Keyboard/f11]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e5dfa9c3-f315-4f34-804a-da5b32fe298f
+    m_ActionName: 'FunctionKeyShortCuts/SkipLevel1[/Keyboard/f12]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: PlayerControls
@@ -1268,6 +1276,7 @@ MonoBehaviour:
   rigBuilder: {fileID: 8792483863225657206}
   animator: {fileID: 2432546500723709812}
   tutorialMode: 0
+  playerInputs: 0
   useManualPullIn: 0
   onlyRollOnGrab: 0
   playerData:
@@ -1282,6 +1291,8 @@ MonoBehaviour:
     showingWristMonitor: 0
     mainObjectives: []
     completedObjectives: []
+  isBeingGrabbed: 0
+  throwDecay: 3
 --- !u!114 &3021978966882329380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1495,6 +1506,9 @@ MonoBehaviour:
   useStim: {fileID: 8300000, guid: a886b404e6380cd4fbefa1fa33cfc115, type: 3}
   grabItem: {fileID: 8300000, guid: 4552582d8ddfd144fb6aac2cdadef1e5, type: 3}
   throwItem: {fileID: 8300000, guid: 6c9527059043b3a48b7348e7dbd397a8, type: 3}
+  kickOffWall: {fileID: 0}
+  burningLoop: {fileID: 0}
+  burningSource: {fileID: 0}
   playerGroup: {fileID: 1529270391070815761, guid: 720f457489e44c440b5082c1b507453e, type: 2}
 --- !u!114 &2598223832726737249
 MonoBehaviour:
