@@ -109,7 +109,7 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
                 player = persistantManager.Player;
             }
             flashlight = FindFirstObjectByType<Flashlight>();
-            //find tutorial panel
+            //find tutorial panel -----------------------------------------------------------------w
 
             flashlight.OnFlashlightAcquired -= HandleFlashlightAcquired;
             flashlight.OnFlashlightAcquired += HandleFlashlightAcquired;

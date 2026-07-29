@@ -16,6 +16,9 @@ public class PersistantManager : MonoBehaviour
     [SerializeField] private Camera mainCamera;
     public Camera MainCamera => mainCamera;
 
+    [SerializeField] private Transform holdPos;
+    public Transform HoldPos => holdPos;
+
     //private ObjectiveUpdate objectiveUpdate;
     //private CheckpointManager checkpointManager;
     //private MenuManager menuManager;

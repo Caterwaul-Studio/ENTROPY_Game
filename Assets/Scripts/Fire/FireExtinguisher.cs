@@ -19,6 +19,16 @@ public class FireExtinguisher : MonoBehaviour
     private float initialEmission;
     private bool holding;
 
+    public event System.Action<bool> OnFireExtinguisherAcquired;
+
+
+    public bool HasExtinguisher
+    {
+        get { return hasExtinguisher; }
+        set { hasExtinguisher = value;
+            OnFireExtinguisherAcquired?.Invoke(hasExtinguisher);
+        }
+    }
 
     private void OnEnable()
     {
@@ -38,7 +48,7 @@ public class FireExtinguisher : MonoBehaviour
         sysEmission.rateOverTime = 0;
     }
 
-    public void OnThrow(InputAction.CallbackContext context)
+    public void OnLeftClick(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Started)
             holding = true;
@@ -55,19 +65,19 @@ public class FireExtinguisher : MonoBehaviour
         if (holding && canPuff && hasExtinguisher)
             StartCoroutine(MakePuff());
 
-        if (!zeroGravity.IsDead)
-            if (pickupScript.current != null)
-                if (pickupScript.current.GetComponent<ExtinguisherObject>() != null && !pickupScript.CanPickUp && (pauseMenu == null || !pauseMenu.activeInHierarchy))
-                    if (pickupScript.current.GetComponent<ExtinguisherObject>().remainingRetardant > 0)
-                        hasExtinguisher = true;
-                    else
-                        hasExtinguisher = false;
-                else
-                    hasExtinguisher = false;
-            else
-                hasExtinguisher = false;
-        else
-            hasExtinguisher = false;
+        //if (!zeroGravity.IsDead)
+        //    if (pickupScript.current != null)
+        //        if (pickupScript.current.GetComponent<ExtinguisherObject>() != null && !pickupScript.CanPickUp && (pauseMenu == null || !pauseMenu.activeInHierarchy))
+        //            if (pickupScript.current.GetComponent<ExtinguisherObject>().remainingRetardant > 0)
+        //                hasExtinguisher = true;
+        //            else
+        //                hasExtinguisher = false;
+        //        else
+        //            hasExtinguisher = false;
+        //    else
+        //        hasExtinguisher = false;
+        //else
+        //    hasExtinguisher = false;
     }
     System.Collections.IEnumerator MakePuff()
     { //instead of creating nodes, just moving around existing nodes is used again in the hopes it will help with optimization
