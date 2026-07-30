@@ -144,8 +144,8 @@ public class Flashlight : MonoBehaviour
         //create the raycast sending its info to hit, and with a max range of the max range of the spotlight
         if(Physics.Raycast(ray, out hit, spotRangeMax, barrierLayer))
         {
-            Debug.Log("ray distance: " + hit.distance);
-            Debug.Log("hit tag" + hit.rigidbody);
+            //Debug.Log("ray distance: " + hit.distance);
+           // Debug.Log("hit tag" + hit.rigidbody);
             if (hit.distance <= spotRangeMin)
             {
 
@@ -153,7 +153,7 @@ public class Flashlight : MonoBehaviour
             }
             else
             {
-                Debug.Log("ray distance: " + hit.distance);
+                //Debug.Log("ray distance: " + hit.distance);
                 return hit.distance;
             }
         }
@@ -169,7 +169,7 @@ public class Flashlight : MonoBehaviour
 
     public void EquipFlashlightFromScene()
     {
-        Debug.Log("equip flashlight called");
+        //Debug.Log("equip flashlight called");
         if (hasFlashlight
             && !flashlightEquipped)
         {
@@ -181,7 +181,7 @@ public class Flashlight : MonoBehaviour
             {
                 light.enabled = flashlightOn;
             }
-            Debug.Log("Equipping flashlight from scene|| HasFlashlightInScene: " + hasFlashlight + " FlashlightEquipped: " + FlashlightEquipped);
+            //Debug.Log("Equipping flashlight from scene|| HasFlashlightInScene: " + hasFlashlight + " FlashlightEquipped: " + FlashlightEquipped);
             lookingAtFlashlight = false;
         }
     }

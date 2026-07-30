@@ -5,7 +5,6 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 {
     [SerializeField] private FireExtinguisher fireExtinguisher;
     [SerializeField] private GameObject extinguisherObject;
-    private string extinguisherObjectName = "ExtinguisherObject";
     [SerializeField] private Transform holdPos;
     [SerializeField] private PersistantManager persistantManager;
 
@@ -13,6 +12,10 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
     [SerializeField] private bool isGrabbable;
     [SerializeField] private bool canGrab;
+    [SerializeField] private bool tutorialComplete = false;
+
+    [SerializeField] private GameObject extinguisherContainer;
+    private string extinguisherContainerName = "FireExtinguishers";
 
     // input action reference for the interact key to pickup
     [SerializeField] private InputActionReference interactActionReference;
@@ -68,6 +71,10 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             persistantManager = FindFirstObjectByType<PersistantManager>();
             holdPos = persistantManager.HoldPos;
         }
+        if(extinguisherContainer == null)
+        {
+            extinguisherContainer = GameObject.Find(extinguisherContainerName);
+        }
     }
 
     void Update()
@@ -81,8 +88,12 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             persistantManager = FindFirstObjectByType<PersistantManager>();
             holdPos = persistantManager.HoldPos;
         }
+        if (extinguisherContainer == null)
+        {
+            extinguisherContainer = GameObject.Find(extinguisherContainerName);
+        }
 
-        if(fireExtinguisher != null)
+        if (fireExtinguisher != null)
         {
             fireExtinguisher.OnFireExtinguisherAcquired -= HandleFireExtinguisherAcquired;
             fireExtinguisher.OnFireExtinguisherAcquired += HandleFireExtinguisherAcquired;
@@ -95,7 +106,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     {
         if (acquired)
         {
-            Debug.Log("extinguisher acquired");
+            //Debug.Log("extinguisher acquired for first time");
             extinguisherObject.GetComponent<Rigidbody>().isKinematic = true;
             this.transform.SetParent(fireExtinguisher.transform);
             this.transform.position = holdPos.transform.position;
@@ -106,9 +117,29 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         }
     }
 
+    private void PickupExtinguisher()
+    {
+        extinguisherObject.GetComponent<Rigidbody>().isKinematic = true;
+        this.transform.SetParent(fireExtinguisher.transform);
+        this.transform.position = holdPos.transform.position;
+        this.transform.rotation = holdPos.transform.rotation;
+        extinguisherObject.transform.position = holdPos.transform.position;
+        extinguisherObject.transform.rotation = holdPos.transform.rotation; ;
+        fireExtinguisher.extinguisherGameObj = this.gameObject;
+    }
+
+    private void DropExtinguisher()
+    {
+        extinguisherObject.GetComponent<Rigidbody>().isKinematic = false;
+        this.transform.parent = extinguisherContainer.transform;
+        isGrabbable = true;
+        fireExtinguisher.ExtinguisherEquipped = false;
+    }
+
     private void StartFireExtinguisherTutorial(bool tutorial)
     {
         //add logic for the tutorial of the fire extinguisher
+        tutorialComplete = true;
     }
 
     private void OnInteract(InputAction.CallbackContext context)
@@ -120,6 +151,16 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
             fireExtinguisher.HasExtinguisher = true;
             fireExtinguisher.ExtinguisherEquipped = true;
+
+            if (tutorialComplete)
+            {
+                PickupExtinguisher();
+            }
         }
+        else if (fireExtinguisher.ExtinguisherEquipped)
+        {
+            DropExtinguisher();
+        }
+
     }
 }
