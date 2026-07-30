@@ -19,6 +19,10 @@ public class FireExtinguisher : MonoBehaviour
     private float initialEmission;
     private bool holding;
 
+    public bool extinguisherEquipped = false;
+    private string extinguisherObjectName = "ExtinguisherObject";
+    public GameObject extinguisherGameObj;
+
     public event System.Action<bool> OnFireExtinguisherAcquired;
 
 
@@ -28,6 +32,12 @@ public class FireExtinguisher : MonoBehaviour
         set { hasExtinguisher = value;
             OnFireExtinguisherAcquired?.Invoke(hasExtinguisher);
         }
+    }
+
+    public bool ExtinguisherEquipped
+    {
+        get { return extinguisherEquipped; }
+        set { extinguisherEquipped = value; }
     }
 
     private void OnEnable()
@@ -51,9 +61,16 @@ public class FireExtinguisher : MonoBehaviour
     public void OnLeftClick(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Started)
+        {
             holding = true;
+            //Debug.Log("Holding started");
+        }
         else if (context.phase == InputActionPhase.Canceled)
+        {
             holding = false;
+            //Debug.Log("Holding ended");
+        }
+           
     }
 
     // Update is called once per frame
@@ -81,15 +98,28 @@ public class FireExtinguisher : MonoBehaviour
     }
     System.Collections.IEnumerator MakePuff()
     { //instead of creating nodes, just moving around existing nodes is used again in the hopes it will help with optimization
-        puffObjects[puffCycle].GetComponent<PuffMovement>().Shoot(fireExtinguisherPosition);
-        puffCycle++;
-        if (puffCycle >= puffObjects.Count)
-            puffCycle = 0;
-        canPuff = false;
-        pickupScript.current.GetComponent<ExtinguisherObject>().remainingRetardant -= 0.15f;
-        sysEmission.rateOverTimeMultiplier = initialEmission;
-        yield return new WaitForSeconds(0.15f);
-        sysEmission.rateOverTime = 0;
-        canPuff = true;
+        if(this.GetComponentInChildren<ExtinguisherObject>() != null &&
+            this.GetComponentInChildren<ExtinguisherObject>().remainingRetardant > 0)
+        {
+            puffObjects[puffCycle].GetComponent<PuffMovement>().Shoot(fireExtinguisherPosition);
+            puffCycle++;
+            if (puffCycle >= puffObjects.Count)
+                puffCycle = 0;
+            canPuff = false;
+            this.GetComponentInChildren<ExtinguisherObject>().remainingRetardant -= 0.15f;
+            sysEmission.rateOverTimeMultiplier = initialEmission;
+            yield return new WaitForSeconds(0.15f);
+            sysEmission.rateOverTime = 0;
+            canPuff = true;
+        }
+    }
+
+    public void ToggleExtinguisherFromInventory(InputAction.CallbackContext context)
+    {
+        if(hasExtinguisher && context.performed)
+        {
+            extinguisherEquipped = !extinguisherEquipped;
+            GameObject.Find(extinguisherObjectName).SetActive(extinguisherEquipped);
+        }
     }
 }

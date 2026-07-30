@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 public class ExtinguisherObject : MonoBehaviour, IInteractable
 {
     [SerializeField] private FireExtinguisher fireExtinguisher;
+    [SerializeField] private GameObject extinguisherObject;
     [SerializeField] private Transform holdPos;
     [SerializeField] private PersistantManager persistantManager;
 
@@ -94,9 +95,13 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         if (acquired)
         {
             Debug.Log("extinguisher acquired");
+            extinguisherObject.GetComponent<Rigidbody>().isKinematic = true;
             this.transform.SetParent(fireExtinguisher.transform);
             this.transform.position = holdPos.transform.position;
             this.transform.rotation = holdPos.transform.rotation;
+            extinguisherObject.transform.position = holdPos.transform.position;
+            extinguisherObject.transform.rotation = holdPos.transform.rotation;
+            fireExtinguisher.extinguisherGameObj = this;
         }
     }
 
@@ -107,12 +112,13 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        if (canGrab && isGrabbable)
+        if (canGrab && isGrabbable && !fireExtinguisher.ExtinguisherEquipped)
         {
             isGrabbable = false;
             canGrab = false;
 
             fireExtinguisher.HasExtinguisher = true;
+            fireExtinguisher.ExtinguisherEquipped = true;
         }
     }
 }

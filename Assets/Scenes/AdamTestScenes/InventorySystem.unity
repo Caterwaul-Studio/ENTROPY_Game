@@ -2246,6 +2246,7 @@ MonoBehaviour:
   pickupScript: {fileID: 2598745840197732176}
   zeroGravity: {fileID: 3700987545046739549}
   pauseMenu: {fileID: 7739791504384588446}
+  extinguisherEquipped: 0
 --- !u!1 &627194744
 GameObject:
   m_ObjectHideFlags: 0
@@ -14844,7 +14845,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.261
+      value: 0.418
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalRotation.w
@@ -64144,7 +64145,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4374886898353259814, guid: 42e415baa09862d4db7ed30f618d8b41, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 16.883
+      value: 16.569
       objectReference: {fileID: 0}
     - target: {fileID: 4374886898353259814, guid: 42e415baa09862d4db7ed30f618d8b41, type: 3}
       propertyPath: m_LocalPosition.y
@@ -64152,7 +64153,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4374886898353259814, guid: 42e415baa09862d4db7ed30f618d8b41, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 15.15
+      value: 16.967
       objectReference: {fileID: 0}
     - target: {fileID: 4374886898353259814, guid: 42e415baa09862d4db7ed30f618d8b41, type: 3}
       propertyPath: m_LocalRotation.w
@@ -72697,18 +72698,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: DormHallEvent, Assembly-CSharp
-        m_MethodName: 
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 0
     m_ActionId: 0d051d0c-c9b7-4f11-b18e-0c874d16e3be
     m_ActionName: 'PlayerControls/Interact[/Keyboard/z]'
   - m_PersistentCalls:
@@ -72727,7 +72716,19 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 601407861}
         m_TargetAssemblyTypeName: FireExtinguisher, Assembly-CSharp
-        m_MethodName: OnThrow
+        m_MethodName: OnLeftClick
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1882125357}
+        m_TargetAssemblyTypeName: Flashlight, Assembly-CSharp
+        m_MethodName: ToggleFlashlight
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -72849,9 +72850,9 @@ MonoBehaviour:
     m_ActionName: 'PlayerControls/INV1FlashlightEquip[/Keyboard/1]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1882125357}
-        m_TargetAssemblyTypeName: Flashlight, Assembly-CSharp
-        m_MethodName: ToggleFlashlight
+      - m_Target: {fileID: 601407861}
+        m_TargetAssemblyTypeName: FireExtinguisher, Assembly-CSharp
+        m_MethodName: ToggleExtinguisherFromInventory
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -72861,8 +72862,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: 2c985bf2-571b-49c2-a9ab-88107fbc55d3
-    m_ActionName: 'PlayerControls/INV1FlashlightToggle[/Mouse/leftButton]'
+    m_ActionId: d82ef5fc-71dc-4d5d-ad5d-c6dbc32a39d6
+    m_ActionName: 'PlayerControls/INV2ExtinguisherEquip[/Keyboard/2]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: PlayerControls
@@ -101149,6 +101150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireExtinguisher: {fileID: 0}
+  extinguisherObject: {fileID: 37638931}
   holdPos: {fileID: 0}
   persistantManager: {fileID: 0}
   remainingRetardant: 15

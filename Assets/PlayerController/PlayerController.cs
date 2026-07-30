@@ -183,12 +183,12 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Throw"",
+                    ""name"": ""UseItem"",
                     ""type"": ""Button"",
                     ""id"": ""e31e4715-29c6-4d9f-b958-bb29b0ac175c"",
                     ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
@@ -219,9 +219,9 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""INV1FlashlightToggle"",
+                    ""name"": ""INV2ExtinguisherEquip"",
                     ""type"": ""Button"",
-                    ""id"": ""2c985bf2-571b-49c2-a9ab-88107fbc55d3"",
+                    ""id"": ""d82ef5fc-71dc-4d5d-ad5d-c6dbc32a39d6"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -478,7 +478,7 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Throw"",
+                    ""action"": ""UseItem"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -489,7 +489,7 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Throw"",
+                    ""action"": ""UseItem"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -704,23 +704,23 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""2dce4e85-38f7-4424-b17b-494e538a1857"",
-                    ""path"": ""<Mouse>/leftButton"",
+                    ""id"": ""8608f32e-6b9e-4985-88e0-18f274c7f4f9"",
+                    ""path"": ""<Keyboard>/2"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""INV1FlashlightToggle"",
+                    ""action"": ""INV2ExtinguisherEquip"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""fa0fde14-9d27-46b4-9738-e8a79292cfff"",
-                    ""path"": ""<Gamepad>/leftStick/down"",
+                    ""id"": ""bd3cef58-8955-40ef-85e7-54f6606bb9b0"",
+                    ""path"": ""<Gamepad>/dpad/right"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""INV1FlashlightToggle"",
+                    ""action"": ""INV2ExtinguisherEquip"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -913,11 +913,11 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
         m_PlayerControls_LookY = m_PlayerControls.FindAction("LookY", throwIfNotFound: true);
         m_PlayerControls_Pause = m_PlayerControls.FindAction("Pause", throwIfNotFound: true);
         m_PlayerControls_Interact = m_PlayerControls.FindAction("Interact", throwIfNotFound: true);
-        m_PlayerControls_Throw = m_PlayerControls.FindAction("Throw", throwIfNotFound: true);
+        m_PlayerControls_UseItem = m_PlayerControls.FindAction("UseItem", throwIfNotFound: true);
         m_PlayerControls_OffWall = m_PlayerControls.FindAction("OffWall", throwIfNotFound: true);
         m_PlayerControls_OpenWristMonitor = m_PlayerControls.FindAction("OpenWristMonitor", throwIfNotFound: true);
         m_PlayerControls_INV1FlashlightEquip = m_PlayerControls.FindAction("INV1FlashlightEquip", throwIfNotFound: true);
-        m_PlayerControls_INV1FlashlightToggle = m_PlayerControls.FindAction("INV1FlashlightToggle", throwIfNotFound: true);
+        m_PlayerControls_INV2ExtinguisherEquip = m_PlayerControls.FindAction("INV2ExtinguisherEquip", throwIfNotFound: true);
         // Dialogue
         m_Dialogue = asset.FindActionMap("Dialogue", throwIfNotFound: true);
         m_Dialogue_ContinueDialogue = m_Dialogue.FindAction("ContinueDialogue", throwIfNotFound: true);
@@ -1027,11 +1027,11 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControls_LookY;
     private readonly InputAction m_PlayerControls_Pause;
     private readonly InputAction m_PlayerControls_Interact;
-    private readonly InputAction m_PlayerControls_Throw;
+    private readonly InputAction m_PlayerControls_UseItem;
     private readonly InputAction m_PlayerControls_OffWall;
     private readonly InputAction m_PlayerControls_OpenWristMonitor;
     private readonly InputAction m_PlayerControls_INV1FlashlightEquip;
-    private readonly InputAction m_PlayerControls_INV1FlashlightToggle;
+    private readonly InputAction m_PlayerControls_INV2ExtinguisherEquip;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerControls".
     /// </summary>
@@ -1084,9 +1084,9 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Interact => m_Wrapper.m_PlayerControls_Interact;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerControls/Throw".
+        /// Provides access to the underlying input action "PlayerControls/UseItem".
         /// </summary>
-        public InputAction @Throw => m_Wrapper.m_PlayerControls_Throw;
+        public InputAction @UseItem => m_Wrapper.m_PlayerControls_UseItem;
         /// <summary>
         /// Provides access to the underlying input action "PlayerControls/OffWall".
         /// </summary>
@@ -1100,9 +1100,9 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @INV1FlashlightEquip => m_Wrapper.m_PlayerControls_INV1FlashlightEquip;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerControls/INV1FlashlightToggle".
+        /// Provides access to the underlying input action "PlayerControls/INV2ExtinguisherEquip".
         /// </summary>
-        public InputAction @INV1FlashlightToggle => m_Wrapper.m_PlayerControls_INV1FlashlightToggle;
+        public InputAction @INV2ExtinguisherEquip => m_Wrapper.m_PlayerControls_INV2ExtinguisherEquip;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1159,9 +1159,9 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
-            @Throw.started += instance.OnThrow;
-            @Throw.performed += instance.OnThrow;
-            @Throw.canceled += instance.OnThrow;
+            @UseItem.started += instance.OnUseItem;
+            @UseItem.performed += instance.OnUseItem;
+            @UseItem.canceled += instance.OnUseItem;
             @OffWall.started += instance.OnOffWall;
             @OffWall.performed += instance.OnOffWall;
             @OffWall.canceled += instance.OnOffWall;
@@ -1171,9 +1171,9 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
             @INV1FlashlightEquip.started += instance.OnINV1FlashlightEquip;
             @INV1FlashlightEquip.performed += instance.OnINV1FlashlightEquip;
             @INV1FlashlightEquip.canceled += instance.OnINV1FlashlightEquip;
-            @INV1FlashlightToggle.started += instance.OnINV1FlashlightToggle;
-            @INV1FlashlightToggle.performed += instance.OnINV1FlashlightToggle;
-            @INV1FlashlightToggle.canceled += instance.OnINV1FlashlightToggle;
+            @INV2ExtinguisherEquip.started += instance.OnINV2ExtinguisherEquip;
+            @INV2ExtinguisherEquip.performed += instance.OnINV2ExtinguisherEquip;
+            @INV2ExtinguisherEquip.canceled += instance.OnINV2ExtinguisherEquip;
         }
 
         /// <summary>
@@ -1215,9 +1215,9 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
-            @Throw.started -= instance.OnThrow;
-            @Throw.performed -= instance.OnThrow;
-            @Throw.canceled -= instance.OnThrow;
+            @UseItem.started -= instance.OnUseItem;
+            @UseItem.performed -= instance.OnUseItem;
+            @UseItem.canceled -= instance.OnUseItem;
             @OffWall.started -= instance.OnOffWall;
             @OffWall.performed -= instance.OnOffWall;
             @OffWall.canceled -= instance.OnOffWall;
@@ -1227,9 +1227,9 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
             @INV1FlashlightEquip.started -= instance.OnINV1FlashlightEquip;
             @INV1FlashlightEquip.performed -= instance.OnINV1FlashlightEquip;
             @INV1FlashlightEquip.canceled -= instance.OnINV1FlashlightEquip;
-            @INV1FlashlightToggle.started -= instance.OnINV1FlashlightToggle;
-            @INV1FlashlightToggle.performed -= instance.OnINV1FlashlightToggle;
-            @INV1FlashlightToggle.canceled -= instance.OnINV1FlashlightToggle;
+            @INV2ExtinguisherEquip.started -= instance.OnINV2ExtinguisherEquip;
+            @INV2ExtinguisherEquip.performed -= instance.OnINV2ExtinguisherEquip;
+            @INV2ExtinguisherEquip.canceled -= instance.OnINV2ExtinguisherEquip;
         }
 
         /// <summary>
@@ -1758,12 +1758,12 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteract(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Throw" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "UseItem" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnThrow(InputAction.CallbackContext context);
+        void OnUseItem(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "OffWall" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
@@ -1786,12 +1786,12 @@ public partial class @PlayerController: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnINV1FlashlightEquip(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "INV1FlashlightToggle" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "INV2ExtinguisherEquip" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnINV1FlashlightToggle(InputAction.CallbackContext context);
+        void OnINV2ExtinguisherEquip(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Dialogue" which allows adding and removing callbacks.
