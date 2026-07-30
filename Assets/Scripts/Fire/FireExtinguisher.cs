@@ -20,7 +20,6 @@ public class FireExtinguisher : MonoBehaviour
     private bool holding;
 
     public bool extinguisherEquipped = false;
-    private string extinguisherObjectName = "ExtinguisherObject";
     public GameObject extinguisherGameObj;
 
     public event System.Action<bool> OnFireExtinguisherAcquired;
@@ -119,7 +118,7 @@ public class FireExtinguisher : MonoBehaviour
         if(hasExtinguisher && context.performed)
         {
             extinguisherEquipped = !extinguisherEquipped;
-            GameObject.Find(extinguisherObjectName).SetActive(extinguisherEquipped);
+            extinguisherGameObj.SetActive(extinguisherEquipped);
         }
     }
 }

@@ -5,6 +5,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 {
     [SerializeField] private FireExtinguisher fireExtinguisher;
     [SerializeField] private GameObject extinguisherObject;
+    private string extinguisherObjectName = "ExtinguisherObject";
     [SerializeField] private Transform holdPos;
     [SerializeField] private PersistantManager persistantManager;
 
@@ -100,8 +101,8 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             this.transform.position = holdPos.transform.position;
             this.transform.rotation = holdPos.transform.rotation;
             extinguisherObject.transform.position = holdPos.transform.position;
-            extinguisherObject.transform.rotation = holdPos.transform.rotation;
-            fireExtinguisher.extinguisherGameObj = this;
+            extinguisherObject.transform.rotation = holdPos.transform.rotation;;
+            fireExtinguisher.extinguisherGameObj = this.gameObject;
         }
     }
 
