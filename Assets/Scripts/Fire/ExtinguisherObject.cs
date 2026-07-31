@@ -12,7 +12,6 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
     [SerializeField] private bool isGrabbable;
     [SerializeField] private bool canGrab;
-    [SerializeField] private bool tutorialComplete = false;
 
     [SerializeField] private GameObject extinguisherContainer;
     private string extinguisherContainerName = "FireExtinguishers";
@@ -53,7 +52,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     {
         if (fireExtinguisher != null)
         {
-            fireExtinguisher.OnFireExtinguisherAcquired -= HandleFireExtinguisherAcquired;
+            fireExtinguisher.OnFireExtinguisherAcquired -= StartFireExtinguisherTutorial;
         }
     }
 
@@ -95,27 +94,26 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
         if (fireExtinguisher != null)
         {
-            fireExtinguisher.OnFireExtinguisherAcquired -= HandleFireExtinguisherAcquired;
-            fireExtinguisher.OnFireExtinguisherAcquired += HandleFireExtinguisherAcquired;
             fireExtinguisher.OnFireExtinguisherAcquired -= StartFireExtinguisherTutorial;
             fireExtinguisher.OnFireExtinguisherAcquired += StartFireExtinguisherTutorial;
         }
     }
 
-    private void HandleFireExtinguisherAcquired(bool acquired)
-    {
-        if (acquired)
-        {
-            //Debug.Log("extinguisher acquired for first time");
-            extinguisherObject.GetComponent<Rigidbody>().isKinematic = true;
-            this.transform.SetParent(fireExtinguisher.transform);
-            this.transform.position = holdPos.transform.position;
-            this.transform.rotation = holdPos.transform.rotation;
-            extinguisherObject.transform.position = holdPos.transform.position;
-            extinguisherObject.transform.rotation = holdPos.transform.rotation;;
-            fireExtinguisher.extinguisherGameObj = this.gameObject;
-        }
-    }
+    //private void HandleFireExtinguisherAcquired(bool acquired, GameObject acquiredObj)
+    //{
+    //    if (acquired && acquiredObj == this.gameObject)
+    //    {
+    //        //Debug.Log("extinguisher acquired for first time");
+    //        extinguisherObject.GetComponent<Rigidbody>().isKinematic = true;
+    //        this.transform.SetParent(fireExtinguisher.transform);
+    //        this.transform.position = holdPos.transform.position;
+    //        this.transform.rotation = holdPos.transform.rotation;
+    //        extinguisherObject.transform.position = holdPos.transform.position;
+    //        extinguisherObject.transform.rotation = holdPos.transform.rotation;;
+    //        fireExtinguisher.extinguisherGameObj = this.gameObject;
+    //        fireExtinguisher.ExtinguisherEquipped = true;
+    //    }
+    //}
 
     private void PickupExtinguisher()
     {
@@ -126,20 +124,30 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         extinguisherObject.transform.position = holdPos.transform.position;
         extinguisherObject.transform.rotation = holdPos.transform.rotation; ;
         fireExtinguisher.extinguisherGameObj = this.gameObject;
+        fireExtinguisher.ExtinguisherEquipped = true;
+        fireExtinguisher.HasExtinguisher = true;
+
+        fireExtinguisher.AcquireExtinguisher(this.gameObject); // raises OnFireExtinguisherAcquired
     }
 
     private void DropExtinguisher()
     {
+        Debug.Log("Dropping extinguisher");
         extinguisherObject.GetComponent<Rigidbody>().isKinematic = false;
-        this.transform.parent = extinguisherContainer.transform;
-        isGrabbable = true;
+        this.transform.SetParent(extinguisherContainer.transform);
         fireExtinguisher.ExtinguisherEquipped = false;
+        fireExtinguisher.extinguisherGameObj = null;
+        fireExtinguisher.HasExtinguisher = false;
     }
 
-    private void StartFireExtinguisherTutorial(bool tutorial)
+    private void StartFireExtinguisherTutorial(bool acquired, GameObject acquiredObj)
     {
-        //add logic for the tutorial of the fire extinguisher
-        tutorialComplete = true;
+        if (acquired && acquiredObj == this.gameObject && !fireExtinguisher.TutorialComplete)
+        {
+            //add logic for the tutorial of the fire extinguisher
+            Debug.Log("starting tutorial");
+            fireExtinguisher.TutorialComplete = true;
+        }
     }
 
     private void OnInteract(InputAction.CallbackContext context)
@@ -148,17 +156,12 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         {
             isGrabbable = false;
             canGrab = false;
-
-            fireExtinguisher.HasExtinguisher = true;
-            fireExtinguisher.ExtinguisherEquipped = true;
-
-            if (tutorialComplete)
-            {
-                PickupExtinguisher();
-            }
+            PickupExtinguisher();
         }
-        else if (fireExtinguisher.ExtinguisherEquipped)
+        else if (!isGrabbable && fireExtinguisher.ExtinguisherEquipped)
         {
+            isGrabbable = true;
+            canGrab = false;
             DropExtinguisher();
         }
 

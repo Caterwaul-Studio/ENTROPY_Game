@@ -119,7 +119,7 @@ public class Flashlight : MonoBehaviour
             //if it's a spotlight
             if(light.type == UnityEngine.LightType.Spot)
             {
-                Debug.Log("scaling light intensity");
+                //Debug.Log("scaling light intensity");
                 //set the intensity to a ratio scaled by the distance
                 light.intensity = intensityMax / spotRangeMax * distance;
             }

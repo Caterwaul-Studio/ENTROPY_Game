@@ -19,24 +19,30 @@ public class FireExtinguisher : MonoBehaviour
     private float initialEmission;
     private bool holding;
 
+    [SerializeField] private bool tutorialComplete = false;
+
     public bool extinguisherEquipped = false;
     public GameObject extinguisherGameObj;
 
-    public event System.Action<bool> OnFireExtinguisherAcquired;
+    public event System.Action<bool, GameObject> OnFireExtinguisherAcquired;
 
 
     public bool HasExtinguisher
     {
         get { return hasExtinguisher; }
-        set { hasExtinguisher = value;
-            OnFireExtinguisherAcquired?.Invoke(hasExtinguisher);
-        }
+        set { hasExtinguisher = value; }
     }
 
     public bool ExtinguisherEquipped
     {
         get { return extinguisherEquipped; }
         set { extinguisherEquipped = value; }
+    }
+
+    public bool TutorialComplete
+    {
+        get { return tutorialComplete; }
+        set { tutorialComplete = value; }
     }
 
     private void OnEnable()
@@ -49,27 +55,12 @@ public class FireExtinguisher : MonoBehaviour
     {
         if (player == null)
         {
-            player = FindAnyObjectByType<ZeroGravity>().gameObject;
+            player = FindFirstObjectByType<ZeroGravity>().gameObject;
             zeroGravity = player.GetComponent<ZeroGravity>();
             pickupScript = player.GetComponent<PickupScript>();
         }
         initialEmission = sysEmission.rateOverTimeMultiplier;
         sysEmission.rateOverTime = 0;
-    }
-
-    public void OnLeftClick(InputAction.CallbackContext context)
-    {
-        if (context.phase == InputActionPhase.Started)
-        {
-            holding = true;
-            //Debug.Log("Holding started");
-        }
-        else if (context.phase == InputActionPhase.Canceled)
-        {
-            holding = false;
-            //Debug.Log("Holding ended");
-        }
-           
     }
 
     // Update is called once per frame
@@ -78,7 +69,7 @@ public class FireExtinguisher : MonoBehaviour
         if (pauseMenu == null)
             pauseMenu = GameObject.Find("PauseMenu");
 
-        if (holding && canPuff && hasExtinguisher)
+        if (holding && canPuff && hasExtinguisher && !pauseMenu.activeSelf == true && !zeroGravity.IsDead)
             StartCoroutine(MakePuff());
 
         //if (!zeroGravity.IsDead)
@@ -113,12 +104,33 @@ public class FireExtinguisher : MonoBehaviour
         }
     }
 
+    public void AcquireExtinguisher(GameObject acquiredObj)
+    {
+        hasExtinguisher = true;
+        extinguisherGameObj = acquiredObj;
+        OnFireExtinguisherAcquired?.Invoke(true, acquiredObj);
+    }
+
     public void ToggleExtinguisherFromInventory(InputAction.CallbackContext context)
     {
         if(hasExtinguisher && context.performed)
         {
             extinguisherEquipped = !extinguisherEquipped;
             extinguisherGameObj.SetActive(extinguisherEquipped);
+        }
+    }
+
+    public void OnLeftClick(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Started)
+        {
+            holding = true;
+            //Debug.Log("Holding started");
+        }
+        else if (context.phase == InputActionPhase.Canceled)
+        {
+            holding = false;
+            //Debug.Log("Holding ended");
         }
     }
 }
