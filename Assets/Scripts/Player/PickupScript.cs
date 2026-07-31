@@ -44,6 +44,7 @@ public class PickupScript : MonoBehaviour
     [SerializeField]
     private Collider playerCollider;
     public GameObject current;
+    public HeldFloatingObject holdInvSlot;
 
     [SerializeField] private PlayerAudio playerAudio;
 
@@ -191,11 +192,13 @@ public class PickupScript : MonoBehaviour
         if (canPickUp && heldObj == null)
         {
             PickUpObject(current);
+            holdInvSlot.ParentFloatingObjectToInvSlot(current);
             //Debug.Log("Picked up object");
         }
         else if (heldObj != null)
         {
             //Debug.Log("Dropped object");
+            holdInvSlot.RemoveFloatingObjectFromInvSlot(heldObj);
             DropObject();
         }
 
@@ -210,6 +213,7 @@ public class PickupScript : MonoBehaviour
                 //unmute the thrown object
                 StartCoroutine(heldObj.GetComponent<FloatingImpactAudio>().unmuteAfterTime());
             }
+            holdInvSlot.RemoveFloatingObjectFromInvSlot(heldObj);
             MoveObject(); //keep object position at holdPos
             ThrowObject();
 

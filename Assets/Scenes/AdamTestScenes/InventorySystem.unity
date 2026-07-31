@@ -1091,6 +1091,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 183087995}
+  - component: {fileID: 183087996}
   m_Layer: 0
   m_Name: INV 3 - FloatingObject
   m_TagString: Untagged
@@ -1113,6 +1114,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5076610162655925806}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &183087996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 183087994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f19cbb1bc439494aaf45f07f34d0618, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objInHand: 0
 --- !u!1001 &188209440
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -45861,6 +45875,7 @@ MonoBehaviour:
   pickUpRange: 1.3
   playerCollider: {fileID: 3461489924453094607}
   current: {fileID: 0}
+  holdInvSlot: {fileID: 183087996}
   playerAudio: {fileID: 8079650368958970559}
   itemAudioHandler: {fileID: 1846483200285348155}
 --- !u!1 &2599454614432199663
