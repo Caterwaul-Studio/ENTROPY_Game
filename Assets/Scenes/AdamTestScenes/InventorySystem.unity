@@ -1127,6 +1127,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objInHand: 0
+  objInInv: 0
+  heldObj: {fileID: 0}
 --- !u!1001 &188209440
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -45877,6 +45879,7 @@ MonoBehaviour:
   current: {fileID: 0}
   holdInvSlot: {fileID: 183087996}
   playerAudio: {fileID: 8079650368958970559}
+  pauseMenu: {fileID: 7739791504384588446}
   itemAudioHandler: {fileID: 1846483200285348155}
 --- !u!1 &2599454614432199663
 GameObject:
@@ -73358,6 +73361,26 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: d82ef5fc-71dc-4d5d-ad5d-c6dbc32a39d6
     m_ActionName: 'PlayerControls/INV2ExtinguisherEquip[/Keyboard/2]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 183087996}
+        m_TargetAssemblyTypeName: HeldFloatingObject, Assembly-CSharp
+        m_MethodName: ToggleFloatingObjInv
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: ddd935fd-6321-4c97-98d6-31f9a7f964eb
+    m_ActionName: 'PlayerControls/INV3HeldFloatingObjEquip[/Keyboard/3]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: df882d5d-79c5-4322-ae7a-8d7974c66433
+    m_ActionName: 'PlayerControls/INV4<>Equip[/Keyboard/4]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: PlayerControls

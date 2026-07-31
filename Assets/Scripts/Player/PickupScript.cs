@@ -48,6 +48,8 @@ public class PickupScript : MonoBehaviour
 
     [SerializeField] private PlayerAudio playerAudio;
 
+    [SerializeField] private GameObject pauseMenu;
+
     [Header("Audio")]
     public ItemAudioHandler itemAudioHandler;
 
@@ -109,8 +111,9 @@ public class PickupScript : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-       
-        if (heldObj == null && zeroGPlayer.CanGrab) //if currently not holding anything and is allowed to grab things
+        if (pauseMenu == null)
+            pauseMenu = GameObject.Find("PauseMenu");
+        if (zeroGPlayer.CanGrab) //if currently not holding anything and is allowed to grab things
         {
             //perform raycast to check if player is looking at object within pickuprange
             RaycastHit hit;
@@ -195,10 +198,16 @@ public class PickupScript : MonoBehaviour
             holdInvSlot.ParentFloatingObjectToInvSlot(current);
             //Debug.Log("Picked up object");
         }
+        else if (canPickUp && heldObj != null)
+        {
+            holdInvSlot.SwapFloatingObjectsInInv(heldObj, current, ObjectContainer);
+            DropObject();
+            PickUpObject(current);
+        }
         else if (heldObj != null)
         {
             //Debug.Log("Dropped object");
-            holdInvSlot.RemoveFloatingObjectFromInvSlot(heldObj);
+            holdInvSlot.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
             DropObject();
         }
 
@@ -206,17 +215,16 @@ public class PickupScript : MonoBehaviour
 
     public void OnThrow(InputAction.CallbackContext context)
     {
-        if (heldObj != null) //if player is holding object
+        if (heldObj != null && holdInvSlot.objInHand && !pauseMenu.activeSelf) //if player is holding object
         {
             if (heldObj.GetComponent<FloatingImpactAudio>()) //only do this if the object has an audio source
             {
                 //unmute the thrown object
                 StartCoroutine(heldObj.GetComponent<FloatingImpactAudio>().unmuteAfterTime());
             }
-            holdInvSlot.RemoveFloatingObjectFromInvSlot(heldObj);
+            holdInvSlot.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
             MoveObject(); //keep object position at holdPos
             ThrowObject();
-
         }
      
     }
@@ -286,6 +294,7 @@ public class PickupScript : MonoBehaviour
         }
         heldObjCollider.enabled = true;
         heldObjRb.isKinematic = false;
+        heldObjRb.AddForce(cam.transform.forward.normalized * zeroGPlayer.RB.linearVelocity.magnitude, ForceMode.VelocityChange);
         heldObj.transform.parent = ObjectContainer.transform; //unparent object
         heldObj = null; //undefine game object
 
@@ -345,9 +354,6 @@ public class PickupScript : MonoBehaviour
             uiManager.InputIndicatorThrow.sprite = null;
             uiManager.InputIndicatorThrow.color = new Color(0, 0, 0, 0);
         }
-
-
-
 
         // initiate pick up cd
         canPickUp = false;

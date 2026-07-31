@@ -140,6 +140,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "INV3HeldFloatingObjEquip",
+                    "type": "Button",
+                    "id": "ddd935fd-6321-4c97-98d6-31f9a7f964eb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "INV4<>Equip",
+                    "type": "Button",
+                    "id": "df882d5d-79c5-4322-ae7a-8d7974c66433",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -630,11 +648,55 @@
                 {
                     "name": "",
                     "id": "bd3cef58-8955-40ef-85e7-54f6606bb9b0",
-                    "path": "<Gamepad>/dpad/right",
+                    "path": "<Gamepad>/dpad/left",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "INV2ExtinguisherEquip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4f0786e3-e060-452e-bc3b-e3d10338f103",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV3HeldFloatingObjEquip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8fe9529f-d725-45eb-8676-d720116b3e1f",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV3HeldFloatingObjEquip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5eac8bf0-b719-45b4-910b-bab5b01e16ab",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV4<>Equip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7d3d6c5c-f3e6-4732-86a4-3e08bcddd800",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV4<>Equip",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
