@@ -1,24 +1,14 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class HeldFloatingObject : MonoBehaviour
+public class HeldFloatingObject : MonoBehaviour, IInventoryItem
 {
     public bool objInHand;
     public bool objInInv;
     public GameObject heldObj;
+    public InventoryManager inventoryManager;
+    public int slotIndex = 3;
     //still need a Event for first grab tutorial
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     public void ParentFloatingObjectToInvSlot(GameObject obj)
     {
@@ -46,11 +36,32 @@ public class HeldFloatingObject : MonoBehaviour
     public void ToggleFloatingObjInv(InputAction.CallbackContext context)
     {
         Debug.Log("toggling floating obj from inventory");
-        if (context.performed && heldObj != null)
+        if(!context.performed) return;
+
+        if (heldObj == null) return;
+
+        if(objInHand)
         {
-            heldObj.SetActive(!objInHand);
-            objInHand = !objInHand;
+            inventoryManager.DeactivateCurrent();
         }
+        else
+        {
+            inventoryManager.RequestActivate((int)slotIndex);
+        }
+    }
+
+    public void Equip()
+    {
+        if (heldObj == null) return;
+        heldObj.SetActive(true);
+        objInHand = true;
+    }
+
+    public void Unequip()
+    {
+        if (heldObj == null) return;
+        heldObj.SetActive(false);
+        objInHand = false;
     }
 
 }

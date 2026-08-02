@@ -2,8 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class FireExtinguisher : MonoBehaviour
+public class FireExtinguisher : MonoBehaviour, IInventoryItem
 {
+    public int slotIndex = 2;
+    public InventoryManager inventoryManager;
+    public bool ExtinguisherInRaycast;
+
+    [SerializeField] private GameObject extinguisherContainer;
+    private string extinguisherContainerName = "FireExtinguishers";
+
     [SerializeField] private bool canPuff = true;
     [SerializeField] private bool hasExtinguisher = true;
     [SerializeField] private List<GameObject> puffObjects;
@@ -45,6 +52,11 @@ public class FireExtinguisher : MonoBehaviour
         set { tutorialComplete = value; }
     }
 
+    public GameObject ExtinguisherContainer
+    {
+        get { return extinguisherContainer; }
+    }
+
     private void OnEnable()
     {
         sysMain = sys.main;
@@ -59,8 +71,14 @@ public class FireExtinguisher : MonoBehaviour
             zeroGravity = player.GetComponent<ZeroGravity>();
             pickupScript = player.GetComponent<PickupScript>();
         }
+        if (extinguisherContainer == null)
+        {
+            extinguisherContainer = GameObject.Find(extinguisherContainerName);
+        }
         initialEmission = sysEmission.rateOverTimeMultiplier;
         sysEmission.rateOverTime = 0;
+
+        inventoryManager.RegisterSlot((int)slotIndex, this);
     }
 
     // Update is called once per frame
@@ -71,6 +89,11 @@ public class FireExtinguisher : MonoBehaviour
 
         if (holding && canPuff && hasExtinguisher && !pauseMenu.activeSelf == true && !zeroGravity.IsDead)
             StartCoroutine(MakePuff());
+
+        if (extinguisherContainer == null)
+        {
+            extinguisherContainer = GameObject.Find(extinguisherContainerName);
+        }
 
         //if (!zeroGravity.IsDead)
         //    if (pickupScript.current != null)
@@ -85,6 +108,19 @@ public class FireExtinguisher : MonoBehaviour
         //        hasExtinguisher = false;
         //else
         //    hasExtinguisher = false;
+
+
+        //this logic creates a gate bool to ensure the floating objects are not dropped when picking up a new extinguisher
+        ExtinguisherInRaycast = false;
+
+        foreach (ExtinguisherObject extinguisherObj in extinguisherContainer.GetComponentsInChildren<ExtinguisherObject>())
+        {
+            if (extinguisherObj.CanGrab)
+            {
+                ExtinguisherInRaycast = extinguisherObj.CanGrab;
+                break;
+            }
+        }
     }
     System.Collections.IEnumerator MakePuff()
     { //instead of creating nodes, just moving around existing nodes is used again in the hopes it will help with optimization
@@ -121,8 +157,14 @@ public class FireExtinguisher : MonoBehaviour
     {
         if(hasExtinguisher && context.performed)
         {
-            extinguisherEquipped = !extinguisherEquipped;
-            extinguisherGameObj.SetActive(extinguisherEquipped);
+            if (extinguisherEquipped)
+            {
+                inventoryManager.DeactivateCurrent();
+            }
+            else
+            {
+                inventoryManager.RequestActivate((int)slotIndex);
+            }
         }
     }
 
@@ -138,5 +180,17 @@ public class FireExtinguisher : MonoBehaviour
             holding = false;
             //Debug.Log("Holding ended");
         }
+    }
+
+    public void Equip()
+    {
+        extinguisherEquipped = true;
+        extinguisherGameObj.SetActive(true);
+    }
+
+    public void Unequip()
+    {
+        extinguisherEquipped = false;
+        extinguisherGameObj.SetActive(false);
     }
 }

@@ -7,6 +7,9 @@ using UnityEngine.SceneManagement;
 
 public class PickupScript : MonoBehaviour
 {
+    public HeldFloatingObject holdInvSlot;
+    [SerializeField] private FireExtinguisher fireExtinguisher;
+
     [SerializeField]
     private GameObject player;
     [SerializeField]
@@ -37,14 +40,13 @@ public class PickupScript : MonoBehaviour
     private float throwForce = 5f; //force at which the object is thrown at
     [SerializeField]
     private float pickUpRange = 1.3f; //how far the player can pickup the object from
-    private GameObject heldObj; //object which we pick up
+    public GameObject heldObj; //object which we pick up
     private Rigidbody heldObjRb; //rigidbody of object we pick up
     private Collider heldObjCollider;
 
     [SerializeField]
     private Collider playerCollider;
     public GameObject current;
-    public HeldFloatingObject holdInvSlot;
 
     [SerializeField] private PlayerAudio playerAudio;
 
@@ -105,6 +107,8 @@ public class PickupScript : MonoBehaviour
         {
             ObjectContainer = GameObject.Find(objectContainerName);
         }
+
+        holdInvSlot.inventoryManager.RegisterSlot((int)holdInvSlot.slotIndex, holdInvSlot);
     }
 
 
@@ -196,19 +200,22 @@ public class PickupScript : MonoBehaviour
         {
             PickUpObject(current);
             holdInvSlot.ParentFloatingObjectToInvSlot(current);
+            holdInvSlot.inventoryManager.RequestActivate((int)holdInvSlot.slotIndex);
             //Debug.Log("Picked up object");
         }
-        else if (canPickUp && heldObj != null)
+        else if (canPickUp && heldObj != null && !fireExtinguisher.ExtinguisherInRaycast)
         {
             holdInvSlot.SwapFloatingObjectsInInv(heldObj, current, ObjectContainer);
             DropObject();
             PickUpObject(current);
+            holdInvSlot.inventoryManager.RequestActivate((int)holdInvSlot.slotIndex);
         }
-        else if (heldObj != null)
+        else if (heldObj != null && !fireExtinguisher.ExtinguisherInRaycast)
         {
             //Debug.Log("Dropped object");
             holdInvSlot.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
             DropObject();
+            holdInvSlot.inventoryManager.DeactivateCurrent();
         }
 
     }
@@ -294,6 +301,7 @@ public class PickupScript : MonoBehaviour
         }
         heldObjCollider.enabled = true;
         heldObjRb.isKinematic = false;
+        heldObj.SetActive(true);
         heldObjRb.AddForce(cam.transform.forward.normalized * zeroGPlayer.RB.linearVelocity.magnitude, ForceMode.VelocityChange);
         heldObj.transform.parent = ObjectContainer.transform; //unparent object
         heldObj = null; //undefine game object

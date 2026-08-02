@@ -2,9 +2,12 @@ using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.InputSystem;
 
-public class Flashlight : MonoBehaviour
+public class Flashlight : MonoBehaviour, IInventoryItem
 {
     [Header("Flashlight Variables")]
+    public int slotIndex = 1;
+    public InventoryManager inventoryManager;
+
     public float intensityMax = 1500f;
     public float intensityMin = 5f;
 
@@ -89,6 +92,7 @@ public class Flashlight : MonoBehaviour
     void Start()
     {
         flashlightEquipped = false;
+        inventoryManager.RegisterSlot((int)slotIndex, this);
     }
 
     // Update is called once per frame
@@ -173,16 +177,8 @@ public class Flashlight : MonoBehaviour
         if (hasFlashlight
             && !flashlightEquipped)
         {
-            flashlightEquipped = true;   // enables player flashlight
-            flashlightInHand.SetActive(flashlightEquipped);
-            //set the default of the flashlight of the lights of the player flashlight from the scene flashlight
-            //Debug.Log("Toggling flashlight " + flashlightOn);
-            foreach (Light light in flashlightInHand.GetComponentsInChildren<Light>())
-            {
-                light.enabled = flashlightOn;
-            }
-            //Debug.Log("Equipping flashlight from scene|| HasFlashlightInScene: " + hasFlashlight + " FlashlightEquipped: " + FlashlightEquipped);
             lookingAtFlashlight = false;
+            inventoryManager.RequestActivate(slotIndex);
         }
     }
 
@@ -191,42 +187,13 @@ public class Flashlight : MonoBehaviour
         //if the player has picked up the flashlight and performs key click of 1
         if (hasFlashlight && context.performed)
         {
-            //toggle the flashlight equipped bool
-            flashlightEquipped = !flashlightEquipped;
-            //set the visibility of he flashlight based on it
-            flashlightInHand.SetActive(flashlightEquipped);
-            //if the player currently has equipped the flashlight and its currently on
-            if (flashlightOn)
+            if(flashlightEquipped)
             {
-                flashlightClippedToBelt = !flashlightEquipped;
-                //set the config joint flashlight true (clipped to belt)
-                if (flashlightClippedToBelt)
-                {
-                    //instantiate a new outhand flashlight
-                    GameObject outHand = Instantiate(flashlightOutHandPrefab, outHandPos.transform.position, outHandPos.transform.rotation);
-                    //set the parent to the flashlight inventory slot
-                    outHand.transform.SetParent(outHandPos.transform, true);
-
-                    //set config joint connected body
-                    //find the rigid body of this gameobject
-                    Rigidbody connectedBody = outHandPos.GetComponent<Rigidbody>();
-                    ConfigurableJoint joint = outHand.GetComponent<ConfigurableJoint>();
-                    joint.connectedBody = connectedBody;
-                    //set the new outhand to the outhand flashlight object
-                    flashlightOutHand = outHand;
-                    //set the up to the outHandPos up
-                    flashlightOutHand.transform.up = outHandPos.transform.up;
-                    //finally set it true now that everything is set
-                    flashlightOutHand.SetActive(true);
-                }
-                else if (!flashlightClippedToBelt)
-                {
-                    Destroy(flashlightOutHand);
-                }
-
-                    flashlightInHand.SetActive(!flashlightClippedToBelt);
-
-                RayCastDistance(flashlightInHand);
+                inventoryManager.DeactivateCurrent();
+            }
+            else
+            {
+                inventoryManager.RequestActivate((int)slotIndex);
             }
         }
         //Debug.Log("Equipping flashlight from inventory|| HasFlashlightInScene: " + HasFlashlightInScene + " FlashlightEquipped: " + FlashlightEquipped);
@@ -243,6 +210,55 @@ public class Flashlight : MonoBehaviour
             {
                 Debug.Log("light found");
                 light.enabled = flashlightOn;
+            }
+        }
+    }
+
+    public void Equip()
+    {
+        flashlightEquipped = true;
+        flashlightInHand.SetActive(true);
+
+        foreach(Light light in flashlightInHand.GetComponentsInChildren<Light>())
+        {
+            light.enabled = flashlightOn;
+        }
+
+        if(flashlightOutHand != null)
+        {
+            Destroy(flashlightOutHand);
+        }
+        flashlightOutHand = null;
+        flashlightClippedToBelt = false;
+    }
+
+    public void Unequip()
+    {
+        flashlightEquipped = false;
+        flashlightInHand.SetActive(false);
+        if (flashlightOn)
+        {
+            flashlightClippedToBelt = true;
+            //set the config joint flashlight true (clipped to belt)
+            if (flashlightClippedToBelt)
+            {
+                //instantiate a new outhand flashlight
+                GameObject outHand = Instantiate(flashlightOutHandPrefab, outHandPos.transform.position, outHandPos.transform.rotation);
+                //set the parent to the flashlight inventory slot
+                outHand.transform.SetParent(outHandPos.transform, true);
+                //set config joint connected body
+                //find the rigid body of this gameobject
+                Rigidbody connectedBody = outHandPos.GetComponent<Rigidbody>();
+                ConfigurableJoint joint = outHand.GetComponent<ConfigurableJoint>();
+                joint.connectedBody = connectedBody;
+                //set the new outhand to the outhand flashlight object
+                flashlightOutHand = outHand;
+                //set the up to the outHandPos up
+                flashlightOutHand.transform.up = outHandPos.transform.up;
+                //finally set it true now that everything is set
+                flashlightOutHand.SetActive(true);
+
+                RayCastDistance(flashlightInHand);
             }
         }
     }
