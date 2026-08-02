@@ -115,8 +115,9 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
             flashlight.OnFlashlightAcquired += HandleFlashlightAcquired;
             flashlight.OnFlashlightTurnedOn -= StartFlashlightTutorial;
             flashlight.OnFlashlightTurnedOn += StartFlashlightTutorial;
-
         } 
+        //used as a guard to ensure the flashlight doesn't force drop floating object when equipping
+        flashlight.LookingAtFlashlight = canGrab;
     }
 
     private void OnDestroy()

@@ -1108,7 +1108,7 @@ Transform:
   m_GameObject: {fileID: 183087994}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.369, y: -0.322, z: 0.488}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1266,11 +1266,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d25a132f1b766a47bcf7256a15b33fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fireExtinguisher: {fileID: 0}
   extinguisherObject: {fileID: 1308865509}
   holdPos: {fileID: 0}
   persistantManager: {fileID: 0}
-  pickupScript: {fileID: 0}
+  inventoryManager: {fileID: 0}
   remainingRetardant: 15
   isGrabbable: 0
   canGrab: 0
@@ -2463,7 +2462,6 @@ MonoBehaviour:
   fireExtinguisherPosition: {fileID: 1904654851}
   sys: {fileID: 717947628}
   player: {fileID: 273146030959944558}
-  pickupScript: {fileID: 2598745840197732176}
   zeroGravity: {fileID: 3700987545046739549}
   pauseMenu: {fileID: 7739791504384588446}
   tutorialComplete: 0
@@ -3684,7 +3682,7 @@ Transform:
   m_GameObject: {fileID: 838185278}
   serializedVersion: 2
   m_LocalRotation: {x: 0.17257553, y: -0.91591215, z: 0.067098945, w: 0.3561185}
-  m_LocalPosition: {x: 133.892, y: 2.375, z: -13.274}
+  m_LocalPosition: {x: 134.412, y: 2.375, z: -12.536}
   m_LocalScale: {x: 1.4924928, y: 1.4924928, z: 1.492493}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4207,6 +4205,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98e98eb1c3ea4b4498e26199ced249d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  flashlight: {fileID: 1882125357}
+  fireExtinguisher: {fileID: 601407861}
+  heldFloatingObject: {fileID: 183087996}
+  pickupScript: {fileID: 2598745840197732176}
 --- !u!1001 &978827936
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14377,7 +14379,7 @@ Transform:
   m_GameObject: {fileID: 1496242144}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 135.498, y: 2.553, z: -12.166}
+  m_LocalPosition: {x: 132.542, y: 2.553, z: -10.389}
   m_LocalScale: {x: 1.4924928, y: 1.4924928, z: 1.4924928}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -15460,6 +15462,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 601407860}
     m_Modifications:
+    - target: {fileID: 6762821666045750321, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6762821666045750321, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.192
+      objectReference: {fileID: 0}
+    - target: {fileID: 6762821666045750321, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0
+      objectReference: {fileID: 0}
     - target: {fileID: 7151863462572638917, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_Name
       value: FireExtinguisherPosition
@@ -15470,11 +15484,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.134
+      value: -0.274
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.418
+      value: 0.423
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalRotation.w
@@ -43980,7 +43994,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!222 &2284472560378825496
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -45997,10 +46011,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   holdInvSlot: {fileID: 183087996}
   fireExtinguisher: {fileID: 601407861}
+  flashlight: {fileID: 1882125357}
   player: {fileID: 273146030959944558}
   zeroGPlayer: {fileID: 3700987545046739549}
   uiManager: {fileID: 5260962018312370955}
-  holdPos: {fileID: 3539124122506938911}
   cam: {fileID: 2519919635680880428}
   ObjectContainer: {fileID: 921744980219478792}
   canPickUp: 0
@@ -46009,6 +46023,7 @@ MonoBehaviour:
   objectLayer:
     serializedVersion: 2
     m_Bits: 512
+  heldLayer: 8
   throwForce: 1.2
   pickUpRange: 1.3
   heldObj: {fileID: 0}
@@ -57586,22 +57601,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9032521772843289334}
   m_CullTransparentMesh: 1
---- !u!1 &2960413971389558439
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3539124122506938911}
-  m_Layer: 0
-  m_Name: holdPosition
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!1 &2963103526672016084
 GameObject:
   m_ObjectHideFlags: 0
@@ -61237,22 +61236,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!4 &3539124122506938911
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2960413971389558439}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.326, y: -0.294, z: 0.47}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4038896727660662880}
-  m_Father: {fileID: 5076610162655925806}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3544197499130910791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63742,7 +63725,7 @@ PrefabInstance:
     - target: {fileID: 2248683099493515096, guid: 3c3f213e7b4895045b73dd4102cbce6f, type: 3}
       propertyPath: holdPos
       value: 
-      objectReference: {fileID: 3539124122506938911}
+      objectReference: {fileID: 0}
     - target: {fileID: 2248683099493515096, guid: 3c3f213e7b4895045b73dd4102cbce6f, type: 3}
       propertyPath: uiManager
       value: 
@@ -64764,21 +64747,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4038896727660662880
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6625871561101449403}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0.25744167, y: -0.6364743, z: -0.34169826, w: -0.64176834}
-  m_LocalPosition: {x: -0.36, y: -0.26, z: -0.34}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3539124122506938911}
-  m_LocalEulerAnglesHint: {x: -174, y: -93.3, z: -129.6}
 --- !u!1001 &4047244232276903707
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -77814,7 +77782,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 969421979}
-  - {fileID: 3539124122506938911}
   - {fileID: 4865589703219495150}
   - {fileID: 2425465796113894264}
   - {fileID: 6271555788154428991}
@@ -83548,7 +83515,6 @@ MonoBehaviour:
   player: {fileID: 3700987545046739549}
   wristMonitor: {fileID: 4650902725826045320}
   mainCamera: {fileID: 2519919635680880428}
-  holdPos: {fileID: 3539124122506938911}
   persistentObj: {fileID: 3855290445559008206}
 --- !u!114 &5252200985712043119
 MonoBehaviour:
@@ -101720,22 +101686,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8399088678572455880}
   m_CullTransparentMesh: 1
---- !u!1 &6625871561101449403
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4038896727660662880}
-  m_Layer: 0
-  m_Name: Grab
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!222 &6638678904060916963
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -101822,11 +101772,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d25a132f1b766a47bcf7256a15b33fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fireExtinguisher: {fileID: 0}
   extinguisherObject: {fileID: 37638931}
   holdPos: {fileID: 0}
   persistantManager: {fileID: 0}
-  pickupScript: {fileID: 0}
+  inventoryManager: {fileID: 0}
   remainingRetardant: 15
   isGrabbable: 0
   canGrab: 0

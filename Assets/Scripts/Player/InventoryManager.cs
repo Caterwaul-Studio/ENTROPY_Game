@@ -6,6 +6,11 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] public IInventoryItem[] slots = new IInventoryItem[4];
     private int currentIndex = 0;
 
+    [SerializeField] public Flashlight flashlight;
+    [SerializeField] public FireExtinguisher fireExtinguisher;
+    [SerializeField] public HeldFloatingObject heldFloatingObject;
+    [SerializeField] public PickupScript pickupScript;
+
     public void RegisterSlot(int index, IInventoryItem item)
     {
         if (item == null)

@@ -9,6 +9,7 @@ public class PickupScript : MonoBehaviour
 {
     public HeldFloatingObject holdInvSlot;
     [SerializeField] private FireExtinguisher fireExtinguisher;
+    [SerializeField] private Flashlight flashlight;
 
     [SerializeField]
     private GameObject player;
@@ -16,8 +17,8 @@ public class PickupScript : MonoBehaviour
     ZeroGravity zeroGPlayer;
     [SerializeField]
     PlayerUIManager uiManager;
-    [SerializeField]
-    private Transform holdPos;
+    //[SerializeField]
+    //private Transform holdPos;
     [SerializeField]
     private Camera cam;
 
@@ -36,6 +37,8 @@ public class PickupScript : MonoBehaviour
 
     [SerializeField]
     private LayerMask objectLayer;
+    [SerializeField]
+    private int heldLayer = 8;
     [SerializeField]
     private float throwForce = 5f; //force at which the object is thrown at
     [SerializeField]
@@ -203,14 +206,14 @@ public class PickupScript : MonoBehaviour
             holdInvSlot.inventoryManager.RequestActivate((int)holdInvSlot.slotIndex);
             //Debug.Log("Picked up object");
         }
-        else if (canPickUp && heldObj != null && !fireExtinguisher.ExtinguisherInRaycast)
+        else if (canPickUp && heldObj != null && !fireExtinguisher.ExtinguisherInRaycast && !flashlight.LookingAtFlashlight)
         {
             holdInvSlot.SwapFloatingObjectsInInv(heldObj, current, ObjectContainer);
             DropObject();
             PickUpObject(current);
             holdInvSlot.inventoryManager.RequestActivate((int)holdInvSlot.slotIndex);
         }
-        else if (heldObj != null && !fireExtinguisher.ExtinguisherInRaycast)
+        else if (heldObj != null && !fireExtinguisher.ExtinguisherInRaycast && !flashlight.LookingAtFlashlight)
         {
             //Debug.Log("Dropped object");
             holdInvSlot.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
@@ -253,15 +256,16 @@ public class PickupScript : MonoBehaviour
             heldObjCollider = pickUpObj.GetComponent<Collider>();
             heldObjCollider.enabled = false;
             heldObjRb.isKinematic = true;
-            heldObjRb.transform.parent = holdPos.transform; //parent object to holdposition
-            heldObj.layer = 8; //change the object layer to the holdLayer
+            //heldObjRb.transform.parent = holdPos.transform; //parent object to holdposition
+            heldObj.layer = heldLayer; //change the object layer to the holdLayer
+            Debug.Log("set object to hold layer");
 
             if (heldObj.GetComponent<ExtinguisherObject>() != null) //we want the extinguisher to always be facing the right way, unlike with grabbed objects.
                 heldObj.transform.eulerAngles = cam.transform.eulerAngles;
 
             foreach (Transform child in heldObj.GetComponentInChildren<Transform>())
             {
-                child.gameObject.layer = 8;
+                child.gameObject.layer = heldLayer;
             }
             //make sure object doesnt collide with player, it can cause weird bugs
             Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, true);
@@ -285,7 +289,7 @@ public class PickupScript : MonoBehaviour
             AudioSource itemSource = heldObj.GetComponentInChildren<AudioSource>();
 
             if (itemAudioHandler != null)
-                itemAudioHandler.PlayPickUpSound(holdPos.position);
+                itemAudioHandler.PlayPickUpSound(holdInvSlot.transform.position);
         }
     }
     void DropObject()
@@ -320,7 +324,7 @@ public class PickupScript : MonoBehaviour
     void MoveObject()
     {
         //keep object position the same as the holdPosition position
-        heldObj.transform.position = holdPos.transform.position;
+        heldObj.transform.position = holdInvSlot.transform.position;
     }
 
     void ThrowObject()
@@ -345,7 +349,7 @@ public class PickupScript : MonoBehaviour
         AudioSource itemSource = heldObj.GetComponentInChildren<AudioSource>();
 
         if (itemAudioHandler != null)
-            itemAudioHandler.PlayThrowSound(holdPos.position);
+            itemAudioHandler.PlayThrowSound(holdInvSlot.transform.position);
 
         heldObj = null;
         hasThrownObject = true;

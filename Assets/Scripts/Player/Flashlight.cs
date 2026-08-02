@@ -28,7 +28,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem
     [SerializeField]
     private PlayerUIManager uiManager;
 
-    private bool lookingAtFlashlight = false;
+    public bool lookingAtFlashlight = false;
     [SerializeField]
     private bool hasFlashlight = false;
 

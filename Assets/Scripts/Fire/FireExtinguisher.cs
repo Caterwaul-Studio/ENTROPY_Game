@@ -20,7 +20,6 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem
     [SerializeField] private ParticleSystem.MainModule sysMain;
     [SerializeField] private ParticleSystem.EmissionModule sysEmission;
     [SerializeField] private GameObject player;
-    [SerializeField] private PickupScript pickupScript;
     [SerializeField] private ZeroGravity zeroGravity;
     [SerializeField] private GameObject pauseMenu;
     private float initialEmission;
@@ -57,6 +56,11 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem
         get { return extinguisherContainer; }
     }
 
+    public Transform FireExtinguisherPosition
+    {
+        get { return fireExtinguisherPosition; }
+    }
+
     private void OnEnable()
     {
         sysMain = sys.main;
@@ -69,7 +73,6 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem
         {
             player = FindFirstObjectByType<ZeroGravity>().gameObject;
             zeroGravity = player.GetComponent<ZeroGravity>();
-            pickupScript = player.GetComponent<PickupScript>();
         }
         if (extinguisherContainer == null)
         {

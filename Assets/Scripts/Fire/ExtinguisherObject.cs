@@ -3,11 +3,10 @@ using UnityEngine.InputSystem;
 
 public class ExtinguisherObject : MonoBehaviour, IInteractable
 {
-    [SerializeField] private FireExtinguisher fireExtinguisher;
     [SerializeField] private GameObject extinguisherObject;
     [SerializeField] private Transform holdPos;
     [SerializeField] private PersistantManager persistantManager;
-    [SerializeField] private PickupScript pickupScript;
+    [SerializeField] private InventoryManager inventoryManager;
 
     public float remainingRetardant = 15f;
 
@@ -49,9 +48,9 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
     private void OnDestroy()
     {
-        if (fireExtinguisher != null)
+        if (inventoryManager.fireExtinguisher != null)
         {
-            fireExtinguisher.OnFireExtinguisherAcquired -= StartFireExtinguisherTutorial;
+            inventoryManager.fireExtinguisher.OnFireExtinguisherAcquired -= StartFireExtinguisherTutorial;
         }
     }
 
@@ -59,42 +58,42 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     {
         canGrab = false;
         isGrabbable = true;
-
-        if (fireExtinguisher == null)
+        if(inventoryManager == null)
         {
-            fireExtinguisher = FindFirstObjectByType<FireExtinguisher>();
+            inventoryManager = FindFirstObjectByType<InventoryManager>();
+            if (inventoryManager.fireExtinguisher == null)
+            {
+                inventoryManager.fireExtinguisher = FindFirstObjectByType<FireExtinguisher>();
+            }
         }
+        
         if(persistantManager == null)
         {
             persistantManager = FindFirstObjectByType<PersistantManager>();
-            holdPos = persistantManager.HoldPos;
-        }
-        if(pickupScript == null)
-        {
-            pickupScript = FindFirstObjectByType<PickupScript>();
+            holdPos = inventoryManager.fireExtinguisher.FireExtinguisherPosition;
         }
     }
 
     void Update()
     {
-        if (fireExtinguisher == null)
+        if (inventoryManager == null)
         {
-            fireExtinguisher = FindFirstObjectByType<FireExtinguisher>();
+            inventoryManager = FindFirstObjectByType<InventoryManager>();
+            if (inventoryManager.fireExtinguisher == null)
+            {
+                inventoryManager.fireExtinguisher = FindFirstObjectByType<FireExtinguisher>();
+            }
         }
         if (persistantManager == null)
         {
             persistantManager = FindFirstObjectByType<PersistantManager>();
-            holdPos = persistantManager.HoldPos;
-        }
-        if (pickupScript == null)
-        {
-            pickupScript = FindFirstObjectByType<PickupScript>();
+            holdPos = inventoryManager.fireExtinguisher.FireExtinguisherPosition;
         }
 
-        if (fireExtinguisher != null)
+        if (inventoryManager.fireExtinguisher != null)
         {
-            fireExtinguisher.OnFireExtinguisherAcquired -= StartFireExtinguisherTutorial;
-            fireExtinguisher.OnFireExtinguisherAcquired += StartFireExtinguisherTutorial;
+            inventoryManager.fireExtinguisher.OnFireExtinguisherAcquired -= StartFireExtinguisherTutorial;
+            inventoryManager.fireExtinguisher.OnFireExtinguisherAcquired += StartFireExtinguisherTutorial;
         }
     }
 
@@ -116,44 +115,44 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
     public void PickupExtinguisher()
     {
-        if (fireExtinguisher.HasExtinguisher && fireExtinguisher.extinguisherGameObj == this.gameObject)
+        if (inventoryManager.fireExtinguisher.HasExtinguisher && inventoryManager.fireExtinguisher.extinguisherGameObj == this.gameObject)
             return;
 
         //Debug.Log("Picking up extinguisher");
         extinguisherObject.GetComponent<Rigidbody>().isKinematic = true;
-        this.transform.SetParent(fireExtinguisher.transform);
+        this.transform.SetParent(inventoryManager.fireExtinguisher.transform);
         this.transform.position = holdPos.transform.position;
         this.transform.rotation = holdPos.transform.rotation;
         extinguisherObject.transform.position = holdPos.transform.position;
-        extinguisherObject.transform.rotation = holdPos.transform.rotation; 
+        extinguisherObject.transform.rotation = holdPos.transform.rotation;
 
-        fireExtinguisher.extinguisherGameObj = this.gameObject;
+        inventoryManager.fireExtinguisher.extinguisherGameObj = this.gameObject;
         extinguisherObject.GetComponent<BoxCollider>().enabled = false;
 
-        fireExtinguisher.ExtinguisherEquipped = true;
-        fireExtinguisher.HasExtinguisher = true;
+        inventoryManager.fireExtinguisher.ExtinguisherEquipped = true;
+        inventoryManager.fireExtinguisher.HasExtinguisher = true;
 
         isGrabbable = false;
         canGrab = false;
 
         //Debug.Log(fireExtinguisher.extinguisherGameObj);
 
-        fireExtinguisher.AcquireExtinguisher(this.gameObject); // raises OnFireExtinguisherAcquired
-        fireExtinguisher.inventoryManager.RequestActivate((int)fireExtinguisher.slotIndex);
+        inventoryManager.fireExtinguisher.AcquireExtinguisher(this.gameObject); // raises OnFireExtinguisherAcquired
+        inventoryManager.fireExtinguisher.inventoryManager.RequestActivate((int)inventoryManager.fireExtinguisher.slotIndex);
     }
 
     public void DropExtinguisher()
     {
-        if (fireExtinguisher.extinguisherGameObj != this.gameObject)
+        if (inventoryManager.fireExtinguisher.extinguisherGameObj != this.gameObject)
             return;
 
         //Debug.Log("Dropping extinguisher" + this.gameObject);
         extinguisherObject.GetComponent<Rigidbody>().isKinematic = false;
-        this.transform.SetParent(fireExtinguisher.ExtinguisherContainer.transform);
+        this.transform.SetParent(inventoryManager.fireExtinguisher.ExtinguisherContainer.transform);
         this.gameObject.SetActive(true);
-        fireExtinguisher.ExtinguisherEquipped = false;
-        fireExtinguisher.extinguisherGameObj = null;
-        fireExtinguisher.HasExtinguisher = false;
+        inventoryManager.fireExtinguisher.ExtinguisherEquipped = false;
+        inventoryManager.fireExtinguisher.extinguisherGameObj = null;
+        inventoryManager.fireExtinguisher.HasExtinguisher = false;
         extinguisherObject.GetComponent<BoxCollider>().enabled = true;
 
         extinguisherObject.GetComponent<Rigidbody>().AddForce(persistantManager.MainCamera.transform.forward.normalized * 
@@ -165,24 +164,24 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
     private void StartFireExtinguisherTutorial(bool acquired, GameObject acquiredObj)
     {
-        if (acquired && acquiredObj == this.gameObject && !fireExtinguisher.TutorialComplete)
+        if (acquired && acquiredObj == this.gameObject && !inventoryManager.fireExtinguisher.TutorialComplete)
         {
             //add logic for the tutorial of the fire extinguisher
             //Debug.Log("starting tutorial");
-            fireExtinguisher.TutorialComplete = true;
+            inventoryManager.fireExtinguisher.TutorialComplete = true;
         }
     }
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        if (canGrab && isGrabbable && !fireExtinguisher.HasExtinguisher)
+        if (canGrab && isGrabbable && !inventoryManager.fireExtinguisher.HasExtinguisher)
         {
             PickupExtinguisher();
             return;
         }
-        else if (!canGrab && !isGrabbable && fireExtinguisher.HasExtinguisher)
+        else if (!canGrab && !isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher && inventoryManager.flashlight.LookingAtFlashlight)
         {
-            if(pickupScript != null && pickupScript.current != null)
+            if (inventoryManager.pickupScript != null && inventoryManager.pickupScript.current != null)
             {
                 return;
             }
@@ -190,10 +189,10 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             DropExtinguisher();
             return;
         }
-        else if (canGrab && isGrabbable && fireExtinguisher.HasExtinguisher )
+        else if (canGrab && isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher )
         {
             //Debug.Log("Swapping extinguisher");
-            fireExtinguisher.SwapExtinguisher(this.gameObject);
+            inventoryManager.fireExtinguisher.SwapExtinguisher(this.gameObject);
         }
     }
 }
