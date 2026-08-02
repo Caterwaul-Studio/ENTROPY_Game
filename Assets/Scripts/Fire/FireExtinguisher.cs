@@ -111,6 +111,12 @@ public class FireExtinguisher : MonoBehaviour
         OnFireExtinguisherAcquired?.Invoke(true, acquiredObj);
     }
 
+    public void SwapExtinguisher(GameObject obj2)
+    {
+        extinguisherGameObj.GetComponent<ExtinguisherObject>().DropExtinguisher();
+        obj2.GetComponent<ExtinguisherObject>().PickupExtinguisher();
+    }
+
     public void ToggleExtinguisherFromInventory(InputAction.CallbackContext context)
     {
         if(hasExtinguisher && context.performed)
