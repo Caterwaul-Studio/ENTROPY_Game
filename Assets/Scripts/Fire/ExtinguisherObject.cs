@@ -126,8 +126,11 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         this.transform.position = holdPos.transform.position;
         this.transform.rotation = holdPos.transform.rotation;
         extinguisherObject.transform.position = holdPos.transform.position;
-        extinguisherObject.transform.rotation = holdPos.transform.rotation; ;
+        extinguisherObject.transform.rotation = holdPos.transform.rotation; 
+
         fireExtinguisher.extinguisherGameObj = this.gameObject;
+        extinguisherObject.GetComponent<BoxCollider>().enabled = false;
+
         fireExtinguisher.ExtinguisherEquipped = true;
         fireExtinguisher.HasExtinguisher = true;
 
@@ -151,6 +154,10 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         fireExtinguisher.ExtinguisherEquipped = false;
         fireExtinguisher.extinguisherGameObj = null;
         fireExtinguisher.HasExtinguisher = false;
+        extinguisherObject.GetComponent<BoxCollider>().enabled = true;
+
+        extinguisherObject.GetComponent<Rigidbody>().AddForce(persistantManager.MainCamera.transform.forward.normalized * 
+            persistantManager.Player.RB.linearVelocity.magnitude * 1.1f, ForceMode.VelocityChange);
 
         isGrabbable = true;
         canGrab = false;
@@ -178,7 +185,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             DropExtinguisher();
             return;
         }
-        else if (canGrab && isGrabbable && fireExtinguisher.HasExtinguisher)
+        else if (canGrab && isGrabbable && fireExtinguisher.HasExtinguisher )
         {
             //Debug.Log("Swapping extinguisher");
             fireExtinguisher.SwapExtinguisher(this.gameObject);
