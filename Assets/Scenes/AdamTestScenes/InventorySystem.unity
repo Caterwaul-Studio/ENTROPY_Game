@@ -1270,10 +1270,10 @@ MonoBehaviour:
   extinguisherObject: {fileID: 1308865509}
   holdPos: {fileID: 0}
   persistantManager: {fileID: 0}
+  pickupScript: {fileID: 0}
   remainingRetardant: 15
   isGrabbable: 0
   canGrab: 0
-  extinguisherContainer: {fileID: 0}
   interactActionReference: {fileID: 2555986691759292101, guid: 62bee993b4da21145a34bb9e2304d3d3, type: 3}
   promptIcon: {fileID: 1910481262, guid: 4aa47000647cf9f46bc884f74f7ace35, type: 3}
 --- !u!1 &201061179 stripped
@@ -2434,6 +2434,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slotIndex: 2
   inventoryManager: {fileID: 969421980}
+  ExtinguisherInRaycast: 0
+  extinguisherContainer: {fileID: 0}
   canPuff: 1
   hasExtinguisher: 0
   puffObjects:
@@ -45994,6 +45996,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   holdInvSlot: {fileID: 183087996}
+  fireExtinguisher: {fileID: 601407861}
   player: {fileID: 273146030959944558}
   zeroGPlayer: {fileID: 3700987545046739549}
   uiManager: {fileID: 5260962018312370955}
@@ -46008,6 +46011,7 @@ MonoBehaviour:
     m_Bits: 512
   throwForce: 1.2
   pickUpRange: 1.3
+  heldObj: {fileID: 0}
   playerCollider: {fileID: 3461489924453094607}
   current: {fileID: 0}
   playerAudio: {fileID: 8079650368958970559}
@@ -101822,10 +101826,10 @@ MonoBehaviour:
   extinguisherObject: {fileID: 37638931}
   holdPos: {fileID: 0}
   persistantManager: {fileID: 0}
+  pickupScript: {fileID: 0}
   remainingRetardant: 15
   isGrabbable: 0
   canGrab: 0
-  extinguisherContainer: {fileID: 0}
   interactActionReference: {fileID: 2555986691759292101, guid: 62bee993b4da21145a34bb9e2304d3d3, type: 3}
   promptIcon: {fileID: 1910481262, guid: 4aa47000647cf9f46bc884f74f7ace35, type: 3}
 --- !u!114 &6654003862783614951
