@@ -32444,13 +32444,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 816656037953070151, guid: c908c31daad83ee4c9ed44a7c12becff, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 346419806}
   m_SourcePrefab: {fileID: 100100000, guid: c908c31daad83ee4c9ed44a7c12becff, type: 3}
 --- !u!4 &346419804 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4432271531521783384, guid: c908c31daad83ee4c9ed44a7c12becff, type: 3}
   m_PrefabInstance: {fileID: 346419803}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &346419805 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 816656037953070151, guid: c908c31daad83ee4c9ed44a7c12becff, type: 3}
+  m_PrefabInstance: {fileID: 346419803}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &346419806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 346419805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eefa56d9f911b6a4ebd07ef4a05ae265, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &350449626
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -190957,6 +190977,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1097016822406631291, guid: 998cf63b161b1be44be7cfc12a2c0ff1, type: 3}
+      propertyPath: m_IsKinematic
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1747553063844658241, guid: 998cf63b161b1be44be7cfc12a2c0ff1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.96
@@ -204131,6 +204155,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2068332723226868575, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: myGrabbable
+      value: 
+      objectReference: {fileID: 346419805}
     - target: {fileID: 3128709942373957281, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2.8059
@@ -222437,7 +222465,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '[ Esc ]'
+  m_text: '[ Escape ]'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1d436d86844a1a1459cd6a200e6038db, type: 2}
   m_sharedMaterial: {fileID: 836031216320211621, guid: 1d436d86844a1a1459cd6a200e6038db, type: 2}

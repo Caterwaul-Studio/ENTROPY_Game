@@ -842,6 +842,14 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         }
     }
 
+    private IEnumerator GrabShock()
+    {
+        yield return new WaitForSeconds(0.3f);
+        DecreaseHealth(1);
+        StartCoroutine(ShockEffect());
+        ReleaseBar();
+    }
+
     public void GrabBar()
     {
         //Put lines 962-954 in if statement to only call if bar is ACTUALLY being grabbed
@@ -858,8 +866,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         justGrabbed = true;
         grabbedBar = potentialGrabbedBar;
 
-        //Debug.Log(grabbedBar.name);
-
+        Debug.Log(grabbedBar);
+        if (grabbedBar.GetComponent<SparkBar>() != null && !hasGloves)
+        {
+            StartCoroutine(GrabShock());
+            return;
+        }
 
         if (barAudioHandler != null)
         {

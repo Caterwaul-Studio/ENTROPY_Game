@@ -9,6 +9,7 @@ public class SparkScript : MonoBehaviour
     [SerializeField] private Bounds sparkBounds;
     [SerializeField] private GameObject player;
     [SerializeField] private ZeroGravity zeroG;
+    [SerializeField] private GameObject myGrabbable;
     [SerializeField] private Camera MainCamera;
     [SerializeField] private ParticleSystem sys;
     [SerializeField] private bool WireSpark;
@@ -28,6 +29,9 @@ public class SparkScript : MonoBehaviour
         boxSize = this.gameObject.GetComponent<BoxCollider>().size;
         sparkBounds = new Bounds(transform.position, boxSize);
         Destroy(this.gameObject.GetComponent<BoxCollider>());
+
+        if (myGrabbable != null)
+            myGrabbable.AddComponent<SparkBar>();
     }
 
     // Update is called once per frame
