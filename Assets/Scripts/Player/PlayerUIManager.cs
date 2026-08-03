@@ -44,7 +44,7 @@ public class PlayerUIManager : MonoBehaviour
     private GameObject billboardObject;
 
     [SerializeField]
-    private float iconScale = 0.05f;
+    private float iconScale = 0.0025f;
 
 
     //canvas elements
