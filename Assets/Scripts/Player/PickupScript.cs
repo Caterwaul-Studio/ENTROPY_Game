@@ -140,7 +140,7 @@ public class PickupScript : MonoBehaviour
                 {
                     current = hitObj;
                     canPickUp = true;
-
+                    uiManager.interactBillboardObjectInScene = true;
                     uiManager.ShowBillboardUI(uiManager.KeyFIndicator, hitObj.transform);
                 }
                 else
@@ -214,14 +214,14 @@ public class PickupScript : MonoBehaviour
             inventoryManager.heldFloatingObject.inventoryManager.RequestActivate((int)inventoryManager.heldFloatingObject.slotIndex);
             //Debug.Log("Picked up object");
         }
-        else if (canPickUp && heldObj != null && !inventoryManager.fireExtinguisher.ExtinguisherInRaycast && !inventoryManager.flashlight.LookingAtFlashlight)
+        else if (canPickUp && heldObj != null && !inventoryManager.playerUIManager.interactBillboardObjectInScene)
         {
             inventoryManager.heldFloatingObject.SwapFloatingObjectsInInv(heldObj, current, ObjectContainer);
             DropObject();
             PickUpObject(current);
             inventoryManager.heldFloatingObject.inventoryManager.RequestActivate((int)inventoryManager.heldFloatingObject.slotIndex);
         }
-        else if (heldObj != null && !inventoryManager.fireExtinguisher.ExtinguisherInRaycast && !inventoryManager.flashlight.LookingAtFlashlight)
+        else if (heldObj != null && !inventoryManager.playerUIManager.interactBillboardObjectInScene)
         {
             //Debug.Log("Dropped object");
             inventoryManager.heldFloatingObject.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);

@@ -43,6 +43,8 @@ public class PlayerUIManager : MonoBehaviour
     private GameObject billboardPrefab;
     private GameObject billboardObject;
 
+    public bool interactBillboardObjectInScene;
+
     [SerializeField]
     private float iconScale = 0.0025f;
 
@@ -193,6 +195,7 @@ public class PlayerUIManager : MonoBehaviour
     {
         get { return doorLayer; }
     }
+
     #endregion
 
     private void OnEnable()
@@ -311,6 +314,11 @@ public class PlayerUIManager : MonoBehaviour
     public void HandleRaycastUI()
     {
         if (Time.frameCount % 2 != 0) return; //skip every other frame
+
+        if (interactBillboardObjectInScene)
+        {
+            interactBillboardObjectInScene = false;
+        }
         //Debug.Log("handle raycast called");
         RaycastHit hit;
         //create a raycast that stores the most favorable hit object, this will ensure when a bar is on screen it is chosen
@@ -454,14 +462,17 @@ public class PlayerUIManager : MonoBehaviour
             switch (interactTag)
             {
                 case "DoorButton":
+                    interactBillboardObjectInScene = true;
                     RayCastHandleDoorButton(interactableHit);
                     break;
                 case "StimDispenser":
                     //Debug.Log("WristMonitor Detected");
+                    interactBillboardObjectInScene = true;
                     RayCastHandleStimDispenser(interactableHit);
                     break;
                 case "Terminal":
                     //Debug.Log("Terminal Detected");
+                    interactBillboardObjectInScene = true;
                     RayCastHandleTerminal(interactableHit);
                     break;
                 //case "PickupObject":
@@ -478,6 +489,7 @@ public class PlayerUIManager : MonoBehaviour
                             hitInteractable.PromptText,
                             hitInteractable.HideCrosshairOnLook
                             );
+                        interactBillboardObjectInScene = true;
                     }
                     else if(!hitInteractable.IsAvailableForInteraction)
                     {

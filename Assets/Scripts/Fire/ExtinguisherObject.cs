@@ -182,18 +182,19 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             PickupExtinguisher();
             return;
         }
-        else if (!canGrab && !isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher)
+        else if (!canGrab && !isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher && !inventoryManager.playerUIManager.interactBillboardObjectInScene)
         {
-            if (inventoryManager.pickupScript.current != null || inventoryManager.flashlight.LookingAtFlashlight)
+            DropExtinguisher();
+            return;
+        }
+        else if (canGrab && isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher)
+        {
+            Debug.Log("Swapping extinguisher");
+            if (this.gameObject.GetComponentInChildren<InteractableProxy>().PromptText != "take fire extinguisher")
             {
                 return;
             }
 
-            DropExtinguisher();
-            return;
-        }
-        else if (canGrab && isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher )
-        {
             //Debug.Log("Swapping extinguisher");
             inventoryManager.fireExtinguisher.SwapExtinguisher(this.gameObject);
         }

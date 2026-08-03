@@ -16,6 +16,8 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] public HeldFloatingObject heldFloatingObject;
     [SerializeField] public PickupScript pickupScript;
 
+    [SerializeField] public PlayerUIManager playerUIManager;
+
     //Cache the original emission colors of materials to restore them when unequipping
     private Dictionary<Material, Color> _originalEmissionColors = new Dictionary<Material, Color>();
 
