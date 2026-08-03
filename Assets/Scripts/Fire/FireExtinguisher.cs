@@ -90,7 +90,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem
         if (pauseMenu == null)
             pauseMenu = GameObject.Find("PauseMenu");
 
-        if (holding && canPuff && hasExtinguisher && !pauseMenu.activeSelf == true && !zeroGravity.IsDead)
+        if (holding && canPuff && hasExtinguisher && (pauseMenu == null || !pauseMenu.activeSelf) && !zeroGravity.IsDead)
             StartCoroutine(MakePuff());
 
         if (extinguisherContainer == null)
@@ -116,14 +116,17 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem
         //this logic creates a gate bool to ensure the floating objects are not dropped when picking up a new extinguisher
         ExtinguisherInRaycast = false;
 
-        foreach (ExtinguisherObject extinguisherObj in extinguisherContainer.GetComponentsInChildren<ExtinguisherObject>())
+        if (extinguisherContainer != null)
         {
-            if (extinguisherObj.CanGrab)
+            foreach (ExtinguisherObject extinguisherObj in extinguisherContainer.GetComponentsInChildren<ExtinguisherObject>())
             {
-                ExtinguisherInRaycast = extinguisherObj.CanGrab;
-                break;
+                if (extinguisherObj.CanGrab)
+                {
+                    ExtinguisherInRaycast = extinguisherObj.CanGrab;
+                    break;
+                }
             }
-        }
+        }      
     }
     System.Collections.IEnumerator MakePuff()
     { //instead of creating nodes, just moving around existing nodes is used again in the hopes it will help with optimization

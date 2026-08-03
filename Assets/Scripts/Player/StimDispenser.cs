@@ -89,22 +89,11 @@ public class StimDispenser : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        //Debug.Log($"[StimDispenser] Start — isUsable={isUsable}, canRefill={canRefill}");
+
         lightIntensity = spotlight.intensity;
 
-        if (isUsable)
-        {
-            
-            screenMaterial.SetColor("_EmissionColor", activeScreen);
-            screenlight.intensity = activeScreenLightIntensity;
-            spotlight.intensity = lightIntensity;
-        }
-        else
-        {
-
-            screenMaterial.SetColor("_EmissionColor", inactiveScreen);
-            screenlight.intensity = inactiveScreenLightIntensity;
-            spotlight.intensity = 0f;
-        }
+        ToggleUsability(isUsable);
 
         playerScript = FindFirstObjectByType<ZeroGravity>();
         playerObj = playerScript.gameObject;
@@ -123,6 +112,7 @@ public class StimDispenser : MonoBehaviour
     {
         if (isRefilling)
         {
+            //Debug.Log($"[StimDispenser] Refilling... holdTimer={holdTimer:F2}, distance={Vector3.Distance(playerObj.transform.position, transform.position):F2}");
             progressCanvas.alpha = 1f;
             float progress = holdTimer / refillTime;
             progressBar.fillAmount = Mathf.Clamp01(progress);
@@ -147,6 +137,7 @@ public class StimDispenser : MonoBehaviour
 
     public void OnInteract(InputAction.CallbackContext context)
     {
+       //Debug.Log($"[StimDispenser] OnInteract phase={context.phase}, canRefill={canRefill}");
         if (context.started && canRefill)
         {
             //Debug.Log("I'm interacting");
@@ -160,6 +151,7 @@ public class StimDispenser : MonoBehaviour
 
     public void StartRefill()
     {
+        //Debug.Log($"[StimDispenser] StartRefill called, canRefill={canRefill}");
         if (canRefill)
         {
             isRefilling = true;
@@ -195,6 +187,7 @@ public class StimDispenser : MonoBehaviour
 
     public void ToggleUsability(bool isUsable)
     {
+        //Debug.Log($"[StimDispenser] ToggleUsability({isUsable}) called");
         this.isUsable = isUsable;
         Color baseEmission = screenMaterial.GetColor("_EmissionColor");
 

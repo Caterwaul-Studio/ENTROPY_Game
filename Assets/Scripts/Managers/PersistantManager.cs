@@ -64,6 +64,13 @@ public class PersistantManager : MonoBehaviour
             player = GetComponentInChildren<ZeroGravity>();
         }
         DontDestroyOnLoad(gameObject);
+
+        //ensure the player is able to use the wrist monitor in any scene except for Level1New, where the player does not have a wrist monitor yet.
+        if (SceneManager.GetActiveScene().name != "Level1New")
+        {
+            wristMonitor.HasWristMonitor = true;
+            return;
+        }
     }
 
     private void Update()
