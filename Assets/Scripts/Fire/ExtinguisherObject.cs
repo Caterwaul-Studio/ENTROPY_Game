@@ -128,6 +128,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
         inventoryManager.fireExtinguisher.extinguisherGameObj = this.gameObject;
         extinguisherObject.GetComponent<BoxCollider>().enabled = false;
+        inventoryManager.SetChildrenToHoldLayer(extinguisherObject);
 
         inventoryManager.fireExtinguisher.ExtinguisherEquipped = true;
         inventoryManager.fireExtinguisher.HasExtinguisher = true;
@@ -135,6 +136,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         isGrabbable = false;
         canGrab = false;
 
+        persistantManager.PlayerObject.GetComponent<PlayerUIManager>().HideBillboardUI();
         //Debug.Log(fireExtinguisher.extinguisherGameObj);
 
         inventoryManager.fireExtinguisher.AcquireExtinguisher(this.gameObject); // raises OnFireExtinguisherAcquired
@@ -146,7 +148,8 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         if (inventoryManager.fireExtinguisher.extinguisherGameObj != this.gameObject)
             return;
 
-        //Debug.Log("Dropping extinguisher" + this.gameObject);
+        Debug.Log("Dropping extinguisher" + this.gameObject);
+        inventoryManager.SetChildrenToDefaultLayer(extinguisherObject, inventoryManager.IInteractableLayer);
         extinguisherObject.GetComponent<Rigidbody>().isKinematic = false;
         this.transform.SetParent(inventoryManager.fireExtinguisher.ExtinguisherContainer.transform);
         this.gameObject.SetActive(true);
@@ -156,7 +159,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         extinguisherObject.GetComponent<BoxCollider>().enabled = true;
 
         extinguisherObject.GetComponent<Rigidbody>().AddForce(persistantManager.MainCamera.transform.forward.normalized * 
-            persistantManager.Player.RB.linearVelocity.magnitude * 1.1f, ForceMode.VelocityChange);
+        persistantManager.Player.RB.linearVelocity.magnitude * 1.1f, ForceMode.VelocityChange);
 
         isGrabbable = true;
         canGrab = false;
@@ -179,9 +182,9 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             PickupExtinguisher();
             return;
         }
-        else if (!canGrab && !isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher && inventoryManager.flashlight.LookingAtFlashlight)
+        else if (!canGrab && !isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher)
         {
-            if (inventoryManager.pickupScript != null && inventoryManager.pickupScript.current != null)
+            if (inventoryManager.pickupScript.current != null || inventoryManager.flashlight.LookingAtFlashlight)
             {
                 return;
             }

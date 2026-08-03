@@ -7,9 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class PickupScript : MonoBehaviour
 {
-    public HeldFloatingObject holdInvSlot;
-    [SerializeField] private FireExtinguisher fireExtinguisher;
-    [SerializeField] private Flashlight flashlight;
+    [SerializeField]
+    private InventoryManager inventoryManager;
 
     [SerializeField]
     private GameObject player;
@@ -37,8 +36,6 @@ public class PickupScript : MonoBehaviour
 
     [SerializeField]
     private LayerMask objectLayer;
-    [SerializeField]
-    private int heldLayer = 8;
     [SerializeField]
     private float throwForce = 5f; //force at which the object is thrown at
     [SerializeField]
@@ -111,7 +108,7 @@ public class PickupScript : MonoBehaviour
             ObjectContainer = GameObject.Find(objectContainerName);
         }
 
-        holdInvSlot.inventoryManager.RegisterSlot((int)holdInvSlot.slotIndex, holdInvSlot);
+        inventoryManager.heldFloatingObject.inventoryManager.RegisterSlot((int)inventoryManager.heldFloatingObject.slotIndex, inventoryManager.heldFloatingObject);
     }
 
 
@@ -202,37 +199,37 @@ public class PickupScript : MonoBehaviour
         if (canPickUp && heldObj == null)
         {
             PickUpObject(current);
-            holdInvSlot.ParentFloatingObjectToInvSlot(current);
-            holdInvSlot.inventoryManager.RequestActivate((int)holdInvSlot.slotIndex);
+            inventoryManager.heldFloatingObject.ParentFloatingObjectToInvSlot(current);
+            inventoryManager.heldFloatingObject.inventoryManager.RequestActivate((int)inventoryManager.heldFloatingObject.slotIndex);
             //Debug.Log("Picked up object");
         }
-        else if (canPickUp && heldObj != null && !fireExtinguisher.ExtinguisherInRaycast && !flashlight.LookingAtFlashlight)
+        else if (canPickUp && heldObj != null && !inventoryManager.fireExtinguisher.ExtinguisherInRaycast && !inventoryManager.flashlight.LookingAtFlashlight)
         {
-            holdInvSlot.SwapFloatingObjectsInInv(heldObj, current, ObjectContainer);
+            inventoryManager.heldFloatingObject.SwapFloatingObjectsInInv(heldObj, current, ObjectContainer);
             DropObject();
             PickUpObject(current);
-            holdInvSlot.inventoryManager.RequestActivate((int)holdInvSlot.slotIndex);
+            inventoryManager.heldFloatingObject.inventoryManager.RequestActivate((int)inventoryManager.heldFloatingObject.slotIndex);
         }
-        else if (heldObj != null && !fireExtinguisher.ExtinguisherInRaycast && !flashlight.LookingAtFlashlight)
+        else if (heldObj != null && !inventoryManager.fireExtinguisher.ExtinguisherInRaycast && !inventoryManager.flashlight.LookingAtFlashlight)
         {
             //Debug.Log("Dropped object");
-            holdInvSlot.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
+            inventoryManager.heldFloatingObject.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
             DropObject();
-            holdInvSlot.inventoryManager.DeactivateCurrent();
+            inventoryManager.heldFloatingObject.inventoryManager.DeactivateCurrent();
         }
 
     }
 
     public void OnThrow(InputAction.CallbackContext context)
     {
-        if (heldObj != null && holdInvSlot.objInHand && !pauseMenu.activeSelf) //if player is holding object
+        if (heldObj != null && inventoryManager.heldFloatingObject.objInHand && !pauseMenu.activeSelf) //if player is holding object
         {
             if (heldObj.GetComponent<FloatingImpactAudio>()) //only do this if the object has an audio source
             {
                 //unmute the thrown object
                 StartCoroutine(heldObj.GetComponent<FloatingImpactAudio>().unmuteAfterTime());
             }
-            holdInvSlot.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
+            inventoryManager.heldFloatingObject.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
             MoveObject(); //keep object position at holdPos
             ThrowObject();
         }
@@ -257,16 +254,10 @@ public class PickupScript : MonoBehaviour
             heldObjCollider.enabled = false;
             heldObjRb.isKinematic = true;
             //heldObjRb.transform.parent = holdPos.transform; //parent object to holdposition
-            heldObj.layer = heldLayer; //change the object layer to the holdLayer
-            Debug.Log("set object to hold layer");
 
-            if (heldObj.GetComponent<ExtinguisherObject>() != null) //we want the extinguisher to always be facing the right way, unlike with grabbed objects.
-                heldObj.transform.eulerAngles = cam.transform.eulerAngles;
+            if (heldObj != null)
+            inventoryManager.SetChildrenToHoldLayer(heldObj); //set all children of the held object to the hold layer
 
-            foreach (Transform child in heldObj.GetComponentInChildren<Transform>())
-            {
-                child.gameObject.layer = heldLayer;
-            }
             //make sure object doesnt collide with player, it can cause weird bugs
             Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, true);
             //heldObj.GetComponent<Collider>().enabled = false;
@@ -280,16 +271,13 @@ public class PickupScript : MonoBehaviour
                 //uiManager.InputIndicatorThrow.transform.position = zeroGPlayer.cam.WorldToScreenPoint(holdPos.GetChild(0).transform.position);
             }
 
-
-
-
             MoveObject();
             //zeroGPlayer.MoveHandsTo(holdPos.GetChild(0).transform, null);
 
             AudioSource itemSource = heldObj.GetComponentInChildren<AudioSource>();
 
             if (itemAudioHandler != null)
-                itemAudioHandler.PlayPickUpSound(holdInvSlot.transform.position);
+                itemAudioHandler.PlayPickUpSound(inventoryManager.heldFloatingObject.transform.position);
         }
     }
     void DropObject()
@@ -298,11 +286,8 @@ public class PickupScript : MonoBehaviour
         Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, false);
         //heldObj.GetComponent<Collider>().enabled = true;
 
-        heldObj.layer = 9; //object assigned back to default layer
-        foreach (Transform child in heldObj.GetComponentInChildren<Transform>())
-        {
-            child.gameObject.layer = 0;
-        }
+        inventoryManager.SetChildrenToDefaultLayer(heldObj, inventoryManager.FloatingObjLayer); //set all children of the held object to the default layer
+
         heldObjCollider.enabled = true;
         heldObjRb.isKinematic = false;
         heldObj.SetActive(true);
@@ -324,7 +309,7 @@ public class PickupScript : MonoBehaviour
     void MoveObject()
     {
         //keep object position the same as the holdPosition position
-        heldObj.transform.position = holdInvSlot.transform.position;
+        heldObj.transform.position = inventoryManager.heldFloatingObject.transform.position;
     }
 
     void ThrowObject()
@@ -336,11 +321,9 @@ public class PickupScript : MonoBehaviour
         //same as drop function, but add force to object before undefining it
         Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, false);
         //heldObj.GetComponent<Collider>().enabled = true;
-        heldObj.layer = 9;
-        foreach (Transform child in heldObj.GetComponentInChildren<Transform>())
-        {
-            child.gameObject.layer = 0;
-        }
+        
+        inventoryManager.SetChildrenToDefaultLayer(heldObj, inventoryManager.FloatingObjLayer); //set all children of the held object to the default layer
+
         heldObjCollider.enabled = true;
         heldObjRb.isKinematic = false;
         heldObj.transform.parent = ObjectContainer.transform;
@@ -349,7 +332,7 @@ public class PickupScript : MonoBehaviour
         AudioSource itemSource = heldObj.GetComponentInChildren<AudioSource>();
 
         if (itemAudioHandler != null)
-            itemAudioHandler.PlayThrowSound(holdInvSlot.transform.position);
+            itemAudioHandler.PlayThrowSound(inventoryManager.heldFloatingObject.transform.position);
 
         heldObj = null;
         hasThrownObject = true;

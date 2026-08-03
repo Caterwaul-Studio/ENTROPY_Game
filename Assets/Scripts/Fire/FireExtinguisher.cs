@@ -189,6 +189,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem
     {
         extinguisherEquipped = true;
         extinguisherGameObj.SetActive(true);
+        //inventoryManager.SetChildrenToHoldLayer(extinguisherGameObj);
     }
 
     public void Unequip()

@@ -177,7 +177,6 @@ public class Flashlight : MonoBehaviour, IInventoryItem
         if (hasFlashlight
             && !flashlightEquipped)
         {
-            lookingAtFlashlight = false;
             inventoryManager.RequestActivate(slotIndex);
         }
     }
@@ -218,8 +217,9 @@ public class Flashlight : MonoBehaviour, IInventoryItem
     {
         flashlightEquipped = true;
         flashlightInHand.SetActive(true);
+        inventoryManager.SetChildrenToHoldLayer(flashlightInHand);
 
-        foreach(Light light in flashlightInHand.GetComponentsInChildren<Light>())
+        foreach (Light light in flashlightInHand.GetComponentsInChildren<Light>())
         {
             light.enabled = flashlightOn;
         }
@@ -246,6 +246,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem
                 GameObject outHand = Instantiate(flashlightOutHandPrefab, outHandPos.transform.position, outHandPos.transform.rotation);
                 //set the parent to the flashlight inventory slot
                 outHand.transform.SetParent(outHandPos.transform, true);
+                inventoryManager.SetChildrenToHoldLayer(outHand);
                 //set config joint connected body
                 //find the rigid body of this gameobject
                 Rigidbody connectedBody = outHandPos.GetComponent<Rigidbody>();

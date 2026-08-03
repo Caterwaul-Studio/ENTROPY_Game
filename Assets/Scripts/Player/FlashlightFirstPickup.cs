@@ -142,6 +142,7 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
     private void StartFlashlightTutorial(bool turnedOn)
     {
         //add logic here for the tutorial of the flashlight
+        flashlight.lookingAtFlashlight = false;
     }
 
     private void OnInteract(InputAction.CallbackContext context)
