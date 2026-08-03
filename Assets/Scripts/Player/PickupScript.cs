@@ -37,8 +37,6 @@ public class PickupScript : MonoBehaviour
     [SerializeField]
     private LayerMask objectLayer;
     [SerializeField]
-    private float throwForce = 5f; //force at which the object is thrown at
-    [SerializeField]
     private float pickUpRange = 1.3f; //how far the player can pickup the object from
     public GameObject heldObj; //object which we pick up
     private Rigidbody heldObjRb; //rigidbody of object we pick up
@@ -47,6 +45,19 @@ public class PickupScript : MonoBehaviour
     [SerializeField]
     private Collider playerCollider;
     public GameObject current;
+
+    [Header ("Throw Charge")]
+    [SerializeField] private float minThrowForce = 3f; //force at which the object is thrown at
+    [SerializeField] private float maxThrowForce = 15f; //force at which the object is thrown at
+    [SerializeField] private float maxChargeTime = 3f; //time it takes to reach max throw force
+
+    private bool isChargingThrow = false;
+    private float chargeStartTime;
+    private float currentThrowForce;
+
+    public float ChargeRatio => isChargingThrow
+        ? Mathf.Clamp01((Time.time - chargeStartTime) / maxChargeTime)
+        : 0f;
 
     [SerializeField] private PlayerAudio playerAudio;
 
@@ -222,18 +233,48 @@ public class PickupScript : MonoBehaviour
 
     public void OnThrow(InputAction.CallbackContext context)
     {
-        if (heldObj != null && inventoryManager.heldFloatingObject.objInHand && !pauseMenu.activeSelf) //if player is holding object
+        //if (heldObj != null && inventoryManager.heldFloatingObject.objInHand && !pauseMenu.activeSelf) //if player is holding object
+        //{
+        //    if (heldObj.GetComponent<FloatingImpactAudio>()) //only do this if the object has an audio source
+        //    {
+        //        //unmute the thrown object
+        //        StartCoroutine(heldObj.GetComponent<FloatingImpactAudio>().unmuteAfterTime());
+        //    }
+        //    inventoryManager.heldFloatingObject.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
+        //    MoveObject(); //keep object position at holdPos
+        //    ThrowObject();
+        //}
+
+        if (context.started)
         {
-            if (heldObj.GetComponent<FloatingImpactAudio>()) //only do this if the object has an audio source
+            if(heldObj != null && inventoryManager.heldFloatingObject.objInHand && !pauseMenu.activeSelf)
             {
-                //unmute the thrown object
-                StartCoroutine(heldObj.GetComponent<FloatingImpactAudio>().unmuteAfterTime());
+                isChargingThrow = true;
+                chargeStartTime = Time.time;
             }
-            inventoryManager.heldFloatingObject.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
-            MoveObject(); //keep object position at holdPos
-            ThrowObject();
         }
-     
+        else if (context.canceled)
+        {
+            if(!isChargingThrow) return;
+            isChargingThrow = false;
+
+            if(heldObj != null && inventoryManager.heldFloatingObject.objInHand && !pauseMenu.activeSelf)
+            {
+                float heldTime = Mathf.Clamp(Time.time - chargeStartTime, 0f, maxChargeTime);
+                float chargeRatio = heldTime / maxChargeTime;
+                currentThrowForce = Mathf.Lerp(minThrowForce, maxThrowForce, chargeRatio);
+
+                if(heldObj.GetComponent<FloatingImpactAudio>()) //only do this if the object has an audio source
+                {
+                    //unmute the thrown object
+                    StartCoroutine(heldObj.GetComponent<FloatingImpactAudio>().unmuteAfterTime());
+                }
+                inventoryManager.heldFloatingObject.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
+                MoveObject();
+                ThrowObject();
+            }
+        }
+
     }
 
     void PickUpObject(GameObject pickUpObj)
@@ -327,7 +368,7 @@ public class PickupScript : MonoBehaviour
         heldObjCollider.enabled = true;
         heldObjRb.isKinematic = false;
         heldObj.transform.parent = ObjectContainer.transform;
-        heldObjRb.AddForce(cam.transform.forward.normalized * throwForce, ForceMode.VelocityChange);
+        heldObjRb.AddForce(cam.transform.forward.normalized * currentThrowForce, ForceMode.VelocityChange);
 
         AudioSource itemSource = heldObj.GetComponentInChildren<AudioSource>();
 
@@ -338,7 +379,7 @@ public class PickupScript : MonoBehaviour
         hasThrownObject = true;
         StartCoroutine(ResetThrowFlag());
 
-        transform.GetComponent<Rigidbody>().AddForce(-cam.transform.forward.normalized * (throwForce * (heldObjRb.mass / transform.GetComponent<Rigidbody>().mass) * 1.5f), ForceMode.VelocityChange);
+        transform.GetComponent<Rigidbody>().AddForce(-cam.transform.forward.normalized * (currentThrowForce * (heldObjRb.mass / transform.GetComponent<Rigidbody>().mass) * 1.25f), ForceMode.VelocityChange);
         //Debug.Log("Thrown at velocity: " + heldObjRb.linearVelocity.magnitude);
 
 
