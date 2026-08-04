@@ -61,8 +61,6 @@ public class PickupScript : MonoBehaviour
 
     [SerializeField] private PlayerAudio playerAudio;
 
-    [SerializeField] private GameObject pauseMenu;
-
     [Header("Audio")]
     public ItemAudioHandler itemAudioHandler;
 
@@ -126,8 +124,6 @@ public class PickupScript : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (pauseMenu == null)
-            pauseMenu = GameObject.Find("PauseMenu");
         if (zeroGPlayer.CanGrab) //if currently not holding anything and is allowed to grab things
         {
             //perform raycast to check if player is looking at object within pickuprange
@@ -205,7 +201,7 @@ public class PickupScript : MonoBehaviour
         //}
      
 
-        if (!context.performed) return;
+        if (!context.performed || inventoryManager.pauseMenu.activeSelf || inventoryManager.deathMenu.activeSelf) return;
 
         if (canPickUp && heldObj == null)
         {
@@ -214,14 +210,14 @@ public class PickupScript : MonoBehaviour
             inventoryManager.heldFloatingObject.inventoryManager.RequestActivate((int)inventoryManager.heldFloatingObject.slotIndex);
             //Debug.Log("Picked up object");
         }
-        else if (canPickUp && heldObj != null)
+        else if (canPickUp && heldObj != null && current != null)
         {
             inventoryManager.heldFloatingObject.SwapFloatingObjectsInInv(heldObj, current, ObjectContainer);
             DropObject();
             PickUpObject(current);
             inventoryManager.heldFloatingObject.inventoryManager.RequestActivate((int)inventoryManager.heldFloatingObject.slotIndex);
         }
-        else if (heldObj != null && !inventoryManager.playerUIManager.interactBillboardObjectInScene)
+        else if (heldObj != null && !inventoryManager.playerUIManager.interactBillboardObjectInScene && inventoryManager.heldFloatingObject.objInHand)
         {
             //Debug.Log("Dropped object");
             inventoryManager.heldFloatingObject.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
@@ -247,7 +243,7 @@ public class PickupScript : MonoBehaviour
 
         if (context.started)
         {
-            if(heldObj != null && inventoryManager.heldFloatingObject.objInHand && !pauseMenu.activeSelf)
+            if(heldObj != null && inventoryManager.heldFloatingObject.objInHand && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
             {
                 isChargingThrow = true;
                 chargeStartTime = Time.time;
@@ -258,7 +254,7 @@ public class PickupScript : MonoBehaviour
             if(!isChargingThrow) return;
             isChargingThrow = false;
 
-            if(heldObj != null && inventoryManager.heldFloatingObject.objInHand && !pauseMenu.activeSelf)
+            if(heldObj != null && inventoryManager.heldFloatingObject.objInHand && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
             {
                 float heldTime = Mathf.Clamp(Time.time - chargeStartTime, 0f, maxChargeTime);
                 float chargeRatio = heldTime / maxChargeTime;

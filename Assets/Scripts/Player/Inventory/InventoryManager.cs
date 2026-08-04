@@ -18,6 +18,9 @@ public class InventoryManager : MonoBehaviour, ISaveable
 
     [SerializeField] public PlayerUIManager playerUIManager;
 
+    [SerializeField] public GameObject pauseMenu;
+    [SerializeField] public GameObject deathMenu;
+
     //Cache the original emission colors of materials to restore them when unequipping
     private Dictionary<Material, Color> _originalEmissionColors = new Dictionary<Material, Color>();
 

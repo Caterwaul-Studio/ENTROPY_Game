@@ -21,7 +21,6 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
     [SerializeField] private ParticleSystem.EmissionModule sysEmission;
     [SerializeField] private GameObject player;
     [SerializeField] private ZeroGravity zeroGravity;
-    [SerializeField] private GameObject pauseMenu;
     private float initialEmission;
     private bool holding;
 
@@ -92,10 +91,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
     // Update is called once per frame
     void Update()
     {
-        if (pauseMenu == null)
-            pauseMenu = GameObject.Find("PauseMenu");
-
-        if (holding && canPuff && hasExtinguisher && (pauseMenu == null || !pauseMenu.activeSelf) && !zeroGravity.IsDead)
+        if (holding && canPuff && hasExtinguisher && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf && !zeroGravity.IsDead)
             StartCoroutine(MakePuff());
 
         if (extinguisherContainer == null)
@@ -166,7 +162,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
 
     public void ToggleExtinguisherFromInventory(InputAction.CallbackContext context)
     {
-        if(hasExtinguisher && context.performed)
+        if(hasExtinguisher && context.performed && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
         {
             if (extinguisherEquipped)
             {
@@ -183,15 +179,18 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
 
     public void OnLeftClick(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started)
+        if (hasExtinguisher && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
         {
-            holding = true;
-            //Debug.Log("Holding started");
-        }
-        else if (context.phase == InputActionPhase.Canceled)
-        {
-            holding = false;
-            //Debug.Log("Holding ended");
+            if (context.phase == InputActionPhase.Started)
+            {
+                holding = true;
+                //Debug.Log("Holding started");
+            }
+            else if (context.phase == InputActionPhase.Canceled)
+            {
+                holding = false;
+                //Debug.Log("Holding ended");
+            }
         }
     }
 
@@ -258,7 +257,6 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         bool eligibleForRestore = data.hasExtinguisher && GlobalSaveManager.SavedWithTerminal;
 
         ReleaseIfMismatched(eligibleForRestore, eligibleForRestore ? data.extinguisherID : null);
-        extinguisherEquipped = data.extinguisherEquipped;
 
         if (hasExtinguisher) return;
 
@@ -279,6 +277,9 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                     if (heldObj != null)
                     {
                         heldObj.remainingRetardant = data.remainingRetardent;
+                        inventoryManager.fireExtinguisher.extinguisherEquipped = data.extinguisherEquipped;
+                        inventoryManager.fireExtinguisher.extinguisherGameObj.SetActive(data.extinguisherEquipped);
+                        inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(data.extinguisherEquipped);
                         Debug.Log($"Restored remainingRetardant={data.remainingRetardent} on clone {heldObj.name}");
                     }
                     else

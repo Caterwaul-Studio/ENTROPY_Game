@@ -186,7 +186,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     public void ToggleFlashlightFromInventory(InputAction.CallbackContext context)
     {
         //if the player has picked up the flashlight and performs key click of 1
-        if (hasFlashlight && context.performed)
+        if (hasFlashlight && context.performed 
+            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
         {
             if(flashlightEquipped)
             {
@@ -205,7 +206,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 
     public void ToggleFlashlight(InputAction.CallbackContext context)
     {
-        if (hasFlashlight && flashlightEquipped == true && context.performed)
+        if (hasFlashlight && flashlightEquipped == true && context.performed
+            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
         {
             flashlightOn = !flashlightOn;
             //Debug.Log("Toggling flashlight" + flashlightOn);
@@ -305,6 +307,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         if (!hasFlashlight)
         {
             flashlightEquipped = false;
+            Destroy(flashlightOutHand.gameObject);
             flashlightOutHand = null;
             flashlightClippedToBelt = false;
             if (flashlightInHand != null) flashlightInHand.SetActive(false);

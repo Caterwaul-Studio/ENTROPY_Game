@@ -261,17 +261,21 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        if (canGrab && isGrabbable && !inventoryManager.fireExtinguisher.HasExtinguisher)
+        if (canGrab && isGrabbable && !inventoryManager.fireExtinguisher.HasExtinguisher 
+            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
         {
             PickupExtinguisher();
             return;
         }
-        else if (!canGrab && !isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher && !inventoryManager.playerUIManager.interactBillboardObjectInScene)
+        else if (!canGrab && !isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher 
+            && !inventoryManager.playerUIManager.interactBillboardObjectInScene 
+            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
         {
             DropExtinguisher();
             return;
         }
-        else if (canGrab && isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher)
+        else if (canGrab && isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher 
+            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
         {
             Debug.Log("Swapping extinguisher");
             if (this.gameObject.GetComponentInChildren<InteractableProxy>().PromptText != "take fire extinguisher")
