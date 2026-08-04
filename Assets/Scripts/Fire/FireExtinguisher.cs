@@ -215,22 +215,31 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
     public class FireExtinguisherSaveData
     {
         public bool hasExtinguisher;
+        public bool extinguisherEquipped;
         public string extinguisherID;
+        public float remainingRetardent;
     }
 
     public string GetSaveData()
     {
         string id = null;
+        float retardent = 0f;
         if(hasExtinguisher && extinguisherGameObj != null)
         {
             var obj = extinguisherGameObj.GetComponentInChildren<ExtinguisherObject>();
-            if (obj != null) id = obj.ExtinguisherID;
+            if (obj != null)
+            {
+                id = obj.ExtinguisherID;
+                retardent = obj.remainingRetardant;
+            }
         }
 
         var data = new FireExtinguisherSaveData 
         { 
             hasExtinguisher = hasExtinguisher,
-            extinguisherID = id
+            extinguisherEquipped = extinguisherEquipped,
+            extinguisherID = id,
+            remainingRetardent = retardent,
         };
         return JsonUtility.ToJson(data);
     }
@@ -243,7 +252,8 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         // only a permanent/terminal save should let the extinguisher persist across a scene reload
         bool eligibleForRestore = data.hasExtinguisher && GlobalSaveManager.SavedWithTerminal;
 
-        ReleaseIfMismatched(data.hasExtinguisher, data.extinguisherID);
+        ReleaseIfMismatched(eligibleForRestore, eligibleForRestore ? data.extinguisherID : null);
+        extinguisherEquipped = data.extinguisherEquipped;
 
         if (hasExtinguisher) return;
 
@@ -255,6 +265,22 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                 if(obj.ExtinguisherID == data.extinguisherID)
                 {
                     obj.PickupExtinguisher();
+
+                    var heldObj = extinguisherGameObj != null
+                    ? extinguisherGameObj.GetComponent<ExtinguisherObject>()
+                    : null;
+
+
+                    if (heldObj != null)
+                    {
+                        heldObj.remainingRetardant = data.remainingRetardent;
+                        Debug.Log($"Restored remainingRetardant={data.remainingRetardent} on clone {heldObj.name}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Could not find clone to restore remainingRetardant onto.");
+                    }
+
                     found = true;
                     return;
                 }
@@ -286,7 +312,6 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         if (currentMatchesSaved)
         {
             hasExtinguisher = true;
-            extinguisherEquipped = true;
             return; // already correctly held, nothing to release
         }
 
@@ -297,7 +322,6 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         }
 
         hasExtinguisher = false;
-        extinguisherEquipped = false;
         extinguisherGameObj = null;
 
         if (inventoryManager != null)

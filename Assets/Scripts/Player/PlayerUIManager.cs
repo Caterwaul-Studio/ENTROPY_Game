@@ -239,6 +239,7 @@ public class PlayerUIManager : MonoBehaviour
     {
         // create the billboardPrefab. Not hardcoded.
         billboardObject = GameObject.Instantiate(billboardPrefab);
+        billboardObject.transform.SetParent(transform, false);
         billboardObject.SetActive(false);
 
         //set the crosshair and grabber sprites accordingly;
@@ -1207,7 +1208,7 @@ public class PlayerUIManager : MonoBehaviour
         {
             Debug.Log("detachingt billboard");
             billboardObject.SetActive(false);
-            billboardObject.transform.SetParent(null, false);
+            billboardObject.transform.SetParent(transform, false);
         }
     }
 

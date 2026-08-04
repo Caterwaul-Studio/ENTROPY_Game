@@ -114,7 +114,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             if (heldScript != null && heldScript.ExtinguisherID == extinguisherID)
             {
                 Debug.Log($"[ExtinguisherObject] {name} is a stale scene duplicate of already-held id {extinguisherID}, destroying.");
-                Destroy(gameObject);
+                Destroy(held);
                 return;
             }
         }
@@ -161,13 +161,14 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
     public void PickupExtinguisher()
     {
-        if (inventoryManager.fireExtinguisher.HasExtinguisher && inventoryManager.fireExtinguisher.extinguisherGameObj == this.gameObject)
-            return;
-
         persistantManager.PlayerObject.GetComponent<PlayerUIManager>().ForceDetachBillboard();
 
+        if (inventoryManager.fireExtinguisher.HasExtinguisher && inventoryManager.fireExtinguisher.extinguisherGameObj == this.gameObject)
+            return;
+        Debug.Log($"[ExtinguisherObject] PickupExtinguisher on {name}[{GetInstanceID()}] id={extinguisherID}, remainingRetardant BEFORE clone={remainingRetardant}");
         GameObject clone = Instantiate(gameObject, holdPos.position, holdPos.rotation);
         ExtinguisherObject cloneScript = clone.GetComponent<ExtinguisherObject>();
+        Debug.Log($"[ExtinguisherObject] clone[{clone.GetInstanceID()}] remainingRetardant AFTER Instantiate={cloneScript.remainingRetardant}");
         GameObject cloneExtObj = clone.GetComponentInChildren<Rigidbody>()?.gameObject ?? clone;
 
         //Debug.Log("Picking up extinguisher");
