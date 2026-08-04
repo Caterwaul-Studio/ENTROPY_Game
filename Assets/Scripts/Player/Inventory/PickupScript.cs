@@ -22,7 +22,7 @@ public class PickupScript : MonoBehaviour
     private Camera cam;
 
     [SerializeField]
-    private GameObject ObjectContainer;
+    public GameObject ObjectContainer;
     //string to help find the object container in the scene, if it is not assigned in the inspector
     private string objectContainerName = "FloatingObjects";
 
@@ -98,6 +98,8 @@ public class PickupScript : MonoBehaviour
         get { return heldObj; }
     }
 
+    public Collider PlayerCollider => playerCollider;
+
 
     // onenable and ondisable called on scene load
     private void OnEnable() { 
@@ -118,8 +120,6 @@ public class PickupScript : MonoBehaviour
         {
             ObjectContainer = GameObject.Find(objectContainerName);
         }
-
-        inventoryManager.heldFloatingObject.inventoryManager.RegisterSlot((int)inventoryManager.heldFloatingObject.slotIndex, inventoryManager.heldFloatingObject);
     }
 
 
@@ -214,7 +214,7 @@ public class PickupScript : MonoBehaviour
             inventoryManager.heldFloatingObject.inventoryManager.RequestActivate((int)inventoryManager.heldFloatingObject.slotIndex);
             //Debug.Log("Picked up object");
         }
-        else if (canPickUp && heldObj != null && !inventoryManager.playerUIManager.interactBillboardObjectInScene)
+        else if (canPickUp && heldObj != null)
         {
             inventoryManager.heldFloatingObject.SwapFloatingObjectsInInv(heldObj, current, ObjectContainer);
             DropObject();
@@ -297,20 +297,12 @@ public class PickupScript : MonoBehaviour
             //heldObjRb.transform.parent = holdPos.transform; //parent object to holdposition
 
             if (heldObj != null)
-            inventoryManager.SetChildrenToHoldLayer(heldObj); //set all children of the held object to the hold layer
 
             //make sure object doesnt collide with player, it can cause weird bugs
             Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, true);
             //heldObj.GetComponent<Collider>().enabled = false;
 
-            //easy fix for playtest, ensure good later
-            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-            if (uiManager.InputIndicatorThrow.sprite == null)
-            {
-                uiManager.InputIndicatorThrow.sprite = uiManager.LeftClickIndicator; 
-                uiManager.InputIndicatorThrow.color = new Color(1, 1, 1, 1);
-                //uiManager.InputIndicatorThrow.transform.position = zeroGPlayer.cam.WorldToScreenPoint(holdPos.GetChild(0).transform.position);
-            }
+            uiManager.ToggleThrowIndicatorVisible(true);
 
             MoveObject();
             //zeroGPlayer.MoveHandsTo(holdPos.GetChild(0).transform, null);
@@ -326,9 +318,6 @@ public class PickupScript : MonoBehaviour
         //re-enable collision with player
         Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, false);
         //heldObj.GetComponent<Collider>().enabled = true;
-
-        inventoryManager.SetChildrenToDefaultLayer(heldObj, inventoryManager.FloatingObjLayer); //set all children of the held object to the default layer
-
         heldObjCollider.enabled = true;
         heldObjRb.isKinematic = false;
         heldObj.SetActive(true);
@@ -336,13 +325,7 @@ public class PickupScript : MonoBehaviour
         heldObj.transform.parent = ObjectContainer.transform; //unparent object
         heldObj = null; //undefine game object
 
-        //easy fix for playtest, ensure good later
-        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        if (uiManager.InputIndicatorThrow.sprite != null)
-        {
-            uiManager.InputIndicatorThrow.sprite = null;
-            uiManager.InputIndicatorThrow.color = new Color(0, 0, 0, 0);
-        }
+        uiManager.ToggleThrowIndicatorVisible(false);
 
         //current = null;
         //zeroGPlayer.MoveHandsTo(null, null);
@@ -362,9 +345,6 @@ public class PickupScript : MonoBehaviour
         //same as drop function, but add force to object before undefining it
         Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, false);
         //heldObj.GetComponent<Collider>().enabled = true;
-        
-        inventoryManager.SetChildrenToDefaultLayer(heldObj, inventoryManager.FloatingObjLayer); //set all children of the held object to the default layer
-
         heldObjCollider.enabled = true;
         heldObjRb.isKinematic = false;
         heldObj.transform.parent = ObjectContainer.transform;
@@ -382,20 +362,20 @@ public class PickupScript : MonoBehaviour
         transform.GetComponent<Rigidbody>().AddForce(-cam.transform.forward.normalized * (currentThrowForce * (heldObjRb.mass / transform.GetComponent<Rigidbody>().mass) * 1.25f), ForceMode.VelocityChange);
         //Debug.Log("Thrown at velocity: " + heldObjRb.linearVelocity.magnitude);
 
-
-        //easy fix for playtest, ensure good later
-        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        if(uiManager.InputIndicatorThrow.sprite != null)
-        {
-            uiManager.InputIndicatorThrow.sprite = null;
-            uiManager.InputIndicatorThrow.color = new Color(0, 0, 0, 0);
-        }
+        uiManager.ToggleThrowIndicatorVisible(false);
 
         // initiate pick up cd
         canPickUp = false;
         coolDown = coolDownMax;
-
         //zeroGPlayer.MoveHandsTo(null, null);
+    }
+
+    public void ClearHeldReference()
+    {
+        heldObj = null;
+        heldObjRb = null;
+        heldObjCollider = null;
+        canPickUp = false;
     }
 
     IEnumerator ResetThrowFlag()

@@ -28,6 +28,27 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     public void OnLookEnter() => canGrab = true;
     public void OnLookExit() => canGrab = false;
 
+    [Header("Persistence")]
+    //must have unique ids for exxtinguishers to validate them being stored in save data
+    [SerializeField] private string extinguisherID;
+    public string ExtinguisherID => extinguisherID;
+
+    private Vector3 originalPosition;
+    private Quaternion originalRotation;
+    private Transform originalParent;
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (string.IsNullOrEmpty(extinguisherID))
+        {
+            // auto assign a unique id for this specific fire extinguisher
+            extinguisherID = System.Guid.NewGuid().ToString();
+            UnityEditor.EditorUtility.SetDirty(this);
+        }
+    }
+#endif
+
     public bool CanGrab => canGrab;
 
     private void OnEnable()
@@ -52,6 +73,13 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         {
             inventoryManager.fireExtinguisher.OnFireExtinguisherAcquired -= StartFireExtinguisherTutorial;
         }
+    }
+
+    public void Awake()
+    {
+        originalPosition = transform.position;
+        originalRotation = transform.rotation;
+        originalParent = transform.parent;
     }
 
     void Start()
@@ -160,6 +188,36 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
         extinguisherObject.GetComponent<Rigidbody>().AddForce(persistantManager.MainCamera.transform.forward.normalized * 
         persistantManager.Player.RB.linearVelocity.magnitude * 1.1f, ForceMode.VelocityChange);
+
+        isGrabbable = true;
+        canGrab = false;
+    }
+
+    public void ForceReturnToOriginalState()
+    {
+        Debug.Log("Force-returning extinguisher to original state: " + this.gameObject);
+
+        inventoryManager.SetChildrenToDefaultLayer(extinguisherObject, inventoryManager.IInteractableLayer);
+
+        Rigidbody rb = extinguisherObject.GetComponent<Rigidbody>();
+        if (rb != null) rb.isKinematic = false;
+
+        this.transform.SetParent(originalParent, true);
+        this.transform.position = originalPosition;
+        this.transform.rotation = originalRotation;
+        extinguisherObject.transform.position = originalPosition;
+        extinguisherObject.transform.rotation = originalRotation;
+        this.gameObject.SetActive(true);
+
+        BoxCollider col = extinguisherObject.GetComponent<BoxCollider>();
+        if (col != null) col.enabled = true;
+
+        if (inventoryManager.fireExtinguisher.extinguisherGameObj == this.gameObject)
+        {
+            inventoryManager.fireExtinguisher.ExtinguisherEquipped = false;
+            inventoryManager.fireExtinguisher.extinguisherGameObj = null;
+            inventoryManager.fireExtinguisher.HasExtinguisher = false;
+        }
 
         isGrabbable = true;
         canGrab = false;

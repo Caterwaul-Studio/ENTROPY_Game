@@ -767,6 +767,23 @@ public class PlayerUIManager : MonoBehaviour
         HideBillboardUI();
     }
 
+    public void ToggleThrowIndicatorVisible(bool visible)
+    {
+        if(inputIndicatorThrow != null)
+        {
+            if (visible)
+            {
+                inputIndicatorThrow.sprite = leftClickIndicator;
+                inputIndicatorThrow.color = new Color(1, 1, 1, 1);
+            }
+            else
+            {
+                inputIndicatorThrow.sprite = null;
+                inputIndicatorThrow.color = new Color(1, 1, 1, 0);
+            }
+        }
+    }
+
     public void ReleaseGrabber()
     {
         grabber.sprite = openHand;

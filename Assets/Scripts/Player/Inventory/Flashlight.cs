@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.InputSystem;
 
-public class Flashlight : MonoBehaviour, IInventoryItem
+public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 {
     [Header("Flashlight Variables")]
     public int slotIndex = 1;
@@ -178,6 +178,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem
             && !flashlightEquipped)
         {
             inventoryManager.RequestActivate(slotIndex);
+            inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(true);
         }
     }
 
@@ -189,10 +190,12 @@ public class Flashlight : MonoBehaviour, IInventoryItem
             if(flashlightEquipped)
             {
                 inventoryManager.DeactivateCurrent();
+                inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(false);
             }
             else
             {
                 inventoryManager.RequestActivate((int)slotIndex);
+                inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(true);
             }
         }
         //Debug.Log("Equipping flashlight from inventory|| HasFlashlightInScene: " + HasFlashlightInScene + " FlashlightEquipped: " + FlashlightEquipped);
@@ -268,5 +271,34 @@ public class Flashlight : MonoBehaviour, IInventoryItem
     {
         Gizmos.DrawRay(ray);
     }
+
+    #region ISaveableInventoryItem
+    public class FlashlightSaveData
+    {
+        public bool hasFlashlight;
+    }
+
+    public string GetSaveData()
+    {
+        return JsonUtility.ToJson(new FlashlightSaveData { hasFlashlight = hasFlashlight });
+    }
+
+    public void LoadSaveData(string json)
+    {
+        if (string.IsNullOrEmpty(json)) return;
+        var data = JsonUtility.FromJson<FlashlightSaveData>(json);
+        HasFlashlight = data.hasFlashlight;
+    }
+
+    public void ClearRuntimeState()
+    {
+        if (!hasFlashlight)
+        {
+            flashlightEquipped = false;
+            if (flashlightInHand != null) flashlightInHand.SetActive(false);
+        }
+    }
+
+    #endregion
 }
 

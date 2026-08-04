@@ -138,7 +138,7 @@ public class DialogueManager : MonoBehaviour
         if(tutorialManager == null)
         {
             tutorialManager = FindFirstObjectByType<TutorialManager>();
-            Debug.Log("found tutorial manager");
+            //Debug.Log("found tutorial manager");
         }
     }
 

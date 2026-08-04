@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class FireExtinguisher : MonoBehaviour, IInventoryItem
+public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 {
     public int slotIndex = 2;
     public InventoryManager inventoryManager;
@@ -166,10 +166,12 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem
             if (extinguisherEquipped)
             {
                 inventoryManager.DeactivateCurrent();
+                inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(false);
             }
             else
             {
                 inventoryManager.RequestActivate((int)slotIndex);
+                inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(true);
             }
         }
     }
@@ -200,4 +202,95 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem
         extinguisherEquipped = false;
         extinguisherGameObj.SetActive(false);
     }
+
+    #region ISaveableInventoryItem
+
+    [System.Serializable]
+    public class FireExtinguisherSaveData
+    {
+        public bool hasExtinguisher;
+        public string extinguisherID;
+    }
+
+    public string GetSaveData()
+    {
+        string id = null;
+        if(hasExtinguisher && extinguisherGameObj != null)
+        {
+            var obj = extinguisherGameObj.GetComponentInChildren<ExtinguisherObject>();
+            if (obj != null) id = obj.ExtinguisherID;
+        }
+
+        var data = new FireExtinguisherSaveData 
+        { 
+            hasExtinguisher = hasExtinguisher,
+            extinguisherID = id
+        };
+        return JsonUtility.ToJson(data);
+    }
+
+    public void LoadSaveData(string json)
+    {
+        if (string.IsNullOrEmpty(json)) return;
+        var data = JsonUtility.FromJson<FireExtinguisherSaveData>(json);
+
+        ReleaseIfMismatched(data.hasExtinguisher, data.extinguisherID);
+
+        if (hasExtinguisher) return;
+
+        if(data.hasExtinguisher && !string.IsNullOrEmpty(data.extinguisherID) && extinguisherContainer != null)
+        {
+            bool found = false;
+            foreach(var obj in ExtinguisherContainer.GetComponentsInChildren<ExtinguisherObject>())
+            {
+                if(obj.ExtinguisherID == data.extinguisherID)
+                {
+                    obj.PickupExtinguisher();
+                    found = true;
+                    return;
+                }
+                Debug.LogWarning($"FireExtinguisher: saved extinguisherId '{data.extinguisherID}' not found in container on load.");
+            }
+
+            if(!found)
+            {
+                Debug.LogWarning($"FireExtinguisher: saved extinguisherId '{data.extinguisherID}' not found in container on load.");
+            }
+        }
+    }
+
+    public void ClearRuntimeState()
+    {
+        ReleaseIfMismatched(shouldHaveExtinguisher: false, savedID: null);
+    }
+
+    private void ReleaseIfMismatched(bool shouldHaveExtinguisher, string savedID)
+    {
+        ExtinguisherObject currentlyHeld = (extinguisherGameObj != null)
+            ? extinguisherGameObj.GetComponent<ExtinguisherObject>()
+            : null;
+
+        bool currentMatchesSaved = currentlyHeld != null
+            && shouldHaveExtinguisher
+            && currentlyHeld.ExtinguisherID == savedID;
+
+        if (currentMatchesSaved)
+        {
+            hasExtinguisher = true;
+            extinguisherEquipped = true;
+            return; // already correctly held, nothing to release
+        }
+
+        if (currentlyHeld != null)
+        {
+            currentlyHeld.ForceReturnToOriginalState(); // also clears hasExtinguisher/extinguisherGameObj on this component
+        }
+
+        hasExtinguisher = false;
+        extinguisherEquipped = false;
+        extinguisherGameObj = null;
+    }
+
+
+    #endregion
 }

@@ -10,6 +10,7 @@ public class CheckpointManager : MonoBehaviour, ISaveable
     [SerializeField] private ZeroGravity playerZeroG;    // keep as inspector fallback only
     [SerializeField] private GameObject persistentPrefab;
     [SerializeField] private Camera playerCam;
+    [SerializeField] private InventoryManager inventoryManager;
     private int _currentIndex = 0;
 
     public int CurrentIndex
@@ -24,6 +25,10 @@ public class CheckpointManager : MonoBehaviour, ISaveable
         {
             playerZeroG = PersistantManager.Instance.Player;
             playerCam = PersistantManager.Instance.MainCamera;
+        }
+        if (inventoryManager == null)
+        {
+            inventoryManager = FindFirstObjectByType<InventoryManager>();
         }
         // Wire up each checkpoint and only enable the first one
         for (int i = 0; i < checkpoints.Count; i++)
@@ -119,6 +124,16 @@ public class CheckpointManager : MonoBehaviour, ISaveable
         playerZeroG.PlayerCutSceneHandler(false);
 
         GlobalSaveManager.LoadSavable(playerZeroG, false);
+
+        // restore inventory state (equipped item, held/acquired items) to match this checkpoint
+        if (inventoryManager != null)
+        {
+            GlobalSaveManager.LoadSavable(inventoryManager, false);
+        }
+        else
+        {
+            Debug.LogWarning("CheckpointManager: inventoryManager reference missing, skipping inventory restore.");
+        }
 
         //playerZeroG.transform.position = checkpoints[_currentIndex].respawnPoint.transform.position;
         //playerCam.transform.rotation = checkpoints[_currentIndex].respawnPoint.transform.rotation;
