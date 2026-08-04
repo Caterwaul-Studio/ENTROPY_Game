@@ -45,7 +45,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     [SerializeField]
     private bool flashlightEquipped = false;
     private bool flashlightOn = false;
-    private bool flashlightClippedToBelt = false;
+    public bool flashlightClippedToBelt = false;
 
     public event System.Action<bool> OnFlashlightAcquired;
     public event System.Action<bool> OnFlashlightTurnedOn;
@@ -91,6 +91,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Debug.Log("Flashlight script started");
         flashlightEquipped = false;
         inventoryManager.RegisterSlot((int)slotIndex, this);
     }
@@ -99,7 +100,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     void Update()
     {
         //this determines if the value scaling should be running on the flashlight in hand or out of hand
-        if(flashlightInHand && flashlightInHand.activeSelf && flashlightOn)
+        if (flashlightInHand && flashlightInHand.activeSelf && flashlightOn)
         {
             ScaleFlashlightValues(flashlightInHand);
         }
@@ -288,6 +289,15 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         if (string.IsNullOrEmpty(json)) return;
         var data = JsonUtility.FromJson<FlashlightSaveData>(json);
         HasFlashlight = data.hasFlashlight;
+        if (!hasFlashlight)
+        {
+            flashlightEquipped = false;
+            Destroy(flashlightOutHand.gameObject);
+            flashlightOutHand = null;
+            flashlightClippedToBelt = false;
+            if (flashlightInHand != null) flashlightInHand.SetActive(false);
+            inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(false);
+        }
     }
 
     public void ClearRuntimeState()
@@ -295,6 +305,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         if (!hasFlashlight)
         {
             flashlightEquipped = false;
+            flashlightOutHand = null;
+            flashlightClippedToBelt = false;
             if (flashlightInHand != null) flashlightInHand.SetActive(false);
         }
     }

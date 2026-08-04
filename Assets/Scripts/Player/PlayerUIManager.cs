@@ -273,6 +273,13 @@ public class PlayerUIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(billboardObject == null)
+        {
+            billboardObject = GameObject.Instantiate(billboardPrefab);
+            billboardObject.transform.SetParent(transform, false);
+            billboardObject.SetActive(false);
+        }
+
         //if the player is in free move noclip mode, hide all the UI elements, we don't need them and it just gets in the way
         if (player.PlayerFreeMoveNoClip)
         {

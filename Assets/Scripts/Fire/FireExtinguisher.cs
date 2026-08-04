@@ -82,6 +82,11 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         sysEmission.rateOverTime = 0;
 
         inventoryManager.RegisterSlot((int)slotIndex, this);
+
+        if (hasExtinguisher == false && inventoryManager.playerUIManager.InputIndicatorThrow.sprite != null)
+        {
+            inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(false);
+        }
     }
 
     // Update is called once per frame
@@ -126,7 +131,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                     break;
                 }
             }
-        }      
+        }  
     }
     System.Collections.IEnumerator MakePuff()
     { //instead of creating nodes, just moving around existing nodes is used again in the hopes it will help with optimization

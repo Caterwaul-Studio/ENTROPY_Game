@@ -17,6 +17,11 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
     {
         //Debug.Log($"HeldFloatingObject.Start: registering slot {slotIndex}, inventoryManager null? {inventoryManager == null}");
         inventoryManager.RegisterSlot(slotIndex, this);
+
+        if (objInInv == false && inventoryManager.playerUIManager.InputIndicatorThrow.sprite != null)
+        {
+            inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(false);
+        }
     }
 
     public void Update()
