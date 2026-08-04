@@ -240,11 +240,14 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         if (string.IsNullOrEmpty(json)) return;
         var data = JsonUtility.FromJson<FireExtinguisherSaveData>(json);
 
+        // only a permanent/terminal save should let the extinguisher persist across a scene reload
+        bool eligibleForRestore = data.hasExtinguisher && GlobalSaveManager.SavedWithTerminal;
+
         ReleaseIfMismatched(data.hasExtinguisher, data.extinguisherID);
 
         if (hasExtinguisher) return;
 
-        if(data.hasExtinguisher && !string.IsNullOrEmpty(data.extinguisherID) && extinguisherContainer != null)
+        if (eligibleForRestore && !string.IsNullOrEmpty(data.extinguisherID) && extinguisherContainer != null)
         {
             bool found = false;
             foreach(var obj in ExtinguisherContainer.GetComponentsInChildren<ExtinguisherObject>())
@@ -289,7 +292,8 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
 
         if (currentlyHeld != null)
         {
-            currentlyHeld.ForceReturnToOriginalState(); // also clears hasExtinguisher/extinguisherGameObj on this component
+            Debug.Log($"[FireExtinguisher] Discarding leftover held extinguisher (id={currentlyHeld.ExtinguisherID}) — not eligible for retention on this reload.");
+            Destroy(currentlyHeld.gameObject); // it's a runtime clone with no valid "original" scene position, so destroy rather than ForceReturn
         }
 
         hasExtinguisher = false;

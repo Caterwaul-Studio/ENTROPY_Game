@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -36,6 +37,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     private Vector3 originalPosition;
     private Quaternion originalRotation;
     private Transform originalParent;
+
 
 #if UNITY_EDITOR
     private void OnValidate()
@@ -100,6 +102,22 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             persistantManager = FindFirstObjectByType<PersistantManager>();
             holdPos = inventoryManager.fireExtinguisher.FireExtinguisherPosition;
         }
+
+        // if the persisted FireExtinguisher already holds an instance with this same ID,
+        // this is a stale duplicate spawned by the scene reload — remove it immediately
+        var held = inventoryManager.fireExtinguisher.extinguisherGameObj;
+        if (GlobalSaveManager.SavedWithTerminal &&
+            inventoryManager.fireExtinguisher.HasExtinguisher && 
+            held != null && held != this.gameObject)
+        {
+            var heldScript = held.GetComponent<ExtinguisherObject>();
+            if (heldScript != null && heldScript.ExtinguisherID == extinguisherID)
+            {
+                Debug.Log($"[ExtinguisherObject] {name} is a stale scene duplicate of already-held id {extinguisherID}, destroying.");
+                Destroy(gameObject);
+                return;
+            }
+        }
     }
 
     void Update()
@@ -146,30 +164,36 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         if (inventoryManager.fireExtinguisher.HasExtinguisher && inventoryManager.fireExtinguisher.extinguisherGameObj == this.gameObject)
             return;
 
-        //Debug.Log("Picking up extinguisher");
-        extinguisherObject.GetComponent<Rigidbody>().isKinematic = true;
-        this.transform.SetParent(inventoryManager.fireExtinguisher.transform);
-        this.transform.position = holdPos.transform.position;
-        this.transform.rotation = holdPos.transform.rotation;
-        extinguisherObject.transform.position = holdPos.transform.position;
-        extinguisherObject.transform.rotation = holdPos.transform.rotation;
+        persistantManager.PlayerObject.GetComponent<PlayerUIManager>().ForceDetachBillboard();
 
-        inventoryManager.fireExtinguisher.extinguisherGameObj = this.gameObject;
-        extinguisherObject.GetComponent<BoxCollider>().enabled = false;
-        inventoryManager.SetChildrenToHoldLayer(extinguisherObject);
+        GameObject clone = Instantiate(gameObject, holdPos.position, holdPos.rotation);
+        ExtinguisherObject cloneScript = clone.GetComponent<ExtinguisherObject>();
+        GameObject cloneExtObj = clone.GetComponentInChildren<Rigidbody>()?.gameObject ?? clone;
+
+        //Debug.Log("Picking up extinguisher");
+        cloneExtObj.GetComponent<Rigidbody>().isKinematic = true;
+        clone.transform.SetParent(inventoryManager.fireExtinguisher.transform);
+        clone.transform.position = holdPos.transform.position;
+        clone.transform.rotation = holdPos.transform.rotation;
+        cloneExtObj.transform.position = holdPos.transform.position;
+        cloneExtObj.transform.rotation = holdPos.transform.rotation;
+
+        inventoryManager.fireExtinguisher.extinguisherGameObj = clone;
+        cloneExtObj.GetComponent<BoxCollider>().enabled = false;
+        inventoryManager.SetChildrenToHoldLayer(cloneExtObj);
 
         inventoryManager.fireExtinguisher.ExtinguisherEquipped = true;
         inventoryManager.fireExtinguisher.HasExtinguisher = true;
 
-        isGrabbable = false;
-        canGrab = false;
-
-        persistantManager.PlayerObject.GetComponent<PlayerUIManager>().HideBillboardUI();
+        cloneScript.isGrabbable = false;
+        cloneScript.canGrab = false;
         //Debug.Log(fireExtinguisher.extinguisherGameObj);
 
-        inventoryManager.fireExtinguisher.AcquireExtinguisher(this.gameObject); // raises OnFireExtinguisherAcquired
+        inventoryManager.fireExtinguisher.AcquireExtinguisher(clone); // raises OnFireExtinguisherAcquired
         inventoryManager.fireExtinguisher.inventoryManager.RequestActivate((int)inventoryManager.fireExtinguisher.slotIndex);
         inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(true);
+
+        Destroy(gameObject);
     }
 
     public void DropExtinguisher()
@@ -211,7 +235,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         BoxCollider col = extinguisherObject.GetComponent<BoxCollider>();
         if (col != null) col.enabled = true;
 
-        Destroy(extinguisherObject.transform.parent.gameObject);
+        //Destroy(extinguisherObject.transform.parent.gameObject);
 
         if (inventoryManager.fireExtinguisher.extinguisherGameObj == this.gameObject)
         {

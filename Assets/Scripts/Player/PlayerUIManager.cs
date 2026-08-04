@@ -1201,6 +1201,16 @@ public class PlayerUIManager : MonoBehaviour
 
     }
 
+    public void ForceDetachBillboard()
+    {
+        if (billboardObject != null)
+        {
+            Debug.Log("detachingt billboard");
+            billboardObject.SetActive(false);
+            billboardObject.transform.SetParent(null, false);
+        }
+    }
+
 
     //Health Methods
     //controls the UI for the Player Health
