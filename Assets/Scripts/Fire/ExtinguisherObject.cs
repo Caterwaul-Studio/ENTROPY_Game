@@ -82,12 +82,12 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         originalPosition = transform.position;
         originalRotation = transform.rotation;
         originalParent = transform.parent;
+        canGrab = false;
+        isGrabbable = true;
     }
 
     void Start()
     {
-        canGrab = false;
-        isGrabbable = true;
         if(inventoryManager == null)
         {
             inventoryManager = FindFirstObjectByType<InventoryManager>();
@@ -165,10 +165,10 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
         if (inventoryManager.fireExtinguisher.HasExtinguisher && inventoryManager.fireExtinguisher.extinguisherGameObj == this.gameObject)
             return;
-        Debug.Log($"[ExtinguisherObject] PickupExtinguisher on {name}[{GetInstanceID()}] id={extinguisherID}, remainingRetardant BEFORE clone={remainingRetardant}");
+        //Debug.Log($"[ExtinguisherObject] PickupExtinguisher on {name}[{GetInstanceID()}] id={extinguisherID}, remainingRetardant BEFORE clone={remainingRetardant}");
         GameObject clone = Instantiate(gameObject, holdPos.position, holdPos.rotation);
         ExtinguisherObject cloneScript = clone.GetComponent<ExtinguisherObject>();
-        Debug.Log($"[ExtinguisherObject] clone[{clone.GetInstanceID()}] remainingRetardant AFTER Instantiate={cloneScript.remainingRetardant}");
+        //Debug.Log($"[ExtinguisherObject] clone[{clone.GetInstanceID()}] remainingRetardant AFTER Instantiate={cloneScript.remainingRetardant}");
         GameObject cloneExtObj = clone.GetComponentInChildren<Rigidbody>()?.gameObject ?? clone;
 
         //Debug.Log("Picking up extinguisher");
@@ -188,7 +188,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
         cloneScript.isGrabbable = false;
         cloneScript.canGrab = false;
-        //Debug.Log(fireExtinguisher.extinguisherGameObj);
+        Debug.Log(inventoryManager.fireExtinguisher.extinguisherGameObj);
 
         inventoryManager.fireExtinguisher.AcquireExtinguisher(clone); // raises OnFireExtinguisherAcquired
         inventoryManager.fireExtinguisher.inventoryManager.RequestActivate((int)inventoryManager.fireExtinguisher.slotIndex);
