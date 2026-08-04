@@ -193,14 +193,20 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
     public void Equip()
     {
         extinguisherEquipped = true;
-        extinguisherGameObj.SetActive(true);
+        if(extinguisherGameObj != null)
+        {
+            extinguisherGameObj.SetActive(true);
+        }
         //inventoryManager.SetChildrenToHoldLayer(extinguisherGameObj);
     }
 
     public void Unequip()
     {
         extinguisherEquipped = false;
-        extinguisherGameObj.SetActive(false);
+        if (extinguisherGameObj != null)
+        {
+            extinguisherGameObj.SetActive(false);
+        }
     }
 
     #region ISaveableInventoryItem
@@ -289,8 +295,11 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         hasExtinguisher = false;
         extinguisherEquipped = false;
         extinguisherGameObj = null;
+
+        if (inventoryManager != null)
+        {
+            inventoryManager.ReleaseSlotIfActive(this);
+        }
     }
-
-
     #endregion
 }

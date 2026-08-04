@@ -169,6 +169,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
         inventoryManager.fireExtinguisher.AcquireExtinguisher(this.gameObject); // raises OnFireExtinguisherAcquired
         inventoryManager.fireExtinguisher.inventoryManager.RequestActivate((int)inventoryManager.fireExtinguisher.slotIndex);
+        inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(true);
     }
 
     public void DropExtinguisher()
@@ -205,12 +206,12 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         this.transform.SetParent(originalParent, true);
         this.transform.position = originalPosition;
         this.transform.rotation = originalRotation;
-        extinguisherObject.transform.position = originalPosition;
-        extinguisherObject.transform.rotation = originalRotation;
         this.gameObject.SetActive(true);
 
         BoxCollider col = extinguisherObject.GetComponent<BoxCollider>();
         if (col != null) col.enabled = true;
+
+        Destroy(extinguisherObject.transform.parent.gameObject);
 
         if (inventoryManager.fireExtinguisher.extinguisherGameObj == this.gameObject)
         {

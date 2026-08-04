@@ -44,6 +44,14 @@ public class InventoryManager : MonoBehaviour, ISaveable
         //Debug.Log($"InventoryManager: registered slot {index} with {item.GetType().Name} (is ISaveableInventoryItem: {item is ISaveableInventoryItem})");
     }
 
+    public void ReleaseSlotIfActive(IInventoryItem item)
+    {
+        if (currentIndex >= 0 && currentIndex < slots.Length && slots[currentIndex] == item)
+        {
+            currentIndex = -1;
+        }
+    }
+
     /// <summary>
     /// This method requests to activate the object, therefore unequipping the other objects in the inventory
     /// </summary>
