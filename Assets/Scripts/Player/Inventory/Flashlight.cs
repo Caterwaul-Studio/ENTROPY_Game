@@ -31,6 +31,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     public bool lookingAtFlashlight = false;
     [SerializeField]
     private bool hasFlashlight = false;
+    [SerializeField]
+    private bool tutorialComplete = false;
 
     [SerializeField]
     GameObject flashlightInHand;
@@ -86,6 +88,12 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         }
     }
 
+    public bool TutorialComplete
+    {
+        get { return tutorialComplete;  }
+        set { tutorialComplete = value; }
+    }
+
     #endregion
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -94,20 +102,46 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         Debug.Log("Flashlight script started");
         flashlightEquipped = false;
         inventoryManager.RegisterSlot((int)slotIndex, this);
+
+        //if (!hasFlashlight)
+        //{
+        //    flashlightEquipped = false;
+        //    if (flashlightInHand != null) flashlightInHand.SetActive(false);
+        //    if (flashlightOutHand != null)
+        //    {
+        //        Destroy(flashlightOutHand);
+        //        flashlightOutHand = null;
+        //    }
+        //    flashlightClippedToBelt = false;
+        //    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+        //}
     }
 
     // Update is called once per frame
     void Update()
     {
         //this determines if the value scaling should be running on the flashlight in hand or out of hand
-        if (flashlightInHand && flashlightInHand.activeSelf && flashlightOn)
+        if (hasFlashlight)
         {
-            ScaleFlashlightValues(flashlightInHand);
-        }
-        else if (flashlightOutHand != null && flashlightOutHand.activeSelf && flashlightOn)
-        {
-            ScaleFlashlightValues(flashlightOutHand);
-        }
+            if (flashlightInHand && flashlightInHand.activeSelf && flashlightOn)
+            {
+                ScaleFlashlightValues(flashlightInHand);
+            }
+            else if (flashlightOutHand != null && flashlightOutHand.activeSelf && flashlightOn)
+            {
+                ScaleFlashlightValues(flashlightOutHand);
+            }
+
+            if (inventoryManager.persistant.WristMonitor.IsActive)
+            {
+                if (flashlightInHand.activeSelf)
+                {
+                    Debug.Log("hiding flashlight, wrist monitor opened");
+                    inventoryManager.DeactivateCurrent();
+                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+                }
+            }
+        } 
     }
 
     /// <summary>
@@ -179,7 +213,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             && !flashlightEquipped)
         {
             inventoryManager.RequestActivate(slotIndex);
-            inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(true);
+            inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
         }
     }
 
@@ -187,17 +221,18 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     {
         //if the player has picked up the flashlight and performs key click of 1
         if (hasFlashlight && context.performed 
-            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
+            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf
+            && !inventoryManager.persistant.WristMonitor.IsActive)
         {
             if(flashlightEquipped)
             {
                 inventoryManager.DeactivateCurrent();
-                inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(false);
+                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
             }
             else
             {
                 inventoryManager.RequestActivate((int)slotIndex);
-                inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(true);
+                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
             }
         }
         //Debug.Log("Equipping flashlight from inventory|| HasFlashlightInScene: " + HasFlashlightInScene + " FlashlightEquipped: " + FlashlightEquipped);
@@ -207,7 +242,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     public void ToggleFlashlight(InputAction.CallbackContext context)
     {
         if (hasFlashlight && flashlightEquipped == true && context.performed
-            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
+            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf
+            && !inventoryManager.persistant.WristMonitor.IsActive)
         {
             flashlightOn = !flashlightOn;
             //Debug.Log("Toggling flashlight" + flashlightOn);
@@ -216,6 +252,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
                 Debug.Log("light found");
                 light.enabled = flashlightOn;
             }
+            if(!tutorialComplete)
+            OnFlashlightTurnedOn?.Invoke(!flashlightOn);
         }
     }
 
@@ -240,34 +278,43 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 
     public void Unequip()
     {
-        flashlightEquipped = false;
-        flashlightInHand.SetActive(false);
-        if (flashlightOn)
+        Debug.Log("unequip called");
+        if (hasFlashlight)
         {
-            flashlightClippedToBelt = true;
-            //set the config joint flashlight true (clipped to belt)
-            if (flashlightClippedToBelt)
+            flashlightEquipped = false;
+            flashlightInHand.SetActive(false);
+            if (flashlightOn)
             {
-                //instantiate a new outhand flashlight
-                GameObject outHand = Instantiate(flashlightOutHandPrefab, outHandPos.transform.position, outHandPos.transform.rotation);
-                //set the parent to the flashlight inventory slot
-                outHand.transform.SetParent(outHandPos.transform, true);
-                inventoryManager.SetChildrenToHoldLayer(outHand);
-                //set config joint connected body
-                //find the rigid body of this gameobject
-                Rigidbody connectedBody = outHandPos.GetComponent<Rigidbody>();
-                ConfigurableJoint joint = outHand.GetComponent<ConfigurableJoint>();
-                joint.connectedBody = connectedBody;
-                //set the new outhand to the outhand flashlight object
-                flashlightOutHand = outHand;
-                //set the up to the outHandPos up
-                flashlightOutHand.transform.up = outHandPos.transform.up;
-                //finally set it true now that everything is set
-                flashlightOutHand.SetActive(true);
+                flashlightClippedToBelt = true;
+                //set the config joint flashlight true (clipped to belt)
+                if (flashlightClippedToBelt)
+                {
+                    if (flashlightOutHand != null)          // <-- add this guard
+                    {
+                        Destroy(flashlightOutHand);
+                        flashlightOutHand = null;
+                    }
+                    //instantiate a new outhand flashlight
+                    GameObject outHand = Instantiate(flashlightOutHandPrefab, outHandPos.transform.position, outHandPos.transform.rotation);
+                    //set the parent to the flashlight inventory slot
+                    outHand.transform.SetParent(outHandPos.transform, true);
+                    inventoryManager.SetChildrenToHoldLayer(outHand);
+                    //set config joint connected body
+                    //find the rigid body of this gameobject
+                    Rigidbody connectedBody = outHandPos.GetComponent<Rigidbody>();
+                    ConfigurableJoint joint = outHand.GetComponent<ConfigurableJoint>();
+                    joint.connectedBody = connectedBody;
+                    //set the new outhand to the outhand flashlight object
+                    flashlightOutHand = outHand;
+                    //set the up to the outHandPos up
+                    flashlightOutHand.transform.up = outHandPos.transform.up;
+                    //finally set it true now that everything is set
+                    flashlightOutHand.SetActive(true);
 
-                RayCastDistance(flashlightInHand);
+                    RayCastDistance(flashlightInHand);
+                }
             }
-        }
+        }  
     }
 
     private void OnDrawGizmos()
@@ -279,35 +326,42 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     public class FlashlightSaveData
     {
         public bool hasFlashlight;
+        public bool TutorialComplete;
     }
 
     public string GetSaveData()
     {
-        return JsonUtility.ToJson(new FlashlightSaveData { hasFlashlight = hasFlashlight });
+        return JsonUtility.ToJson(new FlashlightSaveData { hasFlashlight = hasFlashlight, TutorialComplete = tutorialComplete});
     }
 
     public void LoadSaveData(string json)
     {
         if (string.IsNullOrEmpty(json)) return;
+
         var data = JsonUtility.FromJson<FlashlightSaveData>(json);
         HasFlashlight = data.hasFlashlight;
-        if (!hasFlashlight)
+
+        Debug.Log("LoadSaveData Flashlight " + HasFlashlight + " " + data.hasFlashlight);
+
+        tutorialComplete = data.TutorialComplete;
+        if (!HasFlashlight)
         {
             flashlightEquipped = false;
-            Destroy(flashlightOutHand.gameObject);
+            if (flashlightInHand != null) flashlightInHand.SetActive(false);
+            Destroy(flashlightOutHand);
             flashlightOutHand = null;
             flashlightClippedToBelt = false;
-            if (flashlightInHand != null) flashlightInHand.SetActive(false);
-            inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(false);
+            inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
         }
     }
 
     public void ClearRuntimeState()
     {
-        if (!hasFlashlight)
+        Debug.Log("ClearRuntimeState Flashlight " + HasFlashlight);
+        if (!HasFlashlight)
         {
             flashlightEquipped = false;
-            Destroy(flashlightOutHand.gameObject);
+            Destroy(flashlightOutHand);
             flashlightOutHand = null;
             flashlightClippedToBelt = false;
             if (flashlightInHand != null) flashlightInHand.SetActive(false);

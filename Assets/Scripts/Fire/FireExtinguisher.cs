@@ -82,16 +82,18 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
 
         inventoryManager.RegisterSlot((int)slotIndex, this);
 
-        if (hasExtinguisher == false && inventoryManager.playerUIManager.InputIndicatorThrow.sprite != null)
+        if (hasExtinguisher == false && inventoryManager.persistant.PlayerUIManager.InputIndicatorThrow.sprite != null)
         {
-            inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(false);
+            inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (holding && canPuff && hasExtinguisher && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf && !zeroGravity.IsDead)
+        if (holding && canPuff && hasExtinguisher && 
+            !inventoryManager.pauseMenu.activeSelf && 
+            !inventoryManager.deathMenu.activeSelf && !zeroGravity.IsDead)
             StartCoroutine(MakePuff());
 
         if (extinguisherContainer == null)
@@ -127,7 +129,18 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                     break;
                 }
             }
-        }  
+        }
+
+        //This gate unequips the extinguisher if the player is in a cutscene or the wristmonitor is opened
+        if (inventoryManager.persistant.Player.InCutscene
+            || inventoryManager.persistant.WristMonitor.IsActive)
+        {
+            if (extinguisherEquipped)
+            {
+                inventoryManager.DeactivateCurrent();
+                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+            }
+        }
     }
     System.Collections.IEnumerator MakePuff()
     { //instead of creating nodes, just moving around existing nodes is used again in the hopes it will help with optimization
@@ -162,24 +175,30 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
 
     public void ToggleExtinguisherFromInventory(InputAction.CallbackContext context)
     {
-        if(hasExtinguisher && context.performed && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
+        if(hasExtinguisher && context.performed && 
+            !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf
+            && !inventoryManager.persistant.Player.InCutscene
+            && !inventoryManager.persistant.WristMonitor.IsActive)
         {
             if (extinguisherEquipped)
             {
                 inventoryManager.DeactivateCurrent();
-                inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(false);
+                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
             }
             else
             {
                 inventoryManager.RequestActivate((int)slotIndex);
-                inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(true);
+                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
             }
         }
     }
 
     public void OnLeftClick(InputAction.CallbackContext context)
     {
-        if (hasExtinguisher && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
+        if (hasExtinguisher 
+            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf
+            && !inventoryManager.persistant.Player.InCutscene
+            && !inventoryManager.persistant.WristMonitor.IsActive)
         {
             if (context.phase == InputActionPhase.Started)
             {
@@ -279,7 +298,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                         heldObj.remainingRetardant = data.remainingRetardent;
                         inventoryManager.fireExtinguisher.extinguisherEquipped = data.extinguisherEquipped;
                         inventoryManager.fireExtinguisher.extinguisherGameObj.SetActive(data.extinguisherEquipped);
-                        inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(data.extinguisherEquipped);
+                        inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(data.extinguisherEquipped);
                         Debug.Log($"Restored remainingRetardant={data.remainingRetardent} on clone {heldObj.name}");
                     }
                     else

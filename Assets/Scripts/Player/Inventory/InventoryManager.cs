@@ -16,7 +16,7 @@ public class InventoryManager : MonoBehaviour, ISaveable
     [SerializeField] public HeldFloatingObject heldFloatingObject;
     [SerializeField] public PickupScript pickupScript;
 
-    [SerializeField] public PlayerUIManager playerUIManager;
+    [SerializeField] public PersistantManager persistant;
 
     [SerializeField] public GameObject pauseMenu;
     [SerializeField] public GameObject deathMenu;

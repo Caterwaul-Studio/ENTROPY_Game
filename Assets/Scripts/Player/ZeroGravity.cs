@@ -213,6 +213,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     //Fields for the tutorial
     [SerializeField]
     private bool tutorialMode = false;
+    [SerializeField]
+    private bool inCustcene = false;
     public bool canGrab = false;
     public bool canPropel = false;
     public bool canPushOff = false;
@@ -341,6 +343,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         get { return tutorialMode; }
         set { tutorialMode = value; }
+    }
+
+    public bool InCutscene
+    {
+        get { return inCustcene; }
     }
 
     public Rigidbody RB
@@ -770,6 +777,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             //canRoll = false;
             //uiManager.Crosshair.sprite = null;
             uiManager.Crosshair.color = new Color(0f, 0f, 0f, 0f);
+            inCustcene = true;
         }
         else if (!inCutScene)
         {
@@ -782,6 +790,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 canRoll = true;
                 //uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
                 uiManager.Crosshair.color = new Color(1f, 1f, 1f, 1f);
+                inCustcene = false;
             }
         }
     }

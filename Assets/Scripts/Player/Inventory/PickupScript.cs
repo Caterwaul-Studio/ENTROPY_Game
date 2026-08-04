@@ -217,7 +217,7 @@ public class PickupScript : MonoBehaviour
             PickUpObject(current);
             inventoryManager.heldFloatingObject.inventoryManager.RequestActivate((int)inventoryManager.heldFloatingObject.slotIndex);
         }
-        else if (heldObj != null && !inventoryManager.playerUIManager.interactBillboardObjectInScene && inventoryManager.heldFloatingObject.objInHand)
+        else if (heldObj != null && !inventoryManager.persistant.PlayerUIManager.interactBillboardObjectInScene && inventoryManager.heldFloatingObject.objInHand)
         {
             //Debug.Log("Dropped object");
             inventoryManager.heldFloatingObject.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);

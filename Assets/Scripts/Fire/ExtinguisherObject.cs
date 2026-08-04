@@ -192,7 +192,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
         inventoryManager.fireExtinguisher.AcquireExtinguisher(clone); // raises OnFireExtinguisherAcquired
         inventoryManager.fireExtinguisher.inventoryManager.RequestActivate((int)inventoryManager.fireExtinguisher.slotIndex);
-        inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(true);
+        inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
 
         Destroy(gameObject);
     }
@@ -261,30 +261,32 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        if (canGrab && isGrabbable && !inventoryManager.fireExtinguisher.HasExtinguisher 
-            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
+        if( !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf
+            && !inventoryManager.persistant.Player.InCutscene
+            && !inventoryManager.persistant.WristMonitor.IsActive)
         {
-            PickupExtinguisher();
-            return;
-        }
-        else if (!canGrab && !isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher 
-            && !inventoryManager.playerUIManager.interactBillboardObjectInScene 
-            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
-        {
-            DropExtinguisher();
-            return;
-        }
-        else if (canGrab && isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher 
-            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
-        {
-            Debug.Log("Swapping extinguisher");
-            if (this.gameObject.GetComponentInChildren<InteractableProxy>().PromptText != "take fire extinguisher")
+            if (canGrab && isGrabbable && !inventoryManager.fireExtinguisher.HasExtinguisher)
             {
+                PickupExtinguisher();
                 return;
             }
+            else if (!canGrab && !isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher
+                && !inventoryManager.persistant.PlayerUIManager.interactBillboardObjectInScene)
+            {
+                DropExtinguisher();
+                return;
+            }
+            else if (canGrab && isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher)
+            {
+                Debug.Log("Swapping extinguisher");
+                if (this.gameObject.GetComponentInChildren<InteractableProxy>().PromptText != "take fire extinguisher")
+                {
+                    return;
+                }
 
-            //Debug.Log("Swapping extinguisher");
-            inventoryManager.fireExtinguisher.SwapExtinguisher(this.gameObject);
-        }
+                //Debug.Log("Swapping extinguisher");
+                inventoryManager.fireExtinguisher.SwapExtinguisher(this.gameObject);
+            }
+        }   
     }
 }

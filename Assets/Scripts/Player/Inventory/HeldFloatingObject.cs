@@ -18,9 +18,9 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
         //Debug.Log($"HeldFloatingObject.Start: registering slot {slotIndex}, inventoryManager null? {inventoryManager == null}");
         inventoryManager.RegisterSlot(slotIndex, this);
 
-        if (objInInv == false && inventoryManager.playerUIManager.InputIndicatorThrow.sprite != null)
+        if (objInInv == false && inventoryManager.persistant.PlayerUIManager.InputIndicatorThrow.sprite != null)
         {
-            inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(false);
+            inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
         }
     }
 
@@ -29,6 +29,21 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
         if(floatingObjectContainer == null)
         {
             floatingObjectContainer = inventoryManager.pickupScript.ObjectContainer.transform;
+        }
+
+        // this gate unequips the held obj if the player is in a cutscene or wrist monitor is opened
+        if(heldObj != null)
+        {
+            if(inventoryManager.persistant.Player.InCutscene
+            || inventoryManager.persistant.WristMonitor.IsActive)
+            {
+                if (objInInv && objInHand)
+                {
+                    //Debug.Log("toggling floating obj from inventory");
+                    inventoryManager.DeactivateCurrent();
+                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+                }
+            }
         }
     }
 
@@ -66,18 +81,23 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
 
         if (heldObj == null) return;
 
-        if(objInInv && objInHand)
+        if(!inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf
+            && !inventoryManager.persistant.Player.InCutscene
+            && !inventoryManager.persistant.WristMonitor.IsActive)
         {
-            //Debug.Log("toggling floating obj from inventory");
-            inventoryManager.DeactivateCurrent();
-            inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(false);
-        }
-        else if(objInInv && !objInHand)
-        {
-            //Debug.Log("toggling floating obj from inventory");
-            inventoryManager.RequestActivate((int)slotIndex);
-            inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(true);
-        }
+            if (objInInv && objInHand)
+            {
+                //Debug.Log("toggling floating obj from inventory");
+                inventoryManager.DeactivateCurrent();
+                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+            }
+            else if (objInInv && !objInHand)
+            {
+                //Debug.Log("toggling floating obj from inventory");
+                inventoryManager.RequestActivate((int)slotIndex);
+                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
+            }
+        }   
     }
 
     public void Equip()
@@ -135,7 +155,7 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
 
             inventoryManager.pickupScript.ClearHeldReference();
 
-            inventoryManager.playerUIManager.ToggleThrowIndicatorVisible(false);
+            inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
 
             heldObj = null;
             objInHand = false;
