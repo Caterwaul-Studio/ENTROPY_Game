@@ -12,7 +12,9 @@ public class TutorialManager : MonoBehaviour, ISaveable
     public GameObject ZeroGPlayer;
     public Camera mainCamera;
     public ZeroGravity playerController;
-    public GameObject TutorialCanvases;
+    public TutorialCanvases TutorialCanvases;
+    public Vector3 tutorialCanvasesPos = new Vector3(0, -175, 0);
+    public Vector3 enterSkipCanvasPos = new Vector3(658, 504, 0);
     public DialogueManager dialogueManager;
     public DoorScript doorToOpen;
     //public DoorScript endingDoor;
@@ -26,15 +28,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
     private string tutorialCanvasesObj = "TutorialCanvas";
     private string tutorialStartPointObj = "TutorialStartPoint";
-
-    private string grabCanvasGroupobj = "GrabTutorialPanel";
-    private string propelCanvasGroupobj = "Propel TutorialPanel";
-
-    private string pickUpObjectTutPanel = "GrabObjectTutorialPanel";
-    private string throwObjectTutPanel = "ThrowObjectTutorialPanel";
-    private string rollQTutPanel = "RollQTutorialPanel";
-    private string rollETutPanel = "RollETutorialPanel";
-    private string enterSkipTutPanel = "EnterSkipPanel";
 
     private string rollSliderObj = "RollSlider";
     private string skipSliderObj = "SkipTutorialSlider";
@@ -55,11 +48,21 @@ public class TutorialManager : MonoBehaviour, ISaveable
     public CanvasGroup grabCanvasGroup;
     public CanvasGroup propelCanvasGroup;
     //public CanvasGroup pushOffCanvasGroup;
-    public CanvasGroup pickUpItemCanvasGroup;
-    public CanvasGroup throwItemCanvasGroup;
     public CanvasGroup rollQCanvasGroup;
     public CanvasGroup rollECanvasGroup;
     public CanvasGroup enterCanvasGroup;
+
+    public GameObject grabCanvasPrefab;
+    public GameObject propelCanvasPrefab;
+    public GameObject rollQCanvasPrefab;
+    public GameObject rollECanvasPrefab;
+    public GameObject enterCanvasPrefab;
+
+    public GameObject grabCanvas;
+    public GameObject propelCanvas;
+    public GameObject rollQCanvas;
+    public GameObject rollECanvas;
+    public GameObject enterCanvas;
 
     [SerializeField] private Slider rollProgressBar;
     [SerializeField] private float requiredRotation = 180f; // how much roll needed
@@ -108,6 +111,8 @@ public class TutorialManager : MonoBehaviour, ISaveable
     //timer for checking if player is upside down
     private float upsideDownTimer = 0f;
     private const float upsideDownDuration = 3f;
+
+    private bool tutorialUIActive = true;
 
 
     public bool IsTutorialSkipped
@@ -163,25 +168,25 @@ public class TutorialManager : MonoBehaviour, ISaveable
         }
 
         initialStartComplete = true;
+        tutorialUIActive = true;
 
         //Debug.Log("player position: " + playerController.transform.position);
     }
 
     void Update()
     {
-        if(ZeroGPlayer == null || 
+        if(tutorialUIActive &&
+            (ZeroGPlayer == null || 
             playerController == null || 
             pickupScript == null ||
             TutorialCanvases == null ||
             grabCanvasGroup == null ||
             propelCanvasGroup == null ||
-            pickUpItemCanvasGroup == null ||
-            throwItemCanvasGroup == null ||
             rollQCanvasGroup == null ||
             rollECanvasGroup == null ||
             enterCanvasGroup == null ||
             rollProgressBar == null ||
-            skipProgressSlider == null)
+            skipProgressSlider == null))
         {
             RestorePlayerInformation();
         }
@@ -491,7 +496,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
     void EndTutorial()
     {
-        //Debug.Log("End tutorial called");
+        Debug.Log("End tutorial called");
         SetPlayerAbilities(true, true, true, true, true);
         inTutorial = false;
         isWaitingForAction = false;
@@ -501,6 +506,12 @@ public class TutorialManager : MonoBehaviour, ISaveable
         //remove all tutorial panels
         HideAllPanelsFadeOut();
         //ambientController.Progress();
+        TutorialCanvases.DestroyCanvasGroup(ref grabCanvas, ref grabCanvasGroup);
+        TutorialCanvases.DestroyCanvasGroup(ref propelCanvas, ref propelCanvasGroup);
+        TutorialCanvases.DestroyCanvasGroup(ref rollECanvas, ref rollECanvasGroup);
+        TutorialCanvases.DestroyCanvasGroup(ref rollQCanvas, ref rollQCanvasGroup);
+        TutorialCanvases.DestroyCanvasGroup(ref enterCanvas, ref enterCanvasGroup);
+
         currentStep = 5;
 
 
@@ -520,6 +531,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
                         doorToOpen.SetState(DoorScript.States.Open);
                     }
                 }*/
+        tutorialUIActive = false;
     }
 
     private IEnumerator WaitForDialogue1AndOpenDoor()
@@ -705,8 +717,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
         if (rollECanvasGroup != null) rollECanvasGroup.alpha = 0;
         if (grabCanvasGroup != null) grabCanvasGroup.alpha = 0;
         if (propelCanvasGroup != null) propelCanvasGroup.alpha = 0;
-        if (pickUpItemCanvasGroup != null) pickUpItemCanvasGroup.alpha = 0;
-        if (throwItemCanvasGroup != null) throwItemCanvasGroup.alpha = 0;
         if (rollProgressBar != null && rollProgressBar.gameObject.activeSelf)
         {
             rollProgressBar.gameObject.SetActive(false);
@@ -784,15 +794,15 @@ public class TutorialManager : MonoBehaviour, ISaveable
     //    inItemGrabTutorial = true;
     //    StartCoroutine(StartGrabTutorial());
     //}
-    private IEnumerator StartGrabTutorial()
-    {
-        FadeIn(pickUpItemCanvasGroup);
-        yield return new WaitForSeconds(7f);
-        if (pickUpItemCanvasGroup.alpha > 0)
-        {
-            FadeOut(pickUpItemCanvasGroup);
-        }
-    }
+    //private IEnumerator StartGrabTutorial()
+    //{
+    //    FadeIn(pickUpItemCanvasGroup);
+    //    yield return new WaitForSeconds(7f);
+    //    if (pickUpItemCanvasGroup.alpha > 0)
+    //    {
+    //        FadeOut(pickUpItemCanvasGroup);
+    //    }
+    //}
     private void HandleTutorialSkip()
     {
         if (Keyboard.current.enterKey.isPressed)
@@ -913,34 +923,30 @@ public class TutorialManager : MonoBehaviour, ISaveable
         // These are scene-bound, so re-find them fresh each load
         if (TutorialCanvases == null)
         {
-            TutorialCanvases = GameObject.Find(tutorialCanvasesObj);
+            TutorialCanvases = GameObject.FindFirstObjectByType<TutorialCanvases>();
             //Debug.Log("PlayerCanvases found on scene load: " + (PlayerCanvases != null));
         }
 
         if (TutorialCanvases != null)
         {
-            if(grabCanvasGroup == null)         grabCanvasGroup =       FindCanvasGroupByName(grabCanvasGroupobj);
-            if(propelCanvasGroup == null)       propelCanvasGroup =     FindCanvasGroupByName(propelCanvasGroupobj);
-            if(pickUpItemCanvasGroup == null)   pickUpItemCanvasGroup = FindCanvasGroupByName(pickUpObjectTutPanel);
-            if(throwItemCanvasGroup == null)    throwItemCanvasGroup =  FindCanvasGroupByName(throwObjectTutPanel);
-            if(rollQCanvasGroup == null)        rollQCanvasGroup =      FindCanvasGroupByName(rollQTutPanel);
-            if(rollECanvasGroup == null)        rollECanvasGroup =      FindCanvasGroupByName(rollETutPanel);
-            if(enterCanvasGroup == null)        enterCanvasGroup =      FindCanvasGroupByName(enterSkipTutPanel);
+            if (grabCanvasGroup == null) TutorialCanvases.InstantiateCanvasGroup(grabCanvasPrefab, ref grabCanvas, ref grabCanvasGroup, tutorialCanvasesPos);
+            if (propelCanvasGroup == null) TutorialCanvases.InstantiateCanvasGroup(propelCanvasPrefab, ref propelCanvas, ref propelCanvasGroup, tutorialCanvasesPos);
+            if(rollQCanvasGroup == null) TutorialCanvases.InstantiateCanvasGroup(rollQCanvasPrefab, ref rollQCanvas, ref rollQCanvasGroup, tutorialCanvasesPos);
+            if (rollECanvasGroup == null) TutorialCanvases.InstantiateCanvasGroup(rollECanvasPrefab, ref rollECanvas, ref rollECanvasGroup, tutorialCanvasesPos);
+            if(enterCanvasGroup == null) TutorialCanvases.InstantiateCanvasGroup(enterCanvasPrefab, ref enterCanvas, ref enterCanvasGroup, enterSkipCanvasPos);
 
             if(rollProgressBar == null)
             {
-                rollProgressBar = FindSliderByName(rollSliderObj);
+                rollProgressBar = TutorialCanvases.FindSliderByName(rollSliderObj);
             }
 
             if(skipProgressSlider == null)
             {
-               skipProgressSlider = FindSliderByName(skipSliderObj);
+               skipProgressSlider = TutorialCanvases.FindSliderByName(skipSliderObj);
             }
            
             if (grabCanvasGroup == null || 
                 propelCanvasGroup == null || 
-                pickUpItemCanvasGroup == null || 
-                throwItemCanvasGroup == null || 
                 rollQCanvasGroup == null || 
                 rollECanvasGroup == null || 
                 enterCanvasGroup == null ||
@@ -967,40 +973,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
         if (doorToOpen == null)
             doorToOpen = GameObject.Find(doorToOpenObj)?.GetComponent<DoorScript>();
-    }
-
-    private CanvasGroup FindCanvasGroupByName(string name)
-    {
-        Transform found = FindDeepChild(TutorialCanvases.transform, name);
-        if (found != null)
-        {
-            return found.GetComponent<CanvasGroup>();
-        }
-        return null;
-    }
-
-    private Slider FindSliderByName(string name)
-    {
-        Transform found = FindDeepChild(TutorialCanvases.transform, name);
-        if (found != null)
-        {
-            return found.GetComponent<Slider>();
-        }
-        return null;
-    }
-
-
-    private Transform FindDeepChild(Transform parent, string name)
-    {
-        foreach (Transform child in parent)
-        {
-            if (child.name == name)
-                return child;
-            Transform result = FindDeepChild(child, name);
-            if (result != null)
-                return result;
-        }
-        return null;
     }
 
     public void LoadSaveFile(string fileName)
