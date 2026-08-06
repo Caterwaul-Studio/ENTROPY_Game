@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -24,12 +25,24 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
     private float initialEmission;
     private bool holding;
 
+    [SerializeField] private GameObject toggleExtinguisherCanvas;
+    [SerializeField] private CanvasGroup toggleExtinguisherCanvasGroup;
+
+    [SerializeField] private GameObject useExtinguisherCanvas;
+    [SerializeField] private CanvasGroup useExtinguisherCanvasGroup;
+
+    [SerializeField] public bool extinguishertoggledInv;
+    [SerializeField] public bool extinguisherUsed;
+    [SerializeField] public bool tutorialStarted;
+
     [SerializeField] private bool tutorialComplete = false;
 
     public bool extinguisherEquipped = false;
     public GameObject extinguisherGameObj;
 
     public event System.Action<bool, GameObject> OnFireExtinguisherAcquired;
+    public event System.Action<bool> OnFireExtinguisherInvToggled;
+    public event System.Action<bool> OnFireExtinguisherUsed;
 
 
     public bool HasExtinguisher
@@ -86,6 +99,11 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         {
             inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
         }
+
+        if (extinguisherGameObj != null)
+        {
+            SubscribeToFireExtinguisherEvents();
+        }
     }
 
     // Update is called once per frame
@@ -141,6 +159,9 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                 inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
             }
         }
+
+        UnsubscribeFromFireExtinguisherEvents();
+        SubscribeToFireExtinguisherEvents();
     }
     System.Collections.IEnumerator MakePuff()
     { //instead of creating nodes, just moving around existing nodes is used again in the hopes it will help with optimization
@@ -159,6 +180,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             canPuff = true;
         }
     }
+
 
     public void AcquireExtinguisher(GameObject acquiredObj)
     {
@@ -191,6 +213,8 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                 inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
             }
         }
+        if(!tutorialComplete)
+            OnFireExtinguisherInvToggled?.Invoke(true);
     }
 
     public void OnLeftClick(InputAction.CallbackContext context)
@@ -211,6 +235,8 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                 //Debug.Log("Holding ended");
             }
         }
+        if (!tutorialComplete) 
+            OnFireExtinguisherUsed?.Invoke(true);
     }
 
     public void Equip()
@@ -230,6 +256,81 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         {
             extinguisherGameObj.SetActive(false);
         }
+    }
+
+
+    private void SubscribeToFireExtinguisherEvents()
+    {
+        OnFireExtinguisherAcquired += HandleExtinguisherAcquired;
+        OnFireExtinguisherInvToggled += HandleFireExtinguisherToggledInv;
+        OnFireExtinguisherUsed += HandleFireExtinguisherUsed;
+    }
+
+    private void UnsubscribeFromFireExtinguisherEvents()
+    {
+        OnFireExtinguisherAcquired -= HandleExtinguisherAcquired;
+        OnFireExtinguisherInvToggled -= HandleFireExtinguisherToggledInv;
+        OnFireExtinguisherUsed -= HandleFireExtinguisherUsed;
+    }
+
+    private void HandleExtinguisherAcquired(bool acquired, GameObject acquiredObj)
+    {
+        if (acquired && !tutorialComplete && !tutorialStarted)
+        {
+            //add logic for the tutorial of the fire extinguisher
+            //Debug.Log("starting tutorial");
+            tutorialStarted = true;
+            StartCoroutine(ExtinguisherTutorial());
+        }
+    }
+
+    private void HandleFireExtinguisherToggledInv(bool toggled)
+    {
+        extinguishertoggledInv = true;
+    }
+
+    private void HandleFireExtinguisherUsed(bool used)
+    {
+        extinguisherUsed = true;
+    }
+
+    public IEnumerator ExtinguisherTutorial()
+    {
+        inventoryManager.InTutorial = true;
+
+        inventoryManager.tutorialCanvases.FadeIn(
+            inventoryManager.useExtinguisherCanvasPrefab,
+            ref useExtinguisherCanvas, ref useExtinguisherCanvasGroup,
+            inventoryManager.tutorialCanvases.tutorialCanvasesPos);
+
+        extinguisherUsed = false;
+        yield return new WaitUntil(() => extinguisherUsed);
+
+        inventoryManager.tutorialCanvases.FadeOut(
+            useExtinguisherCanvas, useExtinguisherCanvasGroup, () =>
+            {
+                useExtinguisherCanvas = null;
+                useExtinguisherCanvasGroup = null;
+            });
+
+        yield return new WaitForSeconds(1f);
+
+        inventoryManager.tutorialCanvases.FadeIn(
+            inventoryManager.toggleExtinguisherCanvasPrefab,
+            ref toggleExtinguisherCanvas, ref toggleExtinguisherCanvasGroup,
+            inventoryManager.tutorialCanvases.tutorialCanvasesPos);
+
+       extinguishertoggledInv = false;
+        yield return new WaitUntil(() => extinguishertoggledInv);
+
+        inventoryManager.tutorialCanvases.FadeOut(
+            toggleExtinguisherCanvas, toggleExtinguisherCanvasGroup, () =>
+            {
+                toggleExtinguisherCanvas = null;
+                toggleExtinguisherCanvasGroup = null;
+            });
+        tutorialComplete = true;
+        inventoryManager.InTutorial = !tutorialComplete;
     }
 
     #region ISaveableInventoryItem

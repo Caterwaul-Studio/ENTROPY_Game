@@ -10,6 +10,8 @@ public class PersistantManager : MonoBehaviour
     [SerializeField] private ZeroGravity player;
     public ZeroGravity Player => player;
 
+    [SerializeField] public InventoryManager inventoryManager;
+
     [SerializeField] public PlayerUIManager PlayerUIManager;
 
     [SerializeField] public WristMonitor WristMonitor;

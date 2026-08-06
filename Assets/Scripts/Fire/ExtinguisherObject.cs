@@ -1,6 +1,7 @@
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class ExtinguisherObject : MonoBehaviour, IInteractable
 {
@@ -69,14 +70,6 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         }
     }
 
-    private void OnDestroy()
-    {
-        if (inventoryManager.fireExtinguisher != null)
-        {
-            inventoryManager.fireExtinguisher.OnFireExtinguisherAcquired -= StartFireExtinguisherTutorial;
-        }
-    }
-
     public void Awake()
     {
         originalPosition = transform.position;
@@ -104,7 +97,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         }
 
         // if the persisted FireExtinguisher already holds an instance with this same ID,
-        // this is a stale duplicate spawned by the scene reload — remove it immediately
+        // this is a stale duplicate spawned by the scene reload - remove it immediately
         var held = inventoryManager.fireExtinguisher.extinguisherGameObj;
         if (GlobalSaveManager.SavedWithTerminal &&
             inventoryManager.fireExtinguisher.HasExtinguisher && 
@@ -134,12 +127,6 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         {
             persistantManager = FindFirstObjectByType<PersistantManager>();
             holdPos = inventoryManager.fireExtinguisher.FireExtinguisherPosition;
-        }
-
-        if (inventoryManager.fireExtinguisher != null)
-        {
-            inventoryManager.fireExtinguisher.OnFireExtinguisherAcquired -= StartFireExtinguisherTutorial;
-            inventoryManager.fireExtinguisher.OnFireExtinguisherAcquired += StartFireExtinguisherTutorial;
         }
     }
 
@@ -193,7 +180,6 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         inventoryManager.fireExtinguisher.AcquireExtinguisher(clone); // raises OnFireExtinguisherAcquired
         inventoryManager.fireExtinguisher.inventoryManager.RequestActivate((int)inventoryManager.fireExtinguisher.slotIndex);
         inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
-
         Destroy(gameObject);
     }
 
@@ -249,15 +235,6 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         canGrab = false;
     }
 
-    private void StartFireExtinguisherTutorial(bool acquired, GameObject acquiredObj)
-    {
-        if (acquired && acquiredObj == this.gameObject && !inventoryManager.fireExtinguisher.TutorialComplete)
-        {
-            //add logic for the tutorial of the fire extinguisher
-            //Debug.Log("starting tutorial");
-            inventoryManager.fireExtinguisher.TutorialComplete = true;
-        }
-    }
 
     private void OnInteract(InputAction.CallbackContext context)
     {

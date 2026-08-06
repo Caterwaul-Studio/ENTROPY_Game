@@ -7,6 +7,8 @@ public class InventoryManager : MonoBehaviour, ISaveable
     [SerializeField] public IInventoryItem[] slots = new IInventoryItem[4];
     private int currentIndex = 0;
 
+    [SerializeField] public bool InTutorial;
+
     [SerializeField] private int heldLayer = 8; // Layer for held objects
     [SerializeField] private int floatingObjLayer = 9; // Default layer for floating objects
     [SerializeField] private int iInteractableLayer = 10; // Layer for interactable objects
@@ -20,6 +22,17 @@ public class InventoryManager : MonoBehaviour, ISaveable
 
     [SerializeField] public GameObject pauseMenu;
     [SerializeField] public GameObject deathMenu;
+
+    [SerializeField] public TutorialCanvases tutorialCanvases;
+
+    [SerializeField] public GameObject toggleFlashlightCanvasPrefab;
+    [SerializeField] public GameObject useFlashlightCanvasPrefab;
+
+    [SerializeField] public GameObject toggleExtinguisherCanvasPrefab;
+    [SerializeField] public GameObject useExtinguisherCanvasPrefab;
+
+    [SerializeField] public GameObject toggleHeldObjectCanvasPrefab;
+    [SerializeField] public GameObject throwHeldObjectCanvasPrefab;
 
     //Cache the original emission colors of materials to restore them when unequipping
     private Dictionary<Material, Color> _originalEmissionColors = new Dictionary<Material, Color>();

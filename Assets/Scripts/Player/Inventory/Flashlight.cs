@@ -29,10 +29,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     private PlayerUIManager uiManager;
 
     public bool lookingAtFlashlight = false;
-    [SerializeField]
-    private bool hasFlashlight = false;
-    [SerializeField]
-    private bool tutorialComplete = false;
+    [SerializeField] private bool hasFlashlight = false;
+    [SerializeField] private bool tutorialComplete = false;
 
     [SerializeField]
     GameObject flashlightInHand;
@@ -40,7 +38,6 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     private GameObject flashlightOutHand;
     [SerializeField]
     private GameObject flashlightOutHandPrefab;
-    private string flashlightOutHandObjectName = "FlashlightOffhand(Clone)";
     [SerializeField]
     private GameObject outHandPos;
 
@@ -51,6 +48,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 
     public event System.Action<bool> OnFlashlightAcquired;
     public event System.Action<bool> OnFlashlightTurnedOn;
+    public event System.Action<bool> OnFlashlightToggledInv;
 
     Ray ray;
 
@@ -87,7 +85,6 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             OnFlashlightAcquired?.Invoke(hasFlashlight);
         }
     }
-
     public bool TutorialComplete
     {
         get { return tutorialComplete;  }
@@ -138,7 +135,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
                 {
                     Debug.Log("hiding flashlight, wrist monitor opened");
                     inventoryManager.DeactivateCurrent();
-                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+                    //inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
                 }
             }
         } 
@@ -213,7 +210,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             && !flashlightEquipped)
         {
             inventoryManager.RequestActivate(slotIndex);
-            inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
+            //inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
         }
     }
 
@@ -227,16 +224,17 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             if(flashlightEquipped)
             {
                 inventoryManager.DeactivateCurrent();
-                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+                //inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
             }
             else
             {
                 inventoryManager.RequestActivate((int)slotIndex);
-                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
+                //inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
             }
         }
         //Debug.Log("Equipping flashlight from inventory|| HasFlashlightInScene: " + HasFlashlightInScene + " FlashlightEquipped: " + FlashlightEquipped);
-
+        if (!tutorialComplete)
+            OnFlashlightToggledInv?.Invoke(!flashlightEquipped);
     }
 
     public void ToggleFlashlight(InputAction.CallbackContext context)
@@ -289,7 +287,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
                 //set the config joint flashlight true (clipped to belt)
                 if (flashlightClippedToBelt)
                 {
-                    if (flashlightOutHand != null)          // <-- add this guard
+                    if (flashlightOutHand != null)   
                     {
                         Destroy(flashlightOutHand);
                         flashlightOutHand = null;
@@ -351,7 +349,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             Destroy(flashlightOutHand);
             flashlightOutHand = null;
             flashlightClippedToBelt = false;
-            inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+            //inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
         }
     }
 
