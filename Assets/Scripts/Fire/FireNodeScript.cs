@@ -9,6 +9,7 @@ public class FireNodeScript : MonoBehaviour
     [SerializeField] private Bounds playerBounds;
     [SerializeField] private FireScript myFire;
     [SerializeField] private GameObject player;
+    [SerializeField] private GameObject myLight;
     [SerializeField] private Camera MainCamera;
     [SerializeField] private PuffMovement[] extinguishNodes;
     [SerializeField] private int flameSteady; //should be 1-5
@@ -23,6 +24,9 @@ public class FireNodeScript : MonoBehaviour
     [SerializeField] private ParticleSystem.ColorOverLifetimeModule sysCOL;
     [SerializeField] private ParticleSystem.SizeOverLifetimeModule sysSOL;
     [SerializeField] private ParticleSystem.LightsModule sysLight;
+
+
+    [SerializeField] public bool fireActive;
 
     //Particle system original param containers
     private float originalStartSize;
@@ -64,39 +68,46 @@ public class FireNodeScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        throwCooldown += Time.deltaTime;
-        for (int i = 0; i < extinguishNodes.Length; i++)
-        { //collision detection is done via fireBounds in the hope it will be less resource intensive, may need to be tested
-            if (fireBounds.Contains(extinguishNodes[i].transform.position))
-                DampenFlame(extinguishNodes[i].gameObject);
-        }
+        if (fireActive)
+        {
+            throwCooldown += Time.deltaTime;
+            for (int i = 0; i < extinguishNodes.Length; i++)
+            { //collision detection is done via fireBounds in the hope it will be less resource intensive, may need to be tested
+                if (fireBounds.Contains(extinguishNodes[i].transform.position))
+                    DampenFlame(extinguishNodes[i].gameObject);
+            }
 
-        if (playerBounds.Contains(player.transform.position) && throwCooldown > 0.5f)
-        {
-            StartCoroutine(BurnPlayer());
-            player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
-            throwCooldown = 0;
-        }
+            if (playerBounds.Contains(player.transform.position) && throwCooldown > 0.5f)
+            {
+                StartCoroutine(BurnPlayer());
+                player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
+                throwCooldown = 0;
+            }
 
-        //flame regeneration
-        if (flameStrength < flameSteady * 20)
-            flameStrength += Time.deltaTime * regenRate;
+            //flame regeneration
+            if (flameStrength < flameSteady * 20)
+                flameStrength += Time.deltaTime * regenRate;
 
-        if (flameStrength > 81)
-        {
-            flameSteady = 5;
-        } else if (flameStrength > 61)
-        {
-            flameSteady = 4;
-        } else if (flameStrength > 41)
-        {
-            flameSteady = 3;
-        } else if (flameStrength > 21)
-        {
-            flameSteady = 2;
-        } else if (flameStrength > 11)
-        {
-            flameSteady = 1;
+            if (flameStrength > 81)
+            {
+                flameSteady = 5;
+            }
+            else if (flameStrength > 61)
+            {
+                flameSteady = 4;
+            }
+            else if (flameStrength > 41)
+            {
+                flameSteady = 3;
+            }
+            else if (flameStrength > 21)
+            {
+                flameSteady = 2;
+            }
+            else if (flameStrength > 11)
+            {
+                flameSteady = 1;
+            }
         }
     }
 
@@ -107,8 +118,13 @@ public class FireNodeScript : MonoBehaviour
         other.transform.position = new Vector3(0, 0, 0);
         if (flameStrength < 1) //when flame strength is under a certain value, destroy the flame node
         {
+            fireActive = false;
+            sysMain.startSize = 0;
+
+            /* //old method
             myFire.myFireNodes.Remove(this.gameObject); //update the parent with the destruction of the node
             Destroy(this.gameObject);
+            */
         }
     }
 
@@ -123,6 +139,14 @@ public class FireNodeScript : MonoBehaviour
         //all changes to the flame particle system are to happen here
         sysMain.startSize = originalStartSize * (flameStrength / 100);
         sysShape.radius = originalShapeRadius * (flameStrength / 100);
+        myLight.GetComponent<Light>().intensity = flameStrength / 1000;
+    }
+
+    public void reignite(int reigniteLevel) //this function is to be used by other scripts to reignite the flame
+    {
+        flameStrength = reigniteLevel * 20;
+        fireActive = true;
+        changeFlame();
     }
 
 }

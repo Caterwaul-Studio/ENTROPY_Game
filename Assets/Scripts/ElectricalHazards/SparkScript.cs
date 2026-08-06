@@ -13,7 +13,7 @@ public class SparkScript : MonoBehaviour
     [SerializeField] private Camera MainCamera;
     [SerializeField] private ParticleSystem sys;
     [SerializeField] private bool WireSpark;
-    [SerializeField] private bool electricActive;
+    public bool electricActive;
 
     private Vector3 boxSize;
     private float damageCoolDown;
