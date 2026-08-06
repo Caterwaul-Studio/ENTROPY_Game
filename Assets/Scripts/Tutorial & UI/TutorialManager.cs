@@ -63,7 +63,10 @@ public class TutorialManager : MonoBehaviour, ISaveable
     public GameObject rollECanvas;
     public GameObject enterCanvas;
 
+    [SerializeField] private GameObject rollProgressBarPrefab;
+    [SerializeField] private GameObject rollProgressBarObj;
     [SerializeField] private Slider rollProgressBar;
+    [SerializeField] private Vector3 rollProgressBarPos = new Vector3(1.6212e-05f, 294.9999f, 0f);
     [SerializeField] private float requiredRotation = 180f; // how much roll needed
 
     [SerializeField] private Slider skipProgressSlider;
@@ -517,7 +520,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
         //remove all tutorial panels
         //HideAllPanelsFadeOut();
         //ambientController.Progress();
-
         currentStep = 5;
 
 
@@ -544,6 +546,8 @@ public class TutorialManager : MonoBehaviour, ISaveable
                     }
                 }*/
         tutorialUIActive = false;
+        //destroy the roll progress bar
+        Destroy(rollProgressBarObj);
     }
 
     private IEnumerator WaitForDialogue1AndOpenDoor()
@@ -658,8 +662,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
         hasPlayedRollFailure = false;
         rollPanelHidden = false;
         pushOffPanelHidden = false;
-        // reset the roll progress bar
-        rollProgressBar.value = 0f;
+
 
         //Debug.Log($"[TutorialManager] RestartTutorial state reset — " +
         //$"inTutorial: {inTutorial}, currentStep: {currentStep}, isWaitingForAction: {isWaitingForAction}, " +
@@ -904,12 +907,18 @@ public class TutorialManager : MonoBehaviour, ISaveable
             //Debug.Log("PlayerCanvases found on scene load: " + (PlayerCanvases != null));
         }
 
+        if(tutorialUIActive && rollProgressBarObj == null)
+        {
+            rollProgressBarObj = Instantiate(rollProgressBarPrefab);
+            rollProgressBarObj.transform.SetParent(TutorialCanvases.transform, false);
+            rollProgressBarObj.transform.localScale = Vector3.one;
+            rollProgressBarObj.GetComponent<RectTransform>().anchoredPosition3D = rollProgressBarPos;
+            rollProgressBar = rollProgressBarObj.GetComponent<Slider>();
+            rollProgressBar.value = 0f;
+        }
+
         if (TutorialCanvases != null)
         {
-            if(rollProgressBar == null)
-            {
-                rollProgressBar = TutorialCanvases.FindSliderByName(rollSliderObj);
-            }
 
             if (skipProgressSlider == null)
             {

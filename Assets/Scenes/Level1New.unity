@@ -1822,7 +1822,7 @@ MonoBehaviour:
   audioManager: {fileID: 1165611646}
   tutorialCanvases: {fileID: 0}
   wristMonitorTutorialCanvasGroup: {fileID: 0}
-  wrisMonitorTutorialPrefab: {fileID: 7421302186153384567, guid: 3fcba1b5af168c841a4b044b5d5f256c, type: 3}
+  wristMonitorTutorialCanvasPrefab: {fileID: 7421302186153384567, guid: 3fcba1b5af168c841a4b044b5d5f256c, type: 3}
   wristMonitorTutorialCanvas: {fileID: 0}
   monitorLight: {fileID: 297591566}
   stingerManager: {fileID: 1918133088}
@@ -20733,17 +20733,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 269946595}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1181905510 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 9141021764248441722, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
-  m_PrefabInstance: {fileID: 394516936250948500}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1184000327
 GameObject:
   m_ObjectHideFlags: 0
@@ -33377,6 +33366,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1843373443227214387, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2119258223813393219, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -33451,7 +33444,7 @@ PrefabInstance:
       objectReference: {fileID: 1774461998}
     - target: {fileID: 2812185477494499046, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3423474237475556574, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_IsActive
@@ -33761,6 +33754,10 @@ PrefabInstance:
     - {fileID: 7577723664732821965, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
     - {fileID: 1589480692417090109, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
     - {fileID: 8944976141785372758, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+    - {fileID: 3423474237475556574, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+    - {fileID: 2402747467655183895, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+    - {fileID: 6566329818730945796, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+    - {fileID: 4130599768685523856, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5702681558678806895, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
@@ -34404,7 +34401,6 @@ MonoBehaviour:
   mainCamera: {fileID: 0}
   playerController: {fileID: 0}
   TutorialCanvases: {fileID: 0}
-  tutorialCanvasesPos: {x: 0, y: -175, z: 0}
   enterSkipCanvasPos: {x: 658, y: 504, z: 0}
   dialogueManager: {fileID: 8506786234058232379}
   doorToOpen: {fileID: 2057266809044454524}
@@ -34429,7 +34425,9 @@ MonoBehaviour:
   rollQCanvas: {fileID: 0}
   rollECanvas: {fileID: 0}
   enterCanvas: {fileID: 0}
-  rollProgressBar: {fileID: 1181905510}
+  rollProgressBarPrefab: {fileID: 1691042442797071019, guid: 8f5c450da0116784b9643e2916e45391, type: 3}
+  rollProgressBarObj: {fileID: 0}
+  rollProgressBar: {fileID: 0}
   requiredRotation: 180
   skipProgressSlider: {fileID: 0}
   holdDuration: 1.5
