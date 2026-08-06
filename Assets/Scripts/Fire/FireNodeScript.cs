@@ -144,6 +144,7 @@ public class FireNodeScript : MonoBehaviour
 
     public void Reignite(int reigniteLevel) //this function is to be used by other scripts to reignite the flame
     {
+        Mathf.Clamp(reigniteLevel, 0, 5);
         flameStrength = reigniteLevel * 20;
         fireActive = true;
         ChangeFlame();
