@@ -9,6 +9,8 @@ public class InventoryManager : MonoBehaviour, ISaveable
 
     [SerializeField] public bool InTutorial;
 
+    [SerializeField] public bool ShowIndicators;
+
     [SerializeField] private int heldLayer = 8; // Layer for held objects
     [SerializeField] private int floatingObjLayer = 9; // Default layer for floating objects
     [SerializeField] private int iInteractableLayer = 10; // Layer for interactable objects

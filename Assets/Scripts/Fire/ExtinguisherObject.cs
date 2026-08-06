@@ -179,7 +179,8 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
         inventoryManager.fireExtinguisher.AcquireExtinguisher(clone); // raises OnFireExtinguisherAcquired
         inventoryManager.fireExtinguisher.inventoryManager.RequestActivate((int)inventoryManager.fireExtinguisher.slotIndex);
-        inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
+        if (inventoryManager.ShowIndicators)
+            inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
         Destroy(gameObject);
     }
 
@@ -248,7 +249,8 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
                 return;
             }
             else if (!canGrab && !isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher
-                && !inventoryManager.persistant.PlayerUIManager.interactBillboardObjectInScene)
+                && !inventoryManager.persistant.PlayerUIManager.interactBillboardObjectInScene
+                && inventoryManager.fireExtinguisher.TutorialComplete)
             {
                 DropExtinguisher();
                 return;

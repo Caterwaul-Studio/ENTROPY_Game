@@ -124,7 +124,7 @@ public class PickupScript : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (zeroGPlayer.CanGrab) //if currently not holding anything and is allowed to grab things
+        if (zeroGPlayer.CanGrab && !inventoryManager.InTutorial && uiManager.CurrentInteractable == null) //if currently not holding anything and is allowed to grab things
         {
             //perform raycast to check if player is looking at object within pickuprange
             RaycastHit hit;
@@ -208,6 +208,8 @@ public class PickupScript : MonoBehaviour
             PickUpObject(current);
             inventoryManager.heldFloatingObject.ParentFloatingObjectToInvSlot(current);
             inventoryManager.heldFloatingObject.inventoryManager.RequestActivate((int)inventoryManager.heldFloatingObject.slotIndex);
+            if (!inventoryManager.heldFloatingObject.TutorialComplete)
+                inventoryManager.heldFloatingObject.RaiseHeldObjAcquired(true);
             //Debug.Log("Picked up object");
         }
         else if (canPickUp && heldObj != null && current != null)
@@ -217,15 +219,14 @@ public class PickupScript : MonoBehaviour
             PickUpObject(current);
             inventoryManager.heldFloatingObject.inventoryManager.RequestActivate((int)inventoryManager.heldFloatingObject.slotIndex);
         }
-        else if (heldObj != null && !inventoryManager.persistant.PlayerUIManager.interactBillboardObjectInScene && inventoryManager.heldFloatingObject.objInHand)
+        else if (heldObj != null && !inventoryManager.persistant.PlayerUIManager.interactBillboardObjectInScene && inventoryManager.heldFloatingObject.objInHand
+            && inventoryManager.heldFloatingObject.TutorialComplete)
         {
             //Debug.Log("Dropped object");
             inventoryManager.heldFloatingObject.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
             DropObject();
             inventoryManager.heldFloatingObject.inventoryManager.DeactivateCurrent();
         }
-        if (!inventoryManager.heldFloatingObject.TutorialComplete)
-            inventoryManager.heldFloatingObject.RaiseHeldObjAcquired(true);
     }
 
     public void OnThrow(InputAction.CallbackContext context)
@@ -241,39 +242,41 @@ public class PickupScript : MonoBehaviour
         //    MoveObject(); //keep object position at holdPos
         //    ThrowObject();
         //}
-
-        if (context.started)
+        if (inventoryManager.heldFloatingObject.heldObjToggledInv || !inventoryManager.InTutorial)
         {
-            if(heldObj != null && inventoryManager.heldFloatingObject.objInHand && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
+            if (context.started)
             {
-                isChargingThrow = true;
-                chargeStartTime = Time.time;
-            }
-        }
-        else if (context.canceled)
-        {
-            if(!isChargingThrow) return;
-            isChargingThrow = false;
-
-            if(heldObj != null && inventoryManager.heldFloatingObject.objInHand && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
-            {
-                float heldTime = Mathf.Clamp(Time.time - chargeStartTime, 0f, maxChargeTime);
-                float chargeRatio = heldTime / maxChargeTime;
-                currentThrowForce = Mathf.Lerp(minThrowForce, maxThrowForce, chargeRatio);
-
-                if(heldObj.GetComponent<FloatingImpactAudio>()) //only do this if the object has an audio source
+                if (heldObj != null && inventoryManager.heldFloatingObject.objInHand && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
                 {
-                    //unmute the thrown object
-                    StartCoroutine(heldObj.GetComponent<FloatingImpactAudio>().unmuteAfterTime());
+                    isChargingThrow = true;
+                    chargeStartTime = Time.time;
                 }
-                inventoryManager.heldFloatingObject.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
-                MoveObject();
-                ThrowObject();
+            }
+            else if (context.canceled)
+            {
+                if (!isChargingThrow) return;
+                isChargingThrow = false;
+
+                if (heldObj != null && inventoryManager.heldFloatingObject.objInHand && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
+                {
+                    float heldTime = Mathf.Clamp(Time.time - chargeStartTime, 0f, maxChargeTime);
+                    float chargeRatio = heldTime / maxChargeTime;
+                    currentThrowForce = Mathf.Lerp(minThrowForce, maxThrowForce, chargeRatio);
+
+                    if (heldObj.GetComponent<FloatingImpactAudio>()) //only do this if the object has an audio source
+                    {
+                        //unmute the thrown object
+                        StartCoroutine(heldObj.GetComponent<FloatingImpactAudio>().unmuteAfterTime());
+                    }
+                    inventoryManager.heldFloatingObject.RemoveFloatingObjectFromInvSlot(heldObj, ObjectContainer);
+                    MoveObject();
+                    ThrowObject();
+                }
             }
         }
     }
 
-    void PickUpObject(GameObject pickUpObj)
+    public void PickUpObject(GameObject pickUpObj)
     {
         if (pickUpObj.GetComponent<AudioSource>()) //only do this if the object has an audio source
         {
@@ -298,7 +301,8 @@ public class PickupScript : MonoBehaviour
             Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), playerCollider, true);
             //heldObj.GetComponent<Collider>().enabled = false;
 
-            uiManager.ToggleThrowIndicatorVisible(true);
+            if (inventoryManager.ShowIndicators)
+                uiManager.ToggleThrowIndicatorVisible(true);
 
             MoveObject();
             //zeroGPlayer.MoveHandsTo(holdPos.GetChild(0).transform, null);
@@ -321,7 +325,8 @@ public class PickupScript : MonoBehaviour
         heldObj.transform.parent = ObjectContainer.transform; //unparent object
         heldObj = null; //undefine game object
 
-        uiManager.ToggleThrowIndicatorVisible(false);
+        if (inventoryManager.ShowIndicators)
+            uiManager.ToggleThrowIndicatorVisible(false);
 
         //current = null;
         //zeroGPlayer.MoveHandsTo(null, null);
@@ -361,7 +366,8 @@ public class PickupScript : MonoBehaviour
         transform.GetComponent<Rigidbody>().AddForce(-cam.transform.forward.normalized * (currentThrowForce * (heldObjRb.mass / transform.GetComponent<Rigidbody>().mass) * 1.25f), ForceMode.VelocityChange);
         //Debug.Log("Thrown at velocity: " + heldObjRb.linearVelocity.magnitude);
 
-        uiManager.ToggleThrowIndicatorVisible(false);
+        if (inventoryManager.ShowIndicators)
+            uiManager.ToggleThrowIndicatorVisible(false);
 
         // initiate pick up cd
         canPickUp = false;

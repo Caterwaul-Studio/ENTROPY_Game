@@ -31,7 +31,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
     [SerializeField] private GameObject useExtinguisherCanvas;
     [SerializeField] private CanvasGroup useExtinguisherCanvasGroup;
 
-    [SerializeField] public bool extinguishertoggledInv;
+    [SerializeField] public bool extinguisherToggledInv;
     [SerializeField] public bool extinguisherUsed;
     [SerializeField] public bool tutorialStarted;
     [SerializeField] private bool tutorialComplete = false;
@@ -94,7 +94,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
 
         inventoryManager.RegisterSlot((int)slotIndex, this);
 
-        if (hasExtinguisher == false && inventoryManager.persistant.PlayerUIManager.InputIndicatorThrow.sprite != null)
+        if (inventoryManager.ShowIndicators && hasExtinguisher == false && inventoryManager.persistant.PlayerUIManager.InputIndicatorThrow.sprite != null)
         {
             inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
         }
@@ -155,7 +155,8 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             if (extinguisherEquipped)
             {
                 inventoryManager.DeactivateCurrent();
-                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+                if (inventoryManager.ShowIndicators)
+                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
             }
         }
 
@@ -207,12 +208,14 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             if (extinguisherEquipped)
             {
                 inventoryManager.DeactivateCurrent();
-                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+                if (inventoryManager.ShowIndicators)
+                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
             }
             else
             {
                 inventoryManager.RequestActivate((int)slotIndex);
-                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
+                if (inventoryManager.ShowIndicators)
+                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
             }
         }
         if(!tutorialComplete)
@@ -288,7 +291,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
 
     private void HandleFireExtinguisherToggledInv(bool toggled)
     {
-        extinguishertoggledInv = true;
+        extinguisherToggledInv = true;
     }
 
     private void HandleFireExtinguisherUsed(bool used)
@@ -322,8 +325,8 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             ref toggleExtinguisherCanvas, ref toggleExtinguisherCanvasGroup,
             inventoryManager.tutorialCanvases.tutorialCanvasesPos);
 
-       extinguishertoggledInv = false;
-        yield return new WaitUntil(() => extinguishertoggledInv);
+       extinguisherToggledInv = false;
+        yield return new WaitUntil(() => extinguisherToggledInv);
 
         inventoryManager.tutorialCanvases.FadeOut(
             toggleExtinguisherCanvas, toggleExtinguisherCanvasGroup, () =>
@@ -344,6 +347,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         public bool extinguisherEquipped;
         public string extinguisherID;
         public float remainingRetardent;
+        public bool extinguisherTutorialComplete;
     }
 
     public string GetSaveData()
@@ -366,6 +370,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             extinguisherEquipped = extinguisherEquipped,
             extinguisherID = id,
             remainingRetardent = retardent,
+            extinguisherTutorialComplete = tutorialComplete,
         };
         return JsonUtility.ToJson(data);
     }
@@ -374,6 +379,14 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
     {
         if (string.IsNullOrEmpty(json)) return;
         var data = JsonUtility.FromJson<FireExtinguisherSaveData>(json);
+
+        tutorialComplete = data.extinguisherTutorialComplete;
+        if (!tutorialComplete)
+        {
+            tutorialStarted = false;
+            extinguisherToggledInv = false;
+            extinguisherUsed = false;
+        }
 
         // only a permanent/terminal save should let the extinguisher persist across a scene reload
         bool eligibleForRestore = data.hasExtinguisher && GlobalSaveManager.SavedWithTerminal;
@@ -401,7 +414,9 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                         heldObj.remainingRetardant = data.remainingRetardent;
                         inventoryManager.fireExtinguisher.extinguisherEquipped = data.extinguisherEquipped;
                         inventoryManager.fireExtinguisher.extinguisherGameObj.SetActive(data.extinguisherEquipped);
-                        inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(data.extinguisherEquipped);
+                        SubscribeToFireExtinguisherEvents();
+                        if (inventoryManager.ShowIndicators)
+                            inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(data.extinguisherEquipped);
                         Debug.Log($"Restored remainingRetardant={data.remainingRetardent} on clone {heldObj.name}");
                     }
                     else

@@ -20,7 +20,7 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
     [SerializeField] private GameObject throwHeldObjCanvas;
     [SerializeField] private CanvasGroup throwHeldObjCanvasGroup;
 
-    [SerializeField] private bool heldObjToggledInv;
+    [SerializeField] public bool heldObjToggledInv;
     [SerializeField] private bool heldObjThrown;
     [SerializeField] private bool tutorialStarted;
     [SerializeField] private bool tutorialComplete = false;
@@ -34,7 +34,7 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
         //Debug.Log($"HeldFloatingObject.Start: registering slot {slotIndex}, inventoryManager null? {inventoryManager == null}");
         inventoryManager.RegisterSlot(slotIndex, this);
 
-        if (objInInv == false && inventoryManager.persistant.PlayerUIManager.InputIndicatorThrow.sprite != null)
+        if (inventoryManager.ShowIndicators && objInInv == false && inventoryManager.persistant.PlayerUIManager.InputIndicatorThrow.sprite != null)
         {
             inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
         }
@@ -62,7 +62,8 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
                 {
                     //Debug.Log("toggling floating obj from inventory");
                     inventoryManager.DeactivateCurrent();
-                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+                    if(inventoryManager.ShowIndicators)
+                        inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
                 }
             }
         }
@@ -116,13 +117,15 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
             {
                 //Debug.Log("toggling floating obj from inventory");
                 inventoryManager.DeactivateCurrent();
-                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+                if(inventoryManager.ShowIndicators)
+                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
             }
             else if (objInInv && !objInHand)
             {
                 //Debug.Log("toggling floating obj from inventory");
                 inventoryManager.RequestActivate((int)slotIndex);
-                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
+                if (inventoryManager.ShowIndicators)
+                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
             }
         }
         if (!tutorialComplete)
@@ -228,52 +231,141 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
 
     #region ISaveableInventoryItem
     [System.Serializable]
-    public class HeldfloatingObjectSaveData
+    public class HeldfFoatingObjectSaveData
     {
         public bool objInInv;
-        public string heldObjName;
+        public bool objInHand;
+        public string heldObjID;
+        public bool heldObjTutorialComplete;
     }
 
     public string GetSaveData()
     {
-        var data = new HeldfloatingObjectSaveData
+        string id = null;
+        if (objInInv && heldObj != null)
+        {
+            var floatingObj = heldObj.GetComponent<FloatingObject>();
+            if (floatingObj != null)
+                id = floatingObj.FloatingObjectID;
+        }
+
+        var data = new HeldfFoatingObjectSaveData
         {
             objInInv = objInInv,
-            heldObjName = (objInInv && heldObj != null) ? heldObj.name : null
+            objInHand = objInHand,
+            heldObjID = id,
+            heldObjTutorialComplete = tutorialComplete
         };
         return JsonUtility.ToJson(data);
     }
 
     public void LoadSaveData(string json)
     {
-        Debug.Log("loading held obj save data");
-        ClearRuntimeState();
+        if (string.IsNullOrEmpty(json)) return;
+
+        var data = JsonUtility.FromJson<HeldfFoatingObjectSaveData>(json);
+
+        tutorialComplete = data.heldObjTutorialComplete;
+
+        if (!tutorialComplete)
+        {
+            heldObjToggledInv = false;
+            heldObjThrown = false;
+            tutorialStarted = false;
+        }
+
+        bool eligibleForRestore = data.objInInv && GlobalSaveManager.SavedWithTerminal;
+
+        ReleaseIfMismatched(eligibleForRestore, eligibleForRestore ? data.heldObjID : null);
+
+        if (objInInv) return;
+
+        if (eligibleForRestore && !string.IsNullOrEmpty(data.heldObjID))
+        {
+            GameObject container = inventoryManager.pickupScript.ObjectContainer;
+            if (container != null)
+            {
+                bool found = false;
+                foreach (FloatingObject floatingObj in container.GetComponentsInChildren<FloatingObject>(true))
+                {
+                    if (floatingObj.FloatingObjectID == data.heldObjID)
+                    {
+                        ParentFloatingObjectToInvSlot(floatingObj.gameObject);
+                        inventoryManager.pickupScript.PickUpObject(floatingObj.gameObject);
+
+                        objInHand = data.objInHand;
+                        heldObj.SetActive(objInHand);
+
+                        if (inventoryManager.ShowIndicators)
+                            inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(objInHand);
+
+                        Debug.Log($"Restored held floating object '{heldObj.name}', equipped={objInHand}");
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    Debug.LogWarning($"HeldFloatingObject: saved object name '{data.heldObjID}' not found in container on load.");
+                }
+            }
+        }
     }
 
     public void ClearRuntimeState()
     {
-        if(heldObj == null) return;
+        ReleaseIfMismatched(shouldRestore: false, savedID: null); 
+    }
 
-        if (!GlobalSaveManager.SavedWithTerminal)
+    private void ReleaseIfMismatched(bool shouldRestore, string savedID)
+    {
+        var currentFloatingObj = heldObj != null ? heldObj.GetComponent<FloatingObject>() : null;
+
+        bool currentMatchesSaved = currentFloatingObj != null
+        && shouldRestore
+        && currentFloatingObj.FloatingObjectID == savedID;
+
+        if (currentMatchesSaved)
         {
-            Debug.Log("Clearing held obj");
+            objInInv = true;
+            return; // already correctly held, nothing to release
+        }
+
+        if (heldObj != null)
+        {
+            Debug.Log($"[HeldFloatingObject] Releasing leftover held object '{heldObj.name}' — not eligible for retention on this reload.");
+
             heldObj.transform.position = originalPosition;
             Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), inventoryManager.pickupScript.PlayerCollider, false);
             inventoryManager.SetChildrenToDefaultLayer(heldObj, inventoryManager.FloatingObjLayer);
-            heldObj.GetComponent<Rigidbody>().isKinematic = false;
-            heldObj.GetComponent<Collider>().enabled = true;
-            heldObj.transform.SetParent(floatingObjectContainer, true);
+
+            var rb = heldObj.GetComponent<Rigidbody>();
+            if (rb != null) rb.isKinematic = false;
+
+            var col = heldObj.GetComponent<Collider>();
+            if (col != null) col.enabled = true;
+
+            Transform targetParent = floatingObjectContainer != null
+                ? floatingObjectContainer
+                : (inventoryManager.pickupScript.ObjectContainer != null ? inventoryManager.pickupScript.ObjectContainer.transform : null);
+
+            heldObj.transform.SetParent(targetParent, true);
             heldObj.SetActive(true);
 
             inventoryManager.pickupScript.ClearHeldReference();
 
-            inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+            if (inventoryManager.ShowIndicators)
+                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+        }
 
-            heldObj = null;
-            objInHand = false;
-            objInInv = false;
-            floatingObjectContainer = null;
-        }   
+        heldObj = null;
+        objInHand = false;
+        objInInv = false;
+        floatingObjectContainer = null;
+
+        if (inventoryManager != null)
+            inventoryManager.ReleaseSlotIfActive(this);
     }
     #endregion
 }

@@ -101,6 +101,13 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
             flashlight.OnFlashlightTurnedOn += HandleFlashlightOffOnToggled;
             flashlight.OnFlashlightToggledInv += HandleFlashlightToggledInv;
         }
+
+        if (!flashlight.TutorialComplete)
+        {
+            flashlightToggled = false;
+            flashlightToggledInv = false;
+            tutorialStarted = false;
+        }
     }
 
     // Update is called once per frame

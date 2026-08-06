@@ -99,19 +99,6 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         Debug.Log("Flashlight script started");
         flashlightEquipped = false;
         inventoryManager.RegisterSlot((int)slotIndex, this);
-
-        //if (!hasFlashlight)
-        //{
-        //    flashlightEquipped = false;
-        //    if (flashlightInHand != null) flashlightInHand.SetActive(false);
-        //    if (flashlightOutHand != null)
-        //    {
-        //        Destroy(flashlightOutHand);
-        //        flashlightOutHand = null;
-        //    }
-        //    flashlightClippedToBelt = false;
-        //    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
-        //}
     }
 
     // Update is called once per frame
@@ -135,7 +122,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
                 {
                     Debug.Log("hiding flashlight, wrist monitor opened");
                     inventoryManager.DeactivateCurrent();
-                    //inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+                    if (inventoryManager.ShowIndicators)
+                        inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
                 }
             }
         } 
@@ -210,7 +198,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             && !flashlightEquipped)
         {
             inventoryManager.RequestActivate(slotIndex);
-            //inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
+            if (inventoryManager.ShowIndicators)
+                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
         }
     }
 
@@ -224,12 +213,14 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             if(flashlightEquipped)
             {
                 inventoryManager.DeactivateCurrent();
-                //inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+                if (inventoryManager.ShowIndicators)
+                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
             }
             else
             {
                 inventoryManager.RequestActivate((int)slotIndex);
-                //inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
+                if (inventoryManager.ShowIndicators)
+                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
             }
         }
         //Debug.Log("Equipping flashlight from inventory|| HasFlashlightInScene: " + HasFlashlightInScene + " FlashlightEquipped: " + FlashlightEquipped);
@@ -349,7 +340,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             Destroy(flashlightOutHand);
             flashlightOutHand = null;
             flashlightClippedToBelt = false;
-            //inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+            if (inventoryManager.ShowIndicators)
+                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
         }
     }
 

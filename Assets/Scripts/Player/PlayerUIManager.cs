@@ -17,6 +17,7 @@ public class PlayerUIManager : MonoBehaviour
     private Rigidbody rb;
     [SerializeField]
     private PickupScript pickupScript;
+    [SerializeField] private InventoryManager inventoryManager;
     [SerializeField]
     private DoorManager doorManager;
     private GameObject stimDispenserContainer;
@@ -122,6 +123,11 @@ public class PlayerUIManager : MonoBehaviour
     private IInteractable currentInteractable;
 
     #region properties
+    public IInteractable CurrentInteractable
+    {
+        get { return currentInteractable; }
+    }
+
     public bool BarInRaycast
     {
         get { return barInRaycast; }
@@ -320,7 +326,7 @@ public class PlayerUIManager : MonoBehaviour
     /// This method conrols the logic handling all of the raycasts from the player to diffeent objects in the scene allowing for multiple movement/ interaction options
     /// </summary>
     public void HandleRaycastUI()
-    {
+    {      
         if (Time.frameCount % 2 != 0) return; //skip every other frame
 
         if (interactBillboardObjectInScene)
@@ -440,7 +446,7 @@ public class PlayerUIManager : MonoBehaviour
             }
         }
 
-        if (interactableHit != null)
+        if (interactableHit != null && !inventoryManager.InTutorial)
         {
             string interactTag = interactableHit.Value.collider.tag;
             //set the IInterctable Proxy collider to a reference so we can use it here dynamically
