@@ -2504,13 +2504,6 @@ MonoBehaviour:
   isGrabbable: 0
   canGrab: 0
   interactActionReference: {fileID: 2555986691759292101, guid: 62bee993b4da21145a34bb9e2304d3d3, type: 3}
-  toggleExtinguisherCanvas: {fileID: 0}
-  toggleExtinguisherCanvasGroup: {fileID: 0}
-  useExtinguisherCanvas: {fileID: 0}
-  useExtinguisherCanvasGroup: {fileID: 0}
-  extinguishertoggledInv: 0
-  extinguisherUsed: 0
-  tutorialStarted: 0
   promptIcon: {fileID: 1910481262, guid: 4aa47000647cf9f46bc884f74f7ace35, type: 3}
   extinguisherID: a0889b90-11ba-4995-9b6f-fb625c5a23af
 --- !u!1 &269266625
@@ -28089,13 +28082,6 @@ MonoBehaviour:
   isGrabbable: 0
   canGrab: 0
   interactActionReference: {fileID: 2555986691759292101, guid: 62bee993b4da21145a34bb9e2304d3d3, type: 3}
-  toggleExtinguisherCanvas: {fileID: 0}
-  toggleExtinguisherCanvasGroup: {fileID: 0}
-  useExtinguisherCanvas: {fileID: 0}
-  useExtinguisherCanvasGroup: {fileID: 0}
-  extinguishertoggledInv: 0
-  extinguisherUsed: 0
-  tutorialStarted: 0
   promptIcon: {fileID: 1910481262, guid: 4aa47000647cf9f46bc884f74f7ace35, type: 3}
   extinguisherID: bf4ec3ef-8d55-47f4-bf64-01255c3e984b
 --- !u!1 &1881257542
@@ -33408,6 +33394,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7355535618622982914, guid: baed47f6c1f541440986963e9522a2df, type: 3}
     - target: {fileID: 4137832610019394169, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: throwHeldObjectCanvasPrefab
+      value: 
+      objectReference: {fileID: 1202902126423531199, guid: fd38000cede14e9459e5885444908322, type: 3}
+    - target: {fileID: 4137832610019394169, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: useExtinguisherCanvasPrefab
       value: 
       objectReference: {fileID: 492854744654715285, guid: c43343277be349e44bd4139cd9dd6866, type: 3}
@@ -33415,6 +33405,10 @@ PrefabInstance:
       propertyPath: toggleFlashlightCanvasPrefab
       value: 
       objectReference: {fileID: 7506022514752998579, guid: 18cb3e17338015e4790ec6be867ec601, type: 3}
+    - target: {fileID: 4137832610019394169, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: toggleHeldObjectCanvasPrefab
+      value: 
+      objectReference: {fileID: 8234764553683154089, guid: f125675b4599b984193cd1c7ce5f2fad, type: 3}
     - target: {fileID: 4137832610019394169, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: toggleExtinguisherCanvasPrefab
       value: 

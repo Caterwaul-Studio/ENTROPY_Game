@@ -224,7 +224,8 @@ public class PickupScript : MonoBehaviour
             DropObject();
             inventoryManager.heldFloatingObject.inventoryManager.DeactivateCurrent();
         }
-
+        if (!inventoryManager.heldFloatingObject.TutorialComplete)
+            inventoryManager.heldFloatingObject.RaiseHeldObjAcquired(true);
     }
 
     public void OnThrow(InputAction.CallbackContext context)
@@ -270,7 +271,6 @@ public class PickupScript : MonoBehaviour
                 ThrowObject();
             }
         }
-
     }
 
     void PickUpObject(GameObject pickUpObj)
@@ -334,6 +334,9 @@ public class PickupScript : MonoBehaviour
 
     void ThrowObject()
     {
+        if (!inventoryManager.heldFloatingObject.TutorialComplete)
+            inventoryManager.heldFloatingObject.RaiseHeldObjThrown(true);
+
         if (heldObj.GetComponent<ExtinguisherObject>() != null)
         {
             return; //this makes it so the fire extinguisher cant be thrown, necessary because the throw input is used for the fire extinguisher behavior.

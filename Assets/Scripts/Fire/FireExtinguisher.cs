@@ -34,7 +34,6 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
     [SerializeField] public bool extinguishertoggledInv;
     [SerializeField] public bool extinguisherUsed;
     [SerializeField] public bool tutorialStarted;
-
     [SerializeField] private bool tutorialComplete = false;
 
     public bool extinguisherEquipped = false;
@@ -100,7 +99,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
         }
 
-        if (extinguisherGameObj != null)
+        if (extinguisherGameObj != null && !tutorialComplete)
         {
             SubscribeToFireExtinguisherEvents();
         }
@@ -160,8 +159,11 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             }
         }
 
-        UnsubscribeFromFireExtinguisherEvents();
-        SubscribeToFireExtinguisherEvents();
+        if (!tutorialComplete)
+        {
+            UnsubscribeFromFireExtinguisherEvents();
+            SubscribeToFireExtinguisherEvents();
+        }
     }
     System.Collections.IEnumerator MakePuff()
     { //instead of creating nodes, just moving around existing nodes is used again in the hopes it will help with optimization

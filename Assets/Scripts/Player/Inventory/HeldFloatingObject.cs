@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,6 +14,21 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
     public Transform floatingObjectContainer;
     public Vector3 originalPosition;
 
+    [SerializeField] private GameObject toggleHeldObjCanvas;
+    [SerializeField] private CanvasGroup toggleHeldObjCanvasGroup;
+
+    [SerializeField] private GameObject throwHeldObjCanvas;
+    [SerializeField] private CanvasGroup throwHeldObjCanvasGroup;
+
+    [SerializeField] private bool heldObjToggledInv;
+    [SerializeField] private bool heldObjThrown;
+    [SerializeField] private bool tutorialStarted;
+    [SerializeField] private bool tutorialComplete = false;
+    public bool TutorialComplete => tutorialComplete;
+
+    public event System.Action<bool> OnHeldObjAcquired;
+    public event System.Action<bool> OnHeldObjInvToggled;
+    public event System.Action<bool> OnHeldObjThrown;
     public void Start()
     {
         //Debug.Log($"HeldFloatingObject.Start: registering slot {slotIndex}, inventoryManager null? {inventoryManager == null}");
@@ -21,6 +37,11 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
         if (objInInv == false && inventoryManager.persistant.PlayerUIManager.InputIndicatorThrow.sprite != null)
         {
             inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+        }
+
+        if(heldObj != null && !tutorialComplete)
+        {
+            SubscribeToHeldObjEvents();
         }
     }
 
@@ -34,7 +55,7 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
         // this gate unequips the held obj if the player is in a cutscene or wrist monitor is opened
         if(heldObj != null)
         {
-            if(inventoryManager.persistant.Player.InCutscene
+            if (inventoryManager.persistant.Player.InCutscene
             || inventoryManager.persistant.WristMonitor.IsActive)
             {
                 if (objInInv && objInHand)
@@ -57,6 +78,12 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
         //set to true so we run the floating in inv loop
         objInHand = true;
         objInInv = true;
+
+        if (!tutorialComplete)
+        {
+            UnsubscribeFromHeldObjEvents();
+            SubscribeToHeldObjEvents();
+        }
     }
 
     public void RemoveFloatingObjectFromInvSlot(GameObject obj, GameObject containerObj)
@@ -97,7 +124,9 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
                 inventoryManager.RequestActivate((int)slotIndex);
                 inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
             }
-        }   
+        }
+        if (!tutorialComplete)
+            OnHeldObjInvToggled?.Invoke(true);
     }
 
     public void Equip()
@@ -112,6 +141,89 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
         if (heldObj == null) return;
         heldObj.SetActive(false);
         objInHand = false;
+    }
+
+    private void SubscribeToHeldObjEvents()
+    {
+        OnHeldObjAcquired += HandleHeldObjAcquired;
+        OnHeldObjInvToggled += HandleHeldObjToggledInv;
+        OnHeldObjThrown += HandleHeldObjThrown;
+    }
+
+    private void UnsubscribeFromHeldObjEvents()
+    {
+        OnHeldObjAcquired -= HandleHeldObjAcquired;
+        OnHeldObjInvToggled -= HandleHeldObjToggledInv;
+        OnHeldObjThrown -= HandleHeldObjThrown;
+    }
+
+    public void RaiseHeldObjAcquired(bool value)
+    {
+        OnHeldObjAcquired?.Invoke(value);
+    }
+
+    public void RaiseHeldObjThrown(bool value)
+    {
+        OnHeldObjThrown?.Invoke(value);
+    }
+
+    private void HandleHeldObjAcquired(bool acquired)
+    {
+        if(acquired && !tutorialComplete && !tutorialStarted)
+        {
+            tutorialStarted = true;
+            StartCoroutine(HeldObjTutorial());
+        }
+    }
+
+    private void HandleHeldObjToggledInv(bool toggled)
+    {
+        heldObjToggledInv = true;
+    }
+
+    private void HandleHeldObjThrown(bool thrown)
+    {
+        heldObjThrown = true;
+    }
+
+    public IEnumerator HeldObjTutorial()
+    {
+        inventoryManager.InTutorial = true;
+
+        inventoryManager.tutorialCanvases.FadeIn(
+           inventoryManager.toggleHeldObjectCanvasPrefab,
+           ref toggleHeldObjCanvas, ref toggleHeldObjCanvasGroup,
+           inventoryManager.tutorialCanvases.tutorialCanvasesPos);
+
+        heldObjToggledInv = false;
+        yield return new WaitUntil(() => heldObjToggledInv);
+
+        inventoryManager.tutorialCanvases.FadeOut(
+            toggleHeldObjCanvas, toggleHeldObjCanvasGroup, () =>
+            {
+                toggleHeldObjCanvas = null;
+                toggleHeldObjCanvasGroup = null;
+            });
+
+        yield return new WaitForSeconds(1f);
+
+        inventoryManager.tutorialCanvases.FadeIn(
+            inventoryManager.throwHeldObjectCanvasPrefab,
+            ref throwHeldObjCanvas, ref throwHeldObjCanvasGroup,
+            inventoryManager.tutorialCanvases.tutorialCanvasesPos);
+
+        heldObjThrown = false;
+        yield return new WaitUntil(() => heldObjThrown);
+
+        inventoryManager.tutorialCanvases.FadeOut(
+            throwHeldObjCanvas, throwHeldObjCanvasGroup, () =>
+            {
+                throwHeldObjCanvas = null;
+                throwHeldObjCanvasGroup = null;
+            });
+
+        tutorialComplete = true;
+        inventoryManager.InTutorial = !tutorialComplete;
     }
 
     #region ISaveableInventoryItem
