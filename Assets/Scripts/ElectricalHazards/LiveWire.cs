@@ -19,12 +19,14 @@ public class LiveWire : MonoBehaviour
         {
             cooldown -= Time.deltaTime;
             if (sys.particleCount > 0 && cooldownTimer <= 0)
-            {
+            { //applying a force to the last body in the chain of bodies 'wriggles' the wire
                 endBody.AddForce(new Vector3(Random.Range(0, 100), Random.Range(0, 100), Random.Range(0, 100)));
                 cooldownTimer = cooldown;
             }
         }
     }
+
+    //For the next two functions, the tag of the capsules determines if they do damage to the player when the player collides with them
 
     public void DeactivateWire()
     {
