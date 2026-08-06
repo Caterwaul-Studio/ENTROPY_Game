@@ -26,7 +26,7 @@ public class LiveWire : MonoBehaviour
         }
     }
 
-    public void deactivateWire()
+    public void DeactivateWire()
     {
         wireActive = false;
         for (int i = 0; i < bodies.Length; i++)
@@ -35,7 +35,7 @@ public class LiveWire : MonoBehaviour
         }
     }
 
-    public void activateWire()
+    public void ActivateWire()
     {
         wireActive = true;
         for (int i = 0; i < bodies.Length; i++)

@@ -114,7 +114,7 @@ public class FireNodeScript : MonoBehaviour
     private void DampenFlame(GameObject other)
     {
         flameStrength -= flameLoss; //dampening
-        changeFlame();
+        ChangeFlame();
         other.transform.position = new Vector3(0, 0, 0);
         if (flameStrength < 1) //when flame strength is under a certain value, destroy the flame node
         {
@@ -134,7 +134,7 @@ public class FireNodeScript : MonoBehaviour
         yield return new WaitForSeconds(3f);
         player.GetComponent<ZeroGravity>().DecreaseHealth(1);
     }
-    private void changeFlame()
+    private void ChangeFlame()
     {
         //all changes to the flame particle system are to happen here
         sysMain.startSize = originalStartSize * (flameStrength / 100);
@@ -142,11 +142,11 @@ public class FireNodeScript : MonoBehaviour
         myLight.GetComponent<Light>().intensity = flameStrength / 1000;
     }
 
-    public void reignite(int reigniteLevel) //this function is to be used by other scripts to reignite the flame
+    public void Reignite(int reigniteLevel) //this function is to be used by other scripts to reignite the flame
     {
         flameStrength = reigniteLevel * 20;
         fireActive = true;
-        changeFlame();
+        ChangeFlame();
     }
 
 }
