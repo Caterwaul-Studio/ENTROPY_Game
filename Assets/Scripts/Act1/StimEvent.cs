@@ -15,7 +15,10 @@ public class StimEvent : MonoBehaviour
 
     [SerializeField]
     private CanvasGroup stimUseCanvasGroup;
-    private string stimUseCanvasGroupObj = "StimTutorialPanel";
+    [SerializeField] private GameObject stimUseCanvasPrefab;
+    [SerializeField] private GameObject stimUseCanvas;
+
+    [SerializeField] private TutorialCanvases tutorialCanvases;
 
     [SerializeField]
     private WristMonitor wristMonitor;
@@ -32,9 +35,9 @@ public class StimEvent : MonoBehaviour
     {
         manager = FindFirstObjectByType<DialogueManager>();
         playerScript = FindFirstObjectByType<ZeroGravity>(); 
-        stimUseCanvasGroup = FindCanvasGroupByName(stimUseCanvasGroupObj);
         //ensure it is invisible on start
-        stimUseCanvasGroup.alpha = 0.0f;
+
+        tutorialCanvases = FindFirstObjectByType<TutorialCanvases>();
     }
 
     // Update is called once per frame
@@ -45,12 +48,9 @@ public class StimEvent : MonoBehaviour
         {
             wristMonitor = PersistantManager.Instance.WristMonitor;
         }
-        if(stimUseCanvasGroup == null)
-        {
-            stimUseCanvasGroup = FindCanvasGroupByName(stimUseCanvasGroupObj);
-            Debug.Log("search for stim tutorial panel called");
-        }
 
+        if (tutorialCanvases == null)
+        tutorialCanvases = FindFirstObjectByType<TutorialCanvases>();
     }
 
     public void StartStimEvent()
@@ -68,13 +68,22 @@ public class StimEvent : MonoBehaviour
 
         yield return new WaitUntil(() => playerScript.NumStims == 3);
 
-        stimUseCanvasGroup.gameObject.SetActive(true);
-        StartCoroutine(FadeCanvasGroup(stimUseCanvasGroup, 0f, 1f));
+        tutorialCanvases.FadeIn(stimUseCanvasPrefab,
+            ref stimUseCanvas,
+            ref stimUseCanvasGroup,
+            tutorialCanvases.tutorialCanvasesPos);
 
         yield return new WaitUntil(() => playerScript.NumStims < 3);
 
         wristMonitor.CompleteObjective();
-        StartCoroutine(FadeCanvasGroup(stimUseCanvasGroup, 1f, 0f));
+
+        tutorialCanvases.FadeOut(stimUseCanvas,
+            stimUseCanvasGroup, () =>
+            {
+                stimUseCanvas = null;
+                stimUseCanvasGroup = null;
+            });
+
         manager.StartDialogueSequence(4, 0.5f);
 
         yield return new WaitForSeconds(2f);

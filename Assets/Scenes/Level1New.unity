@@ -197,15 +197,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4374886898353259814, guid: 42e415baa09862d4db7ed30f618d8b41, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 18.746
+      value: 13.138
       objectReference: {fileID: 0}
     - target: {fileID: 4374886898353259814, guid: 42e415baa09862d4db7ed30f618d8b41, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.666
+      value: -1.903
       objectReference: {fileID: 0}
     - target: {fileID: 4374886898353259814, guid: 42e415baa09862d4db7ed30f618d8b41, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 9.878
+      value: 9.722
       objectReference: {fileID: 0}
     - target: {fileID: 4374886898353259814, guid: 42e415baa09862d4db7ed30f618d8b41, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1820,7 +1820,10 @@ MonoBehaviour:
   wristMonitor: {fileID: 373523040}
   medDoor: {fileID: 1868875138}
   audioManager: {fileID: 1165611646}
-  wristMonitorTutorial: {fileID: 1280989775}
+  tutorialCanvases: {fileID: 0}
+  wristMonitorTutorialCanvasGroup: {fileID: 0}
+  wrisMonitorTutorialPrefab: {fileID: 7421302186153384567, guid: 3fcba1b5af168c841a4b044b5d5f256c, type: 3}
+  wristMonitorTutorialCanvas: {fileID: 0}
   monitorLight: {fileID: 297591566}
   stingerManager: {fileID: 1918133088}
   dormHallEventComplete: 0
@@ -3905,11 +3908,6 @@ MonoBehaviour:
   m_Offset: {x: 0, y: 0, z: 0.035}
   m_Size: {x: 0.28, y: 0.28, z: 0.07}
   m_FadeFactor: 1
---- !u!225 &387140068 stripped
-CanvasGroup:
-  m_CorrespondingSourceObject: {fileID: 7524814968499692441, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
-  m_PrefabInstance: {fileID: 394516936250948500}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &389419745
 GameObject:
   m_ObjectHideFlags: 0
@@ -13894,7 +13892,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dispenser: {fileID: 411366480}
   doorToOpen: {fileID: 923910662}
-  stimUseCanvasGroup: {fileID: 387140068}
+  stimUseCanvasGroup: {fileID: 0}
+  stimUseCanvasPrefab: {fileID: 3417951497261568665, guid: 87d1175e8cab59049ad2a2749d828544, type: 3}
+  stimUseCanvas: {fileID: 0}
+  tutorialCanvases: {fileID: 0}
   wristMonitor: {fileID: 373523040}
   air1: {fileID: 1897140874}
   air2: {fileID: 140475242}
@@ -22125,6 +22126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tutorialCanvasesPos: {x: 0, y: -175, z: 0}
+  fadeDuration: 1
 --- !u!1 &1262532987
 GameObject:
   m_ObjectHideFlags: 0
@@ -22366,11 +22368,6 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 1269909930989406924, guid: 0e5d743b868373f42afd99cd63908ad5, type: 3}
   m_PrefabInstance: {fileID: 1275549735}
-  m_PrefabAsset: {fileID: 0}
---- !u!225 &1280989775 stripped
-CanvasGroup:
-  m_CorrespondingSourceObject: {fileID: 4478617888857564143, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
-  m_PrefabInstance: {fileID: 394516936250948500}
   m_PrefabAsset: {fileID: 0}
 --- !u!82 &1290493130 stripped
 AudioSource:
@@ -33652,6 +33649,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6566329818730945796, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7577723664732821965, guid: 846948c0f5689504e8a30aae845c1a51, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -34432,7 +34433,6 @@ MonoBehaviour:
   requiredRotation: 180
   skipProgressSlider: {fileID: 0}
   holdDuration: 1.5
-  fadeDuration: 1
   dialogueAudio: {fileID: 1553404877855230132}
   stingerManager: {fileID: 0}
   rollAngleThreshold: 150
