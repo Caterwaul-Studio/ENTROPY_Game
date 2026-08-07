@@ -249,7 +249,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
                 return;
             }
             else if (!canGrab && !isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher
-                && !inventoryManager.persistant.PlayerUIManager.interactBillboardObjectInScene
+                && inventoryManager.pickupScript.current == null
                 && inventoryManager.fireExtinguisher.TutorialComplete)
             {
                 DropExtinguisher();
