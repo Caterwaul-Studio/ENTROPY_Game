@@ -222,10 +222,10 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
                 if (inventoryManager.ShowIndicators)
                     inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
             }
+            if (!tutorialComplete)
+                OnFlashlightToggledInv?.Invoke(!flashlightEquipped);
         }
         //Debug.Log("Equipping flashlight from inventory|| HasFlashlightInScene: " + HasFlashlightInScene + " FlashlightEquipped: " + FlashlightEquipped);
-        if (!tutorialComplete)
-            OnFlashlightToggledInv?.Invoke(!flashlightEquipped);
     }
 
     public void ToggleFlashlight(InputAction.CallbackContext context)

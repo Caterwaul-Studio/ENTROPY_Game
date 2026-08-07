@@ -217,9 +217,9 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                 if (inventoryManager.ShowIndicators)
                     inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
             }
+            if (!tutorialComplete)
+                OnFireExtinguisherInvToggled?.Invoke(true);
         }
-        if(!tutorialComplete)
-            OnFireExtinguisherInvToggled?.Invoke(true);
     }
 
     public void OnLeftClick(InputAction.CallbackContext context)
@@ -239,9 +239,9 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                 holding = false;
                 //Debug.Log("Holding ended");
             }
+            if (!tutorialComplete)
+                OnFireExtinguisherUsed?.Invoke(true);
         }
-        if (!tutorialComplete) 
-            OnFireExtinguisherUsed?.Invoke(true);
     }
 
     public void Equip()

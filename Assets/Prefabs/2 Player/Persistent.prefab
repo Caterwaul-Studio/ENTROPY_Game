@@ -1411,8 +1411,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 273146030665545291}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.85523665, y: 0.12209985, z: 0.14727062, w: 0.48163602}
-  m_LocalPosition: {x: -27.936, y: 7.614, z: 15.81}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -27.936, y: 8.614, z: 15.81}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1420,7 +1420,7 @@ Transform:
   - {fileID: 1549444923476385155}
   - {fileID: 5000507631976016342}
   m_Father: {fileID: 5628320309523515877}
-  m_LocalEulerAnglesHint: {x: -59.293, y: 195.247, z: -172.462}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1408877014302736871
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1972,6 +1972,7 @@ MonoBehaviour:
   player: {fileID: 3700987545340591992}
   rb: {fileID: 1408877014302736871}
   pickupScript: {fileID: 2598745840425030261}
+  inventoryManager: {fileID: 4137832610019394169}
   doorManager: {fileID: 0}
   terminalManager: {fileID: 0}
   wristMonitor: {fileID: 0}
@@ -9930,7 +9931,7 @@ MonoBehaviour:
   playerCanvas: {fileID: 1226768179702134666}
   cameraFade: {fileID: 5014560932569296050}
   dialogueCanvas: {fileID: 7951959867557312354}
-  tutorialCanvas: {fileID: 5702681558678806895}
+  tutorialCanvasComponent: {fileID: 1789339013278535747}
   dialogue: {fileID: 0}
   winScript: {fileID: 8236976712054434928}
   SettingsMenu: {fileID: 100235558924539963}
@@ -12533,6 +12534,14 @@ MonoBehaviour:
   slotIndex: 3
   floatingObjectContainer: {fileID: 0}
   originalPosition: {x: 0, y: 0, z: 0}
+  toggleHeldObjCanvas: {fileID: 0}
+  toggleHeldObjCanvasGroup: {fileID: 0}
+  throwHeldObjCanvas: {fileID: 0}
+  throwHeldObjCanvasGroup: {fileID: 0}
+  heldObjToggledInv: 0
+  heldObjThrown: 0
+  tutorialStarted: 0
+  tutorialComplete: 0
 --- !u!1 &2296339113882794242
 GameObject:
   m_ObjectHideFlags: 0
@@ -18686,7 +18695,7 @@ Camera:
   m_ShutterSpeed: 0.005
   m_Aperture: 16
   m_FocusDistance: 10
-  m_FocalLength: 8.3935375
+  m_FocalLength: 11.467264
   m_BladeCount: 5
   m_Curvature: {x: 2, y: 11}
   m_BarrelClipping: 0.25
@@ -18701,7 +18710,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 1000
-  field of view: 110.05739
+  field of view: 92.60092
   orthographic: 0
   orthographic size: 5
   m_Depth: 1
@@ -20853,6 +20862,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerObject: {fileID: 273146030665545291}
   player: {fileID: 3700987545340591992}
+  inventoryManager: {fileID: 4137832610019394169}
   PlayerUIManager: {fileID: 5260962018019044910}
   WristMonitor: {fileID: 4650902725583548589}
   mainCamera: {fileID: 2519919635387003401}
@@ -34007,6 +34017,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98e98eb1c3ea4b4498e26199ced249d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  InTutorial: 0
+  ShowIndicators: 0
   heldLayer: 8
   floatingObjLayer: 9
   iInteractableLayer: 10
@@ -34017,6 +34029,13 @@ MonoBehaviour:
   persistant: {fileID: 5251330229005706661}
   pauseMenu: {fileID: 7739791504090181563}
   deathMenu: {fileID: 2129446815752038778}
+  tutorialCanvases: {fileID: 7870784823480412392}
+  toggleFlashlightCanvasPrefab: {fileID: 7506022514752998579, guid: 18cb3e17338015e4790ec6be867ec601, type: 3}
+  useFlashlightCanvasPrefab: {fileID: 7355535618622982914, guid: baed47f6c1f541440986963e9522a2df, type: 3}
+  toggleExtinguisherCanvasPrefab: {fileID: 2890480794727788547, guid: 89f0c27453fc48645b19db35356315cc, type: 3}
+  useExtinguisherCanvasPrefab: {fileID: 492854744654715285, guid: c43343277be349e44bd4139cd9dd6866, type: 3}
+  toggleHeldObjectCanvasPrefab: {fileID: 8234764553683154089, guid: f125675b4599b984193cd1c7ce5f2fad, type: 3}
+  throwHeldObjectCanvasPrefab: {fileID: 1202902126423531199, guid: fd38000cede14e9459e5885444908322, type: 3}
 --- !u!1 &6605651975938137155
 GameObject:
   m_ObjectHideFlags: 0
@@ -44191,6 +44210,13 @@ MonoBehaviour:
   sys: {fileID: 1167649190732975956}
   player: {fileID: 273146030665545291}
   zeroGravity: {fileID: 3700987545340591992}
+  toggleExtinguisherCanvas: {fileID: 0}
+  toggleExtinguisherCanvasGroup: {fileID: 0}
+  useExtinguisherCanvas: {fileID: 0}
+  useExtinguisherCanvasGroup: {fileID: 0}
+  extinguisherToggledInv: 0
+  extinguisherUsed: 0
+  tutorialStarted: 0
   tutorialComplete: 0
   extinguisherEquipped: 0
   extinguisherGameObj: {fileID: 0}
@@ -46665,12 +46691,40 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3700987545340591992}
     - target: {fileID: 2248683099493515096, guid: 3c3f213e7b4895045b73dd4102cbce6f, type: 3}
+      propertyPath: intensityMax
+      value: 2000
+      objectReference: {fileID: 0}
+    - target: {fileID: 2248683099493515096, guid: 3c3f213e7b4895045b73dd4102cbce6f, type: 3}
       propertyPath: inventoryManager
       value: 
       objectReference: {fileID: 4137832610019394169}
     - target: {fileID: 2248683099493515096, guid: 3c3f213e7b4895045b73dd4102cbce6f, type: 3}
       propertyPath: flashlightOutHand
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2762196707609003876, guid: 3c3f213e7b4895045b73dd4102cbce6f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.03642561
+      objectReference: {fileID: 0}
+    - target: {fileID: 2762196707609003876, guid: 3c3f213e7b4895045b73dd4102cbce6f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.1736382
+      objectReference: {fileID: 0}
+    - target: {fileID: 2762196707609003876, guid: 3c3f213e7b4895045b73dd4102cbce6f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.1818078
+      objectReference: {fileID: 0}
+    - target: {fileID: 3254819488504711365, guid: 3c3f213e7b4895045b73dd4102cbce6f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.2340184
+      objectReference: {fileID: 0}
+    - target: {fileID: 3254819488504711365, guid: 3c3f213e7b4895045b73dd4102cbce6f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.05965801
+      objectReference: {fileID: 0}
+    - target: {fileID: 3254819488504711365, guid: 3c3f213e7b4895045b73dd4102cbce6f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.1171609
       objectReference: {fileID: 0}
     - target: {fileID: 4125788918900731285, guid: 3c3f213e7b4895045b73dd4102cbce6f, type: 3}
       propertyPath: m_Name
@@ -46873,15 +46927,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6762821666045750321, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.0000001930166
       objectReference: {fileID: 0}
     - target: {fileID: 6762821666045750321, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.192
+      value: 0.3800001
       objectReference: {fileID: 0}
     - target: {fileID: 6762821666045750321, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: -0.07000048
+      objectReference: {fileID: 0}
+    - target: {fileID: 6762821666045750321, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6762821666045750321, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6762821666045750321, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 7151863462572638917, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_Name
@@ -46893,39 +46959,39 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.274
+      value: -0.39400005
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.423
+      value: 0.44300047
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9996657
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.019058894
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.017416384
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.0013950622
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -2.181
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 2
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8432902220071984478, guid: 79d74d77dfa674a4890ca3a6690782ec, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: -0.198
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -127,9 +127,9 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
                 if (inventoryManager.ShowIndicators)
                     inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
             }
+            if (!tutorialComplete)
+                OnHeldObjInvToggled?.Invoke(true);
         }
-        if (!tutorialComplete)
-            OnHeldObjInvToggled?.Invoke(true);
     }
 
     public void Equip()

@@ -77,6 +77,7 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+
         canGrab = false;
         isGrabbable = true;
 
@@ -113,6 +114,8 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
     // Update is called once per frame
     void Update()
     {
+        if (this.gameObject != null && flashlight.TutorialComplete)
+            Destroy(this.gameObject);
         //if the persistant manager is null, find it and assign it to the variable.
         if (persistantManager == null)
         {
