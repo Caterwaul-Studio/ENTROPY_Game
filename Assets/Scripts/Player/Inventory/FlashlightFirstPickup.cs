@@ -21,17 +21,6 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
     [SerializeField]
     private Flashlight flashlight;
 
-    [SerializeField] private GameObject useFlashlightCanvas;
-    [SerializeField] private CanvasGroup useFlashlightCanvasGroup;
-
-    [SerializeField] private GameObject toggleFlashlightCanvas;
-    [SerializeField] private CanvasGroup toggleFlashlightCanvasGroup;
-
-    // add all additional events based stuff here
-    public bool flashlightToggled;
-    public bool flashlightToggledInv;
-    public bool tutorialStarted;
-
     // input action reference for the interact key to pickup
     [SerializeField] private InputActionReference interactActionReference;
 
@@ -98,24 +87,22 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
 
         if(flashlight != null)
         {
-            flashlight.OnFlashlightAcquired += HandleFlashlightAcquired;
-            flashlight.OnFlashlightTurnedOn += HandleFlashlightOffOnToggled;
-            flashlight.OnFlashlightToggledInv += HandleFlashlightToggledInv;
+            flashlight.OnFlashlightAcquired += flashlight.HandleFlashlightAcquired;
+            flashlight.OnFlashlightTurnedOn += flashlight.HandleFlashlightOffOnToggled;
+            flashlight.OnFlashlightToggledInv += flashlight.HandleFlashlightToggledInv;
         }
 
         if (!flashlight.TutorialComplete)
         {
-            flashlightToggled = false;
-            flashlightToggledInv = false;
-            tutorialStarted = false;
+            flashlight.flashlightToggled = false;
+            flashlight.flashlightToggledInv = false;
+            flashlight.tutorialStarted = false;
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (this.gameObject != null && flashlight.TutorialComplete)
-            Destroy(this.gameObject);
         //if the persistant manager is null, find it and assign it to the variable.
         if (persistantManager == null)
         {
@@ -127,12 +114,12 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
             }
             flashlight = FindFirstObjectByType<Flashlight>();
 
-            flashlight.OnFlashlightAcquired -= HandleFlashlightAcquired;
-            flashlight.OnFlashlightAcquired += HandleFlashlightAcquired;
-            flashlight.OnFlashlightTurnedOn -= HandleFlashlightOffOnToggled;
-            flashlight.OnFlashlightTurnedOn += HandleFlashlightOffOnToggled;
-            flashlight.OnFlashlightToggledInv -= HandleFlashlightToggledInv;
-            flashlight.OnFlashlightToggledInv += HandleFlashlightToggledInv;
+            flashlight.OnFlashlightAcquired -= flashlight.HandleFlashlightAcquired;
+            flashlight.OnFlashlightAcquired += flashlight.HandleFlashlightAcquired;
+            flashlight.OnFlashlightTurnedOn -= flashlight.HandleFlashlightOffOnToggled;
+            flashlight.OnFlashlightTurnedOn += flashlight.HandleFlashlightOffOnToggled;
+            flashlight.OnFlashlightToggledInv -= flashlight.HandleFlashlightToggledInv;
+            flashlight.OnFlashlightToggledInv += flashlight.HandleFlashlightToggledInv;
         }
         //used as a guard to ensure the flashlight doesn't force drop floating object when equipping
         flashlight.LookingAtFlashlight = canGrab;
@@ -142,85 +129,10 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
     {
         if(flashlight != null)
         {
-            flashlight.OnFlashlightAcquired -= HandleFlashlightAcquired;
-            flashlight.OnFlashlightTurnedOn -= HandleFlashlightOffOnToggled;
-            flashlight.OnFlashlightToggledInv -= HandleFlashlightToggledInv;
-
-
+            flashlight.OnFlashlightAcquired -= flashlight.HandleFlashlightAcquired;
+            flashlight.OnFlashlightTurnedOn -= flashlight.HandleFlashlightOffOnToggled;
+            flashlight.OnFlashlightToggledInv -= flashlight.HandleFlashlightToggledInv;
         }
-    }
-
-    private void HandleFlashlightAcquired(bool acquired)
-    {
-        if (acquired)
-        {
-            flashlightPickupObject.SetActive(false);
-            flashlight.EquipFlashlightFromScene();
-        }
-
-        // only run the tutorial the first time the flashlight is picked up
-        // (e.g. skip it if TutorialComplete was already true from a save file)
-        if (!flashlight.TutorialComplete && !tutorialStarted)
-        {
-            tutorialStarted = true;
-            StartCoroutine(FlashlightTutorial());
-        }
-    }
-
-    private void HandleFlashlightOffOnToggled(bool turnedOn)
-    {
-        //add logic here for the tutorial of the flashlight
-        flashlightToggled = true;
-    }
-
-    private void HandleFlashlightToggledInv(bool toggledInv)
-    {
-        flashlightToggledInv = true;
-    }
-
-    public IEnumerator FlashlightTutorial()
-    {
-        persistantManager.inventoryManager.InTutorial = true;
-        //fade in the use flashlight panel
-        persistantManager.inventoryManager.tutorialCanvases.FadeIn(
-            persistantManager.inventoryManager.useFlashlightCanvasPrefab,
-            ref useFlashlightCanvas, ref useFlashlightCanvasGroup,
-            persistantManager.inventoryManager.tutorialCanvases.tutorialCanvasesPos);
-
-        //wait until the player uses left click to turn on/off the flashlight
-        flashlightToggled = false;
-        yield return new WaitUntil(() => flashlightToggled);
-
-        //fade out the use flashlight panel
-        persistantManager.inventoryManager.tutorialCanvases.FadeOut(
-            useFlashlightCanvas, useFlashlightCanvasGroup, () =>
-            {
-                useFlashlightCanvas = null;
-                useFlashlightCanvasGroup = null;
-            });
-
-        yield return new WaitForSeconds(1f);
-
-        //fade in the toggle flashlight panel
-        persistantManager.inventoryManager.tutorialCanvases.FadeIn(
-            persistantManager.inventoryManager.toggleFlashlightCanvasPrefab,
-            ref toggleFlashlightCanvas, ref toggleFlashlightCanvasGroup, 
-            persistantManager.inventoryManager.tutorialCanvases.tutorialCanvasesPos);
-
-        //wait until the player uses left click to toggle the flashlight
-        flashlightToggledInv = false; 
-        yield return new WaitUntil(() => flashlightToggledInv);
-
-        //fade out the toggle flashlight panel
-        persistantManager.inventoryManager.tutorialCanvases.FadeOut(
-            toggleFlashlightCanvas, toggleFlashlightCanvasGroup, () =>
-            {
-                toggleFlashlightCanvas = null;
-                toggleFlashlightCanvasGroup = null;
-            });
-        flashlight.lookingAtFlashlight = false;
-        flashlight.TutorialComplete = true;
-        persistantManager.inventoryManager.InTutorial = !flashlight.TutorialComplete;
     }
 
     private void OnInteract(InputAction.CallbackContext context)

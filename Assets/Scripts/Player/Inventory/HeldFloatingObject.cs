@@ -71,7 +71,7 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
 
     public void ParentFloatingObjectToInvSlot(GameObject obj)
     {
-        Debug.Log("Parenting floating object to player");
+        //Debug.Log("Parenting floating object to player");
         originalPosition = obj.transform.position;
         obj.transform.SetParent(transform, true);
         heldObj = obj;
@@ -229,6 +229,29 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
         inventoryManager.InTutorial = !tutorialComplete;
     }
 
+    private void RestartHeldObjTutorial()
+    {
+        StopAllCoroutines();
+
+        UnsubscribeFromHeldObjEvents();
+
+        if (toggleHeldObjCanvas)
+            Destroy(toggleHeldObjCanvas);
+        if (throwHeldObjCanvas)
+            Destroy(throwHeldObjCanvas);
+
+        toggleHeldObjCanvas = null;
+        toggleHeldObjCanvasGroup = null;
+        throwHeldObjCanvas = null;
+        throwHeldObjCanvasGroup = null;
+
+        heldObjToggledInv = false;
+        heldObjThrown = false;
+        tutorialStarted = false;
+
+        inventoryManager.InTutorial = false;
+    }
+
     #region ISaveableInventoryItem
     [System.Serializable]
     public class HeldfFoatingObjectSaveData
@@ -269,9 +292,7 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
 
         if (!tutorialComplete)
         {
-            heldObjToggledInv = false;
-            heldObjThrown = false;
-            tutorialStarted = false;
+            RestartHeldObjTutorial();
         }
 
         bool eligibleForRestore = data.objInInv && GlobalSaveManager.SavedWithTerminal;
@@ -299,7 +320,7 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
                         if (inventoryManager.ShowIndicators)
                             inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(objInHand);
 
-                        Debug.Log($"Restored held floating object '{heldObj.name}', equipped={objInHand}");
+                        //Debug.Log($"Restored held floating object '{heldObj.name}', equipped={objInHand}");
                         found = true;
                         break;
                     }
@@ -334,7 +355,7 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
 
         if (heldObj != null)
         {
-            Debug.Log($"[HeldFloatingObject] Releasing leftover held object '{heldObj.name}' — not eligible for retention on this reload.");
+            //Debug.Log($"[HeldFloatingObject] Releasing leftover held object '{heldObj.name}' — not eligible for retention on this reload.");
 
             heldObj.transform.position = originalPosition;
             Physics.IgnoreCollision(heldObj.GetComponent<Collider>(), inventoryManager.pickupScript.PlayerCollider, false);

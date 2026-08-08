@@ -36,6 +36,8 @@ public class InventoryManager : MonoBehaviour, ISaveable
     [SerializeField] public GameObject toggleHeldObjectCanvasPrefab;
     [SerializeField] public GameObject throwHeldObjectCanvasPrefab;
 
+    private string floatingObjTag = "PickupObject";
+
     //Cache the original emission colors of materials to restore them when unequipping
     private Dictionary<Material, Color> _originalEmissionColors = new Dictionary<Material, Color>();
 
@@ -123,18 +125,21 @@ public class InventoryManager : MonoBehaviour, ISaveable
             child.gameObject.layer = heldLayer;
             SetChildrenToHoldLayer(child.gameObject);
 
-            MeshRenderer mr = child.gameObject.GetComponent<MeshRenderer>();
-            if (mr != null)
+            if (child.gameObject.CompareTag(floatingObjTag))
             {
-                foreach (Material mat in mr.materials) // instances per-renderer material to avoid changing the original material
+                MeshRenderer mr = child.gameObject.GetComponent<MeshRenderer>();
+                if (mr != null)
                 {
-                    if (!_originalEmissionColors.ContainsKey(mat))
+                    foreach (Material mat in mr.materials) // instances per-renderer material to avoid changing the original material
                     {
-                        _originalEmissionColors[mat] = mat.GetColor("_EmissionColor");
+                        if (!_originalEmissionColors.ContainsKey(mat))
+                        {
+                            _originalEmissionColors[mat] = mat.GetColor("_EmissionColor");
+                        }
+                        mat.DisableKeyword("_EMISSION");
+                        mat.SetColor("_EmissionColor", Color.black); // set emission color to black to disable emission)
+                        mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.EmissiveIsBlack; // ensure that the emission is treated as black for GI
                     }
-                    mat.DisableKeyword("_EMISSION");
-                    mat.SetColor("_EmissionColor", Color.black); // set emission color to black to disable emission)
-                    mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.EmissiveIsBlack; // ensure that the emission is treated as black for GI
                 }
             }
         }

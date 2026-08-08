@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 {
@@ -45,6 +46,18 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     private bool flashlightEquipped = false;
     private bool flashlightOn = false;
     public bool flashlightClippedToBelt = false;
+    public bool restartFlashlightTutorial = false;
+
+    [SerializeField] private GameObject useFlashlightCanvas;
+    [SerializeField] private CanvasGroup useFlashlightCanvasGroup;
+
+    [SerializeField] private GameObject toggleFlashlightCanvas;
+    [SerializeField] private CanvasGroup toggleFlashlightCanvasGroup;
+
+    // add all additional events based stuff here
+    public bool flashlightToggled;
+    public bool flashlightToggledInv;
+    public bool tutorialStarted;
 
     public event System.Action<bool> OnFlashlightAcquired;
     public event System.Action<bool> OnFlashlightTurnedOn;
@@ -96,7 +109,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Debug.Log("Flashlight script started");
+        //Debug.Log("Flashlight script started");
         flashlightEquipped = false;
         inventoryManager.RegisterSlot((int)slotIndex, this);
     }
@@ -120,7 +133,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             {
                 if (flashlightInHand.activeSelf)
                 {
-                    Debug.Log("hiding flashlight, wrist monitor opened");
+                    //Debug.Log("hiding flashlight, wrist monitor opened");
                     inventoryManager.DeactivateCurrent();
                     if (inventoryManager.ShowIndicators)
                         inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
@@ -184,7 +197,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         //the raycast goes beyond the max range
         else
         {
-            Debug.Log("Ray hit nothing, walls are out of range");
+            //Debug.Log("Ray hit nothing, walls are out of range");
             return spotRangeMax;
         }
 
@@ -238,7 +251,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             //Debug.Log("Toggling flashlight" + flashlightOn);
             foreach (Light light in flashlightInHand.GetComponentsInChildren<Light>())
             {
-                Debug.Log("light found");
+                //Debug.Log("light found");
                 light.enabled = flashlightOn;
             }
             if(!tutorialComplete)
@@ -267,7 +280,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 
     public void Unequip()
     {
-        Debug.Log("unequip called");
+        //Debug.Log("unequip called");
         if (hasFlashlight)
         {
             flashlightEquipped = false;
@@ -311,6 +324,114 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         Gizmos.DrawRay(ray);
     }
 
+    public void HandleFlashlightAcquired(bool acquired)
+    {
+        if (acquired)
+        {
+            FlashlightFirstPickup pickupObj = FindFirstObjectByType<FlashlightFirstPickup>();
+            pickupObj.gameObject.SetActive(false);
+            EquipFlashlightFromScene();
+        }
+
+        // only run the tutorial the first time the flashlight is picked up
+        // (e.g. skip it if TutorialComplete was already true from a save file)
+        if (!TutorialComplete && !tutorialStarted)
+        {
+            tutorialStarted = true;
+            StartCoroutine(FlashlightTutorial());
+        }
+    }
+
+    public void HandleFlashlightOffOnToggled(bool turnedOn)
+    {
+        //add logic here for the tutorial of the flashlight
+        flashlightToggled = true;
+    }
+
+    public void HandleFlashlightToggledInv(bool toggledInv)
+    {
+        flashlightToggledInv = true;
+    }
+
+    public IEnumerator FlashlightTutorial()
+    {
+        inventoryManager.InTutorial = true;
+        //fade in the use flashlight panel
+        inventoryManager.tutorialCanvases.FadeIn(
+            inventoryManager.useFlashlightCanvasPrefab,
+            ref useFlashlightCanvas, ref useFlashlightCanvasGroup,
+            inventoryManager.tutorialCanvases.tutorialCanvasesPos);
+
+        //wait until the player uses left click to turn on/off the flashlight
+        flashlightToggled = false;
+        yield return new WaitUntil(() => flashlightToggled);
+
+        //fade out the use flashlight panel
+        inventoryManager.tutorialCanvases.FadeOut(
+            useFlashlightCanvas, useFlashlightCanvasGroup, () =>
+            {
+                useFlashlightCanvas = null;
+                useFlashlightCanvasGroup = null;
+            });
+
+        yield return new WaitForSeconds(1f);
+
+        //fade in the toggle flashlight panel
+        inventoryManager.tutorialCanvases.FadeIn(
+            inventoryManager.toggleFlashlightCanvasPrefab,
+            ref toggleFlashlightCanvas, ref toggleFlashlightCanvasGroup,
+           inventoryManager.tutorialCanvases.tutorialCanvasesPos);
+
+        //wait until the player uses left click to toggle the flashlight
+        flashlightToggledInv = false;
+        yield return new WaitUntil(() => flashlightToggledInv);
+
+        //fade out the toggle flashlight panel
+        inventoryManager.tutorialCanvases.FadeOut(
+            toggleFlashlightCanvas, toggleFlashlightCanvasGroup, () =>
+            {
+                toggleFlashlightCanvas = null;
+                toggleFlashlightCanvasGroup = null;
+            });
+        lookingAtFlashlight = false;
+        TutorialComplete = true;
+        inventoryManager.InTutorial = !TutorialComplete;
+
+        FlashlightFirstPickup pickupObj = FindFirstObjectByType<FlashlightFirstPickup>();
+        if(pickupObj != null)
+        pickupObj.gameObject.SetActive(false);
+    }
+
+    public void RestartFlashlightTutorial()
+    {
+        StopAllCoroutines();
+
+        if (useFlashlightCanvas != null)
+            Destroy(useFlashlightCanvas);
+        if (toggleFlashlightCanvas != null)
+            Destroy(toggleFlashlightCanvas);
+
+        //Debug.Log("restarting tutorial");
+
+        useFlashlightCanvas = null;
+        useFlashlightCanvasGroup = null;
+        toggleFlashlightCanvas = null;
+        toggleFlashlightCanvasGroup = null;
+
+        flashlightToggled = false;
+        flashlightToggledInv = false;
+        tutorialStarted = false;
+
+        FlashlightFirstPickup pickupObj = FindFirstObjectByType<FlashlightFirstPickup>();
+        pickupObj.gameObject.SetActive(true);
+
+        //OnFlashlightAcquired -= HandleFlashlightAcquired;
+        //OnFlashlightTurnedOn -= HandleFlashlightOffOnToggled;
+        //OnFlashlightToggledInv -= HandleFlashlightToggledInv;
+
+        inventoryManager.InTutorial = false;
+    }
+
     #region ISaveableInventoryItem
     public class FlashlightSaveData
     {
@@ -330,9 +451,15 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         var data = JsonUtility.FromJson<FlashlightSaveData>(json);
         HasFlashlight = data.hasFlashlight;
 
-        Debug.Log("LoadSaveData Flashlight " + HasFlashlight + " " + data.hasFlashlight);
+        //Debug.Log("LoadSaveData Flashlight " + HasFlashlight + " " + data.hasFlashlight);
 
         tutorialComplete = data.TutorialComplete;
+
+        if (!tutorialComplete)
+        {
+            RestartFlashlightTutorial();
+        }
+
         if (!HasFlashlight)
         {
             flashlightEquipped = false;
@@ -347,7 +474,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 
     public void ClearRuntimeState()
     {
-        Debug.Log("ClearRuntimeState Flashlight " + HasFlashlight);
+        //Debug.Log("ClearRuntimeState Flashlight " + HasFlashlight);
         if (!HasFlashlight)
         {
             flashlightEquipped = false;

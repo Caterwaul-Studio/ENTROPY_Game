@@ -338,6 +338,29 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         inventoryManager.InTutorial = !tutorialComplete;
     }
 
+    public void RestartExtinguisherTutorial()
+    {
+        StopAllCoroutines();
+
+        UnsubscribeFromFireExtinguisherEvents();
+
+        if(useExtinguisherCanvas != null)
+            Destroy(useExtinguisherCanvas);
+        if(toggleExtinguisherCanvas != null)
+            Destroy(toggleExtinguisherCanvas);
+
+        useExtinguisherCanvas = null;
+        useExtinguisherCanvasGroup = null;
+        toggleExtinguisherCanvas = null;
+        toggleExtinguisherCanvasGroup = null;
+
+        extinguisherUsed = false;
+        extinguisherToggledInv = false;
+        tutorialStarted = false;
+
+        inventoryManager.InTutorial = false;
+    }
+
     #region ISaveableInventoryItem
 
     [System.Serializable]
@@ -383,9 +406,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         tutorialComplete = data.extinguisherTutorialComplete;
         if (!tutorialComplete)
         {
-            tutorialStarted = false;
-            extinguisherToggledInv = false;
-            extinguisherUsed = false;
+            RestartExtinguisherTutorial();
         }
 
         // only a permanent/terminal save should let the extinguisher persist across a scene reload
@@ -417,7 +438,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                         SubscribeToFireExtinguisherEvents();
                         if (inventoryManager.ShowIndicators)
                             inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(data.extinguisherEquipped);
-                        Debug.Log($"Restored remainingRetardant={data.remainingRetardent} on clone {heldObj.name}");
+                        //Debug.Log($"Restored remainingRetardant={data.remainingRetardent} on clone {heldObj.name}");
                     }
                     else
                     {

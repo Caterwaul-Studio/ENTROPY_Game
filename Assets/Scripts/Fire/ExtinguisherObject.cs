@@ -39,7 +39,6 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     private Quaternion originalRotation;
     private Transform originalParent;
 
-
 #if UNITY_EDITOR
     private void OnValidate()
     {
@@ -106,7 +105,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             var heldScript = held.GetComponent<ExtinguisherObject>();
             if (heldScript != null && heldScript.ExtinguisherID == extinguisherID)
             {
-                Debug.Log($"[ExtinguisherObject] {name} is a stale scene duplicate of already-held id {extinguisherID}, destroying.");
+                //Debug.Log($"[ExtinguisherObject] {name} is a stale scene duplicate of already-held id {extinguisherID}, destroying.");
                 Destroy(held);
                 return;
             }
@@ -175,7 +174,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
         cloneScript.isGrabbable = false;
         cloneScript.canGrab = false;
-        Debug.Log(inventoryManager.fireExtinguisher.extinguisherGameObj);
+        //Debug.Log(inventoryManager.fireExtinguisher.extinguisherGameObj);
 
         inventoryManager.fireExtinguisher.AcquireExtinguisher(clone); // raises OnFireExtinguisherAcquired
         inventoryManager.fireExtinguisher.inventoryManager.RequestActivate((int)inventoryManager.fireExtinguisher.slotIndex);
@@ -189,7 +188,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         if (inventoryManager.fireExtinguisher.extinguisherGameObj != this.gameObject)
             return;
 
-        Debug.Log("Dropping extinguisher" + this.gameObject);
+        //Debug.Log("Dropping extinguisher" + this.gameObject);
         inventoryManager.SetChildrenToDefaultLayer(extinguisherObject, inventoryManager.IInteractableLayer);
         extinguisherObject.GetComponent<Rigidbody>().isKinematic = false;
         this.transform.SetParent(inventoryManager.fireExtinguisher.ExtinguisherContainer.transform);
@@ -208,7 +207,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
 
     public void ForceReturnToOriginalState()
     {
-        Debug.Log("Force-returning extinguisher to original state: " + this.gameObject);
+        //Debug.Log("Force-returning extinguisher to original state: " + this.gameObject);
 
         inventoryManager.SetChildrenToDefaultLayer(extinguisherObject, inventoryManager.IInteractableLayer);
 
@@ -257,7 +256,7 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             }
             else if (canGrab && isGrabbable && inventoryManager.fireExtinguisher.HasExtinguisher)
             {
-                Debug.Log("Swapping extinguisher");
+                //Debug.Log("Swapping extinguisher");
                 if (this.gameObject.GetComponentInChildren<InteractableProxy>().PromptText != "take fire extinguisher")
                 {
                     return;
