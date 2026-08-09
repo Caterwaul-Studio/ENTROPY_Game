@@ -642,6 +642,12 @@ public class TutorialManager : MonoBehaviour, ISaveable
             Debug.Log("zeroGPlayer or tutorialStartPoint is null. Cannot reset position and rotation.");
         }
 
+        if(grabCanvas != null) Destroy(grabCanvas);
+        if(propelCanvas != null) Destroy(propelCanvas);
+        if(rollQCanvas != null) Destroy(rollQCanvas);
+        if(rollECanvas != null) Destroy(rollECanvas);
+        if(enterCanvas != null) Destroy(enterCanvas);
+
         // Reset tutorial state
         inTutorial = true;
         currentStep = 0;
@@ -662,7 +668,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
         hasPlayedRollFailure = false;
         rollPanelHidden = false;
         pushOffPanelHidden = false;
-
 
         //Debug.Log($"[TutorialManager] RestartTutorial state reset — " +
         //$"inTutorial: {inTutorial}, currentStep: {currentStep}, isWaitingForAction: {isWaitingForAction}, " +
