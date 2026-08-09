@@ -10,11 +10,13 @@ public class PersistantManager : MonoBehaviour
     [SerializeField] private ZeroGravity player;
     public ZeroGravity Player => player;
 
-    [SerializeField] public InventoryManager inventoryManager;
+    [SerializeField] public InventoryManager InventoryManager;
 
     [SerializeField] public PlayerUIManager PlayerUIManager;
 
     [SerializeField] public WristMonitor WristMonitor;
+
+    [SerializeField] public TutorialCanvases TutorialCanvases;
 
     [SerializeField] private Camera mainCamera;
     public Camera MainCamera => mainCamera;

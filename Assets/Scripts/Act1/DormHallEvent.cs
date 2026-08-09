@@ -25,8 +25,6 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
     private DoorScript medDoor;
     public GameplayBeatAudio audioManager;
 
-    [SerializeField] private TutorialCanvases tutorialCanvases;
-
     [SerializeField]
     private CanvasGroup wristMonitorTutorialCanvasGroup;
     [SerializeField] private GameObject wristMonitorTutorialCanvasPrefab;
@@ -101,7 +99,6 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
         dialogueManager = FindFirstObjectByType<DialogueManager>();
         // continue from save
         if (GlobalSaveManager.LoadFromSave) GlobalSaveManager.LoadSavable(this, false);
-        tutorialCanvases = FindFirstObjectByType<TutorialCanvases>();
 
         wristMonitor.OnWristMonitorAcquired += HandleWristMonitorAcquired;
         blinkCoroutine = StartCoroutine(BlinkMonitor());
@@ -129,8 +126,6 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
             wristMonitor.OnWristMonitorOpened -= FadeOutMonitorTutorial;
             wristMonitor.OnWristMonitorOpened += FadeOutMonitorTutorial;
         }
-        if (tutorialCanvases == null)
-            tutorialCanvases = FindFirstObjectByType<TutorialCanvases>();
     }
     private void OnDestroy()
     {
@@ -219,10 +214,10 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
         yield return new WaitUntil(() => dialogueManager.currentState == DialogueManager.DialogueState.Idle);
 
         //start the wrist monitor tutorial
-        tutorialCanvases.FadeIn(wristMonitorTutorialCanvasPrefab, 
+        persistManager.TutorialCanvases.FadeIn(wristMonitorTutorialCanvasPrefab, 
             ref wristMonitorTutorialCanvas, 
-            ref wristMonitorTutorialCanvasGroup, 
-            tutorialCanvases.tutorialCanvasesPos);
+            ref wristMonitorTutorialCanvasGroup,
+            persistManager.TutorialCanvases.tutorialCanvasesPos);
 
         wristMonitor.CompleteObjective();
         dormHallEventComplete = true;
@@ -234,7 +229,7 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
         if (tutorialMonitorFaded == false && dormHallEventComplete)
         {
             tutorialMonitorFaded = true;
-            tutorialCanvases.FadeOut(wristMonitorTutorialCanvas,
+            persistManager.TutorialCanvases.FadeOut(wristMonitorTutorialCanvas,
                 wristMonitorTutorialCanvasGroup, () =>
                 {
                     wristMonitorTutorialCanvas = null;

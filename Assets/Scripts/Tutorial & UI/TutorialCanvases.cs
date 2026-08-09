@@ -5,28 +5,54 @@ using System.Collections;
 
 public class TutorialCanvases : MonoBehaviour
 {
+    //this is the default position for tutorial prompts on screen. Reference this when Fading in your tutorialPanel
     public Vector3 tutorialCanvasesPos = new Vector3(0, -175, 0);
+
     public float fadeDuration = 1f;
 
-    // Fade in the UI element (make it visible)
+    /// <summary>
+    /// Fade in the UI element, instatiate and make it visible
+    /// </summary>
+    /// <param name="canvasGroupPrefab"></param>
+    /// <param name="canvasGroupObj"></param>
+    /// <param name="canvasGroup"></param>
+    /// <param name="pos"></param>
     public void FadeIn(GameObject canvasGroupPrefab, ref GameObject canvasGroupObj, ref CanvasGroup canvasGroup, Vector3 pos)
     {
         InstantiateCanvasGroup(canvasGroupPrefab, ref canvasGroupObj, ref canvasGroup, pos);
         StartCoroutine(FadeCanvasGroup(canvasGroup, 0f, 1f));
     }
 
-    // Fade out the UI element (make it invisible)
+    /// <summary>
+    /// Fade out the UI element, make it invisible and destroy it
+    /// </summary>
+    /// <param name="canvasGroupObj"></param>
+    /// <param name="canvasGroup"></param>
+    /// <param name="onDestroyed"></param>
     public void FadeOut(GameObject canvasGroupObj, CanvasGroup canvasGroup, Action onDestroyed = null)
     {
         StartCoroutine(FadeOutThenDestroyCanvasGoup(canvasGroupObj, canvasGroup, onDestroyed));
     }
 
+    /// <summary>
+    /// Delay for inputed time, then fadeout and destroy it
+    /// </summary>
+    /// <param name="delayTime"></param>
+    /// <param name="canvasGroupObj"></param>
+    /// <param name="canvasGroup"></param>
+    /// <param name="onDestroyed"></param>
+    /// <returns></returns>
     public IEnumerator DelayFadeOut(float delayTime, GameObject canvasGroupObj, CanvasGroup canvasGroup, Action onDestroyed = null)
     {
         yield return new WaitForSeconds(delayTime); // Wait for the specified time
         FadeOutThenDestroyCanvasGoup(canvasGroupObj, canvasGroup, onDestroyed);
     }
 
+    /// <summary>
+    /// This helper method finds a slider by name
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public Slider FindSliderByName(string name)
     {
         Transform found = FindDeepChild(this.transform, name);
@@ -57,7 +83,16 @@ public class TutorialCanvases : MonoBehaviour
         }
     }
 
-    private IEnumerator FadeOutThenDestroyCanvasGoup(GameObject canvasGroupObj, CanvasGroup canvasGroup, Action onDestroyed)
+    /// <summary>
+    /// This method is used in FadeOut(). it controls logic to fade out then destroy the canvas group
+    ///  It takes 3 arguements, the canvas GameObject, the Canvasgroup component of that object, and a action reference to establish what to do OnDestroyed
+    ///  Action example: () => { canvasObj = null; canvasGroup = null }
+/// </summary>
+/// <param name="canvasGroupObj"></param>
+/// <param name="canvasGroup"></param>
+/// <param name="onDestroyed"></param>
+/// <returns></returns>
+private IEnumerator FadeOutThenDestroyCanvasGoup(GameObject canvasGroupObj, CanvasGroup canvasGroup, Action onDestroyed)
     {
         yield return StartCoroutine(FadeCanvasGroup(canvasGroup, 1f, 0f));
 
@@ -67,7 +102,13 @@ public class TutorialCanvases : MonoBehaviour
         onDestroyed?.Invoke();
     }
 
-    // Coroutine to fade the CanvasGroup over time
+    /// <summary>
+    /// Coroutine to fade the CanvasGroup over time
+    /// </summary>
+    /// <param name="canvasGroup"></param>
+    /// <param name="startAlpha"></param>
+    /// <param name="endAlpha"></param>
+    /// <returns></returns>
     private IEnumerator FadeCanvasGroup(CanvasGroup canvasGroup, float startAlpha, float endAlpha)
     {
         float timeElapsed = 0f;
@@ -86,6 +127,12 @@ public class TutorialCanvases : MonoBehaviour
             canvasGroup.alpha = endAlpha; // Ensure it's set to the final alpha
     }
 
+    /// <summary>
+    /// this helper method finds the gameobject child of a parent gameobject by name
+    /// </summary>
+    /// <param name="parent"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
     private Transform FindDeepChild(Transform parent, string name)
     {
         foreach (Transform child in parent)
