@@ -15,6 +15,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     public float spotRangeMin = .5f;
     public float spotRangeMax = 30f;
 
+    public float intensityLerpSpeed = 10f;
+
     [SerializeField]
     private LayerMask barrierLayer; //set layer for barriers
 
@@ -156,9 +158,10 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             //if it's a spotlight
             if(light.type == UnityEngine.LightType.Spot)
             {
+                float targetIntensity = intensityMax / spotRangeMax * distance;
                 //Debug.Log("scaling light intensity");
                 //set the intensity to a ratio scaled by the distance
-                light.intensity = intensityMax / spotRangeMax * distance;
+                light.intensity = Mathf.Lerp(light.intensity, targetIntensity, intensityLerpSpeed * Time.deltaTime);
             }
         }
     }
@@ -174,34 +177,51 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     {
         //performa simple single ray cast to establish the flashlight's distance to the closest object in front of it
         RaycastHit hit;
+        Transform t = flashlight.transform;
 
-        //create the ray
-        ray = new Ray(flashlight.transform.position, flashlight.transform.up);
+        //angular spread for cross rays in degrees
+        float spreadAngle = 10f;
 
-        //create the raycast sending its info to hit, and with a max range of the max range of the spotlight
-        if(Physics.Raycast(ray, out hit, spotRangeMax, barrierLayer))
+        //build the 5 ray directions
+        Vector3[] directions = new Vector3[5];
+        directions[0] = t.up; // center
+        directions[1] = Quaternion.AngleAxis(spreadAngle, t.right) * t.up; // up
+        directions[2] = Quaternion.AngleAxis(-spreadAngle, t.right) * t.up; // down
+        directions[3] = Quaternion.AngleAxis(spreadAngle, t.forward) * t.up; // right
+        directions[4] = Quaternion.AngleAxis(-spreadAngle, t.forward) * t.up; // left
+
+        float totalDistance = 0f;
+        int rayCount = directions.Length;
+        foreach(Vector3 dir in directions)
         {
-            //Debug.Log("ray distance: " + hit.distance);
-           // Debug.Log("hit tag" + hit.rigidbody);
-            if (hit.distance <= spotRangeMin)
-            {
+            //create the ray
+            ray = new Ray(t.position, dir);
 
-                return spotRangeMin;
-            }
-            else
+            //create the raycast sending its info to hit, and with a max range of the max range of the spotlight
+            if (Physics.Raycast(ray, out hit, spotRangeMax, barrierLayer))
             {
                 //Debug.Log("ray distance: " + hit.distance);
-                return hit.distance;
+                // Debug.Log("hit tag" + hit.rigidbody);
+                if (hit.distance <= spotRangeMin)
+                {
+
+                    totalDistance += spotRangeMin;
+                }
+                else
+                {
+                    //Debug.Log("ray distance: " + hit.distance);
+                    totalDistance += hit.distance;
+                }
+            }
+            //the raycast goes beyond the max range
+            else
+            {
+                //Debug.Log("Ray hit nothing, walls are out of range");
+                totalDistance += spotRangeMax;
             }
         }
-        //the raycast goes beyond the max range
-        else
-        {
-            //Debug.Log("Ray hit nothing, walls are out of range");
-            return spotRangeMax;
-        }
-
-
+        //return an average of the distances
+        return totalDistance / rayCount;
     }
 
     public void EquipFlashlightFromScene()
@@ -321,7 +341,25 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawRay(ray);
+        Transform t = flashlightInHand.transform;
+
+        //angular spread for cross rays in degrees
+        float spreadAngle = 10f;
+
+        //build the 5 ray directions
+        Vector3[] directions = new Vector3[5];
+        directions[0] = t.up; // center
+        directions[1] = Quaternion.AngleAxis(spreadAngle, t.right) * t.up; // up
+        directions[2] = Quaternion.AngleAxis(-spreadAngle, t.right) * t.up; // down
+        directions[3] = Quaternion.AngleAxis(spreadAngle, t.forward) * t.up; // right
+        directions[4] = Quaternion.AngleAxis(-spreadAngle, t.forward) * t.up; // left
+
+        foreach (Vector3 dir in directions)
+        {
+            //create the ray
+            ray = new Ray(t.position, dir);
+            Gizmos.DrawRay(ray);
+        }
     }
 
     public void HandleFlashlightAcquired(bool acquired)
@@ -423,6 +461,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         tutorialStarted = false;
 
         FlashlightFirstPickup pickupObj = FindFirstObjectByType<FlashlightFirstPickup>();
+        if(pickupObj)
         pickupObj.gameObject.SetActive(true);
 
         //OnFlashlightAcquired -= HandleFlashlightAcquired;

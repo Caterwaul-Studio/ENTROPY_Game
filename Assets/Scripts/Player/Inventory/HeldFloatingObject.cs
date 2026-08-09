@@ -254,7 +254,7 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
 
     #region ISaveableInventoryItem
     [System.Serializable]
-    public class HeldfFoatingObjectSaveData
+    public class HeldFloatingObjectSaveData
     {
         public bool objInInv;
         public bool objInHand;
@@ -272,7 +272,7 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
                 id = floatingObj.FloatingObjectID;
         }
 
-        var data = new HeldfFoatingObjectSaveData
+        var data = new HeldFloatingObjectSaveData
         {
             objInInv = objInInv,
             objInHand = objInHand,
@@ -286,7 +286,7 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
     {
         if (string.IsNullOrEmpty(json)) return;
 
-        var data = JsonUtility.FromJson<HeldfFoatingObjectSaveData>(json);
+        var data = JsonUtility.FromJson<HeldFloatingObjectSaveData>(json);
 
         tutorialComplete = data.heldObjTutorialComplete;
 
