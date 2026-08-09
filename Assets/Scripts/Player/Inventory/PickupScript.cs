@@ -278,6 +278,17 @@ public class PickupScript : MonoBehaviour
 
     public void PickUpObject(GameObject pickUpObj)
     {
+        /*
+        if (pickUpObj.GetComponent<GloveScript>() != null)
+        {
+            zeroGPlayer.hasGloves = true;
+            ThrowObject();
+            current = null;
+            heldObj = null;
+            pickUpObj.SetActive(false);
+            return;
+        }*/
+
         if (pickUpObj.GetComponent<AudioSource>()) //only do this if the object has an audio source
         {
             //mute the picked up object's audio source if we are holding it
@@ -337,7 +348,7 @@ public class PickupScript : MonoBehaviour
         heldObj.transform.position = inventoryManager.heldFloatingObject.transform.position;
     }
 
-    void ThrowObject()
+    public void ThrowObject()
     {
         if (!inventoryManager.heldFloatingObject.TutorialComplete)
             inventoryManager.heldFloatingObject.RaiseHeldObjThrown(true);
