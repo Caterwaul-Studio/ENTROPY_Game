@@ -97,12 +97,12 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Throw",
+                    "name": "UseItem",
                     "type": "Button",
                     "id": "e31e4715-29c6-4d9f-b958-bb29b0ac175c",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "Hold",
+                    "interactions": "",
                     "initialStateCheck": false
                 },
                 {
@@ -118,6 +118,42 @@
                     "name": "OpenWristMonitor",
                     "type": "Button",
                     "id": "a587e671-b71e-4099-9c5f-13de8b0ef4f4",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "INV1FlashlightEquip",
+                    "type": "Button",
+                    "id": "6b9194ba-fc8c-42ea-b84c-2e3d815aefac",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "INV2ExtinguisherEquip",
+                    "type": "Button",
+                    "id": "d82ef5fc-71dc-4d5d-ad5d-c6dbc32a39d6",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "INV3HeldFloatingObjEquip",
+                    "type": "Button",
+                    "id": "ddd935fd-6321-4c97-98d6-31f9a7f964eb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "INV4<>Equip",
+                    "type": "Button",
+                    "id": "df882d5d-79c5-4322-ae7a-8d7974c66433",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -374,7 +410,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Throw",
+                    "action": "UseItem",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -385,7 +421,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Throw",
+                    "action": "UseItem",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -575,6 +611,94 @@
                     "action": "Up&Down",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "5423862b-9405-4a3f-b087-c0d520b361af",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV1FlashlightEquip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "563c0be1-5d3e-41ea-92e2-7b21776fc54f",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV1FlashlightEquip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8608f32e-6b9e-4985-88e0-18f274c7f4f9",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV2ExtinguisherEquip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bd3cef58-8955-40ef-85e7-54f6606bb9b0",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV2ExtinguisherEquip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4f0786e3-e060-452e-bc3b-e3d10338f103",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV3HeldFloatingObjEquip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8fe9529f-d725-45eb-8676-d720116b3e1f",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV3HeldFloatingObjEquip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5eac8bf0-b719-45b4-910b-bab5b01e16ab",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV4<>Equip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7d3d6c5c-f3e6-4732-86a4-3e08bcddd800",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "INV4<>Equip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
