@@ -79,6 +79,7 @@ public class FloatingImpactAudio : MonoBehaviour
     public IEnumerator unmuteAfterTime()
     {
         yield return new WaitForSeconds(0.2f);
-        floatingAudioSource.mute = false;
+        if (floatingAudioSource != null)
+            floatingAudioSource.mute = false;
     }
 }

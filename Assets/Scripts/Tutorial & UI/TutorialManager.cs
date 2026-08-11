@@ -12,7 +12,8 @@ public class TutorialManager : MonoBehaviour, ISaveable
     public GameObject ZeroGPlayer;
     public Camera mainCamera;
     public ZeroGravity playerController;
-    public GameObject TutorialCanvases;
+    public TutorialCanvases TutorialCanvases;
+    public Vector3 enterSkipCanvasPos = new Vector3(658, 504, 0);
     public DialogueManager dialogueManager;
     public DoorScript doorToOpen;
     //public DoorScript endingDoor;
@@ -26,15 +27,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
     private string tutorialCanvasesObj = "TutorialCanvas";
     private string tutorialStartPointObj = "TutorialStartPoint";
-
-    private string grabCanvasGroupobj = "GrabTutorialPanel";
-    private string propelCanvasGroupobj = "Propel TutorialPanel";
-
-    private string pickUpObjectTutPanel = "GrabObjectTutorialPanel";
-    private string throwObjectTutPanel = "ThrowObjectTutorialPanel";
-    private string rollQTutPanel = "RollQTutorialPanel";
-    private string rollETutPanel = "RollETutorialPanel";
-    private string enterSkipTutPanel = "EnterSkipPanel";
 
     private string rollSliderObj = "RollSlider";
     private string skipSliderObj = "SkipTutorialSlider";
@@ -55,13 +47,26 @@ public class TutorialManager : MonoBehaviour, ISaveable
     public CanvasGroup grabCanvasGroup;
     public CanvasGroup propelCanvasGroup;
     //public CanvasGroup pushOffCanvasGroup;
-    public CanvasGroup pickUpItemCanvasGroup;
-    public CanvasGroup throwItemCanvasGroup;
     public CanvasGroup rollQCanvasGroup;
     public CanvasGroup rollECanvasGroup;
     public CanvasGroup enterCanvasGroup;
 
+    public GameObject grabCanvasPrefab;
+    public GameObject propelCanvasPrefab;
+    public GameObject rollQCanvasPrefab;
+    public GameObject rollECanvasPrefab;
+    public GameObject enterCanvasPrefab;
+
+    public GameObject grabCanvas;
+    public GameObject propelCanvas;
+    public GameObject rollQCanvas;
+    public GameObject rollECanvas;
+    public GameObject enterCanvas;
+
+    [SerializeField] private GameObject rollProgressBarPrefab;
+    [SerializeField] private GameObject rollProgressBarObj;
     [SerializeField] private Slider rollProgressBar;
+    [SerializeField] private Vector3 rollProgressBarPos = new Vector3(1.6212e-05f, 294.9999f, 0f);
     [SerializeField] private float requiredRotation = 180f; // how much roll needed
 
     [SerializeField] private Slider skipProgressSlider;
@@ -71,8 +76,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
     //[SerializeField] private AudioClip tutorialStingerClip;
 
     //public AudioClip TutorialStingerClip => tutorialStingerClip; // property accessor
-
-    public float fadeDuration = 1f;
 
     float timer = 10f;
     // failure flags so each only plays once
@@ -109,6 +112,8 @@ public class TutorialManager : MonoBehaviour, ISaveable
     private float upsideDownTimer = 0f;
     private const float upsideDownDuration = 3f;
 
+    private bool tutorialUIActive = true;
+
 
     public bool IsTutorialSkipped
     {
@@ -144,7 +149,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
         //    GlobalSaveManager.LoadSavable(this, false);
         //Debug.Log("TutorialManager Start called. Restoring player information and hiding all panels.");
         RestorePlayerInformation();
-        HideAllPanels();
+        //HideAllPanels();
 
         playerController = ZeroGPlayer.GetComponent<ZeroGravity>();
         pickupScript = ZeroGPlayer.GetComponent<PickupScript>();
@@ -163,24 +168,12 @@ public class TutorialManager : MonoBehaviour, ISaveable
         }
 
         initialStartComplete = true;
-
         //Debug.Log("player position: " + playerController.transform.position);
     }
 
     void Update()
     {
-        if(ZeroGPlayer == null || 
-            playerController == null || 
-            pickupScript == null ||
-            TutorialCanvases == null ||
-            grabCanvasGroup == null ||
-            propelCanvasGroup == null ||
-            pickUpItemCanvasGroup == null ||
-            throwItemCanvasGroup == null ||
-            rollQCanvasGroup == null ||
-            rollECanvasGroup == null ||
-            enterCanvasGroup == null ||
-            rollProgressBar == null ||
+        if(tutorialUIActive ||
             skipProgressSlider == null)
         {
             RestorePlayerInformation();
@@ -202,7 +195,12 @@ public class TutorialManager : MonoBehaviour, ISaveable
         {
             if (currentStep == 1 && playerController.IsGrabbing)
             {
-                FadeOut(grabCanvasGroup);
+                TutorialCanvases.FadeOut(grabCanvas, grabCanvasGroup, () =>
+                {
+                    grabCanvas = null;
+                    grabCanvasGroup = null;
+                }
+                );
                 CompleteStep();
             }
             else if (currentStep == 2)
@@ -216,7 +214,11 @@ public class TutorialManager : MonoBehaviour, ISaveable
                     //Debug.Log("Player rolled upside down");
                     playerController.StopRollingQuickly();
 
-                    FadeOut(rollQCanvasGroup);
+                    TutorialCanvases.FadeOut(rollQCanvas, rollQCanvasGroup, () =>
+                    {
+                        rollQCanvas = null;
+                        rollQCanvasGroup = null;
+                    });
                     CompleteStep();
                     playerController.TotalRotation = 0;
                     rollProgressBar.gameObject.SetActive(false); // hide when done
@@ -233,7 +235,11 @@ public class TutorialManager : MonoBehaviour, ISaveable
                     //Debug.Log("Player rolled upright");
                     playerController.StopRollingQuickly();
 
-                    FadeOut(rollECanvasGroup);
+                    TutorialCanvases.FadeOut(rollECanvas, rollECanvasGroup, () =>
+                    {
+                        rollECanvas = null;
+                        rollECanvasGroup = null;
+                    });
                     CompleteStep();
                     playerController.TotalRotation = 0;
                     rollProgressBar.gameObject.SetActive(false); // hide when done
@@ -309,6 +315,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
     {
         //Debug.Log("starting tutorial");
         //set the player's position and rotation to the tutorial start point, which is set in the scene
+        tutorialUIActive = true;
 
         dialogueManager.ForceStopAll();
 
@@ -326,13 +333,17 @@ public class TutorialManager : MonoBehaviour, ISaveable
             StartCoroutine(DelayedStinger(8f));
         }
 
-        HideAllPanels();
+        //HideAllPanels();
 
-        FadeIn(enterCanvasGroup);
+        TutorialCanvases.FadeIn(enterCanvasPrefab, ref enterCanvas, ref enterCanvasGroup, enterSkipCanvasPos);
         dialogueManager.StartDialogueSequence(0, 2f); // Ensure correct tutorial sequence index
 
         //fading out the tutorial skip panel
-        StartCoroutine(DelayFadeOut(7, enterCanvasGroup));
+        TutorialCanvases.DelayFadeOut(7, enterCanvas, enterCanvasGroup, () =>
+        {
+            enterCanvas = null;
+            enterCanvasGroup = null;
+        });
     }
 
     private IEnumerator DelayedStinger(float delay)
@@ -371,7 +382,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
                 stepComplete = false;
                 isWaitingForAction = true;
                 SetPlayerAbilities(true, false, false, false, false); // Only allow grab
-                FadeIn(grabCanvasGroup);
+                TutorialCanvases.FadeIn(grabCanvasPrefab, ref grabCanvas, ref grabCanvasGroup, TutorialCanvases.tutorialCanvasesPos);
 
                 break;
 
@@ -387,7 +398,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
                 isWaitingForAction = true;
                 SetPlayerAbilities(true, false, false, true, false); // grab and roll only
                 initialRollZ = playerController.cam.transform.eulerAngles.z;
-                FadeIn(rollQCanvasGroup);
+                TutorialCanvases.FadeIn(rollQCanvasPrefab, ref rollQCanvas, ref rollQCanvasGroup, TutorialCanvases.tutorialCanvasesPos);
 
                 break;
 
@@ -406,7 +417,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
                 isWaitingForAction = true;
                 SetPlayerAbilities(true, false, false, true, false); // grab and roll only
                 initialRollZ = playerController.cam.transform.eulerAngles.z;
-                FadeIn(rollECanvasGroup);
+                TutorialCanvases.FadeIn(rollECanvasPrefab, ref rollECanvas, ref rollECanvasGroup, TutorialCanvases.tutorialCanvasesPos);
 
                 break;
 
@@ -418,7 +429,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
                 playerController.GrabRange = playerGrabRange;
                 SetPlayerAbilities(true, true, true, true, true); // Enable all
-                FadeIn(propelCanvasGroup);
+                TutorialCanvases.FadeIn(propelCanvasPrefab, ref propelCanvas, ref propelCanvasGroup, TutorialCanvases.tutorialCanvasesPos);
                 break;
             case 5:
                 //Debug.Log("Tutorial Complete");
@@ -458,12 +469,20 @@ public class TutorialManager : MonoBehaviour, ISaveable
             // 3. Play the failure dialogue (can be skipped)
             // 4. Increment currentDialogueIndex to skip the success dialogue (if incrementsDialogue=true)
             // 5. Resume the main sequence
-            FadeOut(propelCanvasGroup);
+            TutorialCanvases.FadeOut(propelCanvas, propelCanvasGroup, () =>
+            {
+                propelCanvas = null;
+                propelCanvasGroup = null;
+            });
             yield return StartCoroutine(dialogueManager.PlayFailureDialogueRoutine(0));
         }
         else
         {
-            FadeOut(propelCanvasGroup);
+            TutorialCanvases.FadeOut(propelCanvas, propelCanvasGroup, () =>
+            {
+                propelCanvas = null;
+                propelCanvasGroup = null;
+            });
             // Step is now complete
 
             CompleteStep();
@@ -491,7 +510,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
 
     void EndTutorial()
     {
-        //Debug.Log("End tutorial called");
+        Debug.Log("End tutorial called");
         SetPlayerAbilities(true, true, true, true, true);
         inTutorial = false;
         isWaitingForAction = false;
@@ -499,7 +518,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
         playerController.GrabRange = playerGrabRange;
         // Fade out tutorial stinger
         //remove all tutorial panels
-        HideAllPanelsFadeOut();
+        //HideAllPanelsFadeOut();
         //ambientController.Progress();
         currentStep = 5;
 
@@ -511,6 +530,12 @@ public class TutorialManager : MonoBehaviour, ISaveable
         */
         dialogueManager.StartDialogueSequence(1, 0.2f);
 
+        TutorialCanvases.FadeOut(enterCanvas, enterCanvasGroup, () =>
+        {
+            enterCanvas = null;
+            enterCanvasGroup = null;
+        });
+
         StartCoroutine(WaitForDialogue1AndOpenDoor());
 
         /*        if (doorToOpen != null)
@@ -520,6 +545,9 @@ public class TutorialManager : MonoBehaviour, ISaveable
                         doorToOpen.SetState(DoorScript.States.Open);
                     }
                 }*/
+        tutorialUIActive = false;
+        //destroy the roll progress bar
+        Destroy(rollProgressBarObj);
     }
 
     private IEnumerator WaitForDialogue1AndOpenDoor()
@@ -596,43 +624,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
         CompleteStep();
     }
 
-    private IEnumerator DelayFadeOut(float delayTime, CanvasGroup canvas)
-    {
-        yield return new WaitForSeconds(delayTime); // Wait for the specified time
-        FadeOut(canvas);
-    }
-
-    // Fade in the UI element (make it visible)
-    public void FadeIn(CanvasGroup groupToFade)
-    {
-        StartCoroutine(FadeCanvasGroup(groupToFade, groupToFade.alpha, 1f));
-    }
-
-    // Fade out the UI element (make it invisible)
-    public void FadeOut(CanvasGroup groupToFade)
-    {
-        StartCoroutine(FadeCanvasGroup(groupToFade, groupToFade.alpha, 0f));
-    }
-
-    // Coroutine to fade the CanvasGroup over time
-    private IEnumerator FadeCanvasGroup(CanvasGroup canvasGroup, float startAlpha, float endAlpha)
-    {
-        float timeElapsed = 0f;
-
-        while (timeElapsed < fadeDuration)
-        {
-            if (canvasGroup == null) yield break; // Exit if the canvasGroup is destroyed
-
-            // Lerp alpha from start to end
-            canvasGroup.alpha = Mathf.Lerp(startAlpha, endAlpha, timeElapsed / fadeDuration);
-            timeElapsed += Time.deltaTime;
-            yield return null; // Wait until the next frame
-        }
-
-        if (canvasGroup != null)
-        canvasGroup.alpha = endAlpha; // Ensure it's set to the final alpha
-    }
-
     public void RestartTutorial()
     {
         //Debug.Log("Restarting tutorial...");
@@ -650,6 +641,12 @@ public class TutorialManager : MonoBehaviour, ISaveable
         {
             Debug.Log("zeroGPlayer or tutorialStartPoint is null. Cannot reset position and rotation.");
         }
+
+        if(grabCanvas != null) Destroy(grabCanvas);
+        if(propelCanvas != null) Destroy(propelCanvas);
+        if(rollQCanvas != null) Destroy(rollQCanvas);
+        if(rollECanvas != null) Destroy(rollECanvas);
+        if(enterCanvas != null) Destroy(enterCanvas);
 
         // Reset tutorial state
         inTutorial = true;
@@ -671,8 +668,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
         hasPlayedRollFailure = false;
         rollPanelHidden = false;
         pushOffPanelHidden = false;
-        // reset the roll progress bar
-        rollProgressBar.value = 0f;
 
         //Debug.Log($"[TutorialManager] RestartTutorial state reset — " +
         //$"inTutorial: {inTutorial}, currentStep: {currentStep}, isWaitingForAction: {isWaitingForAction}, " +
@@ -682,7 +677,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
         //$"canGrab: {canGrab}, canRoll: {canRoll}, canPushOff: {canPushOff}, canThrow: {canThrow}, canPropel: {canPropel}");
 
         // Hide all tutorial canvas elements
-        HideAllPanels();
+        //HideAllPanels();
 
         // Reset skip flags in DialogueManager
         //dialogueManager.SkipNextDialogue = false;
@@ -698,64 +693,62 @@ public class TutorialManager : MonoBehaviour, ISaveable
         StartCoroutine(StartTutorial());
     }
 
-    private void HideAllPanels()
-    {
-        if (enterCanvasGroup != null) enterCanvasGroup.alpha = 0;
-        if (rollQCanvasGroup != null) rollQCanvasGroup.alpha = 0;
-        if (rollECanvasGroup != null) rollECanvasGroup.alpha = 0;
-        if (grabCanvasGroup != null) grabCanvasGroup.alpha = 0;
-        if (propelCanvasGroup != null) propelCanvasGroup.alpha = 0;
-        if (pickUpItemCanvasGroup != null) pickUpItemCanvasGroup.alpha = 0;
-        if (throwItemCanvasGroup != null) throwItemCanvasGroup.alpha = 0;
-        if (rollProgressBar != null && rollProgressBar.gameObject.activeSelf)
-        {
-            rollProgressBar.gameObject.SetActive(false);
-        }
-        if(dialogueManager != null)
-        {
-            // Clear dialogue text and name text to ensure no lingering UI elements
-            dialogueManager.dialogueTextUI.text = "";
-            dialogueManager.nameTextUI.text = "";
-        }
-    }
-    private void HideAllPanelsFadeOut()
-    {
-        StopAllCoroutines();
+    //private void HideAllPanels()
+    //{
+    //    if (enterCanvasGroup != null) enterCanvasGroup.alpha = 0;
+    //    if (rollQCanvasGroup != null) rollQCanvasGroup.alpha = 0;
+    //    if (rollECanvasGroup != null) rollECanvasGroup.alpha = 0;
+    //    if (grabCanvasGroup != null) grabCanvasGroup.alpha = 0;
+    //    if (propelCanvasGroup != null) propelCanvasGroup.alpha = 0;
+    //    if (rollProgressBar != null && rollProgressBar.gameObject.activeSelf)
+    //    {
+    //        rollProgressBar.gameObject.SetActive(false);
+    //    }
+    //    if(dialogueManager != null)
+    //    {
+    //        // Clear dialogue text and name text to ensure no lingering UI elements
+    //        dialogueManager.dialogueTextUI.text = "";
+    //        dialogueManager.nameTextUI.text = "";
+    //    }
+    //}
+    //private void HideAllPanelsFadeOut()
+    //{
+    //    StopAllCoroutines();
 
-        if (enterCanvasGroup.alpha != 0)
-        {
-            enterCanvasGroup.alpha = 0;
-            //FadeOut(enterCanvasGroup);
-        }
-        if (rollQCanvasGroup.alpha != 0)
-        {
-            rollQCanvasGroup.alpha = 0;
-            //FadeOut(rollQCanvasGroup);
-        }
-        if (rollECanvasGroup.alpha != 0)
-        {
-            rollECanvasGroup.alpha = 0;
-            //FadeOut(rollECanvasGroup);
-        }
-        if (grabCanvasGroup.alpha != 0)
-        {
-            grabCanvasGroup.alpha = 0;
-            //FadeOut(grabCanvasGroup);
-        }
-        if (propelCanvasGroup.alpha != 0)
-        {
-            propelCanvasGroup.alpha = 0;
-            //FadeOut(propelCanvasGroup);
-        }
-        if (rollProgressBar != null && rollProgressBar.gameObject.activeSelf == true)
-        {
-            rollProgressBar.gameObject.SetActive(false);
-        }
-        if(skipProgressSlider != null)
-        {
-            skipProgressSlider.value = 0f;
-        }
-    }
+    //    if (enterCanvasGroup.alpha != 0)
+    //    {
+    //        enterCanvasGroup.alpha = 0;
+    //        //FadeOut(enterCanvasGroup);
+    //    }
+    //    if (rollQCanvasGroup.alpha != 0)
+    //    {
+    //        rollQCanvasGroup.alpha = 0;
+    //        //FadeOut(rollQCanvasGroup);
+    //    }
+    //    if (rollECanvasGroup.alpha != 0)
+    //    {
+    //        rollECanvasGroup.alpha = 0;
+    //        //FadeOut(rollECanvasGroup);
+    //    }
+    //    if (grabCanvasGroup.alpha != 0)
+    //    {
+    //        grabCanvasGroup.alpha = 0;
+    //        //FadeOut(grabCanvasGroup);
+    //    }
+    //    if (propelCanvasGroup.alpha != 0)
+    //    {
+    //        propelCanvasGroup.alpha = 0;
+    //        //FadeOut(propelCanvasGroup);
+    //    }
+    //    if (rollProgressBar != null && rollProgressBar.gameObject.activeSelf == true)
+    //    {
+    //        rollProgressBar.gameObject.SetActive(false);
+    //    }
+    //    if(skipProgressSlider != null)
+    //    {
+    //        skipProgressSlider.value = 0f;
+    //    }
+    //}
 
     private void UpdateRollProgress()
     {
@@ -784,17 +777,20 @@ public class TutorialManager : MonoBehaviour, ISaveable
     //    inItemGrabTutorial = true;
     //    StartCoroutine(StartGrabTutorial());
     //}
-    private IEnumerator StartGrabTutorial()
-    {
-        FadeIn(pickUpItemCanvasGroup);
-        yield return new WaitForSeconds(7f);
-        if (pickUpItemCanvasGroup.alpha > 0)
-        {
-            FadeOut(pickUpItemCanvasGroup);
-        }
-    }
+    //private IEnumerator StartGrabTutorial()
+    //{
+    //    FadeIn(pickUpItemCanvasGroup);
+    //    yield return new WaitForSeconds(7f);
+    //    if (pickUpItemCanvasGroup.alpha > 0)
+    //    {
+    //        FadeOut(pickUpItemCanvasGroup);
+    //    }
+    //}
     private void HandleTutorialSkip()
     {
+        if (enterCanvasGroup == null || skipProgressSlider == null)
+            return; // panels not instantiated yet, ignore skip input for now
+
         if (Keyboard.current.enterKey.isPressed)
         {
             if (enterCanvasGroup.alpha < 1)
@@ -818,7 +814,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
                 tutorialSkipped = true;
                 dialogueManager.SkipTutorial();
                 ForceCompleteAllSteps();
-                FadeOut(enterCanvasGroup);
                 if (stingerManager != null)
                 {
                     stingerManager.StopTutorialStinger(fadeOutDuration: 12f);
@@ -913,41 +908,26 @@ public class TutorialManager : MonoBehaviour, ISaveable
         // These are scene-bound, so re-find them fresh each load
         if (TutorialCanvases == null)
         {
-            TutorialCanvases = GameObject.Find(tutorialCanvasesObj);
+            TutorialCanvases = GameObject.FindFirstObjectByType<TutorialCanvases>();
             //Debug.Log("PlayerCanvases found on scene load: " + (PlayerCanvases != null));
+        }
+
+        if(tutorialUIActive && rollProgressBarObj == null)
+        {
+            rollProgressBarObj = Instantiate(rollProgressBarPrefab);
+            rollProgressBarObj.transform.SetParent(TutorialCanvases.transform, false);
+            rollProgressBarObj.transform.localScale = Vector3.one;
+            rollProgressBarObj.GetComponent<RectTransform>().anchoredPosition3D = rollProgressBarPos;
+            rollProgressBar = rollProgressBarObj.GetComponent<Slider>();
+            rollProgressBar.value = 0f;
         }
 
         if (TutorialCanvases != null)
         {
-            if(grabCanvasGroup == null)         grabCanvasGroup =       FindCanvasGroupByName(grabCanvasGroupobj);
-            if(propelCanvasGroup == null)       propelCanvasGroup =     FindCanvasGroupByName(propelCanvasGroupobj);
-            if(pickUpItemCanvasGroup == null)   pickUpItemCanvasGroup = FindCanvasGroupByName(pickUpObjectTutPanel);
-            if(throwItemCanvasGroup == null)    throwItemCanvasGroup =  FindCanvasGroupByName(throwObjectTutPanel);
-            if(rollQCanvasGroup == null)        rollQCanvasGroup =      FindCanvasGroupByName(rollQTutPanel);
-            if(rollECanvasGroup == null)        rollECanvasGroup =      FindCanvasGroupByName(rollETutPanel);
-            if(enterCanvasGroup == null)        enterCanvasGroup =      FindCanvasGroupByName(enterSkipTutPanel);
 
-            if(rollProgressBar == null)
+            if (skipProgressSlider == null)
             {
-                rollProgressBar = FindSliderByName(rollSliderObj);
-            }
-
-            if(skipProgressSlider == null)
-            {
-               skipProgressSlider = FindSliderByName(skipSliderObj);
-            }
-           
-            if (grabCanvasGroup == null || 
-                propelCanvasGroup == null || 
-                pickUpItemCanvasGroup == null || 
-                throwItemCanvasGroup == null || 
-                rollQCanvasGroup == null || 
-                rollECanvasGroup == null || 
-                enterCanvasGroup == null ||
-                rollProgressBar == null ||
-                skipProgressSlider == null)
-            {
-                Debug.LogError("One or more tutorial canvas groups could not be found. Please check the names and tags.");
+                skipProgressSlider = TutorialCanvases.FindSliderByName(skipSliderObj);
             }
         }
         else
@@ -969,40 +949,6 @@ public class TutorialManager : MonoBehaviour, ISaveable
             doorToOpen = GameObject.Find(doorToOpenObj)?.GetComponent<DoorScript>();
     }
 
-    private CanvasGroup FindCanvasGroupByName(string name)
-    {
-        Transform found = FindDeepChild(TutorialCanvases.transform, name);
-        if (found != null)
-        {
-            return found.GetComponent<CanvasGroup>();
-        }
-        return null;
-    }
-
-    private Slider FindSliderByName(string name)
-    {
-        Transform found = FindDeepChild(TutorialCanvases.transform, name);
-        if (found != null)
-        {
-            return found.GetComponent<Slider>();
-        }
-        return null;
-    }
-
-
-    private Transform FindDeepChild(Transform parent, string name)
-    {
-        foreach (Transform child in parent)
-        {
-            if (child.name == name)
-                return child;
-            Transform result = FindDeepChild(child, name);
-            if (result != null)
-                return result;
-        }
-        return null;
-    }
-
     public void LoadSaveFile(string fileName)
     {
         string path = Application.persistentDataPath;
@@ -1022,7 +968,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         RestorePlayerInformation();
-        HideAllPanels();
+        //HideAllPanels();
         HandleTutorialStateOnLoad();
     }
 }

@@ -5,7 +5,11 @@ public class FloatingObject : MonoBehaviour
 
     Rigidbody rb;
     Collider collider;
-   
+
+
+    // must have unique ids for floating objects to validate them being stored in save data
+    [SerializeField] private string floatingObjectID;
+    public string FloatingObjectID => floatingObjectID;
 
     [SerializeField]
     bool useDirectionInput = false;
@@ -37,7 +41,17 @@ public class FloatingObject : MonoBehaviour
     [SerializeField]
     PhysicsMaterial noFrictionMaterial;
 
-
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (string.IsNullOrEmpty(floatingObjectID))
+        {
+            // auto assign a unique id for this specific floating object
+            floatingObjectID = System.Guid.NewGuid().ToString();
+            UnityEditor.EditorUtility.SetDirty(this);
+        }
+    }
+#endif
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -93,10 +107,7 @@ public class FloatingObject : MonoBehaviour
         if (!useFriction == !rb.isKinematic && rb.linearVelocity.magnitude <= minimumSpeed)
         {
             rb.linearVelocity = rb.linearVelocity.normalized * minimumSpeed;
-
         }
-                
-
     }
 
     void OnDrawGizmosSelected()

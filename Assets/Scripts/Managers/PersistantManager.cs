@@ -10,11 +10,19 @@ public class PersistantManager : MonoBehaviour
     [SerializeField] private ZeroGravity player;
     public ZeroGravity Player => player;
 
-    [SerializeField] private WristMonitor wristMonitor;
-    public WristMonitor WristMonitor => wristMonitor;
+    [SerializeField] public InventoryManager InventoryManager;
+
+    [SerializeField] public PlayerUIManager PlayerUIManager;
+
+    [SerializeField] public WristMonitor WristMonitor;
+
+    [SerializeField] public TutorialCanvases TutorialCanvases;
 
     [SerializeField] private Camera mainCamera;
     public Camera MainCamera => mainCamera;
+
+    //[SerializeField] private Transform holdPos;
+    //public Transform HoldPos => holdPos;
 
     //private ObjectiveUpdate objectiveUpdate;
     //private CheckpointManager checkpointManager;
@@ -61,6 +69,13 @@ public class PersistantManager : MonoBehaviour
             player = GetComponentInChildren<ZeroGravity>();
         }
         DontDestroyOnLoad(gameObject);
+
+        //ensure the player is able to use the wrist monitor in any scene except for Level1New, where the player does not have a wrist monitor yet.
+        if (SceneManager.GetActiveScene().name != "Level1New")
+        {
+            WristMonitor.HasWristMonitor = true;
+            return;
+        }
     }
 
     private void Update()

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using TMPro;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.InputSystem;
@@ -213,6 +214,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     //Fields for the tutorial
     [SerializeField]
     private bool tutorialMode = false;
+    [SerializeField]
+    private bool inCustcene = false;
     public bool canGrab = false;
     public bool canPropel = false;
     public bool canPushOff = false;
@@ -248,6 +251,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     public float throwDecay = 3.0f; // How fast you slow down in space
     public bool IsBeingThrown => kinematicVelocity.magnitude > 0.1f;
 
+
+
+    [Header("== Electrical Hazard ==")]
+    public bool hasGloves;
+    private int safetyTick = 0;
 
 
     [Header("== Temporary Variables for HotFixes ==")]
@@ -341,6 +349,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         get { return tutorialMode; }
         set { tutorialMode = value; }
+    }
+
+    public bool InCutscene
+    {
+        get { return inCustcene; }
     }
 
     public Rigidbody RB
@@ -722,6 +735,40 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
         currentRollSpeed = 0f; // Snap to 0 at the end
     }
+
+
+    public IEnumerator ShockEffect()
+    {
+        canMove = false;
+        StartCoroutine(CameraShake());
+
+        yield return new WaitForSeconds(1.5f);
+        canMove = true;
+        canRoll = true;
+        canPropel = true;
+        canPushOff = true;
+        canGrab = true;
+        yield return null;
+        safetyTick = 0;
+
+    }
+
+    private IEnumerator CameraShake()
+    {
+        if (!canMove && safetyTick < 200) //safety tick in place to prevent infinite loop
+        {
+            safetyTick += 1;
+            Quaternion camRotation = cam.transform.rotation;
+            cam.transform.rotation = new Quaternion(camRotation.x + UnityEngine.Random.Range(-0.05f, 0.05f), camRotation.y + UnityEngine.Random.Range(-0.05f, 0.05f), camRotation.z + UnityEngine.Random.Range(-0.05f, 0.05f), camRotation.w);
+            yield return new WaitForSeconds(0.01f);
+            StartCoroutine(CameraShake());
+        }
+        else
+        {
+            yield return null;
+        }
+    }
+
     #endregion
 
     #region Dev Tool Methods
@@ -770,6 +817,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             //canRoll = false;
             //uiManager.Crosshair.sprite = null;
             uiManager.Crosshair.color = new Color(0f, 0f, 0f, 0f);
+            inCustcene = true;
         }
         else if (!inCutScene)
         {
@@ -782,6 +830,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 canRoll = true;
                 //uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
                 uiManager.Crosshair.color = new Color(1f, 1f, 1f, 1f);
+                inCustcene = false;
             }
         }
     }
@@ -802,6 +851,14 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         }
     }
 
+    private IEnumerator GrabShock()
+    {
+        yield return new WaitForSeconds(0.3f);
+        DecreaseHealth(1);
+        StartCoroutine(ShockEffect());
+        ReleaseBar();
+    }
+
     public void GrabBar()
     {
         //Put lines 962-954 in if statement to only call if bar is ACTUALLY being grabbed
@@ -818,13 +875,18 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         justGrabbed = true;
         grabbedBar = potentialGrabbedBar;
 
-        //Debug.Log(grabbedBar.name);
-
+        Debug.Log(grabbedBar);
+        if (grabbedBar.GetComponent<SparkBar>() != null && !hasGloves)
+        {
+            StartCoroutine(GrabShock());
+            return;
+        }
 
         if (barAudioHandler != null)
         {
             barAudioHandler.PlayGrabSound(grabbedBar.transform.position);
         }
+
       
 
         //grabbedBar = potentialGrabbedBar;
@@ -1126,7 +1188,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
 
     // Release the bar and enable movement again
-    private void ReleaseBar()
+    public void ReleaseBar()
     {
         //stop swinging off the bar
         StopSwing();
@@ -1267,6 +1329,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     #endregion
 
     #region Collision Detection and Health Handling
+
+
     private void DetectBarrierAndBounce()
     {
         float detectionRadius = boundingSphere.radius + .01f; // Slightly larger for early detection
@@ -1289,6 +1353,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             return; //no collision, no bounce 
         }
 
+
         Vector3 avgBounceDirection = Vector3.zero;
         int bounceCount = 0;
         float ogSpeed = rb.linearVelocity.magnitude; //store initial velocity magnitude
@@ -1298,7 +1363,13 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
         foreach (Collider barrier in hitColliders)
         {
-            //Debug.Log("colliding");
+            if (barrier.tag == "LiveWire")
+            {
+                StartCoroutine(ShockEffect());
+                DecreaseHealth(2);
+                justHit = true;
+            }
+
             Vector3 closestPoint = barrier.ClosestPoint(transform.position);
             impactPoint = closestPoint; // Store most recent impact
             Vector3 wallNormal = (transform.position - closestPoint).normalized;
@@ -1316,6 +1387,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             {
                 break;
             }
+
         }
 
         if (bounceCount > 0)
@@ -1356,7 +1428,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         {
             //decrease the player's health by 1
             DecreaseHealth(1);
-            justHit = true; ;
+            justHit = true;
             playerAudio.PlayHardBounce(impactPoint);
         }
         else
@@ -1664,7 +1736,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     private IEnumerator ThrownRoutine(Vector3 impulse)
     {
-        // rb may already be kinematic from the grab lock ó ensure it's off for physics
+        // rb may already be kinematic from the grab lock ÅEensure it's off for physics
         rb.isKinematic = false;
         boundingSphere.enabled = true;
 

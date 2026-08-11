@@ -196,5 +196,4 @@ public static class GlobalSaveManager
     {
         return File.Exists(Path.Join(Application.persistentDataPath, fileName));
     }
-
 }
