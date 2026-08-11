@@ -133,6 +133,7 @@ MonoBehaviour:
     m_Extent: {x: 0, y: 0, z: 0}
   myFire: {fileID: 0}
   player: {fileID: 0}
+  myLight: {fileID: 5816820440340227734}
   MainCamera: {fileID: 0}
   extinguishNodes:
   - {fileID: 0}
@@ -161,6 +162,7 @@ MonoBehaviour:
   flameStrength: 100
   playerHitBoxSizeModifier: 0.5
   sys: {fileID: 5055425657881056165}
+  fireActive: 1
 --- !u!198 &5055425657881056165
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -177,7 +179,7 @@ ParticleSystem:
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
   looping: 1
-  prewarm: 1
+  prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
   autoRandomSeed: 1
@@ -5003,7 +5005,7 @@ Light:
   m_BounceIntensity: 0.1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 2.2e-44, y: 4.591775e-39, z: 2.2227777e-38, w: 2.2e-44}
+  m_BoundingSphereOverride: {x: 3.8e-42, y: 2.524355e-29, z: 0, w: 2.2e-44}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
