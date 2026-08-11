@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,8 +9,9 @@ public class FireNodeScript : MonoBehaviour
     [SerializeField] private Bounds fireBounds;
     [SerializeField] private Bounds playerBounds;
     [SerializeField] private FireScript myFire;
-    [SerializeField] private GameObject player;
     [SerializeField] private GameObject myLight;
+    [SerializeField] private PersistantManager persistantManager;
+    [SerializeField] private GameObject player;
     [SerializeField] private Camera MainCamera;
     [SerializeField] private PuffMovement[] extinguishNodes;
     [SerializeField] private int flameSteady; //should be 1-5
@@ -45,13 +47,14 @@ public class FireNodeScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        if (player == null || MainCamera == null)
+        if (persistantManager == null)
         {
-            player = GameObject.FindAnyObjectByType<ZeroGravity>().gameObject;
-            MainCamera = player.GetComponent<ZeroGravity>().cam;
+            persistantManager = FindFirstObjectByType<PersistantManager>();
+            player = persistantManager.PlayerObject;
+            MainCamera = persistantManager.MainCamera;
         }
 
-        extinguishNodes = FindObjectsByType<PuffMovement>(FindObjectsSortMode.None);
+        StartCoroutine(SetPuffs());
 
         //this method is similar to the audiozone method however this time the boxcolider size is used instead of the object scale
         //the reason for this difference is because changing the object scale is not arbitrary for fire nodes, it will affect the size of their particle systems
@@ -68,47 +71,50 @@ public class FireNodeScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (fireActive)
+        if (!extinguishNodes.Contains(null))
         {
-            throwCooldown += Time.deltaTime;
-            for (int i = 0; i < extinguishNodes.Length; i++)
-            { //collision detection is done via fireBounds in the hope it will be less resource intensive, may need to be tested
-                if (fireBounds.Contains(extinguishNodes[i].transform.position))
-                    DampenFlame(extinguishNodes[i].gameObject);
-            }
+            if (fireActive)
+            {
+                throwCooldown += Time.deltaTime;
+                for (int i = 0; i < extinguishNodes.Length; i++)
+                { //collision detection is done via fireBounds in the hope it will be less resource intensive, may need to be tested
+                    if (fireBounds.Contains(extinguishNodes[i].transform.position))
+                        DampenFlame(extinguishNodes[i].gameObject);
+                }
 
-            if (playerBounds.Contains(player.transform.position) && throwCooldown > 0.5f)
-            {
-                StartCoroutine(BurnPlayer());
-                player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
-                throwCooldown = 0;
-            }
+                if (playerBounds.Contains(player.transform.position) && throwCooldown > 0.5f)
+                {
+                    StartCoroutine(BurnPlayer());
+                    player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
+                    throwCooldown = 0;
+                }
 
-            //flame regeneration
-            if (flameStrength < flameSteady * 20)
-                flameStrength += Time.deltaTime * regenRate;
+                //flame regeneration
+                if (flameStrength < flameSteady * 20)
+                    flameStrength += Time.deltaTime * regenRate;
 
-            if (flameStrength > 81)
-            {
-                flameSteady = 5;
+                if (flameStrength > 81)
+                {
+                    flameSteady = 5;
+                }
+                else if (flameStrength > 61)
+                {
+                    flameSteady = 4;
+                }
+                else if (flameStrength > 41)
+                {
+                    flameSteady = 3;
+                }
+                else if (flameStrength > 21)
+                {
+                    flameSteady = 2;
+                }
+                else if (flameStrength > 11)
+                {
+                    flameSteady = 1;
+                }
             }
-            else if (flameStrength > 61)
-            {
-                flameSteady = 4;
-            }
-            else if (flameStrength > 41)
-            {
-                flameSteady = 3;
-            }
-            else if (flameStrength > 21)
-            {
-                flameSteady = 2;
-            }
-            else if (flameStrength > 11)
-            {
-                flameSteady = 1;
-            }
-        }
+        } 
     }
 
     private void DampenFlame(GameObject other)
@@ -148,6 +154,14 @@ public class FireNodeScript : MonoBehaviour
         flameStrength = reigniteLevel * 20;
         fireActive = true;
         ChangeFlame();
+    }
+
+    private IEnumerator SetPuffs()
+    {
+        yield return new WaitForSeconds(1f);
+        Debug.Log("fire node start");
+        extinguishNodes = null;
+        extinguishNodes = FindObjectsByType<PuffMovement>(FindObjectsSortMode.None);
     }
 
 }
