@@ -1,0 +1,529 @@
+using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
+using UnityEngine.InputSystem;
+using System.Collections;
+
+public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
+{
+    [Header("Flashlight Variables")]
+    public int slotIndex = 1;
+    public InventoryManager inventoryManager;
+
+    public float intensityMax = 1500f;
+    public float intensityMin = 5f;
+
+    public float spotRangeMin = .5f;
+    public float spotRangeMax = 30f;
+
+    public float intensityLerpSpeed = 10f;
+
+    [SerializeField]
+    private LayerMask barrierLayer; //set layer for barriers
+
+    [SerializeField]
+    private GameObject player;
+    [SerializeField]
+    ZeroGravity zeroGPlayer;
+    [SerializeField]
+    private Transform holdPos;
+    [SerializeField]
+    private Camera cam;
+    [SerializeField]
+    private PlayerUIManager uiManager;
+
+    public bool lookingAtFlashlight = false;
+    [SerializeField] private bool hasFlashlight = false;
+    [SerializeField] private bool tutorialComplete = false;
+
+    [SerializeField]
+    GameObject flashlightInHand;
+    [SerializeField]
+    private GameObject flashlightOutHand;
+    [SerializeField]
+    private GameObject flashlightOutHandPrefab;
+    [SerializeField]
+    private GameObject outHandPos;
+
+    [SerializeField]
+    private bool flashlightEquipped = false;
+    private bool flashlightOn = false;
+    public bool flashlightClippedToBelt = false;
+    public bool restartFlashlightTutorial = false;
+
+    [SerializeField] private GameObject useFlashlightCanvas;
+    [SerializeField] private CanvasGroup useFlashlightCanvasGroup;
+
+    [SerializeField] private GameObject toggleFlashlightCanvas;
+    [SerializeField] private CanvasGroup toggleFlashlightCanvasGroup;
+
+    // add all additional events based stuff here
+    public bool flashlightToggled;
+    public bool flashlightToggledInv;
+    public bool tutorialStarted;
+
+    public event System.Action<bool> OnFlashlightAcquired;
+    public event System.Action<bool> OnFlashlightTurnedOn;
+    public event System.Action<bool> OnFlashlightToggledInv;
+
+    Ray ray;
+
+    #region Properties
+    [SerializeField]
+    public bool FlashlightEquipped
+    {
+        get { return flashlightEquipped; }
+        set
+        {
+            //Debug.Log("Flashlight equipped: " + flashlightEquipped);
+            flashlightInHand.SetActive(flashlightEquipped);
+            //Debug.Log("Flashlight object parented to player active: " + flashlightObjectParentedToPlayer.activeSelf);
+        }
+    }
+    // bool to check wether or not the player is looking at the flashlight in the scene,
+    // if true the player can pick up the flashlight and use it.
+    public bool LookingAtFlashlight
+    {
+        get { return lookingAtFlashlight; }
+        set { lookingAtFlashlight = value; }
+    }
+    // property for the flashlight in the scene,
+    //if true the flashlight will be destroyed in scene. 
+    // the player instead will use the flashlight parented to ZeroGPlayer
+    public bool HasFlashlight
+    {
+        get
+        {
+            return hasFlashlight;
+        }
+        set { if (hasFlashlight == value) return;
+            hasFlashlight = value;
+            OnFlashlightAcquired?.Invoke(hasFlashlight);
+        }
+    }
+    public bool TutorialComplete
+    {
+        get { return tutorialComplete;  }
+        set { tutorialComplete = value; }
+    }
+
+    #endregion
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        //Debug.Log("Flashlight script started");
+        flashlightEquipped = false;
+        inventoryManager.RegisterSlot((int)slotIndex, this);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        //this determines if the value scaling should be running on the flashlight in hand or out of hand
+        if (hasFlashlight)
+        {
+            if (flashlightInHand && flashlightInHand.activeSelf && flashlightOn)
+            {
+                ScaleFlashlightValues(flashlightInHand);
+            }
+            else if (flashlightOutHand != null && flashlightOutHand.activeSelf && flashlightOn)
+            {
+                ScaleFlashlightValues(flashlightOutHand);
+            }
+
+            if (inventoryManager.persistant.WristMonitor.IsActive)
+            {
+                if (flashlightInHand.activeSelf)
+                {
+                    //Debug.Log("hiding flashlight, wrist monitor opened");
+                    inventoryManager.DeactivateCurrent();
+                    if (inventoryManager.ShowIndicators)
+                        inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+                }
+            }
+        } 
+    }
+
+    /// <summary>
+    /// This method is created to dynamically scale the flashlight variables to feel more realistic at shorter range.
+    /// </summary>
+    /// <param name="flashlight"></param>
+    public void ScaleFlashlightValues(GameObject flashlight)
+    {
+        //get the distance to the nearest object infront of the flashlight
+        float distance = RayCastDistance(flashlight);
+
+        foreach (Light light in flashlight.GetComponentsInChildren<Light>())
+        {
+            //if it's a spotlight
+            if(light.type == UnityEngine.LightType.Spot)
+            {
+                float targetIntensity = intensityMax / spotRangeMax * distance;
+                //Debug.Log("scaling light intensity");
+                //set the intensity to a ratio scaled by the distance
+                light.intensity = Mathf.Lerp(light.intensity, targetIntensity, intensityLerpSpeed * Time.deltaTime);
+            }
+        }
+    }
+
+    /// <summary>
+    /// This method is a helper function for ScaleFlashlightValues
+    /// This creates a ray cast out from the flashlight bulb to find the distance between it and the nearest wall. 
+    /// If the wall is beyond the spotlight range, it returns the spotlight range
+    /// </summary>
+    /// <param name="flashlight"></param>
+    /// <returns></returns>
+    public float RayCastDistance(GameObject flashlight)
+    {
+        //performa simple single ray cast to establish the flashlight's distance to the closest object in front of it
+        RaycastHit hit;
+        Transform t = flashlight.transform;
+
+        //angular spread for cross rays in degrees
+        float spreadAngle = 10f;
+
+        //build the 5 ray directions
+        Vector3[] directions = new Vector3[5];
+        directions[0] = t.up; // center
+        directions[1] = Quaternion.AngleAxis(spreadAngle, t.right) * t.up; // up
+        directions[2] = Quaternion.AngleAxis(-spreadAngle, t.right) * t.up; // down
+        directions[3] = Quaternion.AngleAxis(spreadAngle, t.forward) * t.up; // right
+        directions[4] = Quaternion.AngleAxis(-spreadAngle, t.forward) * t.up; // left
+
+        float totalDistance = 0f;
+        int rayCount = directions.Length;
+        foreach(Vector3 dir in directions)
+        {
+            //create the ray
+            ray = new Ray(t.position, dir);
+
+            //create the raycast sending its info to hit, and with a max range of the max range of the spotlight
+            if (Physics.Raycast(ray, out hit, spotRangeMax, barrierLayer))
+            {
+                //Debug.Log("ray distance: " + hit.distance);
+                // Debug.Log("hit tag" + hit.rigidbody);
+                if (hit.distance <= spotRangeMin)
+                {
+
+                    totalDistance += spotRangeMin;
+                }
+                else
+                {
+                    //Debug.Log("ray distance: " + hit.distance);
+                    totalDistance += hit.distance;
+                }
+            }
+            //the raycast goes beyond the max range
+            else
+            {
+                //Debug.Log("Ray hit nothing, walls are out of range");
+                totalDistance += spotRangeMax;
+            }
+        }
+        //return an average of the distances
+        return totalDistance / rayCount;
+    }
+
+    public void EquipFlashlightFromScene()
+    {
+        //Debug.Log("equip flashlight called");
+        if (hasFlashlight
+            && !flashlightEquipped)
+        {
+            inventoryManager.RequestActivate(slotIndex);
+            if (inventoryManager.ShowIndicators)
+                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
+        }
+    }
+
+    public void ToggleFlashlightFromInventory(InputAction.CallbackContext context)
+    {
+        //if the player has picked up the flashlight and performs key click of 1
+        if (hasFlashlight && context.performed 
+            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf
+            && !inventoryManager.persistant.WristMonitor.IsActive)
+        {
+            if(flashlightEquipped)
+            {
+                inventoryManager.DeactivateCurrent();
+                if (inventoryManager.ShowIndicators)
+                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+            }
+            else
+            {
+                inventoryManager.RequestActivate((int)slotIndex);
+                if (inventoryManager.ShowIndicators)
+                    inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(true);
+            }
+            if (!tutorialComplete)
+                OnFlashlightToggledInv?.Invoke(!flashlightEquipped);
+        }
+        //Debug.Log("Equipping flashlight from inventory|| HasFlashlightInScene: " + HasFlashlightInScene + " FlashlightEquipped: " + FlashlightEquipped);
+    }
+
+    public void ToggleFlashlight(InputAction.CallbackContext context)
+    {
+        if (hasFlashlight && flashlightEquipped == true && context.performed
+            && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf
+            && !inventoryManager.persistant.WristMonitor.IsActive)
+        {
+            flashlightOn = !flashlightOn;
+            //Debug.Log("Toggling flashlight" + flashlightOn);
+            foreach (Light light in flashlightInHand.GetComponentsInChildren<Light>())
+            {
+                //Debug.Log("light found");
+                light.enabled = flashlightOn;
+            }
+            if(!tutorialComplete)
+            OnFlashlightTurnedOn?.Invoke(!flashlightOn);
+        }
+    }
+
+    public void Equip()
+    {
+        flashlightEquipped = true;
+        flashlightInHand.SetActive(true);
+        inventoryManager.SetChildrenToHoldLayer(flashlightInHand);
+
+        foreach (Light light in flashlightInHand.GetComponentsInChildren<Light>())
+        {
+            light.enabled = flashlightOn;
+        }
+
+        if(flashlightOutHand != null)
+        {
+            Destroy(flashlightOutHand);
+        }
+        flashlightOutHand = null;
+        flashlightClippedToBelt = false;
+    }
+
+    public void Unequip()
+    {
+        //Debug.Log("unequip called");
+        if (hasFlashlight)
+        {
+            flashlightEquipped = false;
+            flashlightInHand.SetActive(false);
+            if (flashlightOn)
+            {
+                flashlightClippedToBelt = true;
+                //set the config joint flashlight true (clipped to belt)
+                if (flashlightClippedToBelt)
+                {
+                    if (flashlightOutHand != null)   
+                    {
+                        Destroy(flashlightOutHand);
+                        flashlightOutHand = null;
+                    }
+                    //instantiate a new outhand flashlight
+                    GameObject outHand = Instantiate(flashlightOutHandPrefab, outHandPos.transform.position, outHandPos.transform.rotation);
+                    //set the parent to the flashlight inventory slot
+                    outHand.transform.SetParent(outHandPos.transform, true);
+                    inventoryManager.SetChildrenToHoldLayer(outHand);
+                    //set config joint connected body
+                    //find the rigid body of this gameobject
+                    Rigidbody connectedBody = outHandPos.GetComponent<Rigidbody>();
+                    ConfigurableJoint joint = outHand.GetComponent<ConfigurableJoint>();
+                    joint.connectedBody = connectedBody;
+                    //set the new outhand to the outhand flashlight object
+                    flashlightOutHand = outHand;
+                    //set the up to the outHandPos up
+                    flashlightOutHand.transform.up = outHandPos.transform.up;
+                    //finally set it true now that everything is set
+                    flashlightOutHand.SetActive(true);
+
+                    RayCastDistance(flashlightInHand);
+                }
+            }
+        }  
+    }
+
+    private void OnDrawGizmos()
+    {
+        Transform t = flashlightInHand.transform;
+
+        //angular spread for cross rays in degrees
+        float spreadAngle = 10f;
+
+        //build the 5 ray directions
+        Vector3[] directions = new Vector3[5];
+        directions[0] = t.up; // center
+        directions[1] = Quaternion.AngleAxis(spreadAngle, t.right) * t.up; // up
+        directions[2] = Quaternion.AngleAxis(-spreadAngle, t.right) * t.up; // down
+        directions[3] = Quaternion.AngleAxis(spreadAngle, t.forward) * t.up; // right
+        directions[4] = Quaternion.AngleAxis(-spreadAngle, t.forward) * t.up; // left
+
+        foreach (Vector3 dir in directions)
+        {
+            //create the ray
+            ray = new Ray(t.position, dir);
+            Gizmos.DrawRay(ray);
+        }
+    }
+
+    public void HandleFlashlightAcquired(bool acquired)
+    {
+        if (acquired)
+        {
+            FlashlightFirstPickup pickupObj = FindFirstObjectByType<FlashlightFirstPickup>();
+            pickupObj.gameObject.SetActive(false);
+            EquipFlashlightFromScene();
+        }
+
+        // only run the tutorial the first time the flashlight is picked up
+        // (e.g. skip it if TutorialComplete was already true from a save file)
+        if (!TutorialComplete && !tutorialStarted)
+        {
+            tutorialStarted = true;
+            StartCoroutine(FlashlightTutorial());
+        }
+    }
+
+    public void HandleFlashlightOffOnToggled(bool turnedOn)
+    {
+        //add logic here for the tutorial of the flashlight
+        flashlightToggled = true;
+    }
+
+    public void HandleFlashlightToggledInv(bool toggledInv)
+    {
+        flashlightToggledInv = true;
+    }
+
+    public IEnumerator FlashlightTutorial()
+    {
+        inventoryManager.InTutorial = true;
+        //fade in the use flashlight panel
+        inventoryManager.tutorialCanvases.FadeIn(
+            inventoryManager.useFlashlightCanvasPrefab,
+            ref useFlashlightCanvas, ref useFlashlightCanvasGroup,
+            inventoryManager.tutorialCanvases.tutorialCanvasesPos);
+
+        //wait until the player uses left click to turn on/off the flashlight
+        flashlightToggled = false;
+        yield return new WaitUntil(() => flashlightToggled);
+
+        //fade out the use flashlight panel
+        inventoryManager.tutorialCanvases.FadeOut(
+            useFlashlightCanvas, useFlashlightCanvasGroup, () =>
+            {
+                useFlashlightCanvas = null;
+                useFlashlightCanvasGroup = null;
+            });
+
+        yield return new WaitForSeconds(1f);
+
+        //fade in the toggle flashlight panel
+        inventoryManager.tutorialCanvases.FadeIn(
+            inventoryManager.toggleFlashlightCanvasPrefab,
+            ref toggleFlashlightCanvas, ref toggleFlashlightCanvasGroup,
+           inventoryManager.tutorialCanvases.tutorialCanvasesPos);
+
+        //wait until the player uses left click to toggle the flashlight
+        flashlightToggledInv = false;
+        yield return new WaitUntil(() => flashlightToggledInv);
+
+        //fade out the toggle flashlight panel
+        inventoryManager.tutorialCanvases.FadeOut(
+            toggleFlashlightCanvas, toggleFlashlightCanvasGroup, () =>
+            {
+                toggleFlashlightCanvas = null;
+                toggleFlashlightCanvasGroup = null;
+            });
+        lookingAtFlashlight = false;
+        TutorialComplete = true;
+        inventoryManager.InTutorial = !TutorialComplete;
+
+        FlashlightFirstPickup pickupObj = FindFirstObjectByType<FlashlightFirstPickup>();
+        if(pickupObj != null)
+        pickupObj.gameObject.SetActive(false);
+    }
+
+    public void RestartFlashlightTutorial()
+    {
+        StopAllCoroutines();
+
+        if (useFlashlightCanvas != null)
+            Destroy(useFlashlightCanvas);
+        if (toggleFlashlightCanvas != null)
+            Destroy(toggleFlashlightCanvas);
+
+        //Debug.Log("restarting tutorial");
+
+        useFlashlightCanvas = null;
+        useFlashlightCanvasGroup = null;
+        toggleFlashlightCanvas = null;
+        toggleFlashlightCanvasGroup = null;
+
+        flashlightToggled = false;
+        flashlightToggledInv = false;
+        tutorialStarted = false;
+
+        FlashlightFirstPickup pickupObj = FindFirstObjectByType<FlashlightFirstPickup>();
+        if(pickupObj)
+        pickupObj.gameObject.SetActive(true);
+
+        //OnFlashlightAcquired -= HandleFlashlightAcquired;
+        //OnFlashlightTurnedOn -= HandleFlashlightOffOnToggled;
+        //OnFlashlightToggledInv -= HandleFlashlightToggledInv;
+
+        inventoryManager.InTutorial = false;
+    }
+
+    #region ISaveableInventoryItem
+    public class FlashlightSaveData
+    {
+        public bool hasFlashlight;
+        public bool TutorialComplete;
+    }
+
+    public string GetSaveData()
+    {
+        return JsonUtility.ToJson(new FlashlightSaveData { hasFlashlight = hasFlashlight, TutorialComplete = tutorialComplete});
+    }
+
+    public void LoadSaveData(string json)
+    {
+        if (string.IsNullOrEmpty(json)) return;
+
+        var data = JsonUtility.FromJson<FlashlightSaveData>(json);
+        HasFlashlight = data.hasFlashlight;
+
+        //Debug.Log("LoadSaveData Flashlight " + HasFlashlight + " " + data.hasFlashlight);
+
+        tutorialComplete = data.TutorialComplete;
+
+        if (!tutorialComplete)
+        {
+            RestartFlashlightTutorial();
+        }
+
+        if (!HasFlashlight)
+        {
+            flashlightEquipped = false;
+            if (flashlightInHand != null) flashlightInHand.SetActive(false);
+            Destroy(flashlightOutHand);
+            flashlightOutHand = null;
+            flashlightClippedToBelt = false;
+            if (inventoryManager.ShowIndicators)
+                inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
+        }
+    }
+
+    public void ClearRuntimeState()
+    {
+        //Debug.Log("ClearRuntimeState Flashlight " + HasFlashlight);
+        if (!HasFlashlight)
+        {
+            flashlightEquipped = false;
+            Destroy(flashlightOutHand);
+            flashlightOutHand = null;
+            flashlightClippedToBelt = false;
+            if (flashlightInHand != null) flashlightInHand.SetActive(false);
+        }
+    }
+
+    #endregion
+}
+

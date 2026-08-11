@@ -7,25 +7,30 @@ public class AudioCulling : MonoBehaviour
     public AudioSource[] exempt;
     public AudioSource[] cullable;
     [SerializeField] private AudioZone[] audioZones;
-    [SerializeField] private ZeroGravity player;
+    [SerializeField] private PersistantManager persistant;
 
     public AudioZone currentZone;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Rebuild();
-        player = FindFirstObjectByType<ZeroGravity>();
+        persistant = FindFirstObjectByType<PersistantManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (persistant == null)
+        {
+            persistant = FindFirstObjectByType<PersistantManager>();
+        }
+
         for (int i = 0; i < audioZones.Length; i++)
         { //for every audio zone...
             // Skip destroyed zones
             if (audioZones[i] == null) continue;
 
-            if (audioZones[i].bounds.Contains(player.transform.position))
+            if (audioZones[i].bounds.Contains(persistant.Player.transform.position))
             { //if the audio zone has the player in it...
                 audioZones[i].Activate(); //activate all the audio sources in that zone
                 currentZone = audioZones[i]; //and set the current zone to be this one, since it contains the player
@@ -44,11 +49,6 @@ public class AudioCulling : MonoBehaviour
                     }
                 }
             }
-        }
-
-        if(player == null)
-        {
-            player = FindFirstObjectByType<ZeroGravity>();
         }
     }
 

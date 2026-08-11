@@ -23,7 +23,7 @@ public class MenuManager : MonoBehaviour
     public static bool playerDead = false;
 
     [SerializeField] private GameObject dialogueCanvas;
-    [SerializeField] private GameObject tutorialCanvas;
+    [SerializeField] private Canvas tutorialCanvasComponent;
 
     // Audio Manager
     [SerializeField] private AudioSource dialogue;
@@ -78,8 +78,7 @@ public class MenuManager : MonoBehaviour
             Cursor.visible = true;
             playerCanvas.SetActive(false);
             dialogueCanvas.SetActive(false);
-            if(tutorialCanvas != null)
-            tutorialCanvas.SetActive(false);
+            SetTutorialCanvasVisible(false);
             _unscaledTime += .01f;
             Shader.SetGlobalFloat("_UnscaledTime", _unscaledTime);
         }   
@@ -110,8 +109,7 @@ public class MenuManager : MonoBehaviour
         Cursor.visible = false;
         playerCanvas.SetActive(true);
         dialogueCanvas.SetActive(true);
-        if(tutorialCanvas != null)
-        tutorialCanvas.SetActive(true);
+        SetTutorialCanvasVisible(true);
         Time.timeScale = 1;
         if (dialogue != null) dialogue.UnPause();
         _isPaused = false;
@@ -185,5 +183,11 @@ public class MenuManager : MonoBehaviour
             menu.SetActive(false);
         }
         activeMenus.Clear();
+    }
+
+    private void SetTutorialCanvasVisible(bool visible)
+    {
+        if (tutorialCanvasComponent == null) return;
+        tutorialCanvasComponent.enabled = visible;
     }
 }
