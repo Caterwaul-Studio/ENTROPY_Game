@@ -1,4 +1,3 @@
-using UnityEditor.Animations.Rigging;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
