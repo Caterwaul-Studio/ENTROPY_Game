@@ -1182,7 +1182,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         //Debug.Log("no swingaling");
         swingPoint = Vector3.zero;
-        Destroy(joint);
+        //Destroy(joint);
         swinging = false;
     }
 

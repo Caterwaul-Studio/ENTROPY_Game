@@ -10,10 +10,19 @@ public class FireNodeScript : MonoBehaviour
     [SerializeField] private Bounds playerBounds;
     [SerializeField] private FireScript myFire;
     [SerializeField] private GameObject myLight;
+    private Light myLightComponent;
+    private float flickerSeed;
+    [Header("FlickerSettings")]
+    [SerializeField] private float flickerSpeed = 8f;
+    [SerializeField] private float flickerIntensityRange = 0.15f;
+
+    [Header("References")]
     [SerializeField] private PersistantManager persistantManager;
     [SerializeField] private GameObject player;
     [SerializeField] private Camera MainCamera;
     [SerializeField] private PuffMovement[] extinguishNodes;
+
+    [Header("Fire Settings")]
     [SerializeField] private int flameSteady; //should be 1-5
     [SerializeField] private int regenRate;
     [SerializeField] private float flameLoss; //this variable is how much strength the flame loses every time it gets hit.
@@ -66,6 +75,9 @@ public class FireNodeScript : MonoBehaviour
         //setting original params
         originalStartSize = sysMain.startSize.constant;
         originalShapeRadius = sysShape.radius;
+
+        myLightComponent = myLight.GetComponent<Light>();
+        flickerSpeed = Random.Range(0f, 10f);
     }
 
     // Update is called once per frame
@@ -114,7 +126,17 @@ public class FireNodeScript : MonoBehaviour
                     flameSteady = 1;
                 }
             }
-        } 
+        }
+        if (fireActive)
+            UpdateFlicker();
+    }
+
+    private void UpdateFlicker()
+    {
+        float baseIntensity = flameStrength / 1000f;
+        float noise = Mathf.PerlinNoise(flickerSpeed, Time.time * flickerSpeed);
+        float flickerOffset = (noise - 0.5f) * flickerIntensityRange * baseIntensity;
+        myLightComponent.intensity = baseIntensity + flickerOffset;
     }
 
     private void DampenFlame(GameObject other)
@@ -145,7 +167,6 @@ public class FireNodeScript : MonoBehaviour
         //all changes to the flame particle system are to happen here
         sysMain.startSize = originalStartSize * (flameStrength / 100);
         sysShape.radius = originalShapeRadius * (flameStrength / 100);
-        myLight.GetComponent<Light>().intensity = flameStrength / 1000;
     }
 
     public void Reignite(int reigniteLevel) //this function is to be used by other scripts to reignite the flame
