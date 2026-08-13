@@ -25,7 +25,7 @@ Material:
     RenderType: TransparentCutout
   disabledShaderPasses:
   - MOTIONVECTORS
-  m_LockedProperties: 
+  m_LockedProperties: _AlphaDithering _Min
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -39,7 +39,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 1.73, y: 6.37}
+        m_Scale: {x: 0, y: 0}
         m_Offset: {x: 0, y: 0}
     - _DetailMask:
         m_Texture: {fileID: 0}
@@ -101,27 +101,27 @@ Material:
     m_Floats:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 1
-    - _AlphaDithering: -0.09
+    - _AlphaDithering: 0.4
     - _AlphaToMask: 1
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _BumpScale: 2.63
+    - _BumpScale: 1
     - _CastShadows: 1
     - _Cull: 2
     - _Cutoff: 0.475
     - _DETAIL_MULX2: 0
-    - _DetailAlbedoMapScale: 1.278
+    - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DitherSize: 3.05
+    - _DitherSize: 0.00005222
     - _DstBlend: 0
     - _EMISSION: 1
     - _EmissiveMax: 1.51
     - _EmissiveMin: 0.85
     - _EnvironmentReflections: 1
     - _METALLICSPECGLOSSMAP: 1
-    - _Max: 6.81
+    - _Max: 0.5
     - _Metallic: 0
-    - _Min: 1.19
+    - _Min: -0.5
     - _NORMALMAP: 1
     - _OCCLUSIONMAP: 0
     - _OcclusionStrength: 0
