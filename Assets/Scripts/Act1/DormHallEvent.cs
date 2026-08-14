@@ -100,9 +100,12 @@ public class DormHallEvent : MonoBehaviour, ISaveable, IInteractable
         // continue from save
         if (GlobalSaveManager.LoadFromSave) GlobalSaveManager.LoadSavable(this, false);
 
-        wristMonitor.OnWristMonitorAcquired += HandleWristMonitorAcquired;
-        blinkCoroutine = StartCoroutine(BlinkMonitor());
-        wristMonitor.OnWristMonitorOpened += FadeOutMonitorTutorial;
+        if(wristMonitor != null)
+        {
+            wristMonitor.OnWristMonitorAcquired += HandleWristMonitorAcquired;
+            blinkCoroutine = StartCoroutine(BlinkMonitor());
+            wristMonitor.OnWristMonitorOpened += FadeOutMonitorTutorial;
+        }
     }
 
 

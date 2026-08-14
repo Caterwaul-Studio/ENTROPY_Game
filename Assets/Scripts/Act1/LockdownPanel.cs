@@ -119,7 +119,7 @@ public class LockdownPanel : MonoBehaviour
     public IEnumerator PlayLeverAnimation()
     {
         Quaternion startRot = LeverPivot.rotation;
-        Quaternion endRot = Quaternion.Euler(82f, LeverPivot.eulerAngles.y, LeverPivot.eulerAngles.z);
+        Quaternion endRot = Quaternion.Euler(-90f, LeverPivot.eulerAngles.y, LeverPivot.eulerAngles.z);
         float duration = 0.8f;
 
         float t = 0f;

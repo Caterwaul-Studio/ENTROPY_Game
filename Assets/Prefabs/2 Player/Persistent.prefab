@@ -1844,7 +1844,7 @@ MonoBehaviour:
   sensitivityX: 4
   sensitivityY: 2
   respawnLoc: {fileID: 1543187311967053511}
-  playerHealth: 3
+  playerHealth: 4
   maxHealth: 4
   numStims: 0
   maxNumStim: 3
@@ -1924,6 +1924,7 @@ MonoBehaviour:
     completedObjectives: []
   isBeingGrabbed: 0
   throwDecay: 3
+  hasGloves: 0
 --- !u!114 &2598745840425030261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20862,9 +20863,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerObject: {fileID: 273146030665545291}
   player: {fileID: 3700987545340591992}
-  inventoryManager: {fileID: 4137832610019394169}
+  InventoryManager: {fileID: 4137832610019394169}
   PlayerUIManager: {fileID: 5260962018019044910}
   WristMonitor: {fileID: 4650902725583548589}
+  TutorialCanvases: {fileID: 7870784823480412392}
   mainCamera: {fileID: 2519919635387003401}
   persistentObj: {fileID: 3855290445853417195}
 --- !u!1 &3938177079421531670
@@ -44182,6 +44184,7 @@ MonoBehaviour:
   inventoryManager: {fileID: 4137832610019394169}
   ExtinguisherInRaycast: 0
   extinguisherContainer: {fileID: 0}
+  extinguisherContainerName: FireExtinguishers
   canPuff: 1
   hasExtinguisher: 0
   puffObjects:

@@ -83,6 +83,13 @@ public class FireNodeScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (persistantManager == null)
+        {
+            persistantManager = FindFirstObjectByType<PersistantManager>();
+            player = persistantManager.PlayerObject;
+            MainCamera = persistantManager.MainCamera;
+        }
+
         if (!extinguishNodes.Contains(null))
         {
             if (fireActive)

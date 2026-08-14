@@ -11,12 +11,13 @@ public class CheckpointManager : MonoBehaviour, ISaveable
     [SerializeField] private GameObject persistentPrefab;
     [SerializeField] private Camera playerCam;
     [SerializeField] private InventoryManager inventoryManager;
-    private int _currentIndex = 0;
+    public bool AnyCheckPointReached { get; private set; } = false;
+    //private int _currentIndex = 0;
 
-    public int CurrentIndex
-    {
-        get { return _currentIndex; }
-    }
+    //public int CurrentIndex
+    //{
+    //    get { return _currentIndex; }
+    //}
 
     void Start()
     {
@@ -30,13 +31,13 @@ public class CheckpointManager : MonoBehaviour, ISaveable
         {
             inventoryManager = FindFirstObjectByType<InventoryManager>();
         }
-        // Wire up each checkpoint and only enable the first one
-        for (int i = 0; i < checkpoints.Count; i++)
+        // Wire up each checkpoint and enable them all
+        foreach (var cp in checkpoints)
         {
-            var cp = checkpoints[i];
             cp.OnReached += HandleCheckpointReached;
-            cp.Initialize(playerZeroG, i == 0);
+            cp.Initialize(playerZeroG, true);
         }
+
         // continue from save
         if (GlobalSaveManager.LoadFromSave)
         {
@@ -47,12 +48,7 @@ public class CheckpointManager : MonoBehaviour, ISaveable
 
     void HandleCheckpointReached(Checkpoint reached)
     {
-        // advance to next checkpoint if there is one
-        if (_currentIndex + 1 < checkpoints.Count)
-        {
-            _currentIndex++;
-            checkpoints[_currentIndex].Initialize(playerZeroG, true);
-        }
+        AnyCheckPointReached = true;
         // store the Player's data to the save manager, passing in the position of this checkpoint
         playerZeroG.StorePlayerData(reached.respawnPoint.transform.position);
         // save the game at checkpoints
