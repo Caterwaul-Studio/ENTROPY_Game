@@ -37,7 +37,9 @@ public class SpawnGeistTrigger : MonoBehaviour
         if (geistSpawnCollider.bounds.Contains(playerPos))
         {
             triggerEntered = true;
+            persistant.GeistAlrSpawned = true;
             OnGeistTriggerEnter?.Invoke(triggerEntered);
+            Destroy(gameObject);
         }
     }
 }

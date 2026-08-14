@@ -126,7 +126,7 @@ public class StimDispenser : MonoBehaviour
             progressCanvas.alpha = 0;
         }
 
-        if (isRefilling)
+        if (isRefilling && playerScript.NumStims < 3)
         {
             //Debug.Log($"[StimDispenser] Refilling... holdTimer={holdTimer:F2}, distance={Vector3.Distance(playerObj.transform.position, transform.position):F2}");
             progressCanvas.alpha = 1f;

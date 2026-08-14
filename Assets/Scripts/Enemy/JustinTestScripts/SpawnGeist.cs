@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class SpawnGeist : MonoBehaviour
 {
+    [SerializeField] private PersistantManager persistant;
     [SerializeField] private SpawnGeistTrigger trigger;
 
     [SerializeField] private GameObject geist2PreFab;
@@ -26,16 +27,24 @@ public class SpawnGeist : MonoBehaviour
         if(trigger == null)
             trigger = FindFirstObjectByType<SpawnGeistTrigger>();
 
+        if(persistant == null)
+        {
+            persistant = FindFirstObjectByType<PersistantManager>();
+            useSpawnTimer = persistant.GeistAlrSpawned;
+        }
+
         if (useSpawnTimer)
         {
             geistSpawnWait = StartCountdown(waitTimer);
             StartCoroutine(geistSpawnWait);
         }
 
-        if (!trigger.triggerEntered)
+        if (trigger != null && !trigger.triggerEntered)
         {
             trigger.OnGeistTriggerEnter += HandleGeistTriggerEnter;
         }
+
+
     }
 
     private void OnDestroy()
