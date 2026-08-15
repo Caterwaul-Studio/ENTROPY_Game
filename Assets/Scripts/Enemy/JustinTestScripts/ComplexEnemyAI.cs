@@ -17,6 +17,7 @@ public class ComplexEnemyAI : MonoBehaviour
     public float stunVelocityThreshold = 4f;
 
     [Header("References")]
+    public PersistantManager persistant;
     public GameObject player;
     public ZeroGravity playerController;
     public Waypoint startingWaypoint;
@@ -103,10 +104,10 @@ public class ComplexEnemyAI : MonoBehaviour
 
     void Start()
     {
-        if (player == null) player = GameObject.FindGameObjectWithTag("Player");
-        if (playerController == null) playerController = FindAnyObjectByType<ZeroGravity>();
+        if (persistant == null) persistant = FindFirstObjectByType<PersistantManager>();
+        if (player == null) player = persistant.PlayerObject;
+        if (playerController == null) playerController = persistant.Player;
 
-        
         allWaypoints = waypointGroup.GetComponentsInChildren<Waypoint>().ToList();
         foreach (Waypoint wp in allWaypoints)
         {
@@ -232,7 +233,7 @@ public class ComplexEnemyAI : MonoBehaviour
         }
         //end music zone
 
-
+        Debug.Log($"Geist current state {enemyStateMachine.currentSpecificState.ToString()}");
 
     }
 

@@ -41,6 +41,7 @@ public class EnemyStateMachine : MonoBehaviour
     public SpecificEnemyState pastSpecificState;
 
     [Header("References")]
+    public PersistantManager persistant;
     public GameObject player;
     public ZeroGravity playerController;
     public ComplexEnemyAI complexEnemyAI;
@@ -114,8 +115,9 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void Start()
     {
-        if (player == null) player = GameObject.FindGameObjectWithTag("Player");
-        if (playerController == null) playerController = FindAnyObjectByType<ZeroGravity>();
+        if(persistant == null) persistant = FindFirstObjectByType<PersistantManager>();
+        if (player == null) player = persistant.PlayerObject;
+        if (playerController == null) playerController = persistant.Player;
 
         if (complexEnemyAI == null) complexEnemyAI = GetComponent<ComplexEnemyAI>(); 
 

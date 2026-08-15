@@ -272,6 +272,7 @@ public class PlayerUIManager : MonoBehaviour
         //cached so we don't need to constantly look for them all the time 
         grabberRectTransform = grabber.GetComponent<RectTransform>();
         crosshairRectTransform = crosshair.GetComponent<RectTransform>();
+        if(stimDispenserContainer != null)
         stimDispensers = stimDispenserContainer.GetComponentsInChildren<StimDispenser>();
         progressBar.enabled = false;
     }
@@ -528,9 +529,12 @@ public class PlayerUIManager : MonoBehaviour
                     stim.CanRefill = false;
                 }
             }
-            if (terminalManager.CurrentTerminal != null)
+            if(terminalManager != null)
             {
-                terminalManager.CurrentTerminal = null;
+                if (terminalManager.CurrentTerminal != null)
+                {
+                    terminalManager.CurrentTerminal = null;
+                }
             }
         }
 
