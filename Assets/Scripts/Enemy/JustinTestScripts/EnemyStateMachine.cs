@@ -92,6 +92,7 @@ public class EnemyStateMachine : MonoBehaviour
 
     [Header("Grab Settings")]
     [SerializeField] private float forceLookSpeedTime;
+    [SerializeField] private bool isBeingGrabbedByGeist = false;
 
     [Header("Light Detection")]
     private bool isLightOn;
@@ -138,13 +139,12 @@ public class EnemyStateMachine : MonoBehaviour
             bool newDetect = PerformRaycastDetection();
             if (newDetect != canDetectPlayer)
                 Debug.Log($"<color=yellow>[DETECT] {canDetectPlayer}->{newDetect}</color> | state={currentSpecificState} | frame={Time.frameCount}");
-            canDetectPlayer = newDetect;
             if (newDetect)
             {
                 canDetectPlayer = true;
                 loseSightTimer = 0f;
             }
-            else
+            else if (!newDetect)
             {
                 loseSightTimer += Time.deltaTime;
                 //this helps ignore the flickering can detect when the player is on the edge of the detect radius
@@ -431,6 +431,8 @@ public class EnemyStateMachine : MonoBehaviour
     public void GrabPlayer()
     {
         // Start the sequence as a Coroutine so we can use "yield return" timers
+        if (isBeingGrabbedByGeist) return;
+        isBeingGrabbedByGeist = true;
         StartCoroutine(GrabAndThrowSequence());
     }
 
@@ -438,8 +440,6 @@ public class EnemyStateMachine : MonoBehaviour
     {
         // 1. Lock Player
         LockPlayerInputs();
-
-        player.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
 
         // 2. Force Look (Starts its own internal coroutine for camera)
         yield return StartCoroutine(RotateCameraToTarget(this.transform, forceLookSpeedTime));
@@ -450,14 +450,19 @@ public class EnemyStateMachine : MonoBehaviour
         // This gives the player a moment to see the Geist's face before being launched
         yield return new WaitForSeconds(5.5f);
 
+        playerController.IsBeingGrabbed = false;
+        playerController.RB.isKinematic = false;
+
         // 4. Execute Throw
         // We call a new function in AI to handle the kinematic "launch"
-        complexEnemyAI.ExecuteKinematicThrow(complexEnemyAI.throwLocation,10f);
+        complexEnemyAI.ExecuteKinematicThrow(complexEnemyAI.throwLocation,complexEnemyAI.throwForce);
 
         // 5. Cleanup
-        yield return new WaitForSeconds(0.5f); // Brief moment of stun after throw
+        yield return new WaitForSeconds(0.5f);
         UnlockPlayerInputs();
         GoIdle(); // Transitions state
+
+        isBeingGrabbedByGeist = false;
     }
 
     public void GrabAttackLogic()
@@ -476,8 +481,18 @@ public class EnemyStateMachine : MonoBehaviour
 
     public IEnumerator GrabAndWait()
     {
+        // 1. Lock Player
+        LockPlayerInputs();
+
+        // 2. Force Look (Starts its own internal coroutine for camera)
+        yield return StartCoroutine(RotateCameraToTarget(this.transform, forceLookSpeedTime));
+
         //Can place the audio call here (place 1)
         yield return new WaitForSeconds(3.0f);
+
+        //set the kinematic back, the IsDead proprty will set the rest of the flags
+        playerController.IsBeingGrabbed = false;
+        playerController.RB.isKinematic = false;
     }
 
     /*
@@ -527,6 +542,8 @@ public class EnemyStateMachine : MonoBehaviour
         //Debug.Log("player control locked");
 
         playerController.CanMove = false;
+        playerController.CanGrab = false;
+        playerController.CanPushOff = false;
         playerController.StopRollingQuickly();
 
         // Kill all momentum and freeze physics entirely
@@ -543,19 +560,17 @@ public class EnemyStateMachine : MonoBehaviour
     {
         //Debug.Log("player control unlocked");
         playerController.CanMove = true;
+        playerController.CanGrab = true;
+        playerController.CanPushOff = true;
         playerController.IsBeingGrabbed = false;
+        playerController.RB.isKinematic = false;
 
-        // Restore physics - but only if we're not about to throw
-        // (GetThrown handles its own kinematic transition)
-        if (!playerController.IsBeingThrown)
-        {
-            playerController.RB.isKinematic = false;
-        }
+        //restore physics handled in playerController.ThrowRoutine
 
         if (canTakeHealth)
         {
             //Debug.Log("player took damage");
-            playerController.PlayerHealth -= 1;
+            playerController.DecreaseHealth(1);
             canTakeHealth = false;
         }
         

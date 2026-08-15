@@ -556,8 +556,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         if (isBeingGrabbed)
         {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
             return; // skip all other movement
         }
 
@@ -606,15 +604,15 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     void Update()
     {
-        if (canMove)
+        if (canMove && !tutorialMode)
         {
-            //if (!canRoll || !canPropel || !canPushOff || !canGrab)
-            //{
-            //    canRoll = true;
-            //    canPropel = true;
-            //    canPushOff = true;
-            //    canGrab = true;
-            //}
+            if (!canRoll || !canPropel || !canPushOff || !canGrab)
+            {
+                canRoll = true;
+                canPropel = true;
+                canPushOff = true;
+                canGrab = true;
+            }
 
             RotateCam();
         }

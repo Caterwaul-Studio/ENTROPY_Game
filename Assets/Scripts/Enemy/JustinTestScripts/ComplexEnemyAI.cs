@@ -99,7 +99,7 @@ public class ComplexEnemyAI : MonoBehaviour
     [Header("Throw")]
     public Vector3 throwLocation; // set via SetThrowLocation()
     public float minThrowDistance = 5f;
-    [SerializeField] private float throwForce = 20f;
+    [SerializeField] public float throwForce = 20f;
 
     [SerializeField] private bool stateSwitchLog = false;
 
@@ -516,7 +516,7 @@ public class ComplexEnemyAI : MonoBehaviour
         playerController.GetThrown(direction, throwForce);
     }
 
-    private void ThrowPlayer() => StartCoroutine(ThrowSequence());
+    public void ThrowPlayer() => StartCoroutine(ThrowSequence());
     
     private IEnumerator ThrowSequence()
     {
@@ -646,12 +646,15 @@ public class ComplexEnemyAI : MonoBehaviour
         }
         else if (other.CompareTag("Player"))
         {
+            if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Grab ||
+                enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill) return;
+            
             Debug.Log($"<color=orange>[COLLISION] Player touched while state={enemyStateMachine.currentSpecificState}, canDetect={enemyStateMachine.canDetectPlayer}, frame={Time.frameCount}</color>");
             enemyStateMachine.GrabAttackLogic();
 
             if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Grab)
             {
-                ThrowPlayer();
+                enemyStateMachine.GrabPlayer();
             }
             else if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill)
             {
