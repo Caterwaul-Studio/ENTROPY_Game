@@ -1,52 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &573036300828197522
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8906895517481889120}
-  - component: {fileID: 5928911392637956599}
-  m_Layer: 0
-  m_Name: RightTendril
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8906895517481889120
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 573036300828197522}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.6225146, z: -0, w: -0.7826082}
-  m_LocalPosition: {x: -0.46199927, y: 0, z: 0.18900011}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3504647090177646169}
-  m_LocalEulerAnglesHint: {x: 0, y: 283, z: 0}
---- !u!114 &5928911392637956599
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 573036300828197522}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoLength: 1
-  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
-  activeTendril: {fileID: 0}
 --- !u!1 &887167724497493879
 GameObject:
   m_ObjectHideFlags: 0
@@ -79,8 +32,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 887167724497493879}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.0093286475, z: -0, w: 0.99995655}
-  m_LocalPosition: {x: 2.00158, y: 0, z: 5.275419}
+  m_LocalRotation: {x: 0, y: 0.0093286475, z: 0, w: 0.99995655}
+  m_LocalPosition: {x: 51.730938, y: 0, z: 17.236149}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -307,13 +260,14 @@ MonoBehaviour:
   pastGeneralState: 0
   currentSpecificState: 3
   pastSpecificState: 0
+  persistant: {fileID: 0}
   player: {fileID: 0}
   playerController: {fileID: 0}
   complexEnemyAI: {fileID: 0}
   simpleEnemyEnemyAI: {fileID: 0}
   detectionMask:
     serializedVersion: 2
-    m_Bits: 16576
+    m_Bits: 16577
   detectionRadius: 12
   defaultDetectionRadius: 9
   chaseDetectionRadius: 7
@@ -323,6 +277,8 @@ MonoBehaviour:
   chasePlayer: 0
   interestDuration: 5
   interestTimer: 0
+  loseSightGraceTime: 1
+  loseSightTimer: 0
   playersLastKnownLocation: {x: 0, y: 0, z: 0}
   shouldFollow: 0
   retreatDuration: 3
@@ -350,8 +306,8 @@ MonoBehaviour:
   forceLookSpeedTime: 0
   minChaseDistance: 0
   maxChaseDistance: 4
-  maxChaseSpeed: 2
-  minChaseSpeed: 1
+  maxChaseSpeed: 4
+  minChaseSpeed: 2
   showDetectionRadius: 1
   showRetreatRadius: 0
   roarBank:
@@ -372,11 +328,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53c125d3bff671c45b1321354920a789, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1.5
+  speed: 5
   useRandomRoaming: 0
   setRotationSpeed: 2.5
   stunSeconds: 3
   stunVelocityThreshold: 4
+  persistant: {fileID: 0}
   player: {fileID: 0}
   playerController: {fileID: 0}
   startingWaypoint: {fileID: 0}
@@ -413,6 +370,7 @@ MonoBehaviour:
   throwLocation: {x: 0, y: 0, z: 0}
   minThrowDistance: 5
   throwForce: 60
+  stateSwitchLog: 1
 --- !u!114 &1981256898708670038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -474,7 +432,7 @@ MonoBehaviour:
   gizmoLength: 1
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   activeTendril: {fileID: 0}
---- !u!1 &1023230763792843035
+--- !u!1 &976308702487683200
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -482,55 +440,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1382175887617870062}
-  - component: {fileID: 1855917764552656485}
-  m_Layer: 0
-  m_Name: BottomTendril
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1382175887617870062
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1023230763792843035}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0.7826082, y: 0, z: 0, w: 0.62251467}
-  m_LocalPosition: {x: 0.013998887, y: -0.4302, z: -0.25899985}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 663336922779946409}
-  m_LocalEulerAnglesHint: {x: 103, y: 0, z: 0}
---- !u!114 &1855917764552656485
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1023230763792843035}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoLength: 1
-  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
-  activeTendril: {fileID: 0}
---- !u!1 &1188080072203794949
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 256329930300313401}
-  - component: {fileID: 6887748159690032848}
+  - component: {fileID: 722726089509277757}
+  - component: {fileID: 8260271294984961166}
   m_Layer: 0
   m_Name: TopTendril
   m_TagString: Untagged
@@ -538,13 +449,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &256329930300313401
+--- !u!4 &722726089509277757
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1188080072203794949}
+  m_GameObject: {fileID: 976308702487683200}
   serializedVersion: 2
   m_LocalRotation: {x: 0.6225146, y: -0, z: -0, w: -0.7826082}
   m_LocalPosition: {x: 0.0060004974, y: 0.454, z: 0.19800009}
@@ -553,13 +464,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3504647090177646169}
   m_LocalEulerAnglesHint: {x: 283, y: 0, z: 0}
---- !u!114 &6887748159690032848
+--- !u!114 &8260271294984961166
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1188080072203794949}
+  m_GameObject: {fileID: 976308702487683200}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
@@ -660,18 +571,18 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.434
+  m_Volume: 1
   m_Pitch: 1
   Loop: 0
   Mute: 0
-  Spatialize: 1
+  Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
   MinDistance: 5
-  MaxDistance: 10
+  MaxDistance: 30
   Pan2D: 0
-  rolloffMode: 2
+  rolloffMode: 0
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -679,41 +590,23 @@ AudioSource:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0.026346847
-      value: 1.0023804
-      inSlope: -6.002399
-      outSlope: -6.002399
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.20430502
-      value: 0.40518188
-      inSlope: -1.5005997
-      outSlope: -1.5005997
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.53763837
-      value: 0.15518188
-      inSlope: -0.37514994
-      outSlope: -0.37514994
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
-      value: 0.069468185
-      inSlope: -0.16673319
-      outSlope: -0.16673319
+      value: 0
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0
-      outWeight: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -762,7 +655,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!1 &2065352012400810835
+--- !u!1 &1984250762264391625
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -770,37 +663,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8272038039578370431}
-  - component: {fileID: 4988358163042205158}
+  - component: {fileID: 4413156243076912320}
+  - component: {fileID: 5652241402716801787}
   m_Layer: 0
-  m_Name: TopTendril (1)
+  m_Name: LeftTendril (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8272038039578370431
+--- !u!4 &4413156243076912320
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2065352012400810835}
+  m_GameObject: {fileID: 1984250762264391625}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.6677953, y: -0.2672396, z: 0.260212, w: -0.6441446}
-  m_LocalPosition: {x: 0.3040912, y: 0.29763794, z: -0.17714828}
+  m_LocalRotation: {x: 0.34547958, y: 0.69961655, z: -0.1618511, w: 0.60413975}
+  m_LocalPosition: {x: 0.31334284, y: -0.29493904, z: -0.24837968}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 663336922779946409}
-  m_LocalEulerAnglesHint: {x: 226.157, y: -87.12601, z: 87.74}
---- !u!114 &4988358163042205158
+  m_LocalEulerAnglesHint: {x: 40.084, y: 106.526, z: 22.099}
+--- !u!114 &5652241402716801787
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2065352012400810835}
+  m_GameObject: {fileID: 1984250762264391625}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
@@ -809,7 +702,7 @@ MonoBehaviour:
   gizmoLength: 1
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   activeTendril: {fileID: 0}
---- !u!1 &2311560868942238004
+--- !u!1 &2394537467977021153
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -817,37 +710,84 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6110798562585814921}
-  - component: {fileID: 1328864777896003442}
+  - component: {fileID: 5038179240951402582}
+  - component: {fileID: 8843980063001314698}
   m_Layer: 0
-  m_Name: BottomTendril (1)
+  m_Name: BottomTendril
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6110798562585814921
+--- !u!4 &5038179240951402582
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2311560868942238004}
+  m_GameObject: {fileID: 2394537467977021153}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.52144146, y: 0.2656712, z: 0.2611144, w: 0.76768285}
-  m_LocalPosition: {x: 0.30733204, y: -0.32455826, z: 0.15362388}
+  m_LocalRotation: {x: 0.7826082, y: 0, z: 0, w: 0.62251467}
+  m_LocalPosition: {x: 0.013998887, y: -0.4302, z: -0.25899985}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 663336922779946409}
+  m_LocalEulerAnglesHint: {x: 103, y: 0, z: 0}
+--- !u!114 &8843980063001314698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2394537467977021153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoLength: 1
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  activeTendril: {fileID: 0}
+--- !u!1 &2418713465573658197
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 615641619436583664}
+  - component: {fileID: 2718087151067888984}
+  m_Layer: 0
+  m_Name: LeftTendril
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &615641619436583664
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2418713465573658197}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.5485391, z: -0, w: 0.8361249}
+  m_LocalPosition: {x: 0.44999975, y: 0, z: 0.20700006}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3504647090177646169}
-  m_LocalEulerAnglesHint: {x: 41.442, y: 65.149, z: 64.744}
---- !u!114 &1328864777896003442
+  m_LocalEulerAnglesHint: {x: 0, y: 66.534, z: 0}
+--- !u!114 &2718087151067888984
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2311560868942238004}
+  m_GameObject: {fileID: 2418713465573658197}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
@@ -856,7 +796,7 @@ MonoBehaviour:
   gizmoLength: 1
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   activeTendril: {fileID: 0}
---- !u!1 &2438116921190037045
+--- !u!1 &3006143521842673145
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -864,37 +804,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7619222047632223149}
-  - component: {fileID: 8347787985871936417}
+  - component: {fileID: 6026389257376163460}
+  - component: {fileID: 2467924992679793911}
   m_Layer: 0
-  m_Name: RightTendril
+  m_Name: RightTendril (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7619222047632223149
+--- !u!4 &6026389257376163460
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2438116921190037045}
+  m_GameObject: {fileID: 3006143521842673145}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.78260833, z: -0, w: -0.6225145}
-  m_LocalPosition: {x: -0.4171, y: 0, z: -0.2667}
+  m_LocalRotation: {x: 0.2354189, y: 0.7460357, z: 0.30021554, w: -0.5457832}
+  m_LocalPosition: {x: -0.2961912, y: 0.29407597, z: -0.26772827}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 663336922779946409}
-  m_LocalEulerAnglesHint: {x: 0, y: 257, z: 0}
---- !u!114 &8347787985871936417
+  m_LocalEulerAnglesHint: {x: -44.823, y: 251.59201, z: 1.903}
+--- !u!114 &2467924992679793911
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2438116921190037045}
+  m_GameObject: {fileID: 3006143521842673145}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
@@ -932,16 +872,63 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2360371405187921597}
-  - {fileID: 7619222047632223149}
-  - {fileID: 1699234073780196259}
-  - {fileID: 1382175887617870062}
-  - {fileID: 6755299375057952129}
-  - {fileID: 4206851085538618677}
-  - {fileID: 8272038039578370431}
-  - {fileID: 4727197384772077281}
+  - {fileID: 4916999243737080277}
+  - {fileID: 2880007972160045677}
+  - {fileID: 3075171527838940440}
+  - {fileID: 5038179240951402582}
+  - {fileID: 4413156243076912320}
+  - {fileID: 6026389257376163460}
+  - {fileID: 3793936085865981387}
+  - {fileID: 4020188054991407275}
   m_Father: {fileID: 4014088467550125724}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3076738092396091124
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2880007972160045677}
+  - component: {fileID: 6831186558172306400}
+  m_Layer: 0
+  m_Name: RightTendril
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2880007972160045677
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3076738092396091124}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.78260833, z: -0, w: -0.6225145}
+  m_LocalPosition: {x: -0.4171, y: 0, z: -0.2667}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 663336922779946409}
+  m_LocalEulerAnglesHint: {x: 0, y: 257, z: 0}
+--- !u!114 &6831186558172306400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3076738092396091124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoLength: 1
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  activeTendril: {fileID: 0}
 --- !u!1 &3089497962189527156
 GameObject:
   m_ObjectHideFlags: 0
@@ -1100,14 +1087,14 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5452703672261537251}
-  - {fileID: 8906895517481889120}
-  - {fileID: 256329930300313401}
-  - {fileID: 2750635459943657523}
+  - {fileID: 615641619436583664}
+  - {fileID: 7302833359737479025}
+  - {fileID: 722726089509277757}
+  - {fileID: 5501728074988080833}
   - {fileID: 1138313861663879308}
   - {fileID: 3229894205120672470}
   - {fileID: 6423547441037781568}
-  - {fileID: 6110798562585814921}
+  - {fileID: 4727197384772077281}
   m_Father: {fileID: 4014088467550125724}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3238673379353069981
@@ -1139,7 +1126,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8351495111150709013}
+  - {fileID: 2360371405187921597}
   - {fileID: 6954890637759145213}
   - {fileID: 31919103877856266}
   - {fileID: 218543258760446436}
@@ -1149,7 +1136,7 @@ Transform:
   - {fileID: 8200471663886766526}
   m_Father: {fileID: 4014088467550125724}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &3350973246211604103
+--- !u!1 &3618675895904994051
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1157,37 +1144,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2750635459943657523}
-  - component: {fileID: 4525067659742181335}
+  - component: {fileID: 7302833359737479025}
+  - component: {fileID: 6285029677462966094}
   m_Layer: 0
-  m_Name: BottomTendril
+  m_Name: RightTendril
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2750635459943657523
+--- !u!4 &7302833359737479025
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3350973246211604103}
+  m_GameObject: {fileID: 3618675895904994051}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.54463905, y: 0, z: 0, w: 0.8386706}
-  m_LocalPosition: {x: 0.0060004974, y: -0.453, z: 0.19800009}
+  m_LocalRotation: {x: 0, y: 0.6225146, z: -0, w: -0.7826082}
+  m_LocalPosition: {x: -0.46199927, y: 0, z: 0.18900011}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3504647090177646169}
-  m_LocalEulerAnglesHint: {x: 66, y: 0, z: 0}
---- !u!114 &4525067659742181335
+  m_LocalEulerAnglesHint: {x: 0, y: 283, z: 0}
+--- !u!114 &6285029677462966094
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3350973246211604103}
+  m_GameObject: {fileID: 3618675895904994051}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
@@ -1397,13 +1384,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4266090375651938904}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7826082, z: 0, w: 0.62251467}
-  m_LocalPosition: {x: 0.4306, y: 0, z: -0.2498}
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0.48800033, y: 0, z: 0.009999932}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 663336922779946409}
-  m_LocalEulerAnglesHint: {x: 0, y: 103, z: 0}
+  m_Father: {fileID: 8052175789783152002}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &1300825410244904282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1513,7 +1500,7 @@ MonoBehaviour:
   gizmoLength: 1
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   activeTendril: {fileID: 0}
---- !u!1 &4756886607707751870
+--- !u!1 &5464535616708425480
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1521,37 +1508,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4206851085538618677}
-  - component: {fileID: 6663283025471177887}
+  - component: {fileID: 3793936085865981387}
+  - component: {fileID: 4527020083362569314}
   m_Layer: 0
-  m_Name: RightTendril (1)
+  m_Name: TopTendril (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4206851085538618677
+--- !u!4 &3793936085865981387
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4756886607707751870}
+  m_GameObject: {fileID: 5464535616708425480}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.2354189, y: 0.7460357, z: 0.30021554, w: -0.5457832}
-  m_LocalPosition: {x: -0.2961912, y: 0.29407597, z: -0.26772827}
+  m_LocalRotation: {x: 0.6677953, y: -0.2672396, z: 0.260212, w: -0.6441446}
+  m_LocalPosition: {x: 0.3040912, y: 0.29763794, z: -0.17714828}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 663336922779946409}
-  m_LocalEulerAnglesHint: {x: -44.823, y: 251.59201, z: 1.903}
---- !u!114 &6663283025471177887
+  m_LocalEulerAnglesHint: {x: 226.157, y: -87.12601, z: 87.74}
+--- !u!114 &4527020083362569314
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4756886607707751870}
+  m_GameObject: {fileID: 5464535616708425480}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
@@ -1560,7 +1547,7 @@ MonoBehaviour:
   gizmoLength: 1
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   activeTendril: {fileID: 0}
---- !u!1 &5758440954563914120
+--- !u!1 &6188195193948792948
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1568,131 +1555,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8351495111150709013}
-  - component: {fileID: 3226167993512071435}
+  - component: {fileID: 4020188054991407275}
+  - component: {fileID: 2787694664053159535}
   m_Layer: 0
-  m_Name: LeftTendril
+  m_Name: BottomTendril (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8351495111150709013
+--- !u!4 &4020188054991407275
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5758440954563914120}
+  m_GameObject: {fileID: 6188195193948792948}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0.48800033, y: 0, z: 0.009999932}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8052175789783152002}
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!114 &3226167993512071435
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5758440954563914120}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoLength: 1
-  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
-  activeTendril: {fileID: 0}
---- !u!1 &5835577282524173783
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6755299375057952129}
-  - component: {fileID: 2334683177244365772}
-  m_Layer: 0
-  m_Name: LeftTendril (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6755299375057952129
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5835577282524173783}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0.34547958, y: 0.69961655, z: -0.1618511, w: 0.60413975}
-  m_LocalPosition: {x: 0.31334284, y: -0.29493904, z: -0.24837968}
+  m_LocalRotation: {x: 0.77785593, y: -0.3136584, z: -0.2018554, w: 0.5057796}
+  m_LocalPosition: {x: -0.27818105, y: -0.310318, z: -0.3409195}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 663336922779946409}
-  m_LocalEulerAnglesHint: {x: 40.084, y: 106.526, z: 22.099}
---- !u!114 &2334683177244365772
+  m_LocalEulerAnglesHint: {x: 138.683, y: 57.197998, z: 67.154}
+--- !u!114 &2787694664053159535
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5835577282524173783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoLength: 1
-  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
-  activeTendril: {fileID: 0}
---- !u!1 &6191899819383974944
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5452703672261537251}
-  - component: {fileID: 1096303289678719266}
-  m_Layer: 0
-  m_Name: LeftTendril
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5452703672261537251
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6191899819383974944}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.5485391, z: -0, w: 0.8361249}
-  m_LocalPosition: {x: 0.44999975, y: 0, z: 0.20700006}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3504647090177646169}
-  m_LocalEulerAnglesHint: {x: 0, y: 66.534, z: 0}
---- !u!114 &1096303289678719266
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6191899819383974944}
+  m_GameObject: {fileID: 6188195193948792948}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
@@ -1877,7 +1770,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!1 &6361667847647890324
+--- !u!1 &6600557877598413471
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1885,8 +1778,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1699234073780196259}
-  - component: {fileID: 921293550018392764}
+  - component: {fileID: 3075171527838940440}
+  - component: {fileID: 4076389093334097887}
   m_Layer: 0
   m_Name: TopTendril
   m_TagString: Untagged
@@ -1894,13 +1787,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1699234073780196259
+--- !u!4 &3075171527838940440
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6361667847647890324}
+  m_GameObject: {fileID: 6600557877598413471}
   serializedVersion: 2
   m_LocalRotation: {x: 0.78260833, y: -0, z: -0, w: -0.6225145}
   m_LocalPosition: {x: 0.013998887, y: 0.4274, z: -0.25899985}
@@ -1909,13 +1802,60 @@ Transform:
   m_Children: []
   m_Father: {fileID: 663336922779946409}
   m_LocalEulerAnglesHint: {x: 257, y: 0, z: 0}
---- !u!114 &921293550018392764
+--- !u!114 &4076389093334097887
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6361667847647890324}
+  m_GameObject: {fileID: 6600557877598413471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoLength: 1
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  activeTendril: {fileID: 0}
+--- !u!1 &6681763726229187237
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4916999243737080277}
+  - component: {fileID: 5530537812109676521}
+  m_Layer: 0
+  m_Name: LeftTendril
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4916999243737080277
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6681763726229187237}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.7826082, z: 0, w: 0.62251467}
+  m_LocalPosition: {x: 0.4306, y: 0, z: -0.2498}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 663336922779946409}
+  m_LocalEulerAnglesHint: {x: 0, y: 103, z: 0}
+--- !u!114 &5530537812109676521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6681763726229187237}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
@@ -1963,6 +1903,53 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7014927914500658838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoLength: 1
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  activeTendril: {fileID: 0}
+--- !u!1 &7693255905090863201
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5501728074988080833}
+  - component: {fileID: 2141713120001319522}
+  m_Layer: 0
+  m_Name: BottomTendril
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5501728074988080833
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7693255905090863201}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.54463905, y: 0, z: 0, w: 0.8386706}
+  m_LocalPosition: {x: 0.0060004974, y: -0.453, z: 0.19800009}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3504647090177646169}
+  m_LocalEulerAnglesHint: {x: 66, y: 0, z: 0}
+--- !u!114 &2141713120001319522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7693255905090863201}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a7aec52906f9b14eab52c7aa0792cdf, type: 3}
@@ -2090,13 +2077,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8297140367847737270}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.77785593, y: -0.3136584, z: -0.2018554, w: 0.5057796}
-  m_LocalPosition: {x: -0.27818105, y: -0.310318, z: -0.3409195}
+  m_LocalRotation: {x: 0.52144146, y: 0.2656712, z: 0.2611144, w: 0.76768285}
+  m_LocalPosition: {x: 0.30733204, y: -0.32455826, z: 0.15362388}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 663336922779946409}
-  m_LocalEulerAnglesHint: {x: 138.683, y: 57.197998, z: 67.154}
+  m_Father: {fileID: 3504647090177646169}
+  m_LocalEulerAnglesHint: {x: 41.442, y: 65.149, z: 64.744}
 --- !u!114 &2264167016202975307
 MonoBehaviour:
   m_ObjectHideFlags: 0
