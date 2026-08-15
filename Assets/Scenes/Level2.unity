@@ -183921,13 +183921,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cffdbab39a0af244aab73574f3085109, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  giest2PreFab: {fileID: 4181188042944330115, guid: 71de55e2565b51344880e742bbfaf1dd, type: 3}
+  persistant: {fileID: 0}
+  trigger: {fileID: 0}
+  geist2PreFab: {fileID: 4181188042944330115, guid: 71de55e2565b51344880e742bbfaf1dd, type: 3}
   SpawnLocations:
   - {fileID: 1641108080}
-  waitTimer: 60
+  useSpawnTimer: 1
+  waitTimer: 1
   LevelWaypointGroup: {fileID: 1963102624}
   startingWaypoint: {fileID: 0}
-  zeroGravity: {fileID: 0}
 --- !u!1 &1843872332
 GameObject:
   m_ObjectHideFlags: 0

@@ -63,6 +63,8 @@ public class EnemyStateMachine : MonoBehaviour
     [Header("Interest/Search Settings")]
     public float interestDuration = 10f;
     [SerializeField] private float interestTimer;
+    public float loseSightGraceTime = 0.5f;
+    [SerializeField] private float loseSightTimer = 0f;
     public Vector3 playersLastKnownLocation;
     private bool isInvestigating;
     public bool shouldFollow;
@@ -132,8 +134,23 @@ public class EnemyStateMachine : MonoBehaviour
         {
             if (currentGeneralState == GeneralEnemyState.Pause) return;
 
-            // Run detection every frame
-            canDetectPlayer = PerformRaycastDetection();
+            //run a detect player but store it as a temp so we can debug log the flip
+            bool newDetect = PerformRaycastDetection();
+            if (newDetect != canDetectPlayer)
+                Debug.Log($"<color=yellow>[DETECT] {canDetectPlayer}->{newDetect}</color> | state={currentSpecificState} | frame={Time.frameCount}");
+            canDetectPlayer = newDetect;
+            if (newDetect)
+            {
+                canDetectPlayer = true;
+                loseSightTimer = 0f;
+            }
+            else
+            {
+                loseSightTimer += Time.deltaTime;
+                //this helps ignore the flickering can detect when the player is on the edge of the detect radius
+                if(loseSightTimer >= loseSightGraceTime)
+                    canDetectPlayer = false;
+            }
 
             //Debug.Log(canDetectPlayer);
 
@@ -194,7 +211,7 @@ public class EnemyStateMachine : MonoBehaviour
                         if (detectionTimer <= 0)
                         {
                             chasePlayer = true;
-                            ChangeSpecificState(SpecificEnemyState.Chase);
+                            ChangeSpecificState(SpecificEnemyState.Chase, "detection timer expired in Patrol");
                         }
                     }
                 }
@@ -220,7 +237,7 @@ public class EnemyStateMachine : MonoBehaviour
                     interestTimer = interestDuration;
                     GetLastSeenLocation();
                     isInvestigating = false;
-                    ChangeSpecificState(SpecificEnemyState.Investigate);
+                    ChangeSpecificState(SpecificEnemyState.Investigate, "lost LOS during Chase");
                 }
                 break;
 
@@ -235,7 +252,7 @@ public class EnemyStateMachine : MonoBehaviour
 
                 if (canDetectPlayer)
                 {
-                    ChangeSpecificState(SpecificEnemyState.Chase);
+                    ChangeSpecificState(SpecificEnemyState.Chase, "detection timer expired in Patrol");
                     isInvestigating = false;
                 }
                 // Only switch to Patrol if the timer is DONE
@@ -248,7 +265,7 @@ public class EnemyStateMachine : MonoBehaviour
 
                     isInvestigating = false;
                     complexEnemyAI.investigatingWaypoint = null;
-                    ChangeSpecificState(SpecificEnemyState.Patrol);
+                    ChangeSpecificState(SpecificEnemyState.Patrol, "interest timer expired");
                 }
                 else
                 {
@@ -351,7 +368,7 @@ public class EnemyStateMachine : MonoBehaviour
         if (retreatTimer <= 0)
         {
             ChangeGeneralState(GeneralEnemyState.Active);
-            ChangeSpecificState(SpecificEnemyState.Patrol);
+            ChangeSpecificState(SpecificEnemyState.Patrol, "interest timer expired");
             return;
         }
 
@@ -447,12 +464,12 @@ public class EnemyStateMachine : MonoBehaviour
     {
         if (playerController.PlayerHealth <= 1)
         {
-            ChangeSpecificState(SpecificEnemyState.Kill);
+            ChangeSpecificState(SpecificEnemyState.Kill, "killing player");
         }
         else
         {
             //Can place the audio call here (place 2)
-            ChangeSpecificState(SpecificEnemyState.Grab);
+            ChangeSpecificState(SpecificEnemyState.Grab, "grabbing player");
         }
 
     }
@@ -555,7 +572,7 @@ public class EnemyStateMachine : MonoBehaviour
         ChangeGeneralState(GeneralEnemyState.Idle);
         yield return new WaitForSeconds(10.0f); // actually waits
         ChangeGeneralState(GeneralEnemyState.Active);
-        ChangeSpecificState(SpecificEnemyState.Investigate);
+        ChangeSpecificState(SpecificEnemyState.Investigate, "lost LOS during Chase");
     }
 
     IEnumerator RotateCameraToTarget(Transform target, float duration)
@@ -623,7 +640,7 @@ public class EnemyStateMachine : MonoBehaviour
     #endregion
 
     #region State Tools
-    public void ChangeSpecificState(SpecificEnemyState newState)
+    public void ChangeSpecificState(SpecificEnemyState newState, string reason)
     {
         if (currentSpecificState == newState) return;
 
@@ -633,7 +650,7 @@ public class EnemyStateMachine : MonoBehaviour
             complexEnemyAI.path.Clear();
             complexEnemyAI.targetWaypoint = null;
         }
-
+        Debug.Log($"<color=cyan>[STATE] {currentSpecificState}->{newState}</color> | reason: {reason} | canDetect={canDetectPlayer} | frame={Time.frameCount}");
         pastSpecificState = currentSpecificState;
         currentSpecificState = newState;
         //Debug.Log($"State Changed to: {newState}");
@@ -662,14 +679,22 @@ public class EnemyStateMachine : MonoBehaviour
         Vector3 dir = player.transform.position - transform.position;
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, dir.normalized, out hit, detectionRadius, detectionMask))
-        {
+        float distToPlayer = Vector3.Distance(transform.position, player.transform.position);
+        //Debug.Log($"[DIST] {distToPlayer:F2} / radius={detectionRadius} frame={Time.frameCount}");
 
+        bool didHit = Physics.Raycast(transform.position, 
+            dir.normalized, out hit, detectionRadius, detectionMask,
+            QueryTriggerInteraction.Ignore); //ignore trigger colliders;
+
+        if (didHit)
+        {
+            //Debug.Log($"[RAYCAST] hit={hit.collider.name} tag={hit.collider.tag} dist={hit.distance:F2} frame={Time.frameCount}");
             if (hit.collider.CompareTag("Player"))
-            {
-                //Debug.Log("Can Detect Player");
                 return true;
-            }
+        }
+        else
+        {
+            //Debug.Log($"[RAYCAST] MISS (dist to player={dir.magnitude:F2}, detectionRadius={detectionRadius}) frame={Time.frameCount}");
         }
         return false;
     }
