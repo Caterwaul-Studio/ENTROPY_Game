@@ -49,6 +49,7 @@ public class HeldFloatingObject : MonoBehaviour, IInventoryItem, ISaveableInvent
     {
         if(floatingObjectContainer == null)
         {
+            if(inventoryManager.pickupScript.ObjectContainer != null)
             floatingObjectContainer = inventoryManager.pickupScript.ObjectContainer.transform;
         }
 

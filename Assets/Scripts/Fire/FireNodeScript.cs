@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,10 +9,20 @@ public class FireNodeScript : MonoBehaviour
     [SerializeField] private Bounds fireBounds;
     [SerializeField] private Bounds playerBounds;
     [SerializeField] private FireScript myFire;
-    [SerializeField] private GameObject player;
     [SerializeField] private GameObject myLight;
+    private Light myLightComponent;
+    private float flickerSeed;
+    [Header("FlickerSettings")]
+    [SerializeField] private float flickerSpeed = 8f;
+    [SerializeField] private float flickerIntensityRange = 0.15f;
+
+    [Header("References")]
+    [SerializeField] private PersistantManager persistantManager;
+    [SerializeField] private GameObject player;
     [SerializeField] private Camera MainCamera;
     [SerializeField] private PuffMovement[] extinguishNodes;
+
+    [Header("Fire Settings")]
     [SerializeField] private int flameSteady; //should be 1-5
     [SerializeField] private int regenRate;
     [SerializeField] private float flameLoss; //this variable is how much strength the flame loses every time it gets hit.
@@ -45,13 +56,14 @@ public class FireNodeScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        if (player == null || MainCamera == null)
+        if (persistantManager == null)
         {
-            player = GameObject.FindAnyObjectByType<ZeroGravity>().gameObject;
-            MainCamera = player.GetComponent<ZeroGravity>().cam;
+            persistantManager = FindFirstObjectByType<PersistantManager>();
+            player = persistantManager.PlayerObject;
+            MainCamera = persistantManager.MainCamera;
         }
 
-        extinguishNodes = FindObjectsByType<PuffMovement>(FindObjectsSortMode.None);
+        StartCoroutine(SetPuffs());
 
         //this method is similar to the audiozone method however this time the boxcolider size is used instead of the object scale
         //the reason for this difference is because changing the object scale is not arbitrary for fire nodes, it will affect the size of their particle systems
@@ -63,52 +75,75 @@ public class FireNodeScript : MonoBehaviour
         //setting original params
         originalStartSize = sysMain.startSize.constant;
         originalShapeRadius = sysShape.radius;
+
+        myLightComponent = myLight.GetComponent<Light>();
+        flickerSpeed = Random.Range(0f, 10f);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (fireActive)
+        if (persistantManager == null)
         {
-            throwCooldown += Time.deltaTime;
-            for (int i = 0; i < extinguishNodes.Length; i++)
-            { //collision detection is done via fireBounds in the hope it will be less resource intensive, may need to be tested
-                if (fireBounds.Contains(extinguishNodes[i].transform.position))
-                    DampenFlame(extinguishNodes[i].gameObject);
-            }
+            persistantManager = FindFirstObjectByType<PersistantManager>();
+            player = persistantManager.PlayerObject;
+            MainCamera = persistantManager.MainCamera;
+        }
 
-            if (playerBounds.Contains(player.transform.position) && throwCooldown > 0.5f)
+        if (!extinguishNodes.Contains(null))
+        {
+            if (fireActive)
             {
-                StartCoroutine(BurnPlayer());
-                player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
-                throwCooldown = 0;
-            }
+                throwCooldown += Time.deltaTime;
+                for (int i = 0; i < extinguishNodes.Length; i++)
+                { //collision detection is done via fireBounds in the hope it will be less resource intensive, may need to be tested
+                    if (fireBounds.Contains(extinguishNodes[i].transform.position))
+                        DampenFlame(extinguishNodes[i].gameObject);
+                }
 
-            //flame regeneration
-            if (flameStrength < flameSteady * 20)
-                flameStrength += Time.deltaTime * regenRate;
+                if (playerBounds.Contains(player.transform.position) && throwCooldown > 0.5f)
+                {
+                    StartCoroutine(BurnPlayer());
+                    player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
+                    throwCooldown = 0;
+                }
 
-            if (flameStrength > 81)
-            {
-                flameSteady = 5;
-            }
-            else if (flameStrength > 61)
-            {
-                flameSteady = 4;
-            }
-            else if (flameStrength > 41)
-            {
-                flameSteady = 3;
-            }
-            else if (flameStrength > 21)
-            {
-                flameSteady = 2;
-            }
-            else if (flameStrength > 11)
-            {
-                flameSteady = 1;
+                //flame regeneration
+                if (flameStrength < flameSteady * 20)
+                    flameStrength += Time.deltaTime * regenRate;
+
+                if (flameStrength > 81)
+                {
+                    flameSteady = 5;
+                }
+                else if (flameStrength > 61)
+                {
+                    flameSteady = 4;
+                }
+                else if (flameStrength > 41)
+                {
+                    flameSteady = 3;
+                }
+                else if (flameStrength > 21)
+                {
+                    flameSteady = 2;
+                }
+                else if (flameStrength > 11)
+                {
+                    flameSteady = 1;
+                }
             }
         }
+        if (fireActive)
+            UpdateFlicker();
+    }
+
+    private void UpdateFlicker()
+    {
+        float baseIntensity = flameStrength / 1000f;
+        float noise = Mathf.PerlinNoise(flickerSpeed, Time.time * flickerSpeed);
+        float flickerOffset = (noise - 0.5f) * flickerIntensityRange * baseIntensity;
+        myLightComponent.intensity = baseIntensity + flickerOffset;
     }
 
     private void DampenFlame(GameObject other)
@@ -139,7 +174,6 @@ public class FireNodeScript : MonoBehaviour
         //all changes to the flame particle system are to happen here
         sysMain.startSize = originalStartSize * (flameStrength / 100);
         sysShape.radius = originalShapeRadius * (flameStrength / 100);
-        myLight.GetComponent<Light>().intensity = flameStrength / 1000;
     }
 
     public void Reignite(int reigniteLevel) //this function is to be used by other scripts to reignite the flame
@@ -148,6 +182,14 @@ public class FireNodeScript : MonoBehaviour
         flameStrength = reigniteLevel * 20;
         fireActive = true;
         ChangeFlame();
+    }
+
+    private IEnumerator SetPuffs()
+    {
+        yield return new WaitForSeconds(1f);
+        Debug.Log("fire node start");
+        extinguishNodes = null;
+        extinguishNodes = FindObjectsByType<PuffMovement>(FindObjectsSortMode.None);
     }
 
 }

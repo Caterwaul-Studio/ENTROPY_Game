@@ -282,7 +282,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             {
                 //Debug.Log("NOCLIP OFF - isKinematic before: " + rb.isKinematic);
                 rb.isKinematic = false;
-                boundingSphere.enabled = true;
+                //boundingSphere.enabled = true;
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
                 //Debug.Log("NOCLIP OFF - isKinematic after: " + rb.isKinematic);
@@ -294,7 +294,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
                 rb.isKinematic = true;
-                boundingSphere.enabled = false;
+                //boundingSphere.enabled = false;
                 //Debug.Log("NOCLIP ON - isKinematic after: " + rb.isKinematic);
             }
         }
@@ -875,7 +875,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         justGrabbed = true;
         grabbedBar = potentialGrabbedBar;
 
-        Debug.Log(grabbedBar);
+        //Debug.Log(grabbedBar);
         if (grabbedBar.GetComponent<SparkBar>() != null && !hasGloves)
         {
             StartCoroutine(GrabShock());
@@ -1182,7 +1182,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         //Debug.Log("no swingaling");
         swingPoint = Vector3.zero;
-        Destroy(joint);
+        DestroyImmediate(joint);
         swinging = false;
     }
 

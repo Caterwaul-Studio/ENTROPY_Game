@@ -37,6 +37,13 @@ public class SparkScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (player == null || MainCamera == null || zeroG == null)
+        {
+            player = GameObject.FindAnyObjectByType<ZeroGravity>().gameObject;
+            zeroG = player.GetComponent<ZeroGravity>();
+            MainCamera = zeroG.cam;
+        }
+
         if (zeroG.hasGloves && zeroG.IsGrabbing)
             damageCoolDown = 0;
 

@@ -98,6 +98,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
     //audio managers
     public DialogueAudio dialogueAudio;
     public StingerManager stingerManager;
+    private Coroutine stingerRoutine;
 
     private bool inItemGrabTutorial = false;
     private bool inItemThrowTutorial = false;
@@ -256,7 +257,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
             }
         }
 
-        if(checkpointManager != null && checkpointManager.CurrentIndex > 0 && !tutorialCompleted)
+        if(checkpointManager != null && checkpointManager.AnyCheckPointReached && !tutorialCompleted)
         {
             //Debug.Log("Checkpoint is active, ending tutorial");
             tutorialCompleted = true;
@@ -320,6 +321,8 @@ public class TutorialManager : MonoBehaviour, ISaveable
         dialogueManager.ForceStopAll();
 
         SetPlayerAbilities(false, false, false, false, false);
+        //set the player health to 3
+        playerController.PlayerHealth = 3;
 
         //temporarily reduce grab range so the player can only grab the closest bar to them.
         playerController.GrabRange = 1f;
@@ -330,7 +333,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
         // Play looping tutorial stinger with fade-in
         if (stingerManager != null)
         {
-            StartCoroutine(DelayedStinger(8f));
+            stingerRoutine = StartCoroutine(DelayedStinger(8f));
         }
 
         //HideAllPanels();
@@ -349,6 +352,8 @@ public class TutorialManager : MonoBehaviour, ISaveable
     private IEnumerator DelayedStinger(float delay)
     {
         yield return new WaitForSeconds(delay);
+
+        if (tutorialSkipped || tutorialCompleted) yield break;
 
         // Play looping tutorial stinger with fade-in
         stingerManager.PlayTutorialStinger(fadeInDuration: 7f);
@@ -536,6 +541,12 @@ public class TutorialManager : MonoBehaviour, ISaveable
             enterCanvasGroup = null;
         });
 
+        if(stingerRoutine != null)
+        {
+            StopCoroutine(stingerRoutine);
+            stingerRoutine = null;
+        }
+
         StartCoroutine(WaitForDialogue1AndOpenDoor());
 
         /*        if (doorToOpen != null)
@@ -629,6 +640,7 @@ public class TutorialManager : MonoBehaviour, ISaveable
         //Debug.Log("Restarting tutorial...");
 
         StopAllCoroutines();
+        stingerRoutine = null;
 
         SetPlayerAbilities(false, false, false, false, false);
 
@@ -814,6 +826,11 @@ public class TutorialManager : MonoBehaviour, ISaveable
                 tutorialSkipped = true;
                 dialogueManager.SkipTutorial();
                 ForceCompleteAllSteps();
+                if(stingerRoutine != null)
+                {
+                    StopCoroutine(stingerRoutine);
+                    stingerRoutine = null;
+                }
                 if (stingerManager != null)
                 {
                     stingerManager.StopTutorialStinger(fadeOutDuration: 12f);

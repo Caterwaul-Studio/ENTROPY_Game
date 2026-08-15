@@ -29,6 +29,11 @@ public class PersistantManager : MonoBehaviour
     //private MenuManager menuManager;
     public GameObject persistentObj;
 
+    //temporary bool to allow the Geist to spawn on a timer if the geist spawn trigger was used
+    //---------------------------------------------------------- remove this once better spawn/ persistent logic 
+    // exists for the Geist
+    public bool GeistAlrSpawned = false;
+
     public static PersistantManager Instance { get; set; }
 
     public void OnEnable()

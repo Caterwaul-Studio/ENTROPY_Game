@@ -30,7 +30,7 @@ public class Checkpoint : MonoBehaviour
         if (_zeroG != null && other.CompareTag("Player"))
         {
             _zeroG.respawnLoc = respawnPoint;
-            _col.enabled = false;             // deactivate this checkpoint
+            //_col.enabled = false;             // deactivate this checkpoint
             OnReached?.Invoke(this);
         }
     }
@@ -43,7 +43,7 @@ public class Checkpoint : MonoBehaviour
     public void TriggerCheckpointManually()
     {
         _zeroG.respawnLoc = respawnPoint;
-        _col.enabled = false;             // deactivate this checkpoint
+        //_col.enabled = false;             // deactivate this checkpoint
         OnReached?.Invoke(this);
     }
 

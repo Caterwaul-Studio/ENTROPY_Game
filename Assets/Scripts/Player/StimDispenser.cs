@@ -26,7 +26,7 @@ public class StimDispenser : MonoBehaviour
     private Color activeScreen = new Color(1, 1, 1, 1) * 1.5f;
     private Color inactiveScreen = new Color(0.03f, 0.03f, 0.03f, 1);
 
-
+    [SerializeField] private PersistantManager persistant;
     [SerializeField]
     private GameObject playerObj;
     [SerializeField]
@@ -95,22 +95,38 @@ public class StimDispenser : MonoBehaviour
 
         ToggleUsability(isUsable);
 
-        playerScript = FindFirstObjectByType<ZeroGravity>();
-        playerObj = playerScript.gameObject;
-        uiScript = playerObj.GetComponent<PlayerUIManager>();
-        wristMonitor = FindFirstObjectByType<WristMonitor>();
+        if (persistant == null)
+        {
+            persistant = FindFirstObjectByType<PersistantManager>();
+            playerObj = persistant.PlayerObject;
+            playerScript = persistant.Player;
+            uiScript = persistant.PlayerUIManager;
+            wristMonitor = persistant.WristMonitor;
+            progressBar = uiScript.ProgressBar;
+            progressCanvas = progressBar.GetComponent<CanvasGroup>();
+            progressCanvas.alpha = 0;
+        }
         //Debug.Log(playerObj);
         //Debug.Log(playerScript);
         //Debug.Log(uiScript);
-        progressBar = uiScript.ProgressBar;
-        progressCanvas = progressBar.GetComponent<CanvasGroup>();
-        progressCanvas.alpha = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isRefilling)
+        if(persistant == null)
+        {
+            persistant = FindFirstObjectByType<PersistantManager>();
+            playerObj = persistant.PlayerObject;
+            playerScript = persistant.Player;
+            uiScript = persistant.PlayerUIManager;
+            wristMonitor = persistant.WristMonitor;
+            progressBar = uiScript.ProgressBar;
+            progressCanvas = progressBar.GetComponent<CanvasGroup>();
+            progressCanvas.alpha = 0;
+        }
+
+        if (isRefilling && playerScript.NumStims < 3)
         {
             //Debug.Log($"[StimDispenser] Refilling... holdTimer={holdTimer:F2}, distance={Vector3.Distance(playerObj.transform.position, transform.position):F2}");
             progressCanvas.alpha = 1f;

@@ -17,6 +17,7 @@ public class ComplexEnemyAI : MonoBehaviour
     public float stunVelocityThreshold = 4f;
 
     [Header("References")]
+    public PersistantManager persistant;
     public GameObject player;
     public ZeroGravity playerController;
     public Waypoint startingWaypoint;
@@ -100,13 +101,14 @@ public class ComplexEnemyAI : MonoBehaviour
     public float minThrowDistance = 5f;
     [SerializeField] private float throwForce = 20f;
 
+    [SerializeField] private bool stateSwitchLog = false;
 
     void Start()
     {
-        if (player == null) player = GameObject.FindGameObjectWithTag("Player");
-        if (playerController == null) playerController = FindAnyObjectByType<ZeroGravity>();
+        if (persistant == null) persistant = FindFirstObjectByType<PersistantManager>();
+        if (player == null) player = persistant.PlayerObject;
+        if (playerController == null) playerController = persistant.Player;
 
-        
         allWaypoints = waypointGroup.GetComponentsInChildren<Waypoint>().ToList();
         foreach (Waypoint wp in allWaypoints)
         {
@@ -162,29 +164,29 @@ public class ComplexEnemyAI : MonoBehaviour
             enemyStateMachine.GeneralLogic();
 
             // Movement execution
-            switch (enemyStateMachine.currentSpecificState)
-            {
-                case SpecificEnemyState.Chase:
-                    IsChasingPlayer();
-                    break;
-                case SpecificEnemyState.Patrol:
-                    isPatroling();
-                    break;
-                case SpecificEnemyState.Investigate:
-                    IsInvestigating();
-                    break;
-                case SpecificEnemyState.Retreat:
-                    TrackPath();
-                    break;
-                case SpecificEnemyState.Stunned:
-                    break;
-                    /*
-                case SpecificEnemyState.Lunge:
-                case SpecificEnemyState.Charge:
-                    Chargelunge();
-                    break;
-                    */
-            }
+            //switch (enemyStateMachine.currentSpecificState)
+            //{
+            //    case SpecificEnemyState.Chase:
+            //        IsChasingPlayer();
+            //        break;
+            //    case SpecificEnemyState.Patrol:
+            //        isPatroling();
+            //        break;
+            //    case SpecificEnemyState.Investigate:
+            //        IsInvestigating();
+            //        break;
+            //    case SpecificEnemyState.Retreat:
+            //        TrackPath();
+            //        break;
+            //    case SpecificEnemyState.Stunned:
+            //        break;
+            //        /*
+            //    case SpecificEnemyState.Lunge:
+            //    case SpecificEnemyState.Charge:
+            //        Chargelunge();
+            //        break;
+            //        */
+            //}
 
             CalculateDirection();
             RotateTowardsDirection();
@@ -232,7 +234,7 @@ public class ComplexEnemyAI : MonoBehaviour
         }
         //end music zone
 
-
+        if(stateSwitchLog) Debug.Log($"Geist current state {enemyStateMachine.currentSpecificState.ToString()}");
 
     }
 
@@ -273,9 +275,13 @@ public class ComplexEnemyAI : MonoBehaviour
         if (path == null || path.Count == 0) return;
 
         targetWaypoint = path.Peek();
-
+        Vector3 before = transform.position;
         // Move toward target
         transform.position = Vector3.MoveTowards(transform.position, targetWaypoint.transform.position, speed * Time.deltaTime);
+
+
+        if (Vector3.Distance(before, transform.position) < 0.0001f && speed > 0)
+            Debug.LogWarning($"[TRACKPATH] No movement despite speed={speed}, target={targetWaypoint.name}");
 
         // Use a 0.5f threshold - much safer for MoveTowards
         if (Vector3.Distance(transform.position, targetWaypoint.transform.position) < 0.5f)
@@ -302,7 +308,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
     public void IsInvestigating()
     {
-
+        if (investigatingWaypoint == null) return; //waypoint not assigned yet this frame, wait for the statemachine
 
         if (enemyStateMachine.shouldFollow)
         {
@@ -332,6 +338,8 @@ public class ComplexEnemyAI : MonoBehaviour
  */
     protected void AdvanceInvestigation()
     {
+        if (investigatingWaypoint == null) return; //waypoint not assigned yet this frame, wait for the statemachine
+
         if (enemyStateMachine.shouldFollow)
         {
             // Only calculate a path if we don't have one
@@ -638,6 +646,7 @@ public class ComplexEnemyAI : MonoBehaviour
         }
         else if (other.CompareTag("Player"))
         {
+            Debug.Log($"<color=orange>[COLLISION] Player touched while state={enemyStateMachine.currentSpecificState}, canDetect={enemyStateMachine.canDetectPlayer}, frame={Time.frameCount}</color>");
             enemyStateMachine.GrabAttackLogic();
 
             if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Grab)

@@ -10,7 +10,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
     public bool ExtinguisherInRaycast;
 
     [SerializeField] private GameObject extinguisherContainer;
-    private string extinguisherContainerName = "FireExtinguishers";
+    [SerializeField] private string extinguisherContainerName = "FireExtinguishers";
 
     [SerializeField] private bool canPuff = true;
     [SerializeField] private bool hasExtinguisher = true;
