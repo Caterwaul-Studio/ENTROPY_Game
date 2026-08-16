@@ -268,20 +268,20 @@ MonoBehaviour:
   detectionMask:
     serializedVersion: 2
     m_Bits: 16577
-  detectionRadius: 12
-  defaultDetectionRadius: 9
+  detectionRadius: 9
+  defaultDetectionRadius: 8
   chaseDetectionRadius: 7
   detectionDuration: 1
   detectionTimer: 1
   canDetectPlayer: 0
   chasePlayer: 0
-  interestDuration: 5
+  interestDuration: 3
   interestTimer: 0
   loseSightGraceTime: 1
   loseSightTimer: 0
   playersLastKnownLocation: {x: 0, y: 0, z: 0}
   shouldFollow: 0
-  retreatDuration: 3
+  retreatDuration: 5
   retreatDistanceCheck: 0
   barrierLayer:
     serializedVersion: 2
@@ -303,7 +303,9 @@ MonoBehaviour:
   throwCheckLimit: 0
   throwCheckOffset: {x: 0, y: 0, z: 0}
   canTakeHealth: 0
-  forceLookSpeedTime: 0
+  forceLookSpeedTime: 0.3
+  isBeingGrabbedByGeist: 0
+  grabDuration: 3
   minChaseDistance: 0
   maxChaseDistance: 4
   maxChaseSpeed: 3
@@ -312,9 +314,9 @@ MonoBehaviour:
   showRetreatRadius: 0
   roarBank:
   - {fileID: 8300000, guid: 179d999618f55e44c8dafcf3d8e1747a, type: 3}
-  - {fileID: 8300000, guid: 3cc418621eb696b4dab6ce13fd968763, type: 3}
-  - {fileID: 8300000, guid: 477dc5274c721aa43b5aeef1edef5fd9, type: 3}
   - {fileID: 8300000, guid: 7a08f256087e6a847b5057fd7a89db34, type: 3}
+  - {fileID: 8300000, guid: e6adad2c10a0f7143a3dabaa200534f9, type: 3}
+  - {fileID: 8300000, guid: e9d94bf4da6a077448dc1eaaa6eec915, type: 3}
   roarSource: {fileID: 502880735938082764}
 --- !u!114 &7138638095641941418
 MonoBehaviour:
@@ -369,7 +371,7 @@ MonoBehaviour:
   FailSafe: {fileID: 0}
   throwLocation: {x: 0, y: 0, z: 0}
   minThrowDistance: 5
-  throwForce: 60
+  throwForce: 100
   stateSwitchLog: 1
 --- !u!114 &1981256898708670038
 MonoBehaviour:
@@ -2225,7 +2227,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.65
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -2236,7 +2238,7 @@ AudioSource:
   MinDistance: 1
   MaxDistance: 500
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 2
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -2245,7 +2247,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0.7043915
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -2299,7 +2301,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0.7
       inSlope: 0
       outSlope: 0
       tangentMode: 0

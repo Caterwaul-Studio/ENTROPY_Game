@@ -93,6 +93,7 @@ public class EnemyStateMachine : MonoBehaviour
     [Header("Grab Settings")]
     [SerializeField] private float forceLookSpeedTime;
     [SerializeField] private bool isBeingGrabbedByGeist = false;
+    [SerializeField] private float grabDuration = 5.5f;
 
     [Header("Light Detection")]
     private bool isLightOn;
@@ -229,8 +230,12 @@ public class EnemyStateMachine : MonoBehaviour
                 detectionRadius = chaseDetectionRadius;
 
                 if (currentSpecificState == SpecificEnemyState.Chase)
-                    //Add audio que here
-                    complexEnemyAI.IsChasingPlayer();
+                    //play roar audio
+                    if (!roaring) //if not currently roaring...
+                    {//do a roar.
+                        StartCoroutine(PlayRoar());
+                    }
+                complexEnemyAI.IsChasingPlayer();
 
                 if (!canDetectPlayer)
                 {
@@ -242,11 +247,6 @@ public class EnemyStateMachine : MonoBehaviour
                 break;
 
             case SpecificEnemyState.Investigate:
-                //play roar audio
-                if (!roaring) //if not currently roaring...
-                {//do a roar.
-                    StartCoroutine(PlayRoar());
-                }
 
                 interestTimer -= Time.deltaTime;
 
@@ -446,9 +446,11 @@ public class EnemyStateMachine : MonoBehaviour
 
         complexEnemyAI.DetermineThrowTarget(); // Finds where to throw
 
+        StartCoroutine(PlayRoar());
+
         // 3. Struggle Pause
         // This gives the player a moment to see the Geist's face before being launched
-        yield return new WaitForSeconds(5.5f);
+        yield return new WaitForSeconds(grabDuration);
 
         playerController.IsBeingGrabbed = false;
         playerController.RB.isKinematic = false;
