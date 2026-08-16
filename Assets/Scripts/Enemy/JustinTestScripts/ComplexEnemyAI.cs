@@ -554,6 +554,8 @@ public class ComplexEnemyAI : MonoBehaviour
         // Tell the player controller to move kinematically towards that direction
         if (playerController != null)
         {
+            //unlock the player inputs
+            enemyStateMachine.UnlockPlayerInputs();
             // Use the "GetThrown" logic we discussed to apply velocity over time
             playerController.GetThrown(dir, force);
         }

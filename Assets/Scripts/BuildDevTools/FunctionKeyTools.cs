@@ -30,7 +30,7 @@ public class FunctionKeyTools : MonoBehaviour
 
     public void OnF11(InputAction.CallbackContext context)
     {
-        if(zeroGravity != null)
+        if(zeroGravity != null && context.performed)
         {
             zeroGravity.PlayerFreeMoveNoClip = !zeroGravity.PlayerFreeMoveNoClip;
         }

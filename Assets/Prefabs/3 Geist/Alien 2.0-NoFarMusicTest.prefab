@@ -43,6 +43,7 @@ Transform:
   - {fileID: 4014088467550125724}
   - {fileID: 6542982692049329765}
   - {fileID: 3269755640818526878}
+  - {fileID: 6803531637843714307}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 1.069, z: 0}
 --- !u!33 &5366927288172932913
@@ -265,6 +266,7 @@ MonoBehaviour:
   playerController: {fileID: 0}
   complexEnemyAI: {fileID: 0}
   simpleEnemyEnemyAI: {fileID: 0}
+  grabPlayerPos: {fileID: 1891620099349330151}
   detectionMask:
     serializedVersion: 2
     m_Bits: 16577
@@ -370,8 +372,8 @@ MonoBehaviour:
   availableOrigins: []
   FailSafe: {fileID: 0}
   throwLocation: {x: 0, y: 0, z: 0}
-  minThrowDistance: 5
-  throwForce: 100
+  minThrowDistance: 10
+  throwForce: 50
   stateSwitchLog: 1
 --- !u!114 &1981256898708670038
 MonoBehaviour:
@@ -657,6 +659,37 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &1891620099349330151
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6803531637843714307}
+  m_Layer: 0
+  m_Name: GrabPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6803531637843714307
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891620099349330151}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.012879318, y: -0.3, z: 0.6902199}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 107771029737482174}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1984250762264391625
 GameObject:
   m_ObjectHideFlags: 0

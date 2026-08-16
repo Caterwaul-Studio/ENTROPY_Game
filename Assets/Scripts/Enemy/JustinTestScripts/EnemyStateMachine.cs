@@ -46,6 +46,7 @@ public class EnemyStateMachine : MonoBehaviour
     public ZeroGravity playerController;
     public ComplexEnemyAI complexEnemyAI;
     public SimpleEnemyAI simpleEnemyEnemyAI;
+    public GameObject grabPlayerPos;
     //[SerializeField] private GameObject simpleEnemy;
     //[SerializeField] private GameObject complexEnemy;
 
@@ -450,18 +451,22 @@ public class EnemyStateMachine : MonoBehaviour
 
         // 3. Struggle Pause
         // This gives the player a moment to see the Geist's face before being launched
-        yield return new WaitForSeconds(grabDuration);
+        //yield return new WaitForSeconds(grabDuration);
+
+
+        //rotate the Geist with the player to the direction it is going to throw the player
+        yield return StartCoroutine(RotateGeistToTarget(complexEnemyAI.throwLocation, grabDuration));
 
         playerController.IsBeingGrabbed = false;
         playerController.RB.isKinematic = false;
 
         // 4. Execute Throw
         // We call a new function in AI to handle the kinematic "launch"
+        //unlock player inputs handled here
         complexEnemyAI.ExecuteKinematicThrow(complexEnemyAI.throwLocation,complexEnemyAI.throwForce);
 
         // 5. Cleanup
         yield return new WaitForSeconds(0.5f);
-        UnlockPlayerInputs();
         GoIdle(); // Transitions state
 
         isBeingGrabbedByGeist = false;
@@ -542,6 +547,8 @@ public class EnemyStateMachine : MonoBehaviour
     private void LockPlayerInputs()
     {
         //Debug.Log("player control locked");
+        //set the player's transform parent to the Geist grab player position
+        playerController.transform.SetParent(grabPlayerPos.transform, true);
 
         playerController.CanMove = false;
         playerController.CanGrab = false;
@@ -561,6 +568,9 @@ public class EnemyStateMachine : MonoBehaviour
     public void UnlockPlayerInputs()
     {
         //Debug.Log("player control unlocked");
+        //set the player's transform parent back to the player object
+        playerController.transform.SetParent(persistant.PlayerParent.transform, true);
+
         playerController.CanMove = true;
         playerController.CanGrab = true;
         playerController.CanPushOff = true;
@@ -569,12 +579,12 @@ public class EnemyStateMachine : MonoBehaviour
 
         //restore physics handled in playerController.ThrowRoutine
 
-        if (canTakeHealth)
-        {
-            //Debug.Log("player took damage");
-            playerController.DecreaseHealth(1);
-            canTakeHealth = false;
-        }
+        //if (canTakeHealth)
+        //{
+        //    //Debug.Log("player took damage");
+        //    playerController.DecreaseHealth(1);
+        //    canTakeHealth = false;
+        //}
         
     }
 
@@ -614,6 +624,30 @@ public class EnemyStateMachine : MonoBehaviour
 
         // Ensure it finishes exactly at the target
         playerController.cam.transform.LookAt(target);
+    }
+
+    IEnumerator RotateGeistToTarget(Vector3 targetPosition, float duration)
+    {
+        float elapsed = 0f;
+        Quaternion startRotation = transform.rotation;
+        
+        while (elapsed < duration)
+        {
+            // 1. Calculate the direction to the target
+            Vector3 direction = targetPosition- transform.position;
+
+            if(direction.sqrMagnitude > 0.0001f)
+            {
+                // 2. Determine the target rotation (LookRotation)
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+                // 3. Smoothly interpolate between start and end
+                transform.rotation = Quaternion.Slerp(startRotation, targetRotation, elapsed / duration);
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null; // Wait for the next frame
+        }
     }
 
     #endregion
