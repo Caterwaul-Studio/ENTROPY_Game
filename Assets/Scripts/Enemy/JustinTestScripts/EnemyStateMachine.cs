@@ -96,6 +96,10 @@ public class EnemyStateMachine : MonoBehaviour
     [SerializeField] private bool isBeingGrabbedByGeist = false;
     [SerializeField] private float grabDuration = 5.5f;
 
+    [Header("Grab Safety")]
+    [SerializeField] private bool showPhaseRadius;
+    [SerializeField] private float grabWallCheckRadius = 0.5f;
+
     [Header("Light Detection")]
     private bool isLightOn;
     private float lightDetectionRange;
@@ -116,7 +120,7 @@ public class EnemyStateMachine : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioClip[] roarBank;
     [SerializeField] private AudioSource roarSource;
-    private bool roaring = false;
+    public bool roaring = false;
 
     private void Start()
     {
@@ -229,18 +233,11 @@ public class EnemyStateMachine : MonoBehaviour
 
             case SpecificEnemyState.Chase:
                 detectionRadius = chaseDetectionRadius;
-
-                if (currentSpecificState == SpecificEnemyState.Chase)
-                    //play roar audio
-                    if (!roaring) //if not currently roaring...
-                    {//do a roar.
-                        StartCoroutine(PlayRoar());
-                    }
                 complexEnemyAI.IsChasingPlayer();
 
                 if (!canDetectPlayer)
                 {
-                    interestTimer = interestDuration;
+                    interestTimer = 0f;
                     GetLastSeenLocation();
                     isInvestigating = false;
                     ChangeSpecificState(SpecificEnemyState.Investigate, "lost LOS during Chase");
@@ -544,6 +541,16 @@ public class EnemyStateMachine : MonoBehaviour
         // If the SphereCast reaches the 'distance' without hitting anything, return true.
         return true;
     }
+
+    /// <summary>
+    /// Confirm the Geist is not overlapping with any walls, use when trying to grab the player to ensure it won't throw the playr outside the level
+    /// </summary>
+    /// <returns></returns>
+    public bool IsInsideWall()
+    {
+        return Physics.CheckSphere(transform.position, grabWallCheckRadius, wallLayer);
+    }
+
     private void LockPlayerInputs()
     {
         //Debug.Log("player control locked");
@@ -767,7 +774,13 @@ public class EnemyStateMachine : MonoBehaviour
             if (player != null)
                 Gizmos.DrawLine(transform.position, player.transform.position);
         }
-        
+
+        if (showPhaseRadius)
+        {
+            Gizmos.color = Color.pink;
+            Gizmos.DrawWireSphere(transform.position, grabWallCheckRadius);
+        }
+
         if (showRetreatRadius)
         {
             Gizmos.color = Color.blue;
@@ -776,7 +789,7 @@ public class EnemyStateMachine : MonoBehaviour
             Gizmos.DrawWireSphere(transform.position, maxRadius);
         }
     }
-    IEnumerator PlayRoar()
+    public IEnumerator PlayRoar()
     {
         roarSource.clip = roarBank[UnityEngine.Random.Range(1, roarBank.Length)]; //start at 1 not 0 as 0 should always be attack sound
         roarSource.Play();

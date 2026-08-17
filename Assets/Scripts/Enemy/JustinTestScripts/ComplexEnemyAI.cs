@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class ComplexEnemyAI : MonoBehaviour
 {
@@ -369,6 +370,13 @@ public class ComplexEnemyAI : MonoBehaviour
         // Move directly towards the player
         transform.position = Vector3.MoveTowards(transform.position, player.transform.position, speed * Time.deltaTime);
 
+        if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Chase)
+            //play roar audio
+            if (!enemyStateMachine.roaring) //if not currently roaring...
+            {//do a roar.
+                StartCoroutine(enemyStateMachine.PlayRoar());
+            }
+
         UpdateCurrentWaypointToClosest();
     }
 
@@ -541,6 +549,7 @@ public class ComplexEnemyAI : MonoBehaviour
         yield return StartCoroutine(enemyStateMachine.GrabAndWait());
         if (!playerController.IsDead)
         {
+            player.transform.SetParent(persistant.PlayerParent.transform, true);
             playerController.IsDead = true;
             isChasingPlayer = false;
         }
@@ -650,7 +659,15 @@ public class ComplexEnemyAI : MonoBehaviour
         {
             if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Grab ||
                 enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill) return;
-            
+
+            //if the Geist is currently phasing in a wall, back out of grab logic
+            if (enemyStateMachine.IsInsideWall())
+            {
+                Debug.Log("Geist Phasing while trying to Grab");
+                BounceAwayFromGeist();
+                return;
+            }
+
             Debug.Log($"<color=orange>[COLLISION] Player touched while state={enemyStateMachine.currentSpecificState}, canDetect={enemyStateMachine.canDetectPlayer}, frame={Time.frameCount}</color>");
             enemyStateMachine.GrabAttackLogic();
 
@@ -911,5 +928,30 @@ public class ComplexEnemyAI : MonoBehaviour
         //Debug.Log("playing");
         hitSource.Play();
         shouldPlaySting = true;
+    }
+
+    public void BounceAwayFromGeist()
+    {
+        //logic copied from detectBarrier and bounce
+        //ensures that the playe doesn't get caught colliding with Geist as this is an OnEnter logic
+        //bounce the player away from the Geist
+        Vector3 impactPoint = persistant.Player.transform.position;
+
+        Vector3 GeistNormal = (impactPoint - transform.position).normalized;
+
+        Vector3 incomingVelocity = persistant.Player.RB.linearVelocity;
+        Vector3 reflectDirection = incomingVelocity.sqrMagnitude > 0.001f
+            ? Vector3.Reflect(persistant.Player.RB.linearVelocity.normalized, GeistNormal)
+            : GeistNormal;
+
+        Vector3 pushaway = GeistNormal * .3f; //small offset to prevent overlap
+        persistant.Player.transform.position += pushaway;
+        float bounceSpeed = speed * 1.3f;
+
+        persistant.Player.RB.linearVelocity = Vector3.zero;
+        persistant.Player.RB.angularVelocity = Vector3.zero;
+
+        persistant.Player.RB.linearVelocity = reflectDirection * bounceSpeed;
+        return;
     }
 }

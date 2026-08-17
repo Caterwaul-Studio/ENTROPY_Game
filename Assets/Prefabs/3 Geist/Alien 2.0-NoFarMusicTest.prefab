@@ -273,8 +273,8 @@ MonoBehaviour:
   detectionRadius: 9
   defaultDetectionRadius: 8
   chaseDetectionRadius: 7
-  detectionDuration: 1
-  detectionTimer: 1
+  detectionDuration: 2
+  detectionTimer: 0
   canDetectPlayer: 0
   chasePlayer: 0
   interestDuration: 3
@@ -308,6 +308,8 @@ MonoBehaviour:
   forceLookSpeedTime: 0.3
   isBeingGrabbedByGeist: 0
   grabDuration: 3
+  showPhaseRadius: 1
+  grabWallCheckRadius: 0.75
   minChaseDistance: 0
   maxChaseDistance: 4
   maxChaseSpeed: 3
@@ -320,6 +322,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: e6adad2c10a0f7143a3dabaa200534f9, type: 3}
   - {fileID: 8300000, guid: e9d94bf4da6a077448dc1eaaa6eec915, type: 3}
   roarSource: {fileID: 502880735938082764}
+  roaring: 0
 --- !u!114 &7138638095641941418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -684,7 +687,7 @@ Transform:
   m_GameObject: {fileID: 1891620099349330151}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.012879318, y: -0.3, z: 0.6902199}
+  m_LocalPosition: {x: -0.0054167127, y: -0.2, z: 0.29028893}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
