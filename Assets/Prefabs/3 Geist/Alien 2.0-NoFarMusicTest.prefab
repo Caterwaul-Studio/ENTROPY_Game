@@ -273,7 +273,7 @@ MonoBehaviour:
   detectionRadius: 9
   defaultDetectionRadius: 8
   chaseDetectionRadius: 7
-  detectionDuration: 2
+  detectionDuration: 1
   detectionTimer: 0
   canDetectPlayer: 0
   chasePlayer: 0
@@ -309,11 +309,12 @@ MonoBehaviour:
   isBeingGrabbedByGeist: 0
   grabDuration: 3
   showPhaseRadius: 1
-  grabWallCheckRadius: 0.75
+  grabWallCheckRadius: 0.5
+  idleDuration: 5
   minChaseDistance: 0
   maxChaseDistance: 4
-  maxChaseSpeed: 3
-  minChaseSpeed: 2
+  maxChaseSpeed: 4
+  minChaseSpeed: 1
   showDetectionRadius: 1
   showRetreatRadius: 0
   roarBank:
@@ -377,6 +378,9 @@ MonoBehaviour:
   throwLocation: {x: 0, y: 0, z: 0}
   minThrowDistance: 10
   throwForce: 50
+  throwWallLayer:
+    serializedVersion: 2
+    m_Bits: 0
   stateSwitchLog: 1
 --- !u!114 &1981256898708670038
 MonoBehaviour:

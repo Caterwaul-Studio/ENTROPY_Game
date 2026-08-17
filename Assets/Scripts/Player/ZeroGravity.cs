@@ -96,7 +96,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     private float rollFrictionNoGrab = 10f;
     private float prevRotZ = 0f;
     [SerializeField]
-    private float bounceAcc = 10f;
+    private float bounceAcc = 1f;
 
     [Header("Audio")]
     public BarAudioHandler barAudioHandler;
@@ -604,7 +604,9 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     void Update()
     {
-        if (canMove && !tutorialMode)
+        RotateCam();
+
+        if (canMove && !tutorialMode && !InCutscene)
         {
             if (!canRoll || !canPropel || !canPushOff || !canGrab)
             {
@@ -613,8 +615,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 canPushOff = true;
                 canGrab = true;
             }
-
-            RotateCam();
         }
         else if (!canMove)
         {
@@ -803,6 +803,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     #region Grab and Propel Movement
     public void PlayerCutSceneHandler(bool inCutScene)
     {
+        Debug.Log("Player cutscene handler called");
         if (inCutScene)
         {
             uiManager.HideInteractables();
@@ -1202,6 +1203,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         Vector3 barLoc = grabbedBar.transform.position;
 
         grabbedBar = null;
+        potentialGrabbedBar = null;
 
         
 

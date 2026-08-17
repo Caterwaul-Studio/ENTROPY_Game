@@ -101,6 +101,7 @@ public class ComplexEnemyAI : MonoBehaviour
     public Vector3 throwLocation; // set via SetThrowLocation()
     public float minThrowDistance = 5f;
     [SerializeField] public float throwForce = 20f;
+    public LayerMask throwWallLayer;
 
     [SerializeField] private bool stateSwitchLog = false;
 
@@ -506,7 +507,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
     #region Throw/Attack
 
-    void ForceLookAtPlayer()
+    public void ForceLookAtPlayer()
     {
         Vector3 toPlayer = (player.transform.position - transform.position);
         if (toPlayer.sqrMagnitude < 0.01f) return;
@@ -515,37 +516,38 @@ public class ComplexEnemyAI : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 
-    private void ThrowPlayerAt(Vector3 throwLocation)
-    {
-        // Direction from the enemy toward the computed throw target
-        Vector3 direction = (throwLocation - transform.position).normalized;
+    //private void ThrowPlayerAt(Vector3 throwLocation)
+    //{
+    //    // Direction from the enemy toward the computed throw target
+    //    Vector3 direction = (throwLocation - transform.position).normalized;
 
 
-        playerController.GetThrown(direction, throwForce);
-    }
+    //    playerController.GetThrown(direction, throwForce);
+    //}
 
-    public void ThrowPlayer() => StartCoroutine(ThrowSequence());
+    //public void ThrowPlayer() => StartCoroutine(ThrowSequence());
     
-    private IEnumerator ThrowSequence()
-    {
-        ForceLookAtPlayer();
-        enemyStateMachine.AttackRoar();
-        // Wait for the grab animation / hold duration
-        yield return enemyStateMachine.GrabAndWait();
+    //private IEnumerator ThrowSequence()
+    //{
+    //    ForceLookAtPlayer();
+    //    enemyStateMachine.AttackRoar();
+    //    // Wait for the grab animation / hold duration
+    //    yield return enemyStateMachine.GrabAndWait();
 
-        // Now actually apply the throw
-        ThrowPlayerAt(throwLocation);
+    //    // Now actually apply the throw
+    //    ThrowPlayerAt(throwLocation);
 
-        // Return control to the enemy
-        enemyStateMachine.UnlockPlayerInputs();
-        enemyStateMachine.GoIdle();
-    }
+    //    // Return control to the enemy
+    //    enemyStateMachine.UnlockPlayerInputs();
+    //    enemyStateMachine.GoIdle();
+    //}
 
     private void KillPlayer() => StartCoroutine(KillSequence());
 
     private IEnumerator KillSequence()
     {
         ForceLookAtPlayer();
+        enemyStateMachine.PlayRoar();
         yield return StartCoroutine(enemyStateMachine.GrabAndWait());
         if (!playerController.IsDead)
         {
@@ -605,18 +607,22 @@ public class ComplexEnemyAI : MonoBehaviour
         return FindFallbackWaypoint();
     }
 
-    private bool IsSpaceClear(Vector3 origin, Vector3 direction, float distance, out Vector3 hitPoint)
+    private bool IsSpaceClear(Vector3 origin, Vector3 direction, float minDistance, out Vector3 hitPoint)
     {
         RaycastHit hit;
+
+        //offset so the cast along the direction is slightly outside 
+        Vector3 castOrigin = origin + direction * 0.6f;
+
         // We use a SphereCast to ensure the PLAYER fits through the gap, not just a thin line
-        if (Physics.SphereCast(origin, 0.5f, direction, out hit, distance))
+        if (Physics.SphereCast(origin, 0.5f, direction, out hit, minDistance, throwWallLayer, QueryTriggerInteraction.Ignore))
         {
             hitPoint = hit.point;
             return false; // Hit a wall
         }
 
         // Path is clear! Set target to the end of the ray
-        hitPoint = origin + (direction * distance);
+        hitPoint = origin + (direction * minDistance);
         return true;
     }
 

@@ -100,6 +100,9 @@ public class EnemyStateMachine : MonoBehaviour
     [SerializeField] private bool showPhaseRadius;
     [SerializeField] private float grabWallCheckRadius = 0.5f;
 
+    [Header("Idle Options")]
+    [SerializeField] private float idleDuration = 5.0f;
+
     [Header("Light Detection")]
     private bool isLightOn;
     private float lightDetectionRange;
@@ -237,7 +240,7 @@ public class EnemyStateMachine : MonoBehaviour
 
                 if (!canDetectPlayer)
                 {
-                    interestTimer = 0f;
+                    interestTimer = interestDuration;
                     GetLastSeenLocation();
                     isInvestigating = false;
                     ChangeSpecificState(SpecificEnemyState.Investigate, "lost LOS during Chase");
@@ -557,6 +560,10 @@ public class EnemyStateMachine : MonoBehaviour
         //set the player's transform parent to the Geist grab player position
         playerController.transform.SetParent(grabPlayerPos.transform, true);
 
+        persistant.PlayerUIManager.HideInteractables();
+        persistant.PlayerUIManager.HideGrabber();
+        playerController.ReleaseBar();
+
         playerController.CanMove = false;
         playerController.CanGrab = false;
         playerController.CanPushOff = false;
@@ -602,9 +609,10 @@ public class EnemyStateMachine : MonoBehaviour
 
     private IEnumerator GoIdleRoutine()
     {
+        Debug.Log("GoIdleRoutine called");
         UnlockPlayerInputs();
         ChangeGeneralState(GeneralEnemyState.Idle);
-        yield return new WaitForSeconds(10.0f); // actually waits
+        yield return StartCoroutine(RotateGeistToTarget(player.transform.position, idleDuration)); // force the geist to wait for idle duration while staring at player
         ChangeGeneralState(GeneralEnemyState.Active);
         ChangeSpecificState(SpecificEnemyState.Investigate, "lost LOS during Chase");
     }
@@ -788,6 +796,10 @@ public class EnemyStateMachine : MonoBehaviour
             Gizmos.DrawWireSphere(transform.position, minRadius);
             Gizmos.DrawWireSphere(transform.position, maxRadius);
         }
+        //thow position
+        Gizmos.color = Color.orange;
+        Gizmos.DrawWireSphere(complexEnemyAI.throwLocation, 1f);
+
     }
     public IEnumerator PlayRoar()
     {
