@@ -759,7 +759,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         {
             safetyTick += 1;
             Quaternion camRotation = cam.transform.rotation;
-            cam.transform.rotation = new Quaternion(camRotation.x + UnityEngine.Random.Range(-0.05f, 0.05f), camRotation.y + UnityEngine.Random.Range(-0.05f, 0.05f), camRotation.z + UnityEngine.Random.Range(-0.05f, 0.05f), camRotation.w);
+            cam.transform.rotation = new Quaternion(camRotation.x + UnityEngine.Random.Range(-0.025f, 0.025f), camRotation.y + UnityEngine.Random.Range(-0.025f, 0.025f), camRotation.z + UnityEngine.Random.Range(-0.025f, 0.025f), camRotation.w);
             yield return new WaitForSeconds(0.01f);
             StartCoroutine(CameraShake());
         }

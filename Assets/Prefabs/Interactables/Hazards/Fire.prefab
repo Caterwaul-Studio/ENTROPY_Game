@@ -49,6 +49,7 @@ MonoBehaviour:
   myFireNodes:
   - {fileID: 4925861184397414948}
   - {fileID: 6515579037663991048}
+  persistantManager: {fileID: 0}
   player: {fileID: 0}
   distanceAway: 15
 --- !u!1 &3986642806812403732
@@ -304,6 +305,10 @@ MonoBehaviour:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
   myFire: {fileID: 6851650730443927175}
+  myLight: {fileID: 0}
+  flickerSpeed: 8
+  flickerIntensityRange: 0.15
+  persistantManager: {fileID: 0}
   player: {fileID: 0}
   MainCamera: {fileID: 0}
   extinguishNodes:
@@ -333,6 +338,7 @@ MonoBehaviour:
   flameStrength: 100
   playerHitBoxSizeModifier: 0.5
   sys: {fileID: 2322206649661498705}
+  fireActive: 0
 --- !u!198 &2322206649661498705
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -5132,6 +5138,30 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1057378404722793503, guid: cf53d5fc05eccfa4c9f6482cf73c7d00, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1905414278253521308, guid: cf53d5fc05eccfa4c9f6482cf73c7d00, type: 3}
+      propertyPath: m_Size.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1905414278253521308, guid: cf53d5fc05eccfa4c9f6482cf73c7d00, type: 3}
+      propertyPath: m_Size.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1905414278253521308, guid: cf53d5fc05eccfa4c9f6482cf73c7d00, type: 3}
+      propertyPath: m_Size.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1905414278253521308, guid: cf53d5fc05eccfa4c9f6482cf73c7d00, type: 3}
+      propertyPath: m_Center.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1905414278253521308, guid: cf53d5fc05eccfa4c9f6482cf73c7d00, type: 3}
+      propertyPath: m_Center.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1905414278253521308, guid: cf53d5fc05eccfa4c9f6482cf73c7d00, type: 3}
+      propertyPath: m_Center.z
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4439283587895608048, guid: cf53d5fc05eccfa4c9f6482cf73c7d00, type: 3}
