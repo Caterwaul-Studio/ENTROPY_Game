@@ -10,6 +10,11 @@ public class FireScript : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private float distanceAway;
 
+    private void Awake()
+    {
+        player = GameObject.FindWithTag("Player");
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Update()
     {//This is the most basic possible 'optimization' solution just for now, in the future there will be something closer to the audiozones system
