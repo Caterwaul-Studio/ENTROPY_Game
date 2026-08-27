@@ -20,9 +20,9 @@ public class LabFireEvent : MonoBehaviour
 
     public void StartFire()
     {
-        foreach(FireNodeScript node in fireNodes)
+        Debug.Log("Fire Started");
+        foreach (FireNodeScript node in fireNodes)
         {
-            Debug.Log("Fire Started");
             node.gameObject.SetActive(true);
         }
 
