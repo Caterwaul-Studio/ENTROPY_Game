@@ -72,7 +72,7 @@ public class PlayerAudio : MonoBehaviour
     {
         if (clip == null || audioSourcePrefab == null) return;
 
-        Debug.Log("play bounce called");
+        //Debug.Log("play bounce called");
 
         GameObject audioObj = Instantiate(audioSourcePrefab, position, Quaternion.identity, audioContainer);
         AudioSource newSource = audioObj.GetComponent<AudioSource>();

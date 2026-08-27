@@ -26,7 +26,7 @@ public class StimDispenser : MonoBehaviour
     private Color activeScreen = new Color(1, 1, 1, 1) * 1.5f;
     private Color inactiveScreen = new Color(0.03f, 0.03f, 0.03f, 1);
 
-
+    [SerializeField] private PersistantManager persistant;
     [SerializeField]
     private GameObject playerObj;
     [SerializeField]
@@ -89,40 +89,46 @@ public class StimDispenser : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        //Debug.Log($"[StimDispenser] Start — isUsable={isUsable}, canRefill={canRefill}");
+
         lightIntensity = spotlight.intensity;
 
-        if (isUsable)
-        {
-            
-            screenMaterial.SetColor("_EmissionColor", activeScreen);
-            screenlight.intensity = activeScreenLightIntensity;
-            spotlight.intensity = lightIntensity;
-        }
-        else
-        {
+        ToggleUsability(isUsable);
 
-            screenMaterial.SetColor("_EmissionColor", inactiveScreen);
-            screenlight.intensity = inactiveScreenLightIntensity;
-            spotlight.intensity = 0f;
+        if (persistant == null)
+        {
+            persistant = FindFirstObjectByType<PersistantManager>();
+            playerObj = persistant.PlayerObject;
+            playerScript = persistant.Player;
+            uiScript = persistant.PlayerUIManager;
+            wristMonitor = persistant.WristMonitor;
+            progressBar = uiScript.ProgressBar;
+            progressCanvas = progressBar.GetComponent<CanvasGroup>();
+            progressCanvas.alpha = 0;
         }
-
-        playerScript = FindFirstObjectByType<ZeroGravity>();
-        playerObj = playerScript.gameObject;
-        uiScript = playerObj.GetComponent<PlayerUIManager>();
-        wristMonitor = FindFirstObjectByType<WristMonitor>();
         //Debug.Log(playerObj);
         //Debug.Log(playerScript);
         //Debug.Log(uiScript);
-        progressBar = uiScript.ProgressBar;
-        progressCanvas = progressBar.GetComponent<CanvasGroup>();
-        progressCanvas.alpha = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isRefilling)
+        if(persistant == null)
         {
+            persistant = FindFirstObjectByType<PersistantManager>();
+            playerObj = persistant.PlayerObject;
+            playerScript = persistant.Player;
+            uiScript = persistant.PlayerUIManager;
+            wristMonitor = persistant.WristMonitor;
+            progressBar = uiScript.ProgressBar;
+            progressCanvas = progressBar.GetComponent<CanvasGroup>();
+            progressCanvas.alpha = 0;
+        }
+
+        if (isRefilling && playerScript.NumStims < 3)
+        {
+            //Debug.Log($"[StimDispenser] Refilling... holdTimer={holdTimer:F2}, distance={Vector3.Distance(playerObj.transform.position, transform.position):F2}");
             progressCanvas.alpha = 1f;
             float progress = holdTimer / refillTime;
             progressBar.fillAmount = Mathf.Clamp01(progress);
@@ -147,6 +153,7 @@ public class StimDispenser : MonoBehaviour
 
     public void OnInteract(InputAction.CallbackContext context)
     {
+       //Debug.Log($"[StimDispenser] OnInteract phase={context.phase}, canRefill={canRefill}");
         if (context.started && canRefill)
         {
             //Debug.Log("I'm interacting");
@@ -160,6 +167,7 @@ public class StimDispenser : MonoBehaviour
 
     public void StartRefill()
     {
+        //Debug.Log($"[StimDispenser] StartRefill called, canRefill={canRefill}");
         if (canRefill)
         {
             isRefilling = true;
@@ -195,6 +203,7 @@ public class StimDispenser : MonoBehaviour
 
     public void ToggleUsability(bool isUsable)
     {
+        //Debug.Log($"[StimDispenser] ToggleUsability({isUsable}) called");
         this.isUsable = isUsable;
         Color baseEmission = screenMaterial.GetColor("_EmissionColor");
 

@@ -10,12 +10,14 @@ public class CheckpointManager : MonoBehaviour, ISaveable
     [SerializeField] private ZeroGravity playerZeroG;    // keep as inspector fallback only
     [SerializeField] private GameObject persistentPrefab;
     [SerializeField] private Camera playerCam;
-    private int _currentIndex = 0;
+    [SerializeField] private InventoryManager inventoryManager;
+    public bool AnyCheckPointReached { get; private set; } = false;
+    //private int _currentIndex = 0;
 
-    public int CurrentIndex
-    {
-        get { return _currentIndex; }
-    }
+    //public int CurrentIndex
+    //{
+    //    get { return _currentIndex; }
+    //}
 
     void Start()
     {
@@ -25,13 +27,17 @@ public class CheckpointManager : MonoBehaviour, ISaveable
             playerZeroG = PersistantManager.Instance.Player;
             playerCam = PersistantManager.Instance.MainCamera;
         }
-        // Wire up each checkpoint and only enable the first one
-        for (int i = 0; i < checkpoints.Count; i++)
+        if (inventoryManager == null)
         {
-            var cp = checkpoints[i];
-            cp.OnReached += HandleCheckpointReached;
-            cp.Initialize(playerZeroG, i == 0);
+            inventoryManager = FindFirstObjectByType<InventoryManager>();
         }
+        // Wire up each checkpoint and enable them all
+        foreach (var cp in checkpoints)
+        {
+            cp.OnReached += HandleCheckpointReached;
+            cp.Initialize(playerZeroG, true);
+        }
+
         // continue from save
         if (GlobalSaveManager.LoadFromSave)
         {
@@ -42,12 +48,7 @@ public class CheckpointManager : MonoBehaviour, ISaveable
 
     void HandleCheckpointReached(Checkpoint reached)
     {
-        // advance to next checkpoint if there is one
-        if (_currentIndex + 1 < checkpoints.Count)
-        {
-            _currentIndex++;
-            checkpoints[_currentIndex].Initialize(playerZeroG, true);
-        }
+        AnyCheckPointReached = true;
         // store the Player's data to the save manager, passing in the position of this checkpoint
         playerZeroG.StorePlayerData(reached.respawnPoint.transform.position);
         // save the game at checkpoints
@@ -119,6 +120,16 @@ public class CheckpointManager : MonoBehaviour, ISaveable
         playerZeroG.PlayerCutSceneHandler(false);
 
         GlobalSaveManager.LoadSavable(playerZeroG, false);
+
+        // restore inventory state (equipped item, held/acquired items) to match this checkpoint
+        if (inventoryManager != null)
+        {
+            GlobalSaveManager.LoadSavable(inventoryManager, false);
+        }
+        else
+        {
+            Debug.LogWarning("CheckpointManager: inventoryManager reference missing, skipping inventory restore.");
+        }
 
         //playerZeroG.transform.position = checkpoints[_currentIndex].respawnPoint.transform.position;
         //playerCam.transform.rotation = checkpoints[_currentIndex].respawnPoint.transform.rotation;

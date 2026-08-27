@@ -214,6 +214,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     //Fields for the tutorial
     [SerializeField]
     private bool tutorialMode = false;
+    [SerializeField]
+    private bool inCustcene = false;
     public bool canGrab = false;
     public bool canPropel = false;
     public bool canPushOff = false;
@@ -280,7 +282,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             {
                 //Debug.Log("NOCLIP OFF - isKinematic before: " + rb.isKinematic);
                 rb.isKinematic = false;
-                boundingSphere.enabled = true;
+                //boundingSphere.enabled = true;
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
                 //Debug.Log("NOCLIP OFF - isKinematic after: " + rb.isKinematic);
@@ -292,7 +294,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
                 rb.isKinematic = true;
-                boundingSphere.enabled = false;
+                //boundingSphere.enabled = false;
                 //Debug.Log("NOCLIP ON - isKinematic after: " + rb.isKinematic);
             }
         }
@@ -347,6 +349,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         get { return tutorialMode; }
         set { tutorialMode = value; }
+    }
+
+    public bool InCutscene
+    {
+        get { return inCustcene; }
     }
 
     public Rigidbody RB
@@ -810,6 +817,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             //canRoll = false;
             //uiManager.Crosshair.sprite = null;
             uiManager.Crosshair.color = new Color(0f, 0f, 0f, 0f);
+            inCustcene = true;
         }
         else if (!inCutScene)
         {
@@ -822,6 +830,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 canRoll = true;
                 //uiManager.Crosshair.sprite = uiManager.CrosshairIcon;
                 uiManager.Crosshair.color = new Color(1f, 1f, 1f, 1f);
+                inCustcene = false;
             }
         }
     }
@@ -866,7 +875,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         justGrabbed = true;
         grabbedBar = potentialGrabbedBar;
 
-        Debug.Log(grabbedBar);
+        //Debug.Log(grabbedBar);
         if (grabbedBar.GetComponent<SparkBar>() != null && !hasGloves)
         {
             StartCoroutine(GrabShock());
@@ -1173,7 +1182,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     {
         //Debug.Log("no swingaling");
         swingPoint = Vector3.zero;
-        Destroy(joint);
+        DestroyImmediate(joint);
         swinging = false;
     }
 

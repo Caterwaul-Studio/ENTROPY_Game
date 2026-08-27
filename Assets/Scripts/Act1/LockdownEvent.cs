@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class LockdownEvent : MonoBehaviour
 {
+    [SerializeField] private GameObject diningRoomCheckpoint;
+
     [SerializeField]
     private GameObject playerObject;
     private ZeroGravity player;
@@ -506,7 +508,9 @@ public class LockdownEvent : MonoBehaviour
             elapsed += Time.deltaTime;
             yield return null;
         }
-
+        //easy gate for level one, don't do this kind of stuff in teh future
+        //disable the dining room checkpoint
+        diningRoomCheckpoint.SetActive(false);
         grateToMove.transform.position = toPos;
         onComplete?.Invoke();
     }

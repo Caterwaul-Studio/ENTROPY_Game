@@ -13,7 +13,7 @@ public class SparkScript : MonoBehaviour
     [SerializeField] private Camera MainCamera;
     [SerializeField] private ParticleSystem sys;
     [SerializeField] private bool WireSpark;
-    [SerializeField] private bool electricActive;
+    public bool electricActive;
 
     private Vector3 boxSize;
     private float damageCoolDown;
@@ -30,13 +30,20 @@ public class SparkScript : MonoBehaviour
         sparkBounds = new Bounds(transform.position, boxSize);
         Destroy(this.gameObject.GetComponent<BoxCollider>());
 
-        if (myGrabbable != null)
-            myGrabbable.AddComponent<SparkBar>();
+        if (myGrabbable != null) //the behavior for damaging the player when they grab onto an electrified bar is handled in ZeroGravity.cs
+            myGrabbable.AddComponent<SparkBar>(); //it is dependent on the object with the grabbable tag having this component on it
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (player == null || MainCamera == null || zeroG == null)
+        {
+            player = GameObject.FindAnyObjectByType<ZeroGravity>().gameObject;
+            zeroG = player.GetComponent<ZeroGravity>();
+            MainCamera = zeroG.cam;
+        }
+
         if (zeroG.hasGloves && zeroG.IsGrabbing)
             damageCoolDown = 0;
 
@@ -44,18 +51,17 @@ public class SparkScript : MonoBehaviour
         if (electricActive)
         {
             if (WireSpark)
-                sparkBounds = new Bounds(transform.position, boxSize);
-
-            if (sparkBounds.Contains(player.transform.position) && damageCoolDown > 1f && sys.particleCount > 0)
-                if (!WireSpark)
-                    DamagePlayer();
+                sparkBounds = new Bounds(transform.position, boxSize); //updating the position of the bounds is only relevant for wires which move around
+            else
+                if (sparkBounds.Contains(player.transform.position) && damageCoolDown > 1f && sys.particleCount > 0)
+                    DamagePlayer(); //the player is shocked when they are within the bounds and the niagara has active particles
         }
     }
 
     private void DamagePlayer()
     {
         if (!zeroG.hasGloves || (zeroG.hasGloves && !zeroG.IsGrabbing))
-        {
+        { //we dont want to damage the player if they either dont have the gloves or they do have them but arent currently grabbing a bar
             zeroG.DecreaseHealth(1);
             StartCoroutine(zeroG.ShockEffect());
             damageCoolDown = 0;

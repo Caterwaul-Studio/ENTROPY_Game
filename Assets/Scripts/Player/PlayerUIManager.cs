@@ -17,6 +17,7 @@ public class PlayerUIManager : MonoBehaviour
     private Rigidbody rb;
     [SerializeField]
     private PickupScript pickupScript;
+    [SerializeField] private InventoryManager inventoryManager;
     [SerializeField]
     private DoorManager doorManager;
     private GameObject stimDispenserContainer;
@@ -42,6 +43,8 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField]
     private GameObject billboardPrefab;
     private GameObject billboardObject;
+
+    public bool interactBillboardObjectInScene;
 
     [SerializeField]
     private float iconScale = 0.0025f;
@@ -120,6 +123,11 @@ public class PlayerUIManager : MonoBehaviour
     private IInteractable currentInteractable;
 
     #region properties
+    public IInteractable CurrentInteractable
+    {
+        get { return currentInteractable; }
+    }
+
     public bool BarInRaycast
     {
         get { return barInRaycast; }
@@ -193,6 +201,7 @@ public class PlayerUIManager : MonoBehaviour
     {
         get { return doorLayer; }
     }
+
     #endregion
 
     private void OnEnable()
@@ -236,6 +245,7 @@ public class PlayerUIManager : MonoBehaviour
     {
         // create the billboardPrefab. Not hardcoded.
         billboardObject = GameObject.Instantiate(billboardPrefab);
+        billboardObject.transform.SetParent(transform, false);
         billboardObject.SetActive(false);
 
         //set the crosshair and grabber sprites accordingly;
@@ -262,6 +272,7 @@ public class PlayerUIManager : MonoBehaviour
         //cached so we don't need to constantly look for them all the time 
         grabberRectTransform = grabber.GetComponent<RectTransform>();
         crosshairRectTransform = crosshair.GetComponent<RectTransform>();
+        if(stimDispenserContainer != null)
         stimDispensers = stimDispenserContainer.GetComponentsInChildren<StimDispenser>();
         progressBar.enabled = false;
     }
@@ -269,6 +280,13 @@ public class PlayerUIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(billboardObject == null)
+        {
+            billboardObject = GameObject.Instantiate(billboardPrefab);
+            billboardObject.transform.SetParent(transform, false);
+            billboardObject.SetActive(false);
+        }
+
         //if the player is in free move noclip mode, hide all the UI elements, we don't need them and it just gets in the way
         if (player.PlayerFreeMoveNoClip)
         {
@@ -309,8 +327,13 @@ public class PlayerUIManager : MonoBehaviour
     /// This method conrols the logic handling all of the raycasts from the player to diffeent objects in the scene allowing for multiple movement/ interaction options
     /// </summary>
     public void HandleRaycastUI()
-    {
+    {      
         if (Time.frameCount % 2 != 0) return; //skip every other frame
+
+        if (interactBillboardObjectInScene)
+        {
+            interactBillboardObjectInScene = false;
+        }
         //Debug.Log("handle raycast called");
         RaycastHit hit;
         //create a raycast that stores the most favorable hit object, this will ensure when a bar is on screen it is chosen
@@ -424,7 +447,7 @@ public class PlayerUIManager : MonoBehaviour
             }
         }
 
-        if (interactableHit != null)
+        if (interactableHit != null && !inventoryManager.InTutorial)
         {
             string interactTag = interactableHit.Value.collider.tag;
             //set the IInterctable Proxy collider to a reference so we can use it here dynamically
@@ -454,14 +477,17 @@ public class PlayerUIManager : MonoBehaviour
             switch (interactTag)
             {
                 case "DoorButton":
+                    interactBillboardObjectInScene = true;
                     RayCastHandleDoorButton(interactableHit);
                     break;
                 case "StimDispenser":
                     //Debug.Log("WristMonitor Detected");
+                    interactBillboardObjectInScene = true;
                     RayCastHandleStimDispenser(interactableHit);
                     break;
                 case "Terminal":
                     //Debug.Log("Terminal Detected");
+                    interactBillboardObjectInScene = true;
                     RayCastHandleTerminal(interactableHit);
                     break;
                 //case "PickupObject":
@@ -470,6 +496,7 @@ public class PlayerUIManager : MonoBehaviour
                 default:
                     if (hitInteractable != null && hitInteractable.IsAvailableForInteraction)
                     {
+                        Debug.Log("IInteractable in raycast");
                         ShowBillboardUI(
                             hitInteractable.PromptIcon,
                             hitInteractable.PromptColor,
@@ -477,6 +504,7 @@ public class PlayerUIManager : MonoBehaviour
                             hitInteractable.PromptText,
                             hitInteractable.HideCrosshairOnLook
                             );
+                        interactBillboardObjectInScene = true;
                     }
                     else if(!hitInteractable.IsAvailableForInteraction)
                     {
@@ -501,9 +529,12 @@ public class PlayerUIManager : MonoBehaviour
                     stim.CanRefill = false;
                 }
             }
-            if (terminalManager.CurrentTerminal != null)
+            if(terminalManager != null)
             {
-                terminalManager.CurrentTerminal = null;
+                if (terminalManager.CurrentTerminal != null)
+                {
+                    terminalManager.CurrentTerminal = null;
+                }
             }
         }
 
@@ -752,6 +783,23 @@ public class PlayerUIManager : MonoBehaviour
         }
 
         HideBillboardUI();
+    }
+
+    public void ToggleThrowIndicatorVisible(bool visible)
+    {
+        if(inputIndicatorThrow != null)
+        {
+            if (visible)
+            {
+                inputIndicatorThrow.sprite = leftClickIndicator;
+                inputIndicatorThrow.color = new Color(1, 1, 1, 1);
+            }
+            else
+            {
+                inputIndicatorThrow.sprite = null;
+                inputIndicatorThrow.color = new Color(1, 1, 1, 0);
+            }
+        }
     }
 
     public void ReleaseGrabber()
@@ -1169,6 +1217,16 @@ public class PlayerUIManager : MonoBehaviour
 
         }
 
+    }
+
+    public void ForceDetachBillboard()
+    {
+        if (billboardObject != null)
+        {
+            Debug.Log("detachingt billboard");
+            billboardObject.SetActive(false);
+            billboardObject.transform.SetParent(transform, false);
+        }
     }
 
 
