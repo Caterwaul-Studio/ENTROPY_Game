@@ -43,7 +43,7 @@ public class FireNodeScript : MonoBehaviour
     //Particle system original param containers
     private float originalStartSize;
     private float originalShapeRadius;
-    private float throwCooldown;
+    private float hitDetectCooldown;
 
     private void OnEnable()
     {
@@ -95,18 +95,18 @@ public class FireNodeScript : MonoBehaviour
         {
             if (fireActive)
             {
-                throwCooldown += Time.deltaTime;
+                hitDetectCooldown += Time.deltaTime;
                 for (int i = 0; i < extinguishNodes.Length; i++)
                 { //collision detection is done via fireBounds in the hope it will be less resource intensive, may need to be tested
                     if (fireBounds.Contains(extinguishNodes[i].transform.position))
                         DampenFlame(extinguishNodes[i].gameObject);
                 }
 
-                if ((playerBounds.Contains(player.transform.position) && throwCooldown > 0.5f) && !player.GetComponent<ZeroGravity>().PlayerFreeMoveNoClip)
+                if ((playerBounds.Contains(player.transform.position) && hitDetectCooldown > 0.5f) && !player.GetComponent<ZeroGravity>().PlayerFreeMoveNoClip)
                 {
                     StartCoroutine(BurnPlayer());
-                    player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
-                    throwCooldown = 0;
+                    //player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
+                    hitDetectCooldown = 0;
                 }
 
                 //flame regeneration
