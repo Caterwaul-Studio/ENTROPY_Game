@@ -37051,10 +37051,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: RoundedBarSpark (8) Variant (3)
       objectReference: {fileID: 0}
-    - target: {fileID: 6633076862870197658, guid: d66f585925c08f64694f3696e7c4e0b0, type: 3}
-      propertyPath: myGrabbable
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 7769330555213303908, guid: d66f585925c08f64694f3696e7c4e0b0, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.17100143
@@ -99850,6 +99846,95 @@ Mesh:
     offset: 0
     size: 0
     path: 
+--- !u!1001 &994897751
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 233474927912099257, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: m_Name
+      value: Fire
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509615376219098636, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 2.8071022
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509615376219098636, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.2041588
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509615376219098636, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 41.53319
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509615376219098636, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509615376219098636, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509615376219098636, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509615376219098636, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509615376219098636, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509615376219098636, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509615376219098636, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3679744482163286142, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: flickerSpeed
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3679744482163286142, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: flickerSpeedMax
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3679744482163286142, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: flickerSpeedMin
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3679744482163286142, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: playerHitBoxSizeModifier
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 8234891029939215989, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: flickerSpeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8234891029939215989, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: flickerSpeedMax
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8234891029939215989, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: flickerSpeedMin
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8234891029939215989, guid: d0edda871a106e844bbd2b0811797818, type: 3}
+      propertyPath: playerHitBoxSizeModifier
+      value: 1.25
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d0edda871a106e844bbd2b0811797818, type: 3}
 --- !u!43 &995777003
 Mesh:
   m_ObjectHideFlags: 0
@@ -165561,6 +165646,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 49366249}
     m_Modifications:
+    - target: {fileID: 356613579953840185, guid: d66f585925c08f64694f3696e7c4e0b0, type: 3}
+      propertyPath: m_Intensity
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 2499658325307417271, guid: d66f585925c08f64694f3696e7c4e0b0, type: 3}
       propertyPath: m_Name
       value: RoundedBarSpark (8) Variant (1)
@@ -240867,3 +240956,4 @@ SceneRoots:
   - {fileID: 737753768}
   - {fileID: 553566043}
   - {fileID: 1956781782}
+  - {fileID: 994897751}

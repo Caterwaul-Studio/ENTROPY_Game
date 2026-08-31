@@ -8,6 +8,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2068332723226868575, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: flickerLights.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2068332723226868575, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: 'flickerLights.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1640392615420876217}
+    - target: {fileID: 2068332723226868575, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: 'flickerLights.Array.data[1]'
+      value: 
+      objectReference: {fileID: 5101292100335333800}
     - target: {fileID: 2956615127039966887, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
       propertyPath: LightsModule.enabled
       value: 0
@@ -59,6 +71,38 @@ PrefabInstance:
     - target: {fileID: 3128709942373957281, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: -1.487
+      objectReference: {fileID: 0}
+    - target: {fileID: 4033940707158233216, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7169812
+      objectReference: {fileID: 0}
+    - target: {fileID: 4033940707158233216, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: m_Color.g
+      value: 0.23335709
+      objectReference: {fileID: 0}
+    - target: {fileID: 4033940707158233216, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: m_Color.r
+      value: 0.3459819
+      objectReference: {fileID: 0}
+    - target: {fileID: 4033940707158233216, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: m_Intensity
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921220312924147452, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7122642
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921220312924147452, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: m_Color.r
+      value: 0.78201824
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921220312924147452, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: m_Intensity
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921220312924147452, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: m_BounceIntensity
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4921220312924147452, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
       propertyPath: m_BoundingSphereOverride.w
@@ -179,5 +223,57 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3875729529836782748, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1640392615420876217}
+    - targetCorrespondingSourceObject: {fileID: 8201826626637186305, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5101292100335333800}
   m_SourcePrefab: {fileID: 100100000, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+--- !u!1 &3561186464717974468 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8201826626637186305, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+  m_PrefabInstance: {fileID: 4663862124538064581}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5101292100335333800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3561186464717974468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cad51a440626ef42ab791e6c1c22dd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flickerSpeedMax: 4
+  flickerSpeedMin: 2
+  flickerIntensityRange: 0.01
+  flickerActive: 0
+  lightActive: 0
+  baseIntensity: 0.025
+--- !u!1 &8462270972569102937 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3875729529836782748, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+  m_PrefabInstance: {fileID: 4663862124538064581}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1640392615420876217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8462270972569102937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cad51a440626ef42ab791e6c1c22dd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flickerSpeedMax: 3
+  flickerSpeedMin: 1
+  flickerIntensityRange: 0.025
+  flickerActive: 0
+  lightActive: 0
+  baseIntensity: 0.01
