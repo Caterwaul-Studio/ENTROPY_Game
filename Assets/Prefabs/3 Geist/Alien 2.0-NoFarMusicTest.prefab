@@ -43,6 +43,7 @@ Transform:
   - {fileID: 4014088467550125724}
   - {fileID: 6542982692049329765}
   - {fileID: 3269755640818526878}
+  - {fileID: 6803531637843714307}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 1.069, z: 0}
 --- !u!33 &5366927288172932913
@@ -265,23 +266,24 @@ MonoBehaviour:
   playerController: {fileID: 0}
   complexEnemyAI: {fileID: 0}
   simpleEnemyEnemyAI: {fileID: 0}
+  grabPlayerPos: {fileID: 1891620099349330151}
   detectionMask:
     serializedVersion: 2
     m_Bits: 16577
-  detectionRadius: 12
-  defaultDetectionRadius: 9
+  detectionRadius: 9
+  defaultDetectionRadius: 8
   chaseDetectionRadius: 7
-  detectionDuration: 3
-  detectionTimer: 3
+  detectionDuration: 1
+  detectionTimer: 0
   canDetectPlayer: 0
   chasePlayer: 0
-  interestDuration: 5
+  interestDuration: 3
   interestTimer: 0
   loseSightGraceTime: 1
   loseSightTimer: 0
   playersLastKnownLocation: {x: 0, y: 0, z: 0}
   shouldFollow: 0
-  retreatDuration: 3
+  retreatDuration: 5
   retreatDistanceCheck: 0
   barrierLayer:
     serializedVersion: 2
@@ -303,19 +305,25 @@ MonoBehaviour:
   throwCheckLimit: 0
   throwCheckOffset: {x: 0, y: 0, z: 0}
   canTakeHealth: 0
-  forceLookSpeedTime: 0
+  forceLookSpeedTime: 0.3
+  isBeingGrabbedByGeist: 0
+  grabDuration: 3
+  showPhaseRadius: 1
+  grabWallCheckRadius: 0.5
+  idleDuration: 5
   minChaseDistance: 0
   maxChaseDistance: 4
   maxChaseSpeed: 4
-  minChaseSpeed: 2
+  minChaseSpeed: 1
   showDetectionRadius: 1
   showRetreatRadius: 0
   roarBank:
   - {fileID: 8300000, guid: 179d999618f55e44c8dafcf3d8e1747a, type: 3}
-  - {fileID: 8300000, guid: 3cc418621eb696b4dab6ce13fd968763, type: 3}
-  - {fileID: 8300000, guid: 477dc5274c721aa43b5aeef1edef5fd9, type: 3}
   - {fileID: 8300000, guid: 7a08f256087e6a847b5057fd7a89db34, type: 3}
+  - {fileID: 8300000, guid: e6adad2c10a0f7143a3dabaa200534f9, type: 3}
+  - {fileID: 8300000, guid: e9d94bf4da6a077448dc1eaaa6eec915, type: 3}
   roarSource: {fileID: 502880735938082764}
+  roaring: 0
 --- !u!114 &7138638095641941418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -368,8 +376,11 @@ MonoBehaviour:
   availableOrigins: []
   FailSafe: {fileID: 0}
   throwLocation: {x: 0, y: 0, z: 0}
-  minThrowDistance: 5
-  throwForce: 60
+  minThrowDistance: 10
+  throwForce: 50
+  throwWallLayer:
+    serializedVersion: 2
+    m_Bits: 0
   stateSwitchLog: 1
 --- !u!114 &1981256898708670038
 MonoBehaviour:
@@ -655,6 +666,37 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &1891620099349330151
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6803531637843714307}
+  m_Layer: 0
+  m_Name: GrabPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6803531637843714307
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891620099349330151}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.0054167127, y: -0.2, z: 0.29028893}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 107771029737482174}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1984250762264391625
 GameObject:
   m_ObjectHideFlags: 0
@@ -2225,7 +2267,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.65
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -2236,7 +2278,7 @@ AudioSource:
   MinDistance: 1
   MaxDistance: 500
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 2
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -2245,7 +2287,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0.7043915
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -2299,7 +2341,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0.7
       inSlope: 0
       outSlope: 0
       tangentMode: 0

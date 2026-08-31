@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class ComplexEnemyAI : MonoBehaviour
 {
@@ -99,7 +100,8 @@ public class ComplexEnemyAI : MonoBehaviour
     [Header("Throw")]
     public Vector3 throwLocation; // set via SetThrowLocation()
     public float minThrowDistance = 5f;
-    [SerializeField] private float throwForce = 20f;
+    [SerializeField] public float throwForce = 20f;
+    public LayerMask throwWallLayer;
 
     [SerializeField] private bool stateSwitchLog = false;
 
@@ -369,6 +371,13 @@ public class ComplexEnemyAI : MonoBehaviour
         // Move directly towards the player
         transform.position = Vector3.MoveTowards(transform.position, player.transform.position, speed * Time.deltaTime);
 
+        if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Chase)
+            //play roar audio
+            if (!enemyStateMachine.roaring) //if not currently roaring...
+            {//do a roar.
+                StartCoroutine(enemyStateMachine.PlayRoar());
+            }
+
         UpdateCurrentWaypointToClosest();
     }
 
@@ -498,7 +507,7 @@ public class ComplexEnemyAI : MonoBehaviour
 
     #region Throw/Attack
 
-    void ForceLookAtPlayer()
+    public void ForceLookAtPlayer()
     {
         Vector3 toPlayer = (player.transform.position - transform.position);
         if (toPlayer.sqrMagnitude < 0.01f) return;
@@ -507,40 +516,42 @@ public class ComplexEnemyAI : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 
-    private void ThrowPlayerAt(Vector3 throwLocation)
-    {
-        // Direction from the enemy toward the computed throw target
-        Vector3 direction = (throwLocation - transform.position).normalized;
+    //private void ThrowPlayerAt(Vector3 throwLocation)
+    //{
+    //    // Direction from the enemy toward the computed throw target
+    //    Vector3 direction = (throwLocation - transform.position).normalized;
 
 
-        playerController.GetThrown(direction, throwForce);
-    }
+    //    playerController.GetThrown(direction, throwForce);
+    //}
 
-    private void ThrowPlayer() => StartCoroutine(ThrowSequence());
+    //public void ThrowPlayer() => StartCoroutine(ThrowSequence());
     
-    private IEnumerator ThrowSequence()
-    {
-        ForceLookAtPlayer();
-        enemyStateMachine.AttackRoar();
-        // Wait for the grab animation / hold duration
-        yield return enemyStateMachine.GrabAndWait();
+    //private IEnumerator ThrowSequence()
+    //{
+    //    ForceLookAtPlayer();
+    //    enemyStateMachine.AttackRoar();
+    //    // Wait for the grab animation / hold duration
+    //    yield return enemyStateMachine.GrabAndWait();
 
-        // Now actually apply the throw
-        ThrowPlayerAt(throwLocation);
+    //    // Now actually apply the throw
+    //    ThrowPlayerAt(throwLocation);
 
-        // Return control to the enemy
-        enemyStateMachine.UnlockPlayerInputs();
-        enemyStateMachine.GoIdle();
-    }
+    //    // Return control to the enemy
+    //    enemyStateMachine.UnlockPlayerInputs();
+    //    enemyStateMachine.GoIdle();
+    //}
 
     private void KillPlayer() => StartCoroutine(KillSequence());
 
     private IEnumerator KillSequence()
     {
         ForceLookAtPlayer();
+        enemyStateMachine.PlayRoar();
         yield return StartCoroutine(enemyStateMachine.GrabAndWait());
         if (!playerController.IsDead)
         {
+            player.transform.SetParent(persistant.PlayerParent.transform, true);
             playerController.IsDead = true;
             isChasingPlayer = false;
         }
@@ -554,6 +565,8 @@ public class ComplexEnemyAI : MonoBehaviour
         // Tell the player controller to move kinematically towards that direction
         if (playerController != null)
         {
+            //unlock the player inputs
+            enemyStateMachine.UnlockPlayerInputs();
             // Use the "GetThrown" logic we discussed to apply velocity over time
             playerController.GetThrown(dir, force);
         }
@@ -594,18 +607,22 @@ public class ComplexEnemyAI : MonoBehaviour
         return FindFallbackWaypoint();
     }
 
-    private bool IsSpaceClear(Vector3 origin, Vector3 direction, float distance, out Vector3 hitPoint)
+    private bool IsSpaceClear(Vector3 origin, Vector3 direction, float minDistance, out Vector3 hitPoint)
     {
         RaycastHit hit;
+
+        //offset so the cast along the direction is slightly outside 
+        Vector3 castOrigin = origin + direction * 0.6f;
+
         // We use a SphereCast to ensure the PLAYER fits through the gap, not just a thin line
-        if (Physics.SphereCast(origin, 0.5f, direction, out hit, distance))
+        if (Physics.SphereCast(origin, 0.5f, direction, out hit, minDistance, throwWallLayer, QueryTriggerInteraction.Ignore))
         {
             hitPoint = hit.point;
             return false; // Hit a wall
         }
 
         // Path is clear! Set target to the end of the ray
-        hitPoint = origin + (direction * distance);
+        hitPoint = origin + (direction * minDistance);
         return true;
     }
 
@@ -646,12 +663,23 @@ public class ComplexEnemyAI : MonoBehaviour
         }
         else if (other.CompareTag("Player"))
         {
+            if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Grab ||
+                enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill) return;
+
+            //if the Geist is currently phasing in a wall, back out of grab logic
+            if (enemyStateMachine.IsInsideWall())
+            {
+                Debug.Log("Geist Phasing while trying to Grab");
+                BounceAwayFromGeist();
+                return;
+            }
+
             Debug.Log($"<color=orange>[COLLISION] Player touched while state={enemyStateMachine.currentSpecificState}, canDetect={enemyStateMachine.canDetectPlayer}, frame={Time.frameCount}</color>");
             enemyStateMachine.GrabAttackLogic();
 
             if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Grab)
             {
-                ThrowPlayer();
+                enemyStateMachine.GrabPlayer();
             }
             else if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill)
             {
@@ -906,5 +934,30 @@ public class ComplexEnemyAI : MonoBehaviour
         //Debug.Log("playing");
         hitSource.Play();
         shouldPlaySting = true;
+    }
+
+    public void BounceAwayFromGeist()
+    {
+        //logic copied from detectBarrier and bounce
+        //ensures that the playe doesn't get caught colliding with Geist as this is an OnEnter logic
+        //bounce the player away from the Geist
+        Vector3 impactPoint = persistant.Player.transform.position;
+
+        Vector3 GeistNormal = (impactPoint - transform.position).normalized;
+
+        Vector3 incomingVelocity = persistant.Player.RB.linearVelocity;
+        Vector3 reflectDirection = incomingVelocity.sqrMagnitude > 0.001f
+            ? Vector3.Reflect(persistant.Player.RB.linearVelocity.normalized, GeistNormal)
+            : GeistNormal;
+
+        Vector3 pushaway = GeistNormal * .3f; //small offset to prevent overlap
+        persistant.Player.transform.position += pushaway;
+        float bounceSpeed = speed * 1.3f;
+
+        persistant.Player.RB.linearVelocity = Vector3.zero;
+        persistant.Player.RB.angularVelocity = Vector3.zero;
+
+        persistant.Player.RB.linearVelocity = reflectDirection * bounceSpeed;
+        return;
     }
 }

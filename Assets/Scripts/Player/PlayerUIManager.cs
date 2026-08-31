@@ -280,6 +280,7 @@ public class PlayerUIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         if(billboardObject == null)
         {
             billboardObject = GameObject.Instantiate(billboardPrefab);
@@ -770,6 +771,7 @@ public class PlayerUIManager : MonoBehaviour
         grabber.sprite = null;
         grabber.color = new Color(0, 0, 0, 0); //transparent
         //set the bar in view bool as false
+        if(player != null)
         player.PotentialGrabbedBar = null;
     }
 
