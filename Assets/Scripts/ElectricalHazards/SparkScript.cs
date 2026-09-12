@@ -12,8 +12,10 @@ public class SparkScript : MonoBehaviour
     [SerializeField] private GameObject myGrabbable;
     [SerializeField] private Camera MainCamera;
     [SerializeField] private ParticleSystem sys;
+    [SerializeField] private List<FlickerLight> flickerLights;
     [SerializeField] private bool WireSpark;
     public bool electricActive;
+    public bool prevElectricActive = false;
 
     private Vector3 boxSize;
     private float damageCoolDown;
@@ -48,19 +50,45 @@ public class SparkScript : MonoBehaviour
             damageCoolDown = 0;
 
         damageCoolDown += Time.deltaTime;
+        //enable the lights
+        if (!prevElectricActive && electricActive)
+        {
+            foreach (FlickerLight light in flickerLights)
+            {
+                light.lightActive = true;
+                //enable the flicker
+                light.flickerActive = true;
+            }
+        }
         if (electricActive)
         {
+
             if (WireSpark)
                 sparkBounds = new Bounds(transform.position, boxSize); //updating the position of the bounds is only relevant for wires which move around
             else
                 if (sparkBounds.Contains(player.transform.position) && damageCoolDown > 1f && sys.particleCount > 0)
                     DamagePlayer(); //the player is shocked when they are within the bounds and the niagara has active particles
         }
+        else
+        {
+            //disable the lights
+            if (prevElectricActive)
+            {
+                foreach (FlickerLight light in flickerLights)
+                {
+                    light.lightActive = false;
+                    //enable the flicker
+                    light.flickerActive = false;
+                }
+            }
+            prevElectricActive = electricActive;
+        }
+        prevElectricActive = electricActive;
     }
 
     private void DamagePlayer()
     {
-        if (!zeroG.hasGloves || (zeroG.hasGloves && !zeroG.IsGrabbing))
+        if ((!zeroG.hasGloves || (zeroG.hasGloves && !zeroG.IsGrabbing)) && !zeroG.PlayerFreeMoveNoClip)
         { //we dont want to damage the player if they either dont have the gloves or they do have them but arent currently grabbing a bar
             zeroG.DecreaseHealth(1);
             StartCoroutine(zeroG.ShockEffect());

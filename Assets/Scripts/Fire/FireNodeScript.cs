@@ -11,9 +11,10 @@ public class FireNodeScript : MonoBehaviour
     [SerializeField] private FireScript myFire;
     [SerializeField] private GameObject myLight;
     private Light myLightComponent;
-    private float flickerSeed;
     [Header("FlickerSettings")]
-    [SerializeField] private float flickerSpeed = 8f;
+    [SerializeField] private float flickerSpeedMax;
+    [SerializeField] private float flickerSpeedMin;
+    private float flickerSpeed;
     [SerializeField] private float flickerIntensityRange = 0.15f;
 
     [Header("References")]
@@ -42,7 +43,7 @@ public class FireNodeScript : MonoBehaviour
     //Particle system original param containers
     private float originalStartSize;
     private float originalShapeRadius;
-    private float throwCooldown;
+    private float hitDetectCooldown;
 
     private void OnEnable()
     {
@@ -66,7 +67,7 @@ public class FireNodeScript : MonoBehaviour
         StartCoroutine(SetPuffs());
 
         //this method is similar to the audiozone method however this time the boxcolider size is used instead of the object scale
-        //the reason for this difference is because changing the object scale is not arbitrary for fire nodes, it will affect the size of their particle systems
+        //changing the object scale is not arbitrary for fire nodes, it will affect the size of their particle systems
         fireBounds = new Bounds(transform.position,this.gameObject.GetComponent<BoxCollider>().size);
         playerBounds = new Bounds(transform.position, this.gameObject.GetComponent<BoxCollider>().size * playerHitBoxSizeModifier);
         Destroy(this.gameObject.GetComponent<BoxCollider>());
@@ -77,7 +78,7 @@ public class FireNodeScript : MonoBehaviour
         originalShapeRadius = sysShape.radius;
 
         myLightComponent = myLight.GetComponent<Light>();
-        flickerSpeed = Random.Range(0f, 10f);
+        flickerSpeed = Random.Range(flickerSpeedMin, flickerSpeedMax);
     }
 
     // Update is called once per frame
@@ -94,18 +95,18 @@ public class FireNodeScript : MonoBehaviour
         {
             if (fireActive)
             {
-                throwCooldown += Time.deltaTime;
+                hitDetectCooldown += Time.deltaTime;
                 for (int i = 0; i < extinguishNodes.Length; i++)
                 { //collision detection is done via fireBounds in the hope it will be less resource intensive, may need to be tested
                     if (fireBounds.Contains(extinguishNodes[i].transform.position))
                         DampenFlame(extinguishNodes[i].gameObject);
                 }
 
-                if (playerBounds.Contains(player.transform.position) && throwCooldown > 0.5f)
+                if ((playerBounds.Contains(player.transform.position) && hitDetectCooldown > 0.5f) && !player.GetComponent<ZeroGravity>().PlayerFreeMoveNoClip)
                 {
                     StartCoroutine(BurnPlayer());
-                    player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
-                    throwCooldown = 0;
+                    //player.GetComponent<ZeroGravity>().GetThrown(MainCamera.transform.forward * -1, 5);
+                    hitDetectCooldown = 0;
                 }
 
                 //flame regeneration
