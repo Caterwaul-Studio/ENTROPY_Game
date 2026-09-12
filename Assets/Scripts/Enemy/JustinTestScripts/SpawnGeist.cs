@@ -24,6 +24,13 @@ public class SpawnGeist : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if (persistant == null)
+        {
+            persistant = FindFirstObjectByType<PersistantManager>();
+            useSpawnTimer = persistant.GeistAlrSpawned;
+        }
+
+        Debug.Log("GeistSpawner start");
         if (useSpawnTimer)
         {
             geistSpawnWait = StartCountdown(waitTimer);
@@ -33,12 +40,6 @@ public class SpawnGeist : MonoBehaviour
         {
             if (trigger == null)
                 trigger = FindFirstObjectByType<SpawnGeistTrigger>();
-
-            if (persistant == null)
-            {
-                persistant = FindFirstObjectByType<PersistantManager>();
-                useSpawnTimer = persistant.GeistAlrSpawned;
-            }
 
             if (trigger != null && !trigger.triggerEntered)
             {

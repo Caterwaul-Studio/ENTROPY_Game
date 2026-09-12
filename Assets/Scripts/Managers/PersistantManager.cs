@@ -4,6 +4,9 @@ using UnityEngine.SceneManagement;
 
 public class PersistantManager : MonoBehaviour
 {
+    [SerializeField] private GameObject playerParent;
+    public GameObject PlayerParent => playerParent;
+
     [SerializeField] private GameObject playerObject;
     public GameObject PlayerObject => playerObject;
 
