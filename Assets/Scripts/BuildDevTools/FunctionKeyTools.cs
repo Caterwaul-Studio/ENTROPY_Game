@@ -5,32 +5,32 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 public class FunctionKeyTools : MonoBehaviour
 {
-    private InputAction f11Action;
+    [SerializeField]
     private ZeroGravity zeroGravity;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField]
+    private PlayerInput playerInput;
+
+    [SerializeField]
+    private bool allowFunctionkeys = false;
+
     void Awake()
     {
-        zeroGravity = GetComponentInChildren<ZeroGravity>();
+        if (allowFunctionkeys)
+        {
+            if (playerInput == null)
+                playerInput = GetComponent<PlayerInput>();
 
-        f11Action = new InputAction("F11", binding: "<Keyboard>/f11");
-        f11Action.performed += OnF11;
-        f11Action.Enable();
-    }
-
-    // Update is called once per frame
-    void OnDestroy()
-    {
-        f11Action.performed -= OnF11;
-
-        f11Action.Disable();
+            // enable the functionkeys map alongsie the other ones
+            playerInput.actions.FindActionMap("FunctionKeyShortCuts").Enable();
+        }
     }
 
     #region Input Methods
 
     public void OnF11(InputAction.CallbackContext context)
     {
-        if(zeroGravity != null)
+        if(zeroGravity != null && context.performed)
         {
             zeroGravity.PlayerFreeMoveNoClip = !zeroGravity.PlayerFreeMoveNoClip;
         }
