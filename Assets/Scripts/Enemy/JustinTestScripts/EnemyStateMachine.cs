@@ -46,6 +46,7 @@ public class EnemyStateMachine : MonoBehaviour
     public ZeroGravity playerController;
     public ComplexEnemyAI complexEnemyAI;
     public SimpleEnemyAI simpleEnemyEnemyAI;
+    public GameObject grabPlayerPos;
     //[SerializeField] private GameObject simpleEnemy;
     //[SerializeField] private GameObject complexEnemy;
 
@@ -92,6 +93,15 @@ public class EnemyStateMachine : MonoBehaviour
 
     [Header("Grab Settings")]
     [SerializeField] private float forceLookSpeedTime;
+    [SerializeField] private bool isBeingGrabbedByGeist = false;
+    [SerializeField] private float grabDuration = 5.5f;
+
+    [Header("Grab Safety")]
+    [SerializeField] private bool showPhaseRadius;
+    [SerializeField] private float grabWallCheckRadius = 0.5f;
+
+    [Header("Idle Options")]
+    [SerializeField] private float idleDuration = 5.0f;
 
     [Header("Light Detection")]
     private bool isLightOn;
@@ -113,7 +123,7 @@ public class EnemyStateMachine : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioClip[] roarBank;
     [SerializeField] private AudioSource roarSource;
-    private bool roaring = false;
+    public bool roaring = false;
 
     private void Start()
     {
@@ -138,13 +148,12 @@ public class EnemyStateMachine : MonoBehaviour
             bool newDetect = PerformRaycastDetection();
             if (newDetect != canDetectPlayer)
                 Debug.Log($"<color=yellow>[DETECT] {canDetectPlayer}->{newDetect}</color> | state={currentSpecificState} | frame={Time.frameCount}");
-            canDetectPlayer = newDetect;
             if (newDetect)
             {
                 canDetectPlayer = true;
                 loseSightTimer = 0f;
             }
-            else
+            else if (!newDetect)
             {
                 loseSightTimer += Time.deltaTime;
                 //this helps ignore the flickering can detect when the player is on the edge of the detect radius
@@ -227,10 +236,7 @@ public class EnemyStateMachine : MonoBehaviour
 
             case SpecificEnemyState.Chase:
                 detectionRadius = chaseDetectionRadius;
-
-                if (currentSpecificState == SpecificEnemyState.Chase)
-                    //Add audio que here
-                    complexEnemyAI.IsChasingPlayer();
+                complexEnemyAI.IsChasingPlayer();
 
                 if (!canDetectPlayer)
                 {
@@ -242,11 +248,6 @@ public class EnemyStateMachine : MonoBehaviour
                 break;
 
             case SpecificEnemyState.Investigate:
-                //play roar audio
-                if (!roaring) //if not currently roaring...
-                {//do a roar.
-                    StartCoroutine(PlayRoar());
-                }
 
                 interestTimer -= Time.deltaTime;
 
@@ -431,6 +432,8 @@ public class EnemyStateMachine : MonoBehaviour
     public void GrabPlayer()
     {
         // Start the sequence as a Coroutine so we can use "yield return" timers
+        if (isBeingGrabbedByGeist) return;
+        isBeingGrabbedByGeist = true;
         StartCoroutine(GrabAndThrowSequence());
     }
 
@@ -439,25 +442,34 @@ public class EnemyStateMachine : MonoBehaviour
         // 1. Lock Player
         LockPlayerInputs();
 
-        player.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
-
         // 2. Force Look (Starts its own internal coroutine for camera)
         yield return StartCoroutine(RotateCameraToTarget(this.transform, forceLookSpeedTime));
 
         complexEnemyAI.DetermineThrowTarget(); // Finds where to throw
 
+        StartCoroutine(PlayRoar());
+
         // 3. Struggle Pause
         // This gives the player a moment to see the Geist's face before being launched
-        yield return new WaitForSeconds(5.5f);
+        //yield return new WaitForSeconds(grabDuration);
+
+
+        //rotate the Geist with the player to the direction it is going to throw the player
+        yield return StartCoroutine(RotateGeistToTarget(complexEnemyAI.throwLocation, grabDuration));
+
+        playerController.IsBeingGrabbed = false;
+        playerController.RB.isKinematic = false;
 
         // 4. Execute Throw
         // We call a new function in AI to handle the kinematic "launch"
-        complexEnemyAI.ExecuteKinematicThrow(complexEnemyAI.throwLocation,10f);
+        //unlock player inputs handled here
+        complexEnemyAI.ExecuteKinematicThrow(complexEnemyAI.throwLocation,complexEnemyAI.throwForce);
 
         // 5. Cleanup
-        yield return new WaitForSeconds(0.5f); // Brief moment of stun after throw
-        UnlockPlayerInputs();
+        yield return new WaitForSeconds(0.5f);
         GoIdle(); // Transitions state
+
+        isBeingGrabbedByGeist = false;
     }
 
     public void GrabAttackLogic()
@@ -476,8 +488,18 @@ public class EnemyStateMachine : MonoBehaviour
 
     public IEnumerator GrabAndWait()
     {
+        // 1. Lock Player
+        LockPlayerInputs();
+
+        // 2. Force Look (Starts its own internal coroutine for camera)
+        yield return StartCoroutine(RotateCameraToTarget(this.transform, forceLookSpeedTime));
+
         //Can place the audio call here (place 1)
         yield return new WaitForSeconds(3.0f);
+
+        //set the kinematic back, the IsDead proprty will set the rest of the flags
+        playerController.IsBeingGrabbed = false;
+        playerController.RB.isKinematic = false;
     }
 
     /*
@@ -522,11 +544,29 @@ public class EnemyStateMachine : MonoBehaviour
         // If the SphereCast reaches the 'distance' without hitting anything, return true.
         return true;
     }
+
+    /// <summary>
+    /// Confirm the Geist is not overlapping with any walls, use when trying to grab the player to ensure it won't throw the playr outside the level
+    /// </summary>
+    /// <returns></returns>
+    public bool IsInsideWall()
+    {
+        return Physics.CheckSphere(transform.position, grabWallCheckRadius, wallLayer);
+    }
+
     private void LockPlayerInputs()
     {
         //Debug.Log("player control locked");
+        //set the player's transform parent to the Geist grab player position
+        playerController.transform.SetParent(grabPlayerPos.transform, true);
+
+        persistant.PlayerUIManager.HideInteractables();
+        persistant.PlayerUIManager.HideGrabber();
+        playerController.ReleaseBar();
 
         playerController.CanMove = false;
+        playerController.CanGrab = false;
+        playerController.CanPushOff = false;
         playerController.StopRollingQuickly();
 
         // Kill all momentum and freeze physics entirely
@@ -542,22 +582,23 @@ public class EnemyStateMachine : MonoBehaviour
     public void UnlockPlayerInputs()
     {
         //Debug.Log("player control unlocked");
+        //set the player's transform parent back to the player object
+        playerController.transform.SetParent(persistant.PlayerParent.transform, true);
+
         playerController.CanMove = true;
+        playerController.CanGrab = true;
+        playerController.CanPushOff = true;
         playerController.IsBeingGrabbed = false;
+        playerController.RB.isKinematic = false;
 
-        // Restore physics - but only if we're not about to throw
-        // (GetThrown handles its own kinematic transition)
-        if (!playerController.IsBeingThrown)
-        {
-            playerController.RB.isKinematic = false;
-        }
+        //restore physics handled in playerController.ThrowRoutine
 
-        if (canTakeHealth)
-        {
-            //Debug.Log("player took damage");
-            playerController.PlayerHealth -= 1;
-            canTakeHealth = false;
-        }
+        //if (canTakeHealth)
+        //{
+        //    //Debug.Log("player took damage");
+        //    playerController.DecreaseHealth(1);
+        //    canTakeHealth = false;
+        //}
         
     }
 
@@ -568,9 +609,10 @@ public class EnemyStateMachine : MonoBehaviour
 
     private IEnumerator GoIdleRoutine()
     {
+        Debug.Log("GoIdleRoutine called");
         UnlockPlayerInputs();
         ChangeGeneralState(GeneralEnemyState.Idle);
-        yield return new WaitForSeconds(10.0f); // actually waits
+        yield return StartCoroutine(RotateGeistToTarget(player.transform.position, idleDuration)); // force the geist to wait for idle duration while staring at player
         ChangeGeneralState(GeneralEnemyState.Active);
         ChangeSpecificState(SpecificEnemyState.Investigate, "lost LOS during Chase");
     }
@@ -597,6 +639,30 @@ public class EnemyStateMachine : MonoBehaviour
 
         // Ensure it finishes exactly at the target
         playerController.cam.transform.LookAt(target);
+    }
+
+    IEnumerator RotateGeistToTarget(Vector3 targetPosition, float duration)
+    {
+        float elapsed = 0f;
+        Quaternion startRotation = transform.rotation;
+        
+        while (elapsed < duration)
+        {
+            // 1. Calculate the direction to the target
+            Vector3 direction = targetPosition- transform.position;
+
+            if(direction.sqrMagnitude > 0.0001f)
+            {
+                // 2. Determine the target rotation (LookRotation)
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+                // 3. Smoothly interpolate between start and end
+                transform.rotation = Quaternion.Slerp(startRotation, targetRotation, elapsed / duration);
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null; // Wait for the next frame
+        }
     }
 
     #endregion
@@ -716,7 +782,13 @@ public class EnemyStateMachine : MonoBehaviour
             if (player != null)
                 Gizmos.DrawLine(transform.position, player.transform.position);
         }
-        
+
+        if (showPhaseRadius)
+        {
+            Gizmos.color = Color.pink;
+            Gizmos.DrawWireSphere(transform.position, grabWallCheckRadius);
+        }
+
         if (showRetreatRadius)
         {
             Gizmos.color = Color.blue;
@@ -724,8 +796,12 @@ public class EnemyStateMachine : MonoBehaviour
             Gizmos.DrawWireSphere(transform.position, minRadius);
             Gizmos.DrawWireSphere(transform.position, maxRadius);
         }
+        //thow position
+        Gizmos.color = Color.orange;
+        Gizmos.DrawWireSphere(complexEnemyAI.throwLocation, 1f);
+
     }
-    IEnumerator PlayRoar()
+    public IEnumerator PlayRoar()
     {
         roarSource.clip = roarBank[UnityEngine.Random.Range(1, roarBank.Length)]; //start at 1 not 0 as 0 should always be attack sound
         roarSource.Play();
