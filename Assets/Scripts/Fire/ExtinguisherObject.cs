@@ -39,6 +39,11 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     private Quaternion originalRotation;
     private Transform originalParent;
 
+    public AudioSource audioSource;
+    public AudioClip releaseSFX;
+    public AudioClip sustainedSFX;
+    public AudioClip offSFX;
+
 #if UNITY_EDITOR
     private void OnValidate()
     {

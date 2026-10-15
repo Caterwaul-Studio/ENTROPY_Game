@@ -37,6 +37,11 @@ public class FireNodeScript : MonoBehaviour
     [SerializeField] private ParticleSystem.SizeOverLifetimeModule sysSOL;
     [SerializeField] private ParticleSystem.LightsModule sysLight;
 
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip burningSFX;
+    public AudioClip fireSFX;
+
 
     [SerializeField] public bool fireActive;
 
