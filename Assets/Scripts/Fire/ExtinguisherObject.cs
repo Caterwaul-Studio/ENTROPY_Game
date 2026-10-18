@@ -39,6 +39,11 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     private Quaternion originalRotation;
     private Transform originalParent;
 
+    public AudioSource audioSource;
+    public AudioClip releaseSFX;
+    public AudioClip sustainedSFX;
+    public AudioClip offSFX;
+
 #if UNITY_EDITOR
     private void OnValidate()
     {
@@ -267,5 +272,13 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
                 inventoryManager.fireExtinguisher.SwapExtinguisher(this.gameObject);
             }
         }   
+    }
+    public void PlayAudio()
+    {
+        if (audioSource.isPlaying == false)
+        {
+            audioSource.PlayOneShot(sustainedSFX);
+            
+        }
     }
 }

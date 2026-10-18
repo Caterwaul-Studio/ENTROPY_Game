@@ -78,6 +78,8 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         sysEmission = sys.emission;
     }
 
+
+
     private void Start()
     {
         if (player == null)
@@ -181,6 +183,8 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             yield return new WaitForSeconds(0.15f);
             sysEmission.rateOverTime = 0;
             canPuff = true;
+            //audio
+            extinguisherGameObj.GetComponent<ExtinguisherObject>().PlayAudio();
         }
     }
 
@@ -241,6 +245,11 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             }
             if (!tutorialComplete)
                 OnFireExtinguisherUsed?.Invoke(true);
+          
+             
+                
+            
+
         }
     }
 
