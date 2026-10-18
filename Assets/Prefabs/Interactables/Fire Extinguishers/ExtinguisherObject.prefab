@@ -271,6 +271,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3bf2a900c558b24b9504ca508b916e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  floatingObjectID: 57049983-9aab-4d3f-9f77-4cb8504999ac
   useDirectionInput: 1
   initDirection: {x: 0, y: 0, z: 0}
   useSpeedInput: 1
@@ -493,7 +494,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d25a132f1b766a47bcf7256a15b33fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  extinguisherObject: {fileID: 0}
+  holdPos: {fileID: 0}
+  persistantManager: {fileID: 0}
+  inventoryManager: {fileID: 0}
   remainingRetardant: 15
+  isGrabbable: 0
+  canGrab: 0
+  interactActionReference: {fileID: 0}
+  promptIcon: {fileID: 0}
+  extinguisherID: f89ed512-2464-4cab-bed6-b6eec7bbb76f
+  audioSource: {fileID: 0}
+  releaseSFX: {fileID: 8300000, guid: 3e6dd4583a58d484db1c83b4130a0e1f, type: 3}
+  sustainedSFX: {fileID: 8300000, guid: a7aa5607f8ee555469fb32cbf61b2c83, type: 3}
+  offSFX: {fileID: 8300000, guid: 024fbaed13705c4429b30a63291a8a04, type: 3}
 --- !u!1 &3560582989773926473
 GameObject:
   m_ObjectHideFlags: 0

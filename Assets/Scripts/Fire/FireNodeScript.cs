@@ -142,6 +142,7 @@ public class FireNodeScript : MonoBehaviour
         }
         if (fireActive)
             UpdateFlicker();
+       
     }
 
     private void UpdateFlicker()
@@ -172,8 +173,10 @@ public class FireNodeScript : MonoBehaviour
     System.Collections.IEnumerator BurnPlayer()
     {
         player.GetComponent<ZeroGravity>().DecreaseHealth(1);
+        player.gameObject.transform.GetChild(1).GetComponent<AudioSource>().PlayOneShot(burningSFX);
         yield return new WaitForSeconds(3f);
         player.GetComponent<ZeroGravity>().DecreaseHealth(1);
+        player.gameObject.transform.GetChild(1).GetComponent<AudioSource>().PlayOneShot(burningSFX);
     }
     private void ChangeFlame()
     {

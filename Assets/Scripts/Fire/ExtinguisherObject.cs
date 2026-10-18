@@ -273,4 +273,12 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             }
         }   
     }
+    public void PlayAudio()
+    {
+        if (audioSource.isPlaying == false)
+        {
+            audioSource.PlayOneShot(sustainedSFX);
+            
+        }
+    }
 }
