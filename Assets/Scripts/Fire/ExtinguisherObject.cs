@@ -278,29 +278,33 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     }
     public void PlayAudio()
     {
+        if (releaseSource.isPlaying == false && hasRelased == false)
+        {
+            releaseSource.PlayOneShot(releaseSFX);
+            hasRelased = true;
+
+        }
         if (audioSource.isPlaying == false)
         {
 
             if (remainingRetardant > 1) audioSource.PlayOneShot(sustainedSFX);
             else if (remainingRetardant <=1) audioSource.PlayOneShot(offSFX);
-            if (!hasRelased)
-            {
-                releaseSource.PlayOneShot(releaseSFX);
-                hasRelased = true;
-                
-            }
-            
+           
         }
+       
     }
 
     public void StopAudio()
     {
-        if (audioSource.isPlaying == false)
+        if (audioSource.isPlaying)
         {
             audioSource.Stop();
 
         }
-        hasRelased = false;
+        if (releaseSource.isPlaying)
+        {
+            releaseSource.Stop();
+        }
 
     }
 
