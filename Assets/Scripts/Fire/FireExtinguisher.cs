@@ -250,6 +250,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
                 //audio
                 extinguisherGameObj.GetComponent<ExtinguisherObject>().audioSource.volume = 0;
                 extinguisherGameObj.GetComponent<ExtinguisherObject>().StopAudio();
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().hasRelased = false;
             }
             if (!tutorialComplete)
                 OnFireExtinguisherUsed?.Invoke(true);

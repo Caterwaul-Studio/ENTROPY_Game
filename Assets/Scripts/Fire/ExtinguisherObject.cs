@@ -40,9 +40,12 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     private Transform originalParent;
 
     public AudioSource audioSource;
+    public AudioSource releaseSource;
     public AudioClip releaseSFX;
     public AudioClip sustainedSFX;
     public AudioClip offSFX;
+
+    public bool hasRelased = false;
 
 #if UNITY_EDITOR
     private void OnValidate()
@@ -277,7 +280,15 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     {
         if (audioSource.isPlaying == false)
         {
-            audioSource.PlayOneShot(sustainedSFX);
+
+            if (remainingRetardant > 1) audioSource.PlayOneShot(sustainedSFX);
+            else if (remainingRetardant <=1) audioSource.PlayOneShot(offSFX);
+            if (!hasRelased)
+            {
+                releaseSource.PlayOneShot(releaseSFX);
+                hasRelased = true;
+                
+            }
             
         }
     }
@@ -289,15 +300,11 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             audioSource.Stop();
 
         }
+        hasRelased = false;
 
     }
 
-    public void PlayStop()
-    {
-        if (audioSource.isPlaying == false)
-        {
-            audioSource.PlayOneShot(offSFX);
+    
 
-        }
-    }
+    
 }
