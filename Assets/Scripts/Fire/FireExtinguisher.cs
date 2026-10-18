@@ -115,6 +115,8 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             !inventoryManager.deathMenu.activeSelf && !zeroGravity.IsDead)
             StartCoroutine(MakePuff());
 
+       
+
         if (extinguisherContainer == null)
         {
             extinguisherContainer = GameObject.Find(extinguisherContainerName);
@@ -237,11 +239,17 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             {
                 holding = true;
                 //Debug.Log("Holding started");
+                //audio
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().audioSource.volume = 1;
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().PlayAudio();
             }
             else if (context.phase == InputActionPhase.Canceled)
             {
                 holding = false;
                 //Debug.Log("Holding ended");
+                //audio
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().audioSource.volume = 0;
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().StopAudio();
             }
             if (!tutorialComplete)
                 OnFireExtinguisherUsed?.Invoke(true);
