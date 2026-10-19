@@ -44,6 +44,8 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
     public event System.Action<bool> OnFireExtinguisherUsed;
 
 
+
+
     public bool HasExtinguisher
     {
         get { return hasExtinguisher; }
@@ -186,7 +188,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             sysEmission.rateOverTime = 0;
             canPuff = true;
             //audio
-            extinguisherGameObj.GetComponent<ExtinguisherObject>().PlayAudio();
+            //extinguisherGameObj.GetComponent<ExtinguisherObject>().PlayAudio();
         }
     }
 
@@ -238,19 +240,21 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             if (context.phase == InputActionPhase.Started)
             {
                 holding = true;
-                //Debug.Log("Holding started");
+                Debug.Log("Holding started");
                 //audio
                 extinguisherGameObj.GetComponent<ExtinguisherObject>().audioSource.volume = 1;
                 extinguisherGameObj.GetComponent<ExtinguisherObject>().PlayAudio();
+                Debug.Log("holding started. has released: " + extinguisherGameObj.GetComponent<ExtinguisherObject>().hasRelased);
             }
             else if (context.phase == InputActionPhase.Canceled)
             {
                 holding = false;
-                //Debug.Log("Holding ended");
+                Debug.Log("Holding ended");
                 //audio
                 extinguisherGameObj.GetComponent<ExtinguisherObject>().audioSource.volume = 0;
                 extinguisherGameObj.GetComponent<ExtinguisherObject>().StopAudio();
                 extinguisherGameObj.GetComponent<ExtinguisherObject>().hasRelased = false;
+                Debug.Log("holding ended. has released: " + extinguisherGameObj.GetComponent<ExtinguisherObject>().hasRelased);
             }
             if (!tutorialComplete)
                 OnFireExtinguisherUsed?.Invoke(true);

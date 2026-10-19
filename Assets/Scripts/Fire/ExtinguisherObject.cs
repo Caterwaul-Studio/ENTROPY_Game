@@ -278,12 +278,12 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     }
     public void PlayAudio()
     {
-        if (releaseSource.isPlaying == false && hasRelased == false)
+        if (hasRelased == false)
         {
             releaseSource.PlayOneShot(releaseSFX);
             hasRelased = true;
-
         }
+        
         if (audioSource.isPlaying == false)
         {
 
@@ -307,8 +307,6 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
         }
 
     }
-
-    
-
-    
 }
+
+   
