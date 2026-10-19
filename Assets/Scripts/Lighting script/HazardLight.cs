@@ -13,8 +13,6 @@ public class HazardLight : MonoBehaviour
     [SerializeField]
     private float rotateParam;
     
-
-
     public AudioSource hazardLightSource;
     public AudioClip hazardLightClip;
 
@@ -42,7 +40,8 @@ public class HazardLight : MonoBehaviour
             {
                 light.enabled = true;
                 lightBase.enabled = true;
-                
+                lightActive.SetActive(true);
+                lightInactive.SetActive(false);
             }
             light.transform.Rotate(Vector3.up * rotateParam * Time.deltaTime);
             if (!alarmPlaying)
@@ -58,7 +57,7 @@ public class HazardLight : MonoBehaviour
                 light.enabled = false;
                 lightBase.enabled = false;
                 lightActive.SetActive(false);
-                lightInactive.SetActive(true);
+                lightInactive.SetActive(false);
             }
             if (alarmPlaying)
             {

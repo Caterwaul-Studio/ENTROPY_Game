@@ -9,6 +9,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     public int slotIndex = 1;
     public InventoryManager inventoryManager;
 
+    public Lvl2IntroSequenceEvents lvl2IntroSequenceEvents;
+
     public float intensityMax = 1500f;
     public float intensityMin = 5f;
 
@@ -438,6 +440,13 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         FlashlightFirstPickup pickupObj = FindFirstObjectByType<FlashlightFirstPickup>();
         if(pickupObj != null)
         pickupObj.gameObject.SetActive(false);
+
+        //if the level 2 intro sequence events is not null,
+        //call the ExplosionRocksTheShip method for the event
+        if (lvl2IntroSequenceEvents != null)
+        {
+            lvl2IntroSequenceEvents.TriggerExplosion();
+        }
     }
 
     public void RestartFlashlightTutorial()
