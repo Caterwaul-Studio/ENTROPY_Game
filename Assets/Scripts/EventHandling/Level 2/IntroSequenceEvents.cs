@@ -14,36 +14,42 @@ public class Lvl2IntroSequenceEvents : Event
     //event trigger references
 
     //bar group
+    [Header("Bars")]
     [SerializeField] private GameObject barsGroup;
     public Material[] barsMaterials;
     public MeshRenderer[] barsMeshes;
     private Color initBarEmissive;
+    
 
+    [Header("Light Animation Curves")]
+    public AnimationCurve powerDownCurve;
+    public AnimationCurve glitchCurve;
+    //bool flags for event triggers
+    public float powerDownDuration = 1f;
+    public float glitchDuration = 10f; // How long one cycle of the curve takes
+    public float intensityMultiplier = 1f;
+
+    [Header("Auxilliary Lights")]
     //light group
     [SerializeField] private GameObject lightsGroup;
     [SerializeField] private MeshRenderer[] lightMeshes;
+    public Light[] lights;
     private Material[] lightMaterials;
     private Color initLightEmissive;
 
-
-    public AnimationCurve powerDownCurve;
-    public AnimationCurve glitchCurve;
-    public Light[] lights;
-    public Color endColor;
-    public Color endButtonColor;
-    public Color endEmissionColor;
-
+    [Header("Hazard Lights")]
     //hazard light group
     public GameObject hazardLightGroup;
     public HazardLight[] hazardLights;
 
+    [Header("Wall Lights")]
     //wall lights
     public GameObject wallLightGroup;
     public MeshRenderer[] wallLightMeshes;
     public Material[] wallLightMaterials;
     public Color initWallLightEmissionColor;
 
-
+    [Header("Doors")]
     //doors references
     [SerializeField] private DoorScript[] doorScripts;
     [SerializeField] private GameObject doorsGroup;
@@ -51,22 +57,22 @@ public class Lvl2IntroSequenceEvents : Event
     [SerializeField] private Material[] doorMaterials;
     Color initDoorEmissionColor;
 
+    [Header("Connectors")]
     //connector references
     [SerializeField] private GameObject connectorGroup;
     [SerializeField] private MeshRenderer[] connectorMeshes;
     [SerializeField] private Material[] connectorMaterials;
     Color initConnectorEmissionColor;
 
-    [SerializeField]
-    private DoorScript[] doorsToOpen;
-    [SerializeField]
-    private DoorScript[] doorsToLock;
+    [Header("Floating Objects Static Before Event")]
+    [SerializeField] private GameObject floatingObjectsGroup;
+    [SerializeField] private FloatingObject[] floatingObjects;
 
-    //bool flags for event triggers
-    public float powerDownDuration = 1f;
-    public float glitchDuration = 10f; // How long one cycle of the curve takes
-    public float intensityMultiplier = 1f;
+    [Header("Cubby Doors Static Before Event")]
+    [SerializeField] private GameObject cubbyDoorsGroup;
+    [SerializeField] private HingeJoint[] cubbyDoors;
 
+    [Header("Geist")]
     //Geist and Animator
     public Animator geistAnimator;
     public GameObject geist;
@@ -124,6 +130,13 @@ public class Lvl2IntroSequenceEvents : Event
         connectorMeshes = meshesc;
         initConnectorEmissionColor = initEmissivec;
 
+        //floating objects
+        floatingObjects = GetFloatingObjects(floatingObjectsGroup);
+        SetFloatingObjsStaticState(floatingObjects);
+
+        //cubby doors
+        cubbyDoors = GetCubbyDoors(cubbyDoorsGroup);
+        SetCubbyDoorStaticState(true, cubbyDoors);
     }
 
     // Update is called once per frame
@@ -144,9 +157,10 @@ public class Lvl2IntroSequenceEvents : Event
         //flag that guards if th flashlight has been aquired
         if (flashlight.HasFlashlight)
         {
-            //close doors
-
             //start rumbling of the walls
+
+            //floating objects spill out of cubbys
+            SetCubbyDoorStaticState(false, cubbyDoors);
 
             //enable rigid bodies of floating objects so they look like they are being thrown by rumble
 

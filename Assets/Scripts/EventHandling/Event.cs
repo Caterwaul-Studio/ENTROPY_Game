@@ -55,6 +55,7 @@ public class Event : MonoBehaviour
         }
     }
 
+#region cutscene
     /// <summary>
     /// Method for moving the player to the panel position;
     /// -Destination where to move the player
@@ -79,7 +80,9 @@ public class Event : MonoBehaviour
 
         player.transform.position = destination;
     }
+#endregion
 
+#region object materials
     /// <summary>
     /// Method that fetches the materials for the bars & other objects so you can change their emmisive on event
     /// returns
@@ -134,7 +137,9 @@ public class Event : MonoBehaviour
                 if (m != null) m.SetColor("_EmissionColor", emission);
         }
     }
+    #endregion
 
+#region auxilliary lights
     public Light[] GetLights(GameObject lightsGroup)
     {
         return lightsGroup.GetComponentsInChildren<Light>();
@@ -209,7 +214,9 @@ public class Event : MonoBehaviour
                 if (m != null) m.SetColor("_EmissionColor", emission);
         }
     }
+    #endregion
 
+#region hazard lights
     /// <summary>
     /// Get the hazard light scripts on the hazardlights in our group
     /// </summary>
@@ -239,7 +246,9 @@ public class Event : MonoBehaviour
             yield return new WaitForSeconds(Random.Range(0f, maxDelay / Mathf.Max(1, hazards.Length)));
         }
     }
+    #endregion
 
+#region doors
     /// <summary>
     /// Gets all door scripts assigned to your event group
     /// </summary>
@@ -287,5 +296,41 @@ public class Event : MonoBehaviour
         DoorScript.States.Closing => DoorScript.States.Closed,
         _ => state
     };
+    #endregion
+
+#region floating objects
+    public FloatingObject[] GetFloatingObjects(GameObject group)
+    {
+        return group.GetComponentsInChildren<FloatingObject>();
+    }
+
+    public void SetFloatingObjsStaticState(FloatingObject[] objects)
+    {
+        foreach(FloatingObject obj in objects)
+        {
+            obj.useSpeedInput = false;
+            obj.startNoSpeed = true;
+        }
+    }
+
+    #endregion
+
+    #region cubby doors
+    public HingeJoint[] GetCubbyDoors(GameObject group)
+    {
+        return group.GetComponentsInChildren<HingeJoint>();
+    }
+
+    public void SetCubbyDoorStaticState(bool tf, HingeJoint[] doors)
+    {
+        foreach(HingeJoint door in doors)
+        {
+            GameObject parent = door.gameObject;
+            Rigidbody rb = parent.GetComponent<Rigidbody>();
+            rb.isKinematic = tf;
+        }
+    }
+
+    #endregion
 }
 
