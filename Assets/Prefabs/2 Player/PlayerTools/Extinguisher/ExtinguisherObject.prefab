@@ -641,6 +641,7 @@ MonoBehaviour:
   releaseSFX: {fileID: 8300000, guid: 3e6dd4583a58d484db1c83b4130a0e1f, type: 3}
   sustainedSFX: {fileID: 8300000, guid: a7aa5607f8ee555469fb32cbf61b2c83, type: 3}
   offSFX: {fileID: 8300000, guid: 024fbaed13705c4429b30a63291a8a04, type: 3}
+  hasRelased: 0
 --- !u!82 &-4980162964130177339
 AudioSource:
   m_ObjectHideFlags: 0
@@ -658,8 +659,8 @@ AudioSource:
   m_Pitch: 1
   Loop: 0
   Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
+  Spatialize: 1
+  SpatializePostEffects: 1
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
@@ -698,7 +699,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.19254419
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -713,7 +714,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.4988889
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -728,7 +729,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0.648
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -755,7 +756,7 @@ AudioSource:
   m_Pitch: 1
   Loop: 0
   Mute: 0
-  Spatialize: 0
+  Spatialize: 1
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
@@ -795,7 +796,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.5
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -810,7 +811,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.096666664
       inSlope: 0
       outSlope: 0
       tangentMode: 0

@@ -44,8 +44,6 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
     public event System.Action<bool> OnFireExtinguisherUsed;
 
 
-
-
     public bool HasExtinguisher
     {
         get { return hasExtinguisher; }
@@ -190,6 +188,16 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             //audio
             //extinguisherGameObj.GetComponent<ExtinguisherObject>().PlayAudio();
         }
+        else
+        {
+            if (!extinguisherGameObj.GetComponent<ExtinguisherObject>().hasGoneEmpty)
+            {
+                //stop the audio coming from the extinguisher
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().StopAudio();
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().audioSource.PlayOneShot(extinguisherGameObj.GetComponent<ExtinguisherObject>().offSFX);
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().hasGoneEmpty = true;
+            }  
+        }
     }
 
 
@@ -258,11 +266,6 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             }
             if (!tutorialComplete)
                 OnFireExtinguisherUsed?.Invoke(true);
-          
-             
-                
-            
-
         }
     }
 
