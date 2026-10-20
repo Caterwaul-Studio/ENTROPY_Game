@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
+using UnityEngine.InputSystem.Utilities;
 
 public class Event : MonoBehaviour
 {
@@ -330,7 +332,82 @@ public class Event : MonoBehaviour
             rb.isKinematic = tf;
         }
     }
+    #endregion
 
+    #region wall shake
+    /// <summary>
+    /// helper method that stores the origins of the wall objects for when you need to shake them
+    /// </summary>
+    /// <param name="walls"></param>
+    /// <returns></returns>
+    public Vector3[] GetWallsOrigins(GameObject[] walls)
+    {
+        Vector3[] origins = new Vector3[walls.Length];
+
+        for (int i = 0; i < walls.Length; i++)
+        {
+           origins[i] = walls[i].transform.position;
+        }
+        return origins;
+    }
+
+    public IEnumerator ShakeWalls(
+        GameObject[] walls,
+        Vector3[] origins,
+        AnimationCurve curve, 
+        float duration,
+        float magnitude = 0.05f,
+        float frequency = 25f)
+    {
+        float[] seeds = new float[walls.Length];
+        for (int i = 0; i < seeds.Length; i++)
+        seeds[i] = Random.Range(0f, 1000f);
+
+        float elapsed = 0f;
+        while(elapsed < duration)
+        {
+            float intensity = curve.Evaluate(elapsed/duration) * magnitude;
+            float t = elapsed * frequency;
+
+            for(int i = 0; i < walls.Length; i++)
+            {
+                if (walls[i] == null) continue;
+
+                //create an offset
+                Vector3 offset = new Vector3(
+                    Mathf.PerlinNoise(seeds[i], t) - 0.5f,
+                    Mathf.PerlinNoise(seeds[i] + 100f, t) - 0.5f,
+                    Mathf.PerlinNoise(seeds[i] + 200f, t) - 0.5f) * 2f;
+
+                //set the position
+                walls[i].transform.position = origins[i] + offset * intensity;
+
+                //Debug.Log("shake walls called");
+            }
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        //at the end snap everything back to origin
+        for (int i = 0; i < walls.Length; i++)
+        {
+            if (walls[i] != null)
+                walls[i].transform.position = origins[i];
+        }
+    }
+
+    /// <summary>
+    /// this method converts a range between whatever, scaled down to between 0 and 1. therefore your animation graph can be shape you want
+    /// </summary>
+    /// <param name="inValue"></param>
+    /// <param name="inMin"></param>
+    /// <param name="inMax"></param>
+    /// <returns></returns>
+    private static float RangeZeroToOne(float inValue, float inMin, float inMax)
+    {
+        float diffInputRange = Mathf.Abs(inMax - inMin);
+        float convFactor = 1 / diffInputRange;
+        return convFactor * (inValue - inMin);
+    }
     #endregion
 }
 

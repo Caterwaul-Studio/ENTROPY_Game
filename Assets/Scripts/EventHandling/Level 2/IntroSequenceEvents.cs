@@ -72,6 +72,14 @@ public class Lvl2IntroSequenceEvents : Event
     [SerializeField] private GameObject cubbyDoorsGroup;
     [SerializeField] private HingeJoint[] cubbyDoors;
 
+    [Header("Walls to shake")]
+    [SerializeField] private GameObject[] wallsArray;
+    [SerializeField] private Vector3[] wallOrigins;
+    [SerializeField] private AnimationCurve wallShakeCurve;
+    [SerializeField] float wallShakeDuration = 10f;
+    [SerializeField] float wallShakeMagnitude = 0.05f;
+    [SerializeField] float wallShakeFrequency = 25f;
+
     [Header("Geist")]
     //Geist and Animator
     public Animator geistAnimator;
@@ -137,6 +145,9 @@ public class Lvl2IntroSequenceEvents : Event
         //cubby doors
         cubbyDoors = GetCubbyDoors(cubbyDoorsGroup);
         SetCubbyDoorStaticState(true, cubbyDoors);
+
+        //walls
+        wallOrigins = GetWallsOrigins(wallsArray);
     }
 
     // Update is called once per frame
@@ -158,6 +169,7 @@ public class Lvl2IntroSequenceEvents : Event
         if (flashlight.HasFlashlight)
         {
             //start rumbling of the walls
+            StartCoroutine(ShakeWalls(wallsArray, wallOrigins, wallShakeCurve, wallShakeDuration, wallShakeMagnitude, wallShakeFrequency));
 
             //floating objects spill out of cubbys
             SetCubbyDoorStaticState(false, cubbyDoors);
@@ -186,7 +198,7 @@ public class Lvl2IntroSequenceEvents : Event
             //set doors broken
             StartCoroutine(SetBrokenDoors(true, false, doorScripts, 1f));
             
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(3f);
             //turn on the hazard lights
             StartCoroutine(SetActiveHazardLights(true, hazardLights, .5f));
             yield return new WaitForSeconds(8f);
