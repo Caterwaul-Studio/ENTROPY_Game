@@ -41,7 +41,7 @@ public class FireNodeScript : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip burningSFX;
     public AudioClip fireSFX;
-
+    public float audioStrengthMult;
 
     [SerializeField] public bool fireActive;
 
@@ -116,28 +116,37 @@ public class FireNodeScript : MonoBehaviour
 
                 //flame regeneration
                 if (flameStrength < flameSteady * 20)
+                { 
                     flameStrength += Time.deltaTime * regenRate;
+                    
+                }
 
                 if (flameStrength > 81)
                 {
                     flameSteady = 5;
+                    
                 }
                 else if (flameStrength > 61)
                 {
                     flameSteady = 4;
+                    
                 }
                 else if (flameStrength > 41)
                 {
                     flameSteady = 3;
+                   
                 }
                 else if (flameStrength > 21)
                 {
                     flameSteady = 2;
+                    
                 }
                 else if (flameStrength > 11)
                 {
                     flameSteady = 1;
+                   
                 }
+                audioSource.volume = flameStrength / audioStrengthMult;
             }
         }
         if (fireActive)
@@ -162,12 +171,16 @@ public class FireNodeScript : MonoBehaviour
         {
             fireActive = false;
             sysMain.startSize = 0;
+            audioSource.Stop();
+            audioSource.volume = 0;
 
             /* //old method
             myFire.myFireNodes.Remove(this.gameObject); //update the parent with the destruction of the node
             Destroy(this.gameObject);
             */
         }
+        //update audio
+       
     }
 
     System.Collections.IEnumerator BurnPlayer()

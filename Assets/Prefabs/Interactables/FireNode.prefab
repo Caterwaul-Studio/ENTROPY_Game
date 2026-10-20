@@ -170,6 +170,7 @@ MonoBehaviour:
   audioSource: {fileID: 2485392129013123328}
   burningSFX: {fileID: 8300000, guid: 2acaa8a4d9e6c744c8f15086d72ac810, type: 3}
   fireSFX: {fileID: 8300000, guid: cfb889e0335bdd349a4e9b31b36aba9e, type: 3}
+  audioStrengthMult: 160
   fireActive: 1
 --- !u!198 &5055425657881056165
 ParticleSystem:
@@ -4937,7 +4938,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: cfb889e0335bdd349a4e9b31b36aba9e, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.5
+  m_Volume: 1
   m_Pitch: 1
   Loop: 1
   Mute: 0
