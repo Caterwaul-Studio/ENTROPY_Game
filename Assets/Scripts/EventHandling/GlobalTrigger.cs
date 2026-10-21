@@ -41,8 +41,6 @@ public class GlobalTrigger : MonoBehaviour
         }
     }
 
-
-
     public void ResetTrigger()
     {
         this.GetComponent<Collider>().enabled = true;

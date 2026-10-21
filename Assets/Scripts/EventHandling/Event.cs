@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem.Utilities;
 
@@ -206,7 +207,11 @@ public class Event : MonoBehaviour
         if (lights != null)
         {
             foreach (Light l in lights)
+            {
+                //if the light has a light flickr component, make sure it's disabled so it can turn off
+                if(l.GetComponent<LightFlicker>() != null && l.GetComponent<LightFlicker>().isActiveAndEnabled) l.GetComponent<LightFlicker>().enabled = false;
                 if (l != null) l.intensity = curveValue * lightMultiplier;
+            }   
         }
 
         if (mats != null)
@@ -215,6 +220,106 @@ public class Event : MonoBehaviour
             foreach (Material m in mats)
                 if (m != null) m.SetColor("_EmissionColor", emission);
         }
+    }
+
+    /// <summary>
+    /// Get the current intensity of every light so they can be restored
+    /// call before glitches or power-down
+    /// </summary>
+    /// <param name="lights"></param>
+    /// <returns></returns>
+   public float[] GetLightIntensities(Light[] lights)
+    {
+        float[] intensities = new float[lights.Length];
+        for(int i = 0; i < lights.Length; i++)
+        {
+            intensities[i] = lights[i] != null ? lights[i].intensity : 0f;
+        }
+        return intensities;
+    }
+
+    public IEnumerator FlickerLightsOn(
+        Light[] lights,
+        float[] targetIntensities,
+        Material[] mats,
+        Color targetEmission,
+        float duration = 2f,
+        float frequency = 15f,
+        bool reenableLightFlicker = false)
+    {
+        int lightCount = lights != null ? lights.Length : 0;
+        int matsCount = mats != null ? mats.Length : 0;
+
+        //each light/mat gets its own noise eed so they don't all flicker in sync
+        float[] lightSeeds = new float[lightCount];
+        for(int i = 0;i < lightCount;i++) lightSeeds[i] = Random.Range(0.0f, 1000f);
+        float[] matsSeeds = new float[matsCount];
+        for (int i = 0; i < matsCount; i++) matsSeeds[i] = Random.Range(0.0f, 1000f);
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            float ramp = elapsed / duration;
+            float t = elapsed * frequency;
+
+            for(int i = 0; i < lightCount; i++)
+            {
+                if (lights[i] == null) continue;
+                lights[i].intensity = TargetIntensity(targetIntensities, i) * FlickerValue(lightSeeds[i], t, ramp);
+            }
+            for (int i = 0; i < matsCount; i++)
+            {
+                if (mats[i] == null) continue;
+                mats[i].SetColor("_EmissionColor", targetEmission * FlickerValue(matsSeeds[i], t, ramp));
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // set back to the original values
+        RestoreLightState(lights, targetIntensities, mats, targetEmission, reenableLightFlicker);
+    }
+
+    public void RestoreLightState(
+        Light[] lights, float[] targetIntensities,
+        Material[] mats, Color targetEmission,
+        bool reenableLightFlicker = false)
+    {
+        if(lights != null)
+        {
+            for(int i = 0; i <lights.Length; i++)
+            {
+                if (lights[i] == null) return;
+                lights[i].intensity = TargetIntensity(targetIntensities, i);
+
+                if (reenableLightFlicker)
+                {
+                    LightFlicker f = lights[i].GetComponent<LightFlicker>();
+                    if (f != null) f.enabled = true;
+                }
+            }
+        }
+
+        if(mats != null)
+        {
+            foreach (Material mat in mats)
+                if (mat != null) mat.SetColor("_EmissionColor", targetEmission);
+        }
+    }
+
+    public static float TargetIntensity(float[] intensities, int i)
+    {
+        return(intensities != null && i < intensities.Length) ? intensities[i] : 0.0f;
+    }
+
+    private static float FlickerValue(float seed, float t, float ramp)
+    {
+        float noise = Mathf.PerlinNoise(seed, t);
+        float onThreshold = Mathf.Lerp(0.25f, 0.8f, ramp);
+
+        if (noise < onThreshold) return Mathf.Lerp(0.6f, 1f, ramp);
+        return Random.Range(0f, 0.15f);
     }
     #endregion
 
@@ -409,5 +514,26 @@ public class Event : MonoBehaviour
         return convFactor * (inValue - inMin);
     }
     #endregion
+
+#region Geist
+    //This is overidable if you want to do other effects, unique logic for your Geist cutscene
+    public virtual void TriggerGeistCutscene(ref bool hasPlayed, SpawnGeist spawner, GeistCutsceneRoute route)
+    {
+        if (hasPlayed) return;
+        if (PlayGeistRoute(spawner, route)) hasPlayed = true; ;
+    }
+
+    //run the Geist route you have created for your cutscene
+    public bool PlayGeistRoute(SpawnGeist spawner, GeistCutsceneRoute route, System.Action onFinished = null)
+    {
+        if (spawner == null || spawner.Cutscene == null)
+        {
+            Debug.LogWarning("PlayGeistRoute: no spawner or Geist available");
+            return false;
+        }
+        spawner.Cutscene.Play(route, onFinished);
+        return true;
+    }
+#endregion
 }
 

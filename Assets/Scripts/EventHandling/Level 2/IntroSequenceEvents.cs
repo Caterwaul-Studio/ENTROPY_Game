@@ -12,6 +12,8 @@ public class Lvl2IntroSequenceEvents : Event
     private Flashlight flashlight;
 
     //event trigger references
+    private BoxCollider GeistHallRunTrigger;
+    private BoxCollider GeistHallAppearTrigger;
 
     //bar group
     [Header("Bars")]
@@ -21,13 +23,15 @@ public class Lvl2IntroSequenceEvents : Event
     private Color initBarEmissive;
     
 
-    [Header("Light Animation Curves")]
-    public AnimationCurve powerDownCurve;
+    [Header("Light Glitch")]
     public AnimationCurve glitchCurve;
     //bool flags for event triggers
     public float powerDownDuration = 1f;
     public float glitchDuration = 10f; // How long one cycle of the curve takes
     public float intensityMultiplier = 1f;
+    [Header("Light Restore")]
+    public float restoreDuration = 3f;
+    public float restoreFrequency = 15f;
 
     [Header("Auxilliary Lights")]
     //light group
@@ -35,6 +39,7 @@ public class Lvl2IntroSequenceEvents : Event
     [SerializeField] private MeshRenderer[] lightMeshes;
     public Light[] lights;
     private Material[] lightMaterials;
+    private float[] initLightIntensities;
     private Color initLightEmissive;
 
     [Header("Hazard Lights")]
@@ -81,12 +86,14 @@ public class Lvl2IntroSequenceEvents : Event
     [SerializeField] float wallShakeMagnitude = 0.05f;
     [SerializeField] float wallShakeFrequency = 25f;
 
-    [Header("Geist")]
+    [Header("Geist Cutscene")]
     //Geist and Animator
-    public Animator geistAnimator;
-    public GameObject geist;
-    public Light geistLight;
-    public Light geistSpotlight;
+    [SerializeField] private SpawnGeist geistSpawner;
+    [SerializeField] private GeistCutsceneRoute hallRunRoute;
+    private bool hallRunPlayed;
+
+    [SerializeField] private GeistCutsceneRoute hallAppearRoute;
+    private bool hallAppearPlayed;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -106,6 +113,7 @@ public class Lvl2IntroSequenceEvents : Event
         }
         //store the light data using a helper function from Event.cs
         lights = GetLights(lightsGroup);
+        initLightIntensities = GetLightIntensities(lights);
         var (mats, meshes, initEmissive) = GetLightMaterials(lightsGroup);
         lightMaterials = mats;
         lightMeshes = meshes;
@@ -157,7 +165,7 @@ public class Lvl2IntroSequenceEvents : Event
 
     }
 
-
+    #region storage room impact tremor
     public void TriggerExplosion()
     {
         StartCoroutine(ExplosionRocksTheShip());
@@ -212,4 +220,39 @@ public class Lvl2IntroSequenceEvents : Event
         }
         yield return new WaitForSeconds(1f);
     }
+    #endregion
+
+    #region power restored
+    public void TriggerPowerRestored()
+    {
+        StartCoroutine(PowerRestored());
+    }
+
+    private IEnumerator PowerRestored()
+    {
+        Debug.Log("Power restored called");
+
+        yield return StartCoroutine(FlickerLightsOn(
+            lights, initLightIntensities, lightMaterials, initLightEmissive, restoreDuration, restoreFrequency));
+
+        StartCoroutine(FlickerLightsOn(null, null, barsMaterials, initBarEmissive, restoreDuration, restoreFrequency));
+        StartCoroutine(FlickerLightsOn(null, null, connectorMaterials, initConnectorEmissionColor, restoreDuration, restoreFrequency));
+        StartCoroutine(FlickerLightsOn(null, null, wallLightMaterials, initWallLightEmissionColor, restoreDuration, restoreFrequency));
+
+    }
+
+    #endregion
+
+    #region Geist spooks
+    public void TriggerGeistHallRun()
+    {
+        TriggerGeistCutscene(ref hallRunPlayed, geistSpawner, hallRunRoute);
+    }
+
+    public void TriggerGeistAppear()
+    {
+        TriggerGeistCutscene(ref hallAppearPlayed, geistSpawner, hallAppearRoute);
+    }
+
+    #endregion
 }

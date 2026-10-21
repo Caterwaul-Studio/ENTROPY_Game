@@ -105,6 +105,16 @@ public class ComplexEnemyAI : MonoBehaviour
 
     [SerializeField] private bool stateSwitchLog = false;
 
+    // Controller Mode so we can swap the Geist between dormant, cutscene, and ai logic
+    public enum ControlMode { Dormant, Cutscene, AI};
+    public ControlMode Mode { get; private set; } = ControlMode.AI;
+    public bool HasStarted { get; private set; }
+
+    private AudioSource[] allAudio;
+    private Collider[] allColliders;
+    private bool[] colliderDefaults;
+    private Coroutine stingRoutine;
+
     void Start()
     {
         if (persistant == null) persistant = FindFirstObjectByType<PersistantManager>();
@@ -143,12 +153,16 @@ public class ComplexEnemyAI : MonoBehaviour
         tendrilOrigins = GetComponentsInChildren<TendrilOrigin>().ToList();
         availableOrigins = new List<TendrilOrigin>(tendrilOrigins);
 
+        HasStarted = true;
     }
 
     // ... Headers and Variables stay the same ...
 
     void Update()
     {
+        //if we aren't oing AI logic, ignore this script
+        if (Mode != ControlMode.AI) return;
+
         hasLineOfSight = enemyStateMachine.canDetectPlayer;
 
         if (enemyStateMachine.enemyVersion == EnemyVersion.Complex)
@@ -226,13 +240,15 @@ public class ComplexEnemyAI : MonoBehaviour
 
         //** M U S I C - Z O N E ** (temp)
 
+
+
         //part of temporary audio system, to be replaced
         //Debug.Log(Vector3.Distance(player.transform.position, transform.position));
         farMusic.volume = Vector3.Distance(player.transform.position, transform.position) / 10;
         nearMusic.volume = 1 - Vector3.Distance(player.transform.position, transform.position) / 10;
         if (shouldPlaySting)
         {
-            StartCoroutine(AlienHit());
+            stingRoutine = StartCoroutine(AlienHit());
         }
         //end music zone
 
@@ -507,6 +523,64 @@ public class ComplexEnemyAI : MonoBehaviour
 
     #region Throw/Attack
 
+    // Called by Unity when this collider hits another collider
+    private void OnCollisionEnter(Collision collision)
+    {
+        GameObject other = collision.gameObject;
+
+        if (other.CompareTag("PickupObject"))
+        {
+            Rigidbody objRb = collision.rigidbody;
+            if (objRb != null && objRb.linearVelocity.magnitude >= stunVelocityThreshold)
+            {
+                Debug.Log("Object hit at this speed: " + objRb.linearVelocity.magnitude);
+                // StartCoroutine(StunCoroutine());
+            }
+        }
+        else if (other.CompareTag("Player"))
+        {
+            //if the Geist isn't using AI logic, don't allow it to grab
+            if (Mode != ControlMode.AI)
+            {
+                BounceAwayFromGeist();
+                return;
+            }
+            if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Grab ||
+                enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill) return;
+
+            //if the Geist is currently phasing in a wall, back out of grab logic
+            if (enemyStateMachine.IsInsideWall())
+            {
+                Debug.Log("Geist Phasing while trying to Grab");
+                BounceAwayFromGeist();
+                return;
+            }
+
+            Debug.Log($"<color=orange>[COLLISION] Player touched while state={enemyStateMachine.currentSpecificState}, canDetect={enemyStateMachine.canDetectPlayer}, frame={Time.frameCount}</color>");
+            enemyStateMachine.GrabAttackLogic();
+
+            if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Grab)
+            {
+                enemyStateMachine.GrabPlayer();
+            }
+            else if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill)
+            {
+                KillPlayer();
+            }
+
+            // Knockback regardless of state
+            /*
+            Rigidbody playerRb = other.GetComponent<Rigidbody>();
+            if (playerRb != null)
+            {
+                Vector3 forceDirection = (other.transform.position - transform.position).normalized;
+                float knockbackStrength = lungeSpeed * 2f;
+                playerRb.AddForce(forceDirection * knockbackStrength, ForceMode.Impulse);
+            }
+            */
+        }
+    }
+
     public void ForceLookAtPlayer()
     {
         Vector3 toPlayer = (player.transform.position - transform.position);
@@ -626,6 +700,31 @@ public class ComplexEnemyAI : MonoBehaviour
         return true;
     }
 
+    public void BounceAwayFromGeist()
+    {
+        //logic copied from detectBarrier and bounce
+        //ensures that the playe doesn't get caught colliding with Geist as this is an OnEnter logic
+        //bounce the player away from the Geist
+        Vector3 impactPoint = persistant.Player.transform.position;
+
+        Vector3 GeistNormal = (impactPoint - transform.position).normalized;
+
+        Vector3 incomingVelocity = persistant.Player.RB.linearVelocity;
+        Vector3 reflectDirection = incomingVelocity.sqrMagnitude > 0.001f
+            ? Vector3.Reflect(persistant.Player.RB.linearVelocity.normalized, GeistNormal)
+            : GeistNormal;
+
+        Vector3 pushaway = GeistNormal * .3f; //small offset to prevent overlap
+        persistant.Player.transform.position += pushaway;
+        float bounceSpeed = speed * 1.3f;
+
+        persistant.Player.RB.linearVelocity = Vector3.zero;
+        persistant.Player.RB.angularVelocity = Vector3.zero;
+
+        persistant.Player.RB.linearVelocity = reflectDirection * bounceSpeed;
+        return;
+    }
+
     private bool FindFallbackWaypoint()
     {
         // Filter waypoints: Distance between 5m and 15m away
@@ -646,58 +745,6 @@ public class ComplexEnemyAI : MonoBehaviour
     }
 
     #endregion
-
-    // Called by Unity when this collider hits another collider
-    private void OnCollisionEnter(Collision collision)
-    {
-        GameObject other = collision.gameObject;
-
-        if (other.CompareTag("PickupObject"))
-        {
-            Rigidbody objRb = collision.rigidbody;
-            if (objRb != null && objRb.linearVelocity.magnitude >= stunVelocityThreshold)
-            {
-                Debug.Log("Object hit at this speed: " + objRb.linearVelocity.magnitude);
-                // StartCoroutine(StunCoroutine());
-            }
-        }
-        else if (other.CompareTag("Player"))
-        {
-            if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Grab ||
-                enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill) return;
-
-            //if the Geist is currently phasing in a wall, back out of grab logic
-            if (enemyStateMachine.IsInsideWall())
-            {
-                Debug.Log("Geist Phasing while trying to Grab");
-                BounceAwayFromGeist();
-                return;
-            }
-
-            Debug.Log($"<color=orange>[COLLISION] Player touched while state={enemyStateMachine.currentSpecificState}, canDetect={enemyStateMachine.canDetectPlayer}, frame={Time.frameCount}</color>");
-            enemyStateMachine.GrabAttackLogic();
-
-            if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Grab)
-            {
-                enemyStateMachine.GrabPlayer();
-            }
-            else if (enemyStateMachine.currentSpecificState == SpecificEnemyState.Kill)
-            {
-                KillPlayer();
-            }
-
-            // Knockback regardless of state
-            /*
-            Rigidbody playerRb = other.GetComponent<Rigidbody>();
-            if (playerRb != null)
-            {
-                Vector3 forceDirection = (other.transform.position - transform.position).normalized;
-                float knockbackStrength = lungeSpeed * 2f;
-                playerRb.AddForce(forceDirection * knockbackStrength, ForceMode.Impulse);
-            }
-            */
-        }
-    }
 
     #region Path Finding
     Queue<Waypoint> BFS(Waypoint start, Waypoint goal)
@@ -909,6 +956,78 @@ public class ComplexEnemyAI : MonoBehaviour
         StartCoroutine(UpdateLineOfSight());
     }
     */
+
+    #region Control Mode
+    private void CacheComponents()
+    {
+        if (allAudio != null) return;
+        allAudio = GetComponentsInChildren<AudioSource>(true);
+        //allColliders = GetComponentsInChildren<Collider>();
+        //colliderDefaults = new bool[allColliders.Length];
+        //for(int i = 0; i < allColliders.Length; i++)
+        //    colliderDefaults[i] = allColliders[i].enabled;
+    }
+
+    public void SetControlMode(ControlMode newMode)
+    {
+        CacheComponents();
+        Mode = newMode;
+        //is the script setting the Geist to AI
+        bool live = newMode == ControlMode.AI;
+
+        if (!live)
+        {
+            if (stingRoutine != null) { StopCoroutine(stingRoutine); stingRoutine = null; }
+            shouldPlaySting = true;
+            enemyStateMachine.roaring = false;
+
+            foreach (AudioSource a in allAudio)
+            {
+                if (a == null) continue;
+                a.mute = true;
+                a.Stop();
+            }
+            return;
+        }
+        
+        foreach (AudioSource a in allAudio)
+        {
+            if (a != null) a.mute = false;
+        }
+
+        if (farMusic != null && !farMusic.isPlaying) farMusic.Play();
+        if (nearMusic != null && !nearMusic.isPlaying) nearMusic.Play();
+
+        if (HasStarted)
+        {
+            // re-anchoring the Geist after a cutscene
+            path.Clear();
+            targetWaypoint = null;
+            currentWaypoint = FindClosestWaypoint(transform.position);
+            lastPosition = transform.position;
+            lastProgressPosition = transform.position;
+            stuckTimer = 0f;
+            enemyStateMachine.ChangeGeneralState(GeneralEnemyState.Active);
+            enemyStateMachine.ChangeSpecificState(SpecificEnemyState.Patrol, "control returned to AI");
+        }
+    }
+
+    #endregion
+
+    #region Sound
+    IEnumerator AlienHit()
+    {
+        //Debug.Log("waiting");
+        shouldPlaySting = false;
+        hitSource.clip = hitAudioBank[Random.Range(0, hitAudioBank.Length)];
+        var waitTime = Random.Range(5, 15);
+        yield return new WaitForSeconds(waitTime);
+        //Debug.Log("playing");
+        hitSource.Play();
+        shouldPlaySting = true;
+    }
+    #endregion
+
     void OnDrawGizmosSelected()
     {
         // Only draw when selected in the editor
@@ -924,40 +1043,5 @@ public class ComplexEnemyAI : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, wakeDistance);
     }
 
-    IEnumerator AlienHit()
-    {
-        //Debug.Log("waiting");
-        shouldPlaySting = false;
-        hitSource.clip = hitAudioBank[Random.Range(0, hitAudioBank.Length)];
-        var waitTime = Random.Range(5, 15);
-        yield return new WaitForSeconds(waitTime);
-        //Debug.Log("playing");
-        hitSource.Play();
-        shouldPlaySting = true;
-    }
-
-    public void BounceAwayFromGeist()
-    {
-        //logic copied from detectBarrier and bounce
-        //ensures that the playe doesn't get caught colliding with Geist as this is an OnEnter logic
-        //bounce the player away from the Geist
-        Vector3 impactPoint = persistant.Player.transform.position;
-
-        Vector3 GeistNormal = (impactPoint - transform.position).normalized;
-
-        Vector3 incomingVelocity = persistant.Player.RB.linearVelocity;
-        Vector3 reflectDirection = incomingVelocity.sqrMagnitude > 0.001f
-            ? Vector3.Reflect(persistant.Player.RB.linearVelocity.normalized, GeistNormal)
-            : GeistNormal;
-
-        Vector3 pushaway = GeistNormal * .3f; //small offset to prevent overlap
-        persistant.Player.transform.position += pushaway;
-        float bounceSpeed = speed * 1.3f;
-
-        persistant.Player.RB.linearVelocity = Vector3.zero;
-        persistant.Player.RB.angularVelocity = Vector3.zero;
-
-        persistant.Player.RB.linearVelocity = reflectDirection * bounceSpeed;
-        return;
-    }
+   
 }
