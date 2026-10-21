@@ -317,7 +317,7 @@ public class Event : MonoBehaviour
 
     #endregion
 
-    #region cubby doors
+#region cubby doors
     public HingeJoint[] GetCubbyDoors(GameObject group)
     {
         return group.GetComponentsInChildren<HingeJoint>();
@@ -334,7 +334,7 @@ public class Event : MonoBehaviour
     }
     #endregion
 
-    #region wall shake
+#region wall shake
     /// <summary>
     /// helper method that stores the origins of the wall objects for when you need to shake them
     /// </summary>

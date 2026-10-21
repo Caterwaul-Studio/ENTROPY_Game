@@ -56,6 +56,7 @@ public class Lvl2IntroSequenceEvents : Event
     [SerializeField] private MeshRenderer[] doorMeshes;
     [SerializeField] private Material[] doorMaterials;
     Color initDoorEmissionColor;
+    [SerializeField] private DoorScript exitFromStorage;
 
     [Header("Connectors")]
     //connector references
@@ -168,14 +169,15 @@ public class Lvl2IntroSequenceEvents : Event
         //flag that guards if th flashlight has been aquired
         if (flashlight.HasFlashlight)
         {
+            yield return new WaitForSeconds(3f);
+
             //start rumbling of the walls
             StartCoroutine(ShakeWalls(wallsArray, wallOrigins, wallShakeCurve, wallShakeDuration, wallShakeMagnitude, wallShakeFrequency));
 
             //floating objects spill out of cubbys
             SetCubbyDoorStaticState(false, cubbyDoors);
 
-            //enable rigid bodies of floating objects so they look like they are being thrown by rumble
-
+            yield return new WaitForSeconds(1f);
             //start glitching of the lights
             StartCoroutine(GlitchLights(
                 lights, lightMaterials, glitchCurve, glitchDuration,
@@ -183,7 +185,7 @@ public class Lvl2IntroSequenceEvents : Event
             //bars glitch with this
             StartCoroutine(GlitchObjectEmissives(
                 barsMaterials, glitchCurve, glitchDuration, initBarEmissive, 1f));
-            //wall lights glitch oo
+            //wall lights glitch too
             StartCoroutine(GlitchObjectEmissives(
                 wallLightMaterials, glitchCurve, glitchDuration, 
                 initWallLightEmissionColor, 1f));
@@ -206,6 +208,7 @@ public class Lvl2IntroSequenceEvents : Event
             //everything shuts off, lights, power, doors etc.
             StartCoroutine(SetActiveHazardLights(false, hazardLights, .5f));
             StartCoroutine(SetBrokenDoors(false, false, doorScripts, 1f));
+            exitFromStorage.SetState(DoorScript.States.Closed);
         }
         yield return new WaitForSeconds(1f);
     }
