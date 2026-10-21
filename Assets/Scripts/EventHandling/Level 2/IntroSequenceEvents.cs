@@ -140,6 +140,7 @@ public class Lvl2IntroSequenceEvents : Event
         doorMeshes = meshesd;
         initDoorEmissionColor = initEmissived;
         doorScripts = GetDoors(doorsGroup);
+        StoreDoorStates(doorScripts);
 
         //connectors
         var (matsc, meshesc, initEmissivec) = GetObjectMaterials(connectorGroup);
@@ -204,7 +205,7 @@ public class Lvl2IntroSequenceEvents : Event
             //door lights
             StartCoroutine(GlitchObjectEmissives(
                 doorMaterials, glitchCurve, glitchDuration,
-                initConnectorEmissionColor, 1f));
+                initDoorEmissionColor, 1f));
             //set doors broken
             StartCoroutine(SetBrokenDoors(true, false, doorScripts, 1f));
             
@@ -236,9 +237,11 @@ public class Lvl2IntroSequenceEvents : Event
             lights, initLightIntensities, lightMaterials, initLightEmissive, restoreDuration, restoreFrequency));
 
         StartCoroutine(FlickerLightsOn(null, null, barsMaterials, initBarEmissive, restoreDuration, restoreFrequency));
-        StartCoroutine(FlickerLightsOn(null, null, connectorMaterials, initConnectorEmissionColor, restoreDuration, restoreFrequency));
         StartCoroutine(FlickerLightsOn(null, null, wallLightMaterials, initWallLightEmissionColor, restoreDuration, restoreFrequency));
+        StartCoroutine(FlickerLightsOn(null, null, connectorMaterials, initConnectorEmissionColor, restoreDuration, restoreFrequency));
+        StartCoroutine(FlickerLightsOn(null, null, doorMaterials, initDoorEmissionColor, restoreDuration, restoreFrequency));
 
+        StartCoroutine(SetBrokenDoors(false, true, doorScripts, 1f));
     }
 
     #endregion

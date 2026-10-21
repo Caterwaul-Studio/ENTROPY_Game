@@ -44,7 +44,7 @@ public class Event : MonoBehaviour
         //refind persistent player is mising
         if(persistantManager == null)
         {
-            persistantManager = FindObjectOfType<PersistantManager>();
+            persistantManager = FindFirstObjectByType<PersistantManager>();
             if (persistantManager != null)
             {
                 player = persistantManager.PlayerObject;
@@ -368,8 +368,15 @@ public class Event : MonoBehaviour
            : new DoorScript[0];
     }
 
+    public void StoreDoorStates(DoorScript[] doors)
+    {
+        foreach (DoorScript door in doors)
+            if (door != null) originalDoorStates[door] = Settle(door.DoorState);
+    }
+
     public IEnumerator SetBrokenDoors(bool tf, bool restore, DoorScript[] doors, float maxDelay = 0.5f)
     {
+        Debug.Log("set broken doors called");
         foreach (DoorScript d in doors)
         {
             if(d != null)
@@ -380,17 +387,24 @@ public class Event : MonoBehaviour
                         originalDoorStates[d] = Settle(d.DoorState);
                     d.SetState(DoorScript.States.Broken);
                 }
-                else if (!tf && !restore)
+                else if (!restore)
                 {
                     d.SetState(DoorScript.States.Locked);
                 }
                 else if(originalDoorStates.TryGetValue(d, out var original))
                 {
-                    d.FixBroken(original);
+                    Debug.Log("Door restore called");
+                    if (d.DoorState == DoorScript.States.Broken)
+                        d.FixBroken(original);
+                    else
+                        d.SetState(original); // coming out of the powered down step
+
                     originalDoorStates.Remove(d);
                 }
-                
-                    
+                else
+                {
+                    Debug.LogWarning($"SetBrokenDoors: no saved state for {d.name}, can't restore.");
+                }
             }
             yield return new WaitForSeconds(Random.Range(0f, maxDelay / Mathf.Max(1, doors.Length)));
         }
