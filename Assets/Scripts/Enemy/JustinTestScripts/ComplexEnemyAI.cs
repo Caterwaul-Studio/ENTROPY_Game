@@ -163,6 +163,7 @@ public class ComplexEnemyAI : MonoBehaviour
         //if we aren't oing AI logic, ignore this script
         if (Mode != ControlMode.AI) return;
 
+        enemyStateMachine.GeneralLogic();
         hasLineOfSight = enemyStateMachine.canDetectPlayer;
 
         if (enemyStateMachine.enemyVersion == EnemyVersion.Complex)
@@ -176,8 +177,6 @@ public class ComplexEnemyAI : MonoBehaviour
             }
 
             sqrDist = (player.transform.position - transform.position).sqrMagnitude;
-
-            enemyStateMachine.GeneralLogic();
 
             // Movement execution
             //switch (enemyStateMachine.currentSpecificState)
