@@ -115,7 +115,13 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             !inventoryManager.deathMenu.activeSelf && !zeroGravity.IsDead)
             StartCoroutine(MakePuff());
 
-       
+        //if the player is dead
+        if (zeroGravity.IsDead)
+        {
+            //stop the audio coming from the extinguisher
+            extinguisherGameObj.GetComponent<ExtinguisherObject>().StopAudio();
+            extinguisherGameObj.GetComponent<ExtinguisherObject>().audioSource.PlayOneShot(extinguisherGameObj.GetComponent<ExtinguisherObject>().offSFX);
+        }
 
         if (extinguisherContainer == null)
         {
@@ -188,15 +194,12 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             //audio
             //extinguisherGameObj.GetComponent<ExtinguisherObject>().PlayAudio();
         }
-        else
+        else if (!extinguisherGameObj.GetComponent<ExtinguisherObject>().hasGoneEmpty)
         {
-            if (!extinguisherGameObj.GetComponent<ExtinguisherObject>().hasGoneEmpty)
-            {
                 //stop the audio coming from the extinguisher
                 extinguisherGameObj.GetComponent<ExtinguisherObject>().StopAudio();
                 extinguisherGameObj.GetComponent<ExtinguisherObject>().audioSource.PlayOneShot(extinguisherGameObj.GetComponent<ExtinguisherObject>().offSFX);
                 extinguisherGameObj.GetComponent<ExtinguisherObject>().hasGoneEmpty = true;
-            }  
         }
     }
 
