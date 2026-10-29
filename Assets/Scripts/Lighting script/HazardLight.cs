@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.UIElements;
@@ -7,11 +8,13 @@ public class HazardLight : MonoBehaviour
     [SerializeField]
     private bool isHazard;
     [SerializeField]
-    private Light light;
+    private Light hazardLight;
     [SerializeField] 
     private Light lightBase;
     [SerializeField]
     private float rotateParam;
+    [SerializeField]
+    private float activateTimer = 2f;
     
     public AudioSource hazardLightSource;
     public AudioClip hazardLightClip;
@@ -22,50 +25,80 @@ public class HazardLight : MonoBehaviour
     private GameObject lightActive;
     [SerializeField]
     private GameObject lightInactive;
+    [SerializeField] private GameObject hazardActivePos;
+    [SerializeField] private GameObject hazardInactivePos;
+    [SerializeField]
+    private AnimationCurve setActiveCurve;
+
+    private bool appliedState;
+    private bool initialized;
+    private Coroutine transitionRoutine;
 
     public bool IsHazard
     {
         get { return isHazard; }
-        set { isHazard = value; }
+        set 
+        {
+            isHazard = value;
+            if(isActiveAndEnabled && (!initialized || isHazard != appliedState))
+            {
+                initialized = true;
+                appliedState = value;
+                ApplyState(isHazard);
+            }
+        }
     }
 
 
     // Update is called once per frame
     void Update()
     {
-        //if the hazrd is set
-        if(isHazard)
+        if(!initialized || isHazard != appliedState)
         {
-            if(!light.enabled)
-            {
-                light.enabled = true;
-                lightBase.enabled = true;
-                lightActive.SetActive(true);
-                lightInactive.SetActive(false);
-            }
-            light.transform.Rotate(Vector3.up * rotateParam * Time.deltaTime);
-            if (!alarmPlaying)
-            {
-                PlayHazardAlarm();
-                alarmPlaying = true;
-            }
+            initialized = true;
+            appliedState = isHazard;
+            ApplyState(isHazard);
         }
-        else if (!isHazard)
-        {
-            if (light.enabled)
-            {
-                light.enabled = false;
-                lightBase.enabled = false;
-                lightActive.SetActive(false);
-                lightInactive.SetActive(false);
-            }
-            if (alarmPlaying)
-            {
-                StopHazardAlarm();
-                alarmPlaying = false;
-            }           
-        }
+        if (isHazard)
+            hazardLight.transform.Rotate(Vector3.up * rotateParam * Time.deltaTime);
     }
+
+    private void ApplyState(bool on)
+    {
+        if (transitionRoutine != null) StopCoroutine(transitionRoutine);
+
+        transitionRoutine = StartCoroutine(SetActiveHazardLight(on));
+
+        if (on) PlayHazardAlarm();
+        else StopHazardAlarm();
+    }
+
+    private IEnumerator SetActiveHazardLight(bool tf)
+    {
+        hazardLight.enabled = tf;
+        lightBase.enabled = tf;
+        lightActive.SetActive(tf);
+        lightInactive.SetActive(!tf);
+
+        Vector3 start = lightActive.transform.position;
+        Vector3 target = tf ? hazardActivePos.transform.position : hazardInactivePos.transform.position;
+
+        float elapsed = 0f;
+        while (elapsed < activateTimer)
+        {
+            float v = setActiveCurve.Evaluate(elapsed / activateTimer);
+            ApplyHazardLightState(start, target, v);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        ApplyHazardLightState(start, target, 1f);  
+    }
+
+    private void ApplyHazardLightState(Vector3 from, Vector3 to, float v)
+    {
+        lightActive.transform.position = Vector3.LerpUnclamped(from, to, v);
+    }
+
     public void PlayHazardAlarm()
     {
         /*        Debug.Log("PlayHazardAlarm called");

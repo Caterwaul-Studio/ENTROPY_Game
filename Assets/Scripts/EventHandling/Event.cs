@@ -250,7 +250,7 @@ public class Event : MonoBehaviour
         int lightCount = lights != null ? lights.Length : 0;
         int matsCount = mats != null ? mats.Length : 0;
 
-        //each light/mat gets its own noise eed so they don't all flicker in sync
+        //each light/mat gets its own noise seed so they don't all flicker in sync
         float[] lightSeeds = new float[lightCount];
         for(int i = 0;i < lightCount;i++) lightSeeds[i] = Random.Range(0.0f, 1000f);
         float[] matsSeeds = new float[matsCount];
