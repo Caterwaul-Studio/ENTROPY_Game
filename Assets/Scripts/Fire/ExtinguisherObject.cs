@@ -39,6 +39,15 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
     private Quaternion originalRotation;
     private Transform originalParent;
 
+    public AudioSource audioSource;
+    public AudioSource releaseSource;
+    public AudioClip releaseSFX;
+    public AudioClip sustainedSFX;
+    public AudioClip offSFX;
+
+    public bool hasRelased = false;
+    public bool hasGoneEmpty = false;
+
 #if UNITY_EDITOR
     private void OnValidate()
     {
@@ -110,6 +119,8 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
                 return;
             }
         }
+
+        hasGoneEmpty = false;
     }
 
     void Update()
@@ -268,4 +279,34 @@ public class ExtinguisherObject : MonoBehaviour, IInteractable
             }
         }   
     }
+    public void PlayAudio()
+    {
+        if (hasRelased == false)
+        {
+            if (remainingRetardant > 1) releaseSource.PlayOneShot(releaseSFX);
+            hasRelased = true;
+        }
+        
+        if (audioSource.isPlaying == false)
+        {
+            if (remainingRetardant > 1) audioSource.PlayOneShot(sustainedSFX);
+            else if (remainingRetardant <=1) audioSource.PlayOneShot(offSFX);
+        }
+       
+    }
+
+    public void StopAudio()
+    {
+        if (audioSource.isPlaying)
+        {
+            audioSource.Stop();
+        }
+        if (releaseSource.isPlaying)
+        {
+            releaseSource.Stop();
+        }
+
+    }
 }
+
+   
