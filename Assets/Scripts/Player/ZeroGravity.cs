@@ -1036,7 +1036,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 //pull to the bar
                 if (!useManualPullIn || isPullingIn)
                 {
-                    PullToBar(pullToBarMod, bar);
+                    //PullToBar(pullToBarMod, bar);
                 }
 
                 return;
@@ -1285,21 +1285,24 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             //check if no movement buttons are currently being pressed
             bool isThrusting = Mathf.Abs(thrust1D) > 0.1f;
             bool isStrafing = Mathf.Abs(strafe1D) > 0.1f;
+            float distanceAway = Vector3.Distance(transform.position, currentGrabPosition);
+
 
             if (movementKeysReleased && (isThrusting || isStrafing))
             {
+
                 //initialize a vector 3 for the propel direction
                 hasPropelled = true;
                 Vector3 propelDirection = Vector3.zero;
 
                 //set the player velocity to half to ensure the momentum doesn't influence the propel
-                rb.linearVelocity *= 0.5f;
+                //rb.linearVelocity *= 0.5f;
 
                 //if W or S are pressed
                 if (isThrusting)
                 {
                     //release the bar and calculate the vector to propel based on the forward look
-                    ReleaseBar();
+                    //ReleaseBar();
                     propelDirection += cam.transform.forward * thrust1D * propelThrust;
                     //Debug.Log("Propelled forward or back");
                 }
@@ -1307,16 +1310,25 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 else if (isStrafing)
                 {
                     //release the bar and calculate the vector to propel based on the right look
-                    ReleaseBar();
+                    //ReleaseBar();
                     propelDirection += cam.transform.right * strafe1D * propelThrust;
                     //Debug.Log("Propelled right or left");
                 }
                 //add the propel force to the rigid body
                 rb.linearVelocity *= .5f;
-                rb.AddForce(propelDirection * initialVelocityMagnitude, ForceMode.VelocityChange);
+                rb.AddForce(propelDirection * initialVelocityMagnitude * distanceAway * 0.5f, ForceMode.VelocityChange);
 
                 // Set the flag to false since keys are now pressed
-                movementKeysReleased = false;
+                //movementKeysReleased = false;
+
+
+                Debug.Log(distanceAway);
+                Debug.Log(GrabRange);
+                if (distanceAway > GrabRange)
+                {
+                    ReleaseBar();
+                    movementKeysReleased = false;
+                }
             }
             // Update the flag if no movement keys are pressed
             else if (!isThrusting && !isStrafing)
