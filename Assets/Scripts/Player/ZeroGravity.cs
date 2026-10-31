@@ -1316,13 +1316,17 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 }
                 //add the propel force to the rigid body
                 rb.linearVelocity *= .5f;
-                rb.AddForce(propelDirection * initialVelocityMagnitude * distanceAway * 0.5f, ForceMode.VelocityChange);
+                if (distanceAway  > 0.45)
+                    rb.AddForce(propelDirection * initialVelocityMagnitude * distanceAway * 0.6f, ForceMode.VelocityChange);
+               else
+                    rb.AddForce(propelDirection * initialVelocityMagnitude * 0.45f * 0.6f, ForceMode.VelocityChange);
+                //alt value for distance away hardcoded for now but will be changed
 
-                // Set the flag to false since keys are now pressed
-                //movementKeysReleased = false;
+                    // Set the flag to false since keys are now pressed
+                    //movementKeysReleased = false;
 
 
-                Debug.Log(distanceAway);
+                    Debug.Log(distanceAway);
                 Debug.Log(GrabRange);
                 if (distanceAway > GrabRange)
                 {
