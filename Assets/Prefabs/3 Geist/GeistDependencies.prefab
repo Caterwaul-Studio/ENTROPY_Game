@@ -43,7 +43,6 @@ GameObject:
   - component: {fileID: 6521742380772179206}
   - component: {fileID: 6234002640821967350}
   - component: {fileID: 3661153754711158179}
-  - component: {fileID: 8246006874996969922}
   m_Layer: 0
   m_Name: Tent8_IK
   m_TagString: Untagged
@@ -105,78 +104,6 @@ MonoBehaviour:
   root: {fileID: 6992695725095321004}
   target: {fileID: 2814598542863065896}
   distance: 0
---- !u!114 &8246006874996969922
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 36753938885761842}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29368e2efcddd9f49abfb61c57968ed2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  body: {fileID: 1045260147178808843}
-  origin: {fileID: 6521742380772179206}
-  ikTarget: {fileID: 2814598542863065896}
-  maxBackDistance: 1
-  stepBackZone: 25
-  moveDirection: {x: 0, y: 0, z: 1}
-  directionBias: 0.85
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 192
-  groundRayLength: 3
-  groundOffset: 0.05
-  defaultLocalPosition: {fileID: 3265807794630846205}
-  isPassive: 1
-  grabRange: 2.5
-  grabAngle: 160
-  moveSpeed: 2
-  passiveMoveSpeed: 20
-  tendrilAudioPlayer: {fileID: 7342577732908273443}
-  tendrilAudioBank:
-  - {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
-  - {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
-  - {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
-  - {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
-  - {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
-  - {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
-  - {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
-  - {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
-  - {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
-  - {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
-  - {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
-  - {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
-  - {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
-  - {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
-  - {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
-  - {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
-  - {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
-  - {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
-  - {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
-  - {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
-  - {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
-  - {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
-  - {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
-  - {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
-  - {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
-  - {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
-  - {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
-  - {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
-  - {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
-  - {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
-  - {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
-  - {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
-  - {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
-  - {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
-  - {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
-  - {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
-  - {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
-  - {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
-  - {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
-  - {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
 --- !u!1 &113022029213977795
 GameObject:
   m_ObjectHideFlags: 0
@@ -994,14 +921,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1344579092282976730}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 12.505, y: 0.844, z: -1.493}
+  m_LocalRotation: {x: -0, y: -0.70710677, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1045260147178808843}
   m_Father: {fileID: 4424982315069405020}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!1 &1354593219229463928
 GameObject:
   m_ObjectHideFlags: 0
@@ -1399,7 +1326,6 @@ GameObject:
   - component: {fileID: 6419265747104763325}
   - component: {fileID: 6519364531103122000}
   - component: {fileID: 742497325642185587}
-  - component: {fileID: 3208789624641032875}
   m_Layer: 0
   m_Name: Tent1_IK
   m_TagString: Untagged
@@ -1461,78 +1387,6 @@ MonoBehaviour:
   root: {fileID: 7906246371493017747}
   target: {fileID: 3257849394304899245}
   distance: 0
---- !u!114 &3208789624641032875
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1751240935360001574}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29368e2efcddd9f49abfb61c57968ed2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  body: {fileID: 1045260147178808843}
-  origin: {fileID: 6419265747104763325}
-  ikTarget: {fileID: 3257849394304899245}
-  maxBackDistance: 1
-  stepBackZone: 25
-  moveDirection: {x: 0, y: 0, z: 1}
-  directionBias: 0.85
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 192
-  groundRayLength: 3
-  groundOffset: 0.05
-  defaultLocalPosition: {fileID: 613917180828259092}
-  isPassive: 1
-  grabRange: 2.5
-  grabAngle: 160
-  moveSpeed: 2
-  passiveMoveSpeed: 20
-  tendrilAudioPlayer: {fileID: 372214178552340933}
-  tendrilAudioBank:
-  - {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
-  - {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
-  - {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
-  - {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
-  - {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
-  - {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
-  - {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
-  - {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
-  - {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
-  - {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
-  - {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
-  - {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
-  - {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
-  - {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
-  - {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
-  - {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
-  - {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
-  - {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
-  - {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
-  - {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
-  - {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
-  - {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
-  - {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
-  - {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
-  - {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
-  - {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
-  - {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
-  - {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
-  - {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
-  - {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
-  - {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
-  - {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
-  - {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
-  - {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
-  - {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
-  - {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
-  - {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
-  - {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
-  - {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
-  - {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
 --- !u!1 &1770227106527042518
 GameObject:
   m_ObjectHideFlags: 0
@@ -2624,7 +2478,6 @@ GameObject:
   - component: {fileID: 8531528128708305209}
   - component: {fileID: 7693365428231660538}
   - component: {fileID: 4843924729257284119}
-  - component: {fileID: 5622899575757061207}
   m_Layer: 0
   m_Name: Tent3_IK
   m_TagString: Untagged
@@ -2686,78 +2539,6 @@ MonoBehaviour:
   root: {fileID: 7833268162206902137}
   target: {fileID: 944439523718145566}
   distance: 0
---- !u!114 &5622899575757061207
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3321785251130167848}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29368e2efcddd9f49abfb61c57968ed2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  body: {fileID: 1045260147178808843}
-  origin: {fileID: 8531528128708305209}
-  ikTarget: {fileID: 944439523718145566}
-  maxBackDistance: 1
-  stepBackZone: 25
-  moveDirection: {x: 0, y: 0, z: 1}
-  directionBias: 0.85
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 192
-  groundRayLength: 3
-  groundOffset: 0.05
-  defaultLocalPosition: {fileID: 2205333168010106272}
-  isPassive: 1
-  grabRange: 2.5
-  grabAngle: 160
-  moveSpeed: 2
-  passiveMoveSpeed: 20
-  tendrilAudioPlayer: {fileID: 5987410124428379504}
-  tendrilAudioBank:
-  - {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
-  - {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
-  - {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
-  - {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
-  - {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
-  - {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
-  - {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
-  - {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
-  - {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
-  - {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
-  - {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
-  - {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
-  - {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
-  - {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
-  - {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
-  - {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
-  - {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
-  - {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
-  - {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
-  - {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
-  - {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
-  - {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
-  - {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
-  - {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
-  - {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
-  - {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
-  - {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
-  - {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
-  - {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
-  - {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
-  - {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
-  - {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
-  - {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
-  - {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
-  - {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
-  - {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
-  - {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
-  - {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
-  - {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
-  - {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
 --- !u!1 &3402347008824080571
 GameObject:
   m_ObjectHideFlags: 0
@@ -2896,7 +2677,6 @@ GameObject:
   - component: {fileID: 2783067349208608913}
   - component: {fileID: 7760822063694095601}
   - component: {fileID: 165042614681854978}
-  - component: {fileID: 4646060641516457179}
   m_Layer: 0
   m_Name: Tent6_IK
   m_TagString: Untagged
@@ -2958,78 +2738,6 @@ MonoBehaviour:
   root: {fileID: 1844446424963196346}
   target: {fileID: 2035972139639684956}
   distance: 0
---- !u!114 &4646060641516457179
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3795438634587466975}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29368e2efcddd9f49abfb61c57968ed2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  body: {fileID: 1045260147178808843}
-  origin: {fileID: 2783067349208608913}
-  ikTarget: {fileID: 2035972139639684956}
-  maxBackDistance: 1
-  stepBackZone: 25
-  moveDirection: {x: 0, y: 0, z: 1}
-  directionBias: 0.85
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 192
-  groundRayLength: 3
-  groundOffset: 0.05
-  defaultLocalPosition: {fileID: 5734960671401025753}
-  isPassive: 1
-  grabRange: 2.5
-  grabAngle: 160
-  moveSpeed: 2
-  passiveMoveSpeed: 20
-  tendrilAudioPlayer: {fileID: 8410052143506690940}
-  tendrilAudioBank:
-  - {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
-  - {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
-  - {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
-  - {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
-  - {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
-  - {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
-  - {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
-  - {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
-  - {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
-  - {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
-  - {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
-  - {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
-  - {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
-  - {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
-  - {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
-  - {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
-  - {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
-  - {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
-  - {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
-  - {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
-  - {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
-  - {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
-  - {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
-  - {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
-  - {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
-  - {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
-  - {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
-  - {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
-  - {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
-  - {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
-  - {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
-  - {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
-  - {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
-  - {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
-  - {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
-  - {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
-  - {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
-  - {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
-  - {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
-  - {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
 --- !u!1 &3904203327632869504
 GameObject:
   m_ObjectHideFlags: 0
@@ -3840,7 +3548,6 @@ GameObject:
   - component: {fileID: 5701382361336059662}
   - component: {fileID: 3990002365690924800}
   - component: {fileID: 5754129670329015776}
-  - component: {fileID: 170482899482174415}
   m_Layer: 0
   m_Name: Tent2_IK
   m_TagString: Untagged
@@ -3902,78 +3609,6 @@ MonoBehaviour:
   root: {fileID: 5134652721846478689}
   target: {fileID: 3257849394304899245}
   distance: 0
---- !u!114 &170482899482174415
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4761344733085832476}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29368e2efcddd9f49abfb61c57968ed2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  body: {fileID: 1045260147178808843}
-  origin: {fileID: 5701382361336059662}
-  ikTarget: {fileID: 3257849394304899245}
-  maxBackDistance: 1
-  stepBackZone: 25
-  moveDirection: {x: 0, y: 0, z: 1}
-  directionBias: 0.85
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 192
-  groundRayLength: 3
-  groundOffset: 0.05
-  defaultLocalPosition: {fileID: 613917180828259092}
-  isPassive: 1
-  grabRange: 2.5
-  grabAngle: 160
-  moveSpeed: 2
-  passiveMoveSpeed: 20
-  tendrilAudioPlayer: {fileID: 2471367216473126619}
-  tendrilAudioBank:
-  - {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
-  - {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
-  - {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
-  - {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
-  - {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
-  - {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
-  - {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
-  - {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
-  - {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
-  - {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
-  - {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
-  - {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
-  - {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
-  - {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
-  - {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
-  - {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
-  - {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
-  - {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
-  - {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
-  - {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
-  - {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
-  - {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
-  - {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
-  - {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
-  - {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
-  - {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
-  - {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
-  - {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
-  - {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
-  - {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
-  - {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
-  - {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
-  - {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
-  - {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
-  - {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
-  - {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
-  - {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
-  - {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
-  - {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
-  - {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
 --- !u!1 &4779639348907172319
 GameObject:
   m_ObjectHideFlags: 0
@@ -5921,7 +5556,6 @@ GameObject:
   - component: {fileID: 2735431542189130191}
   - component: {fileID: 8873966252304653729}
   - component: {fileID: 6750268255811484725}
-  - component: {fileID: 1738305075957560502}
   m_Layer: 0
   m_Name: Tent7_IK
   m_TagString: Untagged
@@ -5983,78 +5617,6 @@ MonoBehaviour:
   root: {fileID: 1188046605313126982}
   target: {fileID: 2814598542863065896}
   distance: 0
---- !u!114 &1738305075957560502
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5679838613402084108}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29368e2efcddd9f49abfb61c57968ed2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  body: {fileID: 1045260147178808843}
-  origin: {fileID: 2735431542189130191}
-  ikTarget: {fileID: 2814598542863065896}
-  maxBackDistance: 1
-  stepBackZone: 25
-  moveDirection: {x: 0, y: 0, z: 1}
-  directionBias: 0.85
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 192
-  groundRayLength: 3
-  groundOffset: 0.05
-  defaultLocalPosition: {fileID: 3265807794630846205}
-  isPassive: 1
-  grabRange: 2.5
-  grabAngle: 160
-  moveSpeed: 2
-  passiveMoveSpeed: 20
-  tendrilAudioPlayer: {fileID: 4666990088673854649}
-  tendrilAudioBank:
-  - {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
-  - {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
-  - {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
-  - {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
-  - {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
-  - {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
-  - {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
-  - {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
-  - {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
-  - {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
-  - {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
-  - {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
-  - {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
-  - {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
-  - {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
-  - {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
-  - {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
-  - {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
-  - {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
-  - {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
-  - {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
-  - {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
-  - {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
-  - {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
-  - {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
-  - {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
-  - {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
-  - {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
-  - {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
-  - {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
-  - {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
-  - {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
-  - {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
-  - {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
-  - {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
-  - {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
-  - {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
-  - {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
-  - {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
-  - {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
 --- !u!1 &5732538981892484865
 GameObject:
   m_ObjectHideFlags: 0
@@ -6218,6 +5780,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5511971664404460787}
   - component: {fileID: 6688443350820074025}
+  - component: {fileID: 5872929524302334913}
   m_Layer: 0
   m_Name: IKRig
   m_TagString: Untagged
@@ -6265,6 +5828,101 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Weight: 1
   m_Effectors: []
+--- !u!114 &5872929524302334913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5755579151196964316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cae57f7c00f2f64f87ed639090658fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  body: {fileID: 1045260147178808843}
+  pairs:
+  - tendrils:
+    - {fileID: 6419265747104763325}
+    - {fileID: 5701382361336059662}
+    ikTarget: {fileID: 3257849394304899245}
+    defaultTarget: {fileID: 613917180828259092}
+    audioSource: {fileID: 372214178552340933}
+  - tendrils:
+    - {fileID: 8531528128708305209}
+    - {fileID: 692562002906591000}
+    ikTarget: {fileID: 944439523718145566}
+    defaultTarget: {fileID: 2205333168010106272}
+    audioSource: {fileID: 5987410124428379504}
+  - tendrils:
+    - {fileID: 5379361668640191983}
+    - {fileID: 2783067349208608913}
+    ikTarget: {fileID: 2035972139639684956}
+    defaultTarget: {fileID: 5734960671401025753}
+    audioSource: {fileID: 8958814922733409045}
+  - tendrils:
+    - {fileID: 2735431542189130191}
+    - {fileID: 6521742380772179206}
+    ikTarget: {fileID: 2814598542863065896}
+    defaultTarget: {fileID: 3265807794630846205}
+    audioSource: {fileID: 4666990088673854649}
+  grabRange: 2.5
+  grabAngle: 160
+  stepBackZone: 25
+  reachAngle: 65
+  spreadAngle: 20
+  maxBackDistance: 1
+  facingDirection: {x: 0, y: 0, z: 1}
+  maxConcurrentSteps: 2
+  minStepSeparation: 120
+  stepDuration: 0.5
+  stepHeight: 0.3
+  passiveMoveSpeed: 20
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 192
+  groundOffset: 0.05
+  tendrilAudioBank:
+  - {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
+  - {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
+  - {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
+  - {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
+  - {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
+  - {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
+  - {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
+  - {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
+  - {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
+  - {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
+  - {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
+  - {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
+  - {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
+  - {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
+  - {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
+  - {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
+  - {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
+  - {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
+  - {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
+  - {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
+  - {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
+  - {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
+  - {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
+  - {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
+  - {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
+  - {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
+  - {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
+  - {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
+  - {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
+  - {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
+  - {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
+  - {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
+  - {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
+  - {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
+  - {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
+  - {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
+  - {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
+  - {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
+  - {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
+  - {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
 --- !u!1 &5775196772290406524
 GameObject:
   m_ObjectHideFlags: 0
@@ -7439,7 +7097,6 @@ GameObject:
   - component: {fileID: 5379361668640191983}
   - component: {fileID: 4731595981200968452}
   - component: {fileID: 2330188135103442411}
-  - component: {fileID: 5015831094332211730}
   m_Layer: 0
   m_Name: Tent5_IK
   m_TagString: Untagged
@@ -7501,78 +7158,6 @@ MonoBehaviour:
   root: {fileID: 8548721966980412262}
   target: {fileID: 2035972139639684956}
   distance: 0
---- !u!114 &5015831094332211730
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7317417017712179079}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29368e2efcddd9f49abfb61c57968ed2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  body: {fileID: 1045260147178808843}
-  origin: {fileID: 5379361668640191983}
-  ikTarget: {fileID: 2035972139639684956}
-  maxBackDistance: 1
-  stepBackZone: 25
-  moveDirection: {x: 0, y: 0, z: 1}
-  directionBias: 0.85
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 192
-  groundRayLength: 3
-  groundOffset: 0.05
-  defaultLocalPosition: {fileID: 5734960671401025753}
-  isPassive: 1
-  grabRange: 2.5
-  grabAngle: 160
-  moveSpeed: 2
-  passiveMoveSpeed: 20
-  tendrilAudioPlayer: {fileID: 8958814922733409045}
-  tendrilAudioBank:
-  - {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
-  - {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
-  - {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
-  - {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
-  - {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
-  - {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
-  - {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
-  - {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
-  - {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
-  - {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
-  - {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
-  - {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
-  - {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
-  - {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
-  - {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
-  - {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
-  - {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
-  - {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
-  - {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
-  - {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
-  - {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
-  - {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
-  - {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
-  - {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
-  - {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
-  - {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
-  - {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
-  - {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
-  - {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
-  - {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
-  - {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
-  - {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
-  - {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
-  - {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
-  - {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
-  - {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
-  - {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
-  - {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
-  - {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
-  - {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
 --- !u!1 &7358051937122529279
 GameObject:
   m_ObjectHideFlags: 0
@@ -7711,7 +7296,6 @@ GameObject:
   - component: {fileID: 692562002906591000}
   - component: {fileID: 8040081728212114923}
   - component: {fileID: 2705795641195583370}
-  - component: {fileID: 8306267716123905980}
   m_Layer: 0
   m_Name: Tent4_IK
   m_TagString: Untagged
@@ -7773,78 +7357,6 @@ MonoBehaviour:
   root: {fileID: 1850688089528070338}
   target: {fileID: 944439523718145566}
   distance: 0
---- !u!114 &8306267716123905980
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7465846897273765436}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29368e2efcddd9f49abfb61c57968ed2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  body: {fileID: 1045260147178808843}
-  origin: {fileID: 692562002906591000}
-  ikTarget: {fileID: 944439523718145566}
-  maxBackDistance: 1
-  stepBackZone: 25
-  moveDirection: {x: 0, y: 0, z: 1}
-  directionBias: 0.85
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 192
-  groundRayLength: 3
-  groundOffset: 0.05
-  defaultLocalPosition: {fileID: 2205333168010106272}
-  isPassive: 1
-  grabRange: 2.5
-  grabAngle: 160
-  moveSpeed: 2
-  passiveMoveSpeed: 20
-  tendrilAudioPlayer: {fileID: 1449185504810107906}
-  tendrilAudioBank:
-  - {fileID: 8300000, guid: 0fd5d9d9ce6a79d4897a88ae43bdc6c4, type: 3}
-  - {fileID: 8300000, guid: dfe56a6fb1aa9814b92b2c7152ef0c66, type: 3}
-  - {fileID: 8300000, guid: abf9495f34d4ae849b12ceaca394f17a, type: 3}
-  - {fileID: 8300000, guid: f4f99b7225fe5cf4d8b7232c7833a3c0, type: 3}
-  - {fileID: 8300000, guid: cb77ad5ba2dd7f44197c3560da8e44c4, type: 3}
-  - {fileID: 8300000, guid: 9c6b3eb5aaee83146b6fbcdf7ce031b3, type: 3}
-  - {fileID: 8300000, guid: 550991c50b88d65439469bcf0dca7f44, type: 3}
-  - {fileID: 8300000, guid: 98927adb3beefcc4bb8917bc67c8e7c7, type: 3}
-  - {fileID: 8300000, guid: a8b57a8ea2724b94db1c2a9127fdbb86, type: 3}
-  - {fileID: 8300000, guid: b44a2b4bea2e6b447857dceb3b3da608, type: 3}
-  - {fileID: 8300000, guid: eba98c9fafd979c428c0cfc0a932d34a, type: 3}
-  - {fileID: 8300000, guid: 26b553a8d6f53c9478bd27f09b085bc4, type: 3}
-  - {fileID: 8300000, guid: 268980576f4e6644c8cba7821e1d2663, type: 3}
-  - {fileID: 8300000, guid: ae4b5c90ecb1c9e43bc05d24c439981d, type: 3}
-  - {fileID: 8300000, guid: 92cec26cd4534a0469b2a4fe9a355340, type: 3}
-  - {fileID: 8300000, guid: 59a151abb260528489fa72544eac48f5, type: 3}
-  - {fileID: 8300000, guid: 57d49fc1a57f08c48970925e797492bd, type: 3}
-  - {fileID: 8300000, guid: c8633ab3a79233c4599268af8af2721d, type: 3}
-  - {fileID: 8300000, guid: c6cade6a446e04d4e90b96a6d41870d9, type: 3}
-  - {fileID: 8300000, guid: e4beb7977517b5644a8eee4ea96e3425, type: 3}
-  - {fileID: 8300000, guid: 7caf10fc416348b408fae4ce57674743, type: 3}
-  - {fileID: 8300000, guid: 96b4419596fdad24a990b9a840db28cc, type: 3}
-  - {fileID: 8300000, guid: af4394869a27d7040a789bbde7d484f2, type: 3}
-  - {fileID: 8300000, guid: d4ae09d4dc8d50546bc3785989113dec, type: 3}
-  - {fileID: 8300000, guid: 7dbff4e868256b142b134eb3131f2b49, type: 3}
-  - {fileID: 8300000, guid: 368e8c3d742269646b2ff7e532956d87, type: 3}
-  - {fileID: 8300000, guid: a2848d57306db8f40bb74b23f8a3d448, type: 3}
-  - {fileID: 8300000, guid: 45a194f37d883fa4cad645d898df578f, type: 3}
-  - {fileID: 8300000, guid: d3f649c086d52fe41a70854671ea5616, type: 3}
-  - {fileID: 8300000, guid: d5063c665178fac4893a4a38cf6b5632, type: 3}
-  - {fileID: 8300000, guid: 10561f948904e57458bd2051e2def7d0, type: 3}
-  - {fileID: 8300000, guid: ef7331560e76cb741b256a6834086de8, type: 3}
-  - {fileID: 8300000, guid: e5bb0d50b4e81284abd81027b94774ae, type: 3}
-  - {fileID: 8300000, guid: f9b584f370d6d8143ad766ab204338fb, type: 3}
-  - {fileID: 8300000, guid: 2815d1058cfc1ba46ac18120b7b1f7e2, type: 3}
-  - {fileID: 8300000, guid: e80a30b0a0fa6f64aba1eef89cf89bc9, type: 3}
-  - {fileID: 8300000, guid: a7c15fcdff2b79f49a5a83e4f440c400, type: 3}
-  - {fileID: 8300000, guid: cd6e8cd432a9dd74f9e579df89bc3e0b, type: 3}
-  - {fileID: 8300000, guid: 6a7241325ff8fd446a26ff2f2a0520fc, type: 3}
-  - {fileID: 8300000, guid: 33d86827111e9b44098f918455f4a53b, type: 3}
 --- !u!1 &7470103052000735675
 GameObject:
   m_ObjectHideFlags: 0
@@ -8724,6 +8236,7 @@ GameObject:
   - component: {fileID: 2791230685081179918}
   - component: {fileID: 376096418918313141}
   - component: {fileID: 1124004613100991911}
+  - component: {fileID: 151715615842919292}
   m_Layer: 0
   m_Name: New_GeistRig
   m_TagString: Untagged
@@ -8980,6 +8493,26 @@ MonoBehaviour:
   - m_Rig: {fileID: 6688443350820074025}
     m_Active: 1
   m_Effectors: []
+--- !u!114 &151715615842919292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8308341582848252324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b936b74c629ca2458abb5ae4c1f4127, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 376096418918313141}
+  ikRig: {fileID: 6688443350820074025}
+  ambientMotion: {fileID: 807451933859854136}
+  animatedStateTag: Animated
+  animatorLayer: 0
+  blendTime: 2
+  testClip: {fileID: 813912324129965993, guid: cdd14dec208f99c48b80729acea64fb5, type: 3}
+  playTestClip: 0
 --- !u!1 &8309704270184129827
 GameObject:
   m_ObjectHideFlags: 0
