@@ -1,7 +1,7 @@
 using System.Linq;
 using UnityEngine;
 
-public class LiveWire : MonoBehaviour
+public class LiveWire : MonoBehaviour, PowerObject
 {
     [SerializeField] private ParticleSystem sys;
     [SerializeField] private Rigidbody endBody;
@@ -11,6 +11,14 @@ public class LiveWire : MonoBehaviour
     [SerializeField] private bool wireActive;
     //[SerializeField] PlayerUIManager uiManager;
     private float cooldownTimer = 0;
+
+    [SerializeField] private PowerObject.PowerStates currentPowerState;
+    
+    public PowerObject.PowerStates CurrentPowerState
+    {
+        get { return currentPowerState; }
+        set { currentPowerState = value; }
+    }
 
     // Update is called once per frame
     void Update()
@@ -43,6 +51,24 @@ public class LiveWire : MonoBehaviour
         for (int i = 0; i < bodies.Length; i++)
         {
             bodies[i].tag = "LiveWire";
+        }
+    }
+
+    public void SetPowerState(PowerObject.PowerStates state)
+    {
+        if (state != currentPowerState)
+        {
+            currentPowerState = state;
+            switch (state)
+            {
+                case PowerObject.PowerStates.Powered:
+                    ActivateWire();
+                    break;
+                case PowerObject.PowerStates.Unpowered:
+                    DeactivateWire();
+                    break;
+
+            }
         }
     }
 }
