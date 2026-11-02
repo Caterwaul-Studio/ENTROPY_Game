@@ -49555,7 +49555,8 @@ MonoBehaviour:
   doors: {fileID: 845899151}
   connectors: {fileID: 2078435103}
   lights: {fileID: 0}
-  currentPowerState: 1
+  hazards: {fileID: 0}
+  currentPowerState: 0
 --- !u!65 &476641247
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -111121,7 +111122,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1073714519406835130, guid: e9845b4cea6795d4295987fcb39f5427, type: 3}
       propertyPath: currentPowerState
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1740493868202025507, guid: e9845b4cea6795d4295987fcb39f5427, type: 3}
       propertyPath: m_LocalPosition.x
@@ -165941,7 +165942,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1678645230
 Transform:
   m_ObjectHideFlags: 0

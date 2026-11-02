@@ -9,11 +9,12 @@ public class ElectricalZoneManager : MonoBehaviour, PowerObject
     [SerializeField]
     private GameObject lights;
     [SerializeField]
+    private GameObject hazards;
+    [SerializeField]
     private PowerObject.PowerStates currentPowerState;
     public PowerObject.PowerStates CurrentPowerState
     {
         get { return currentPowerState; }
-        set { currentPowerState = value; }
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -36,6 +37,11 @@ public class ElectricalZoneManager : MonoBehaviour, PowerObject
         foreach (DoorScript connectorScript in connectorScripts)
         {
             connectorScript.SetPowerState(powerState);
+        }
+        LiveWire[] wireScripts = hazards.GetComponentsInChildren<LiveWire>();
+        foreach (LiveWire wireScript in wireScripts)
+        {
+            wireScript.SetPowerState(powerState);
         }
 
     }

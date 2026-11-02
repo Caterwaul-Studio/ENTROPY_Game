@@ -175,7 +175,6 @@ public class DoorScript : MonoBehaviour, PowerObject
     public PowerObject.PowerStates CurrentPowerState
     {
         get { return currentPowerState;  }
-        set { currentPowerState = value; }
     }
 
     public bool HasPermissionLevel
@@ -304,14 +303,17 @@ public class DoorScript : MonoBehaviour, PowerObject
 
     public void UseDoor()
     {
-        if (states == States.Open)
+        if (currentPowerState == PowerObject.PowerStates.Powered)
         {
-            StartCoroutine(CloseDoor());
+            if (states == States.Open)
+            {
+                StartCoroutine(CloseDoor());
 
-        }
-        else if (states == States.Closed)
-        {
-            StartCoroutine(OpenDoor());
+            }
+            else if (states == States.Closed)
+            {
+                StartCoroutine(OpenDoor());
+            }
         }
     }
 
@@ -674,7 +676,7 @@ public class DoorScript : MonoBehaviour, PowerObject
 
     public void UnlockDoor()
     {
-        if (states == States.Locked)
+        if (states == States.Locked && currentPowerState == PowerObject.PowerStates.Powered)
         {
             DoorState = States.Closed;
             UseDoor();
@@ -694,7 +696,7 @@ public class DoorScript : MonoBehaviour, PowerObject
 
     private void AutomaticDoor()
     {
-        if (states != States.Locked && states != States.Broken)
+        if (currentPowerState == PowerObject.PowerStates.Powered && states != States.Locked && states != States.Broken)
         {
             if (inRange)
             {

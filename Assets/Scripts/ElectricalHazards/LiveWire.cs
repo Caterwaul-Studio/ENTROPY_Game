@@ -17,7 +17,6 @@ public class LiveWire : MonoBehaviour, PowerObject
     public PowerObject.PowerStates CurrentPowerState
     {
         get { return currentPowerState; }
-        set { currentPowerState = value; }
     }
 
     // Update is called once per frame
@@ -41,7 +40,7 @@ public class LiveWire : MonoBehaviour, PowerObject
         wireActive = false;
         for (int i = 0; i < bodies.Length; i++)
         {
-            bodies[i].tag = "barrier";
+            bodies[i].tag = "Barrier";
         }
     }
 
