@@ -12,7 +12,7 @@ public class PowerManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Keyboard.current[Key.P].wasPressedThisFrame)
+        if (Keyboard.current[Key.Digit1].wasPressedThisFrame)
         {
             switch (GetZonePower("TestZone"))
             {
@@ -23,7 +23,31 @@ public class PowerManager : MonoBehaviour
                     SetZonePower("TestZone", PowerObject.PowerStates.Powered);
                     break;
             }
-        }   
+        }
+        if (Keyboard.current[Key.Digit2].wasPressedThisFrame)
+        {
+            switch (GetZonePower("A2"))
+            {
+                case PowerObject.PowerStates.Powered:
+                    SetZonePower("A2", PowerObject.PowerStates.Unpowered);
+                    break;
+                case PowerObject.PowerStates.Unpowered:
+                    SetZonePower("A2", PowerObject.PowerStates.Powered);
+                    break;
+            }
+        }
+        if (Keyboard.current[Key.Digit3].wasPressedThisFrame)
+        {
+            switch (GetZonePower("A3"))
+            {
+                case PowerObject.PowerStates.Powered:
+                    SetZonePower("A3", PowerObject.PowerStates.Unpowered);
+                    break;
+                case PowerObject.PowerStates.Unpowered:
+                    SetZonePower("A3", PowerObject.PowerStates.Powered);
+                    break;
+            }
+        }
     }
     public PowerObject.PowerStates GetZonePower(string zoneName)
     {

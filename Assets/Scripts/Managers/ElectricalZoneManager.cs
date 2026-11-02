@@ -38,11 +38,13 @@ public class ElectricalZoneManager : MonoBehaviour, PowerObject
         {
             connectorScript.SetPowerState(powerState);
         }
-        LiveWire[] wireScripts = hazards.GetComponentsInChildren<LiveWire>();
-        foreach (LiveWire wireScript in wireScripts)
+        if (hazards != null)
         {
-            wireScript.SetPowerState(powerState);
+            LiveWire[] wireScripts = hazards.GetComponentsInChildren<LiveWire>();
+            foreach (LiveWire wireScript in wireScripts)
+            {
+                wireScript.SetPowerState(powerState);
+            }
         }
-
     }
 }
