@@ -1,0 +1,204 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f09985aadf35b174ca9daa48f438a2ed, type: 3}
+  m_Name: MapProxyLibrary
+  m_EditorClassIdentifier: 
+  entries:
+  - proxy: {fileID: 0}
+    useMeshes: 1
+    meshes:
+    - {fileID: 5300242048672178559, guid: 2e93b680124875b4f94304118bce5409, type: 3}
+    - {fileID: -1226817584057097758, guid: 3bf6c984ff5a4e64f99fba3534fa5919, type: 3}
+    - {fileID: -1226817584057097758, guid: d23bbebac1f03bb479c002f2d5e211bb, type: 3}
+    mergeDistance: 0.2
+    kind: 0
+    levelPrefab: {fileID: 6629226772008107222, guid: d75ee38de02809145be4e79d13b2b155, type: 3}
+    placeNested: 0
+    lookInside: 0
+    inside: []
+  - proxy: {fileID: 0}
+    useMeshes: 1
+    meshes:
+    - {fileID: 1595783810130990727, guid: a253e1a2e5f3132428dc8714cc48362f, type: 3}
+    - {fileID: -905355553879147814, guid: cca3ff163b3f73449aabc63de484470d, type: 3}
+    - {fileID: 8978885505064065116, guid: 92e0b2d9b152981469bd751991cdc598, type: 3}
+    - {fileID: -1226817584057097758, guid: 3bf6c984ff5a4e64f99fba3534fa5919, type: 3}
+    - {fileID: -1226817584057097758, guid: a498734d417638a409cf464bcc8f24c8, type: 3}
+    - {fileID: -1226817584057097758, guid: c8db3864f0c74cc42b5dd0136c81d674, type: 3}
+    mergeDistance: 0.2
+    kind: 0
+    levelPrefab: {fileID: 4824576471253310758, guid: 45bce4b4d5a0daf41aa57e1544db1155, type: 3}
+    placeNested: 0
+    lookInside: 0
+    inside: []
+  - proxy: {fileID: 0}
+    useMeshes: 0
+    meshes: []
+    mergeDistance: 0.2
+    kind: 2
+    levelPrefab: {fileID: 3602920009842252665, guid: d8a361e3ff0668249880a10347498854, type: 3}
+    placeNested: 1
+    lookInside: 1
+    inside:
+    - proxy: {fileID: 0}
+      useMeshes: 1
+      meshes:
+      - {fileID: -966945631786635785, guid: 71e660315185f8546977f68946dfb529, type: 3}
+      mergeDistance: 0.2
+      child: {fileID: 9150308063294583128, guid: d8a361e3ff0668249880a10347498854, type: 3}
+    - proxy: {fileID: 0}
+      useMeshes: 1
+      meshes:
+      - {fileID: 8357356222887740693, guid: 16a60a358d593ff45af36edd180c7f87, type: 3}
+      mergeDistance: 0.2
+      child: {fileID: 3663455336276961325, guid: d8a361e3ff0668249880a10347498854, type: 3}
+    - proxy: {fileID: 0}
+      useMeshes: 1
+      meshes:
+      - {fileID: 8357356222887740693, guid: 16a60a358d593ff45af36edd180c7f87, type: 3}
+      mergeDistance: 0.2
+      child: {fileID: 7073726857779208280, guid: d8a361e3ff0668249880a10347498854, type: 3}
+    - proxy: {fileID: 0}
+      useMeshes: 1
+      meshes:
+      - {fileID: 8357356222887740693, guid: 16a60a358d593ff45af36edd180c7f87, type: 3}
+      mergeDistance: 0.2
+      child: {fileID: 2590665832403354315, guid: d8a361e3ff0668249880a10347498854, type: 3}
+  - proxy: {fileID: 0}
+    useMeshes: 1
+    meshes:
+    - {fileID: -3768138636775583407, guid: 9f355fbbd859d794fbc60b59a487d723, type: 3}
+    - {fileID: -2557515199884477727, guid: d7a57ffa1b294bd47b136dae046d681a, type: 3}
+    mergeDistance: 0.2
+    kind: 0
+    levelPrefab: {fileID: 8199788302845867948, guid: ffdb4c0969d357b4e9a20a3564dc2792, type: 3}
+    placeNested: 0
+    lookInside: 0
+    inside: []
+  - proxy: {fileID: 0}
+    useMeshes: 1
+    meshes:
+    - {fileID: 4400013690397362754, guid: a4ec99953f8f734448ae3a0d0a8ef770, type: 3}
+    - {fileID: 1288661490308990977, guid: d6fda3a363cbd394f97ddd4dc97e6b3c, type: 3}
+    - {fileID: 3743719912371337373, guid: 53a9e072f4c5f83469aef6c6908e1ee0, type: 3}
+    - {fileID: 7335429342083900076, guid: 53a9e072f4c5f83469aef6c6908e1ee0, type: 3}
+    - {fileID: -7118646676903888042, guid: 53a9e072f4c5f83469aef6c6908e1ee0, type: 3}
+    - {fileID: 1161198059284650202, guid: 53a9e072f4c5f83469aef6c6908e1ee0, type: 3}
+    mergeDistance: 0.1
+    kind: 0
+    levelPrefab: {fileID: 659152333509762366, guid: 76e5197f231f32745a6339a7cead9571, type: 3}
+    placeNested: 0
+    lookInside: 0
+    inside: []
+  - proxy: {fileID: 0}
+    useMeshes: 1
+    meshes:
+    - {fileID: 1595783810130990727, guid: a253e1a2e5f3132428dc8714cc48362f, type: 3}
+    mergeDistance: 0.2
+    kind: 0
+    levelPrefab: {fileID: 4360819247327234315, guid: b3e1100c8d44e3841878481964b4107a, type: 3}
+    placeNested: 0
+    lookInside: 0
+    inside: []
+  - proxy: {fileID: 0}
+    useMeshes: 0
+    meshes: []
+    mergeDistance: 0.2
+    kind: 0
+    levelPrefab: {fileID: 919132149155446097, guid: a253e1a2e5f3132428dc8714cc48362f, type: 3}
+    placeNested: 0
+    lookInside: 0
+    inside: []
+  - proxy: {fileID: 0}
+    useMeshes: 1
+    meshes:
+    - {fileID: 3268276145445314629, guid: 4da22df558cb210409f47018bfcce8b8, type: 3}
+    - {fileID: 3205668902325491036, guid: 4da22df558cb210409f47018bfcce8b8, type: 3}
+    mergeDistance: 0.2
+    kind: 0
+    levelPrefab: {fileID: 2231984253891310895, guid: 1903864e2fd1db74a890c0340fea924d, type: 3}
+    placeNested: 0
+    lookInside: 0
+    inside: []
+  - proxy: {fileID: 0}
+    useMeshes: 1
+    meshes:
+    - {fileID: -5559882726335186508, guid: af8df92678776544788f18478b1f25d2, type: 3}
+    - {fileID: 5086948667121836509, guid: ac962b846c98c074f8f800f187a5f084, type: 3}
+    - {fileID: 7617988795513684845, guid: b984f03fdb931724480d394caaf760d3, type: 3}
+    - {fileID: 2719191958895106326, guid: eab1d7a9124298e4ab8eda5e85864124, type: 3}
+    - {fileID: 8210973323055567064, guid: 6be83ab5d3588c348a750866a6dca8c6, type: 3}
+    - {fileID: 5553839639485074640, guid: eab1d7a9124298e4ab8eda5e85864124, type: 3}
+    - {fileID: 5706121735222900953, guid: 6be83ab5d3588c348a750866a6dca8c6, type: 3}
+    - {fileID: 7550836705073674196, guid: 2c2986be79ba5ac4881d5f8e64775f9d, type: 3}
+    - {fileID: -8867413789324679130, guid: 9e1435c93f2b8fc40bfc8be02b6e349a, type: 3}
+    - {fileID: -8109069879576960861, guid: e9bc0d056fb2e3a4e95047522522c802, type: 3}
+    - {fileID: -6698507120035666174, guid: 95ced72630dfeee4aa77ea1c32c8f868, type: 3}
+    - {fileID: 5260780791130211612, guid: 5d783f77ed42d1045aaf997b745858d8, type: 3}
+    - {fileID: -9048879830140113045, guid: 2c2986be79ba5ac4881d5f8e64775f9d, type: 3}
+    - {fileID: -8428894828056758111, guid: 2c2986be79ba5ac4881d5f8e64775f9d, type: 3}
+    - {fileID: -5435117980140923720, guid: 2c2986be79ba5ac4881d5f8e64775f9d, type: 3}
+    - {fileID: -5853872433097897828, guid: eab1d7a9124298e4ab8eda5e85864124, type: 3}
+    - {fileID: 8549403057531110101, guid: 6be83ab5d3588c348a750866a6dca8c6, type: 3}
+    - {fileID: -6593640111803330159, guid: 2c2986be79ba5ac4881d5f8e64775f9d, type: 3}
+    - {fileID: 8393969432434051992, guid: 2c2986be79ba5ac4881d5f8e64775f9d, type: 3}
+    - {fileID: -2902564400138693634, guid: 2c2986be79ba5ac4881d5f8e64775f9d, type: 3}
+    - {fileID: -6553135284314539321, guid: 6be83ab5d3588c348a750866a6dca8c6, type: 3}
+    - {fileID: 1360454237476056650, guid: 2c2986be79ba5ac4881d5f8e64775f9d, type: 3}
+    - {fileID: -5092123690497499618, guid: eb450a29b568ee148b009c9fb2d18e64, type: 3}
+    - {fileID: -4518583617250472805, guid: ac962b846c98c074f8f800f187a5f084, type: 3}
+    mergeDistance: 0.2
+    kind: 0
+    levelPrefab: {fileID: 3839843936627355805, guid: ab2fcffc3e5e0ab408b4edaadc4db30a, type: 3}
+    placeNested: 0
+    lookInside: 0
+    inside: []
+  - proxy: {fileID: 0}
+    useMeshes: 1
+    meshes:
+    - {fileID: 8557551802071881847, guid: d6e4bbe369e97684a93ae42f76824a78, type: 3}
+    - {fileID: -5746147162638082140, guid: d6e4bbe369e97684a93ae42f76824a78, type: 3}
+    - {fileID: -87294141897908401, guid: 40f493b0585128744897879e26060531, type: 3}
+    - {fileID: 2052999346075622240, guid: e1facec901386e8448bc6d9b772377de, type: 3}
+    mergeDistance: 0.05
+    kind: 0
+    levelPrefab: {fileID: 4376983227747074991, guid: b825871d32079444baa5338f9645ea4f, type: 3}
+    placeNested: 0
+    lookInside: 0
+    inside: []
+  - proxy: {fileID: 0}
+    useMeshes: 0
+    meshes: []
+    mergeDistance: 0.2
+    kind: 2
+    levelPrefab: {fileID: 7097431492477297781, guid: 303364a637970df43bf2d6c75f8283ce, type: 3}
+    placeNested: 0
+    lookInside: 1
+    inside:
+    - proxy: {fileID: 0}
+      useMeshes: 1
+      meshes:
+      - {fileID: -2467622908653553688, guid: 2921c6c574b99fc4494fb6580216866a, type: 3}
+      mergeDistance: 0.12
+      child: {fileID: 5757366973185701774, guid: 303364a637970df43bf2d6c75f8283ce, type: 3}
+    - proxy: {fileID: 0}
+      useMeshes: 1
+      meshes:
+      - {fileID: 6888030709358950187, guid: 2921c6c574b99fc4494fb6580216866a, type: 3}
+      mergeDistance: 0.12
+      child: {fileID: 1492513115275752204, guid: 303364a637970df43bf2d6c75f8283ce, type: 3}
+    - proxy: {fileID: 0}
+      useMeshes: 1
+      meshes:
+      - {fileID: 657311831345404315, guid: 2921c6c574b99fc4494fb6580216866a, type: 3}
+      mergeDistance: 0.12
+      child: {fileID: 6453671729853624181, guid: 303364a637970df43bf2d6c75f8283ce, type: 3}
