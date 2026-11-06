@@ -16,6 +16,12 @@ public class SparkScript : MonoBehaviour
     [SerializeField] private bool WireSpark;
     public bool electricActive;
     public bool prevElectricActive = false;
+    //audio stuff
+    //audio source
+    public AudioSource audioSource;
+    //sound effects
+    public AudioClip humSound;
+    public AudioClip shockSound;
 
     private Vector3 boxSize;
     private float damageCoolDown;

@@ -9,6 +9,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2068332723226868575, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: humSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 9069178b66b39d74882e01614f84f009, type: 3}
+    - target: {fileID: 2068332723226868575, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: shockSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 8377929658024a244aebd025eb6a1d0a, type: 3}
+    - target: {fileID: 2068332723226868575, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+      propertyPath: audioSource
+      value: 
+      objectReference: {fileID: 2054754322781357293}
+    - target: {fileID: 2068332723226868575, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
       propertyPath: flickerLights.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -231,6 +243,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 5101292100335333800}
   m_SourcePrefab: {fileID: 100100000, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+--- !u!82 &2054754322781357293 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: -2577561126562059736, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
+  m_PrefabInstance: {fileID: 4663862124538064581}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &3561186464717974468 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8201826626637186305, guid: 6ccc9d2dce6de8b4fadb1a408eba33d0, type: 3}
