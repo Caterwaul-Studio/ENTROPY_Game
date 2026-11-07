@@ -278,8 +278,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             //Debug.Log("Toggling flashlight" + flashlightOn);
             foreach (Light light in flashlightInHand.GetComponentsInChildren<Light>())
             {
-                //Debug.Log("light found");
-                light.enabled = flashlightOn;
+                if(light.type == UnityEngine.LightType.Spot)
+                    light.enabled = flashlightOn;
             }
             if (!tutorialComplete)
                 OnFlashlightTurnedOn?.Invoke(!flashlightOn);
@@ -296,7 +296,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 
         foreach (Light light in flashlightInHand.GetComponentsInChildren<Light>())
         {
-            light.enabled = flashlightOn;
+            if (light.type == UnityEngine.LightType.Spot)
+                light.enabled = flashlightOn;
         }
 
         if (flashlightOutHand != null)
@@ -499,7 +500,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         flashlightOn = false;
         foreach (Light light in flashlightInHand.GetComponentsInChildren<Light>())
         {
-            light.enabled = flashlightOn;
+            if (light.type == UnityEngine.LightType.Spot)
+                light.enabled = flashlightOn;
         }
     }
 
