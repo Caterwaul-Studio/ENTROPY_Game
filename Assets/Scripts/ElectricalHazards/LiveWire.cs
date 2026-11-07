@@ -9,6 +9,7 @@ public class LiveWire : MonoBehaviour, PowerObject
     [SerializeField] private float cooldown;
     [SerializeField] private GameObject player;
     [SerializeField] private bool wireActive;
+    [SerializeField] private GameObject sparkObject;
     //[SerializeField] PlayerUIManager uiManager;
     private float cooldownTimer = 0;
 
@@ -38,6 +39,7 @@ public class LiveWire : MonoBehaviour, PowerObject
     public void DeactivateWire()
     {
         wireActive = false;
+        sparkObject.SetActive(false);
         for (int i = 0; i < bodies.Length; i++)
         {
             bodies[i].tag = "Barrier";
@@ -47,6 +49,7 @@ public class LiveWire : MonoBehaviour, PowerObject
     public void ActivateWire()
     {
         wireActive = true;
+        sparkObject.SetActive(true);
         for (int i = 0; i < bodies.Length; i++)
         {
             bodies[i].tag = "LiveWire";

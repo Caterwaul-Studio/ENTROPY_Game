@@ -278,6 +278,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3111224190850184017}
+  - {fileID: 463498924530764062}
   m_Father: {fileID: 2186430606640224880}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4724151448553871990
@@ -6127,6 +6128,63 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
+--- !u!1 &4571567537913907631
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 463498924530764062}
+  - component: {fileID: 8314637769505791135}
+  m_Layer: 6
+  m_Name: WireScript
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &463498924530764062
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4571567537913907631}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8037102932984351192}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8314637769505791135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4571567537913907631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 979522172c9c7974b8571ce26d4b6483, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sys: {fileID: 2976352946538148695}
+  endBody: {fileID: 1097016822406631291}
+  bodies:
+  - {fileID: 1038171309394981898}
+  - {fileID: 4426719936687067307}
+  - {fileID: 2214982741217704550}
+  - {fileID: 3574819166033178512}
+  - {fileID: 1906308754705235372}
+  cooldown: 0.2
+  player: {fileID: 0}
+  wireActive: 1
+  sparkObject: {fileID: 7084143607214637442}
+  currentPowerState: 0
 --- !u!1 &4653479643081939086
 GameObject:
   m_ObjectHideFlags: 0
@@ -6337,7 +6395,6 @@ GameObject:
   - component: {fileID: 3111224190850184017}
   - component: {fileID: 2085748614416856751}
   - component: {fileID: 5572499325912217390}
-  - component: {fileID: 8773308330006717921}
   m_Layer: 0
   m_Name: Spark
   m_TagString: Untagged
@@ -6408,29 +6465,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.556406, y: 1.300508, z: 0.58483887}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8773308330006717921
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7084143607214637442}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 979522172c9c7974b8571ce26d4b6483, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sys: {fileID: 2976352946538148695}
-  endBody: {fileID: 1097016822406631291}
-  bodies:
-  - {fileID: 1038171309394981898}
-  - {fileID: 4426719936687067307}
-  - {fileID: 2214982741217704550}
-  - {fileID: 3574819166033178512}
-  - {fileID: 1906308754705235372}
-  cooldown: 0.2
-  player: {fileID: 0}
-  wireActive: 1
 --- !u!1 &8184339234175863025
 GameObject:
   m_ObjectHideFlags: 0

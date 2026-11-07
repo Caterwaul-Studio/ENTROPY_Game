@@ -9,7 +9,10 @@ public class ElectricalZoneManager : MonoBehaviour, PowerObject
     [SerializeField]
     private GameObject lights;
     [SerializeField]
-    private GameObject hazards;
+    private GameObject wires;
+    [SerializeField]
+    private GameObject elecBarCover;
+    private Transform[] elecBars;
     [SerializeField]
     private PowerObject.PowerStates currentPowerState;
     public PowerObject.PowerStates CurrentPowerState
@@ -19,6 +22,10 @@ public class ElectricalZoneManager : MonoBehaviour, PowerObject
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if (elecBarCover != null)
+        {
+            elecBars = elecBarCover.GetComponentsInChildren<Transform>();
+        }
         SetPowerState(currentPowerState);
     }
 
@@ -38,12 +45,19 @@ public class ElectricalZoneManager : MonoBehaviour, PowerObject
         {
             connectorScript.SetPowerState(powerState);
         }
-        if (hazards != null)
+        if (wires != null)
         {
-            LiveWire[] wireScripts = hazards.GetComponentsInChildren<LiveWire>();
+            LiveWire[] wireScripts = wires.GetComponentsInChildren<LiveWire>();
             foreach (LiveWire wireScript in wireScripts)
             {
                 wireScript.SetPowerState(powerState);
+            }
+        }
+        if(elecBarCover != null)
+        {
+            foreach (Transform elecBar in elecBars)
+            {
+                elecBar.gameObject.SetActive(powerState == PowerObject.PowerStates.Unpowered ? false : true);
             }
         }
     }

@@ -116,7 +116,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             StartCoroutine(MakePuff());
 
         //if the player is dead
-        if (zeroGravity.IsDead)
+        if (zeroGravity.IsDead && holding)
         {
             //stop the audio coming from the extinguisher
             extinguisherGameObj.GetComponent<ExtinguisherObject>().StopAudio();
