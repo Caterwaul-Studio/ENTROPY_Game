@@ -135,12 +135,12 @@ public class Lvl2IntroSequenceEvents : Event
         initWallLightEmissionColors = initEmissivesw;
 
         //doors
-        //var (matsd, meshesd, initEmissivesd) = GetObjectMaterialsPerObject(doorsGroup);
-        //doorMaterials = matsd;
-        //doorMeshes = meshesd;
-        //initDoorEmissionColors = initEmissivesd;
-        //doorScripts = GetDoors(doorsGroup);
-        //StoreDoorStates(doorScripts);
+        var (matsd, meshesd, initEmissivesd) = GetObjectMaterialsPerObject(doorsGroup);
+        doorMaterials = matsd;
+        doorMeshes = meshesd;
+        initDoorEmissionColors = initEmissivesd;
+        doorScripts = GetDoors(doorsGroup);
+        StoreDoorStates(doorScripts);
 
         //connectors
         var (matsc, meshesc, initEmissivesc) = GetObjectMaterialsPerObject(connectorGroup);
