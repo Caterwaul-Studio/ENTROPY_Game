@@ -110,34 +110,52 @@ public class Event : MonoBehaviour
         return (materials, meshes, initBarEmissive);
     }
 
+    public (Material[], MeshRenderer[], Color[]) GetObjectMaterialsPerObject(GameObject group)
+    {
+        MeshRenderer[] meshes = group.GetComponentsInChildren<MeshRenderer>();
+        Material[] materials = new Material[meshes.Length];
+        Color[] initEmissives = new Color[meshes.Length];
+        for (int i = 0; i < meshes.Length; i++)
+        {
+            materials[i] = meshes[i].material;
+            initEmissives[i] = materials[i].GetColor("_EmissionColor");
+        }
+        return (materials, meshes, initEmissives);
+    }
+
     public IEnumerator GlitchObjectEmissives(
         Material[] materials, 
         AnimationCurve curve,
         float duration,
-        Color emissionColor, 
+        Color[] emissionColors, 
         float emissionMultiplier)
     {
         float elapsed = 0f;
         while (elapsed < duration)
         {
             float v = curve.Evaluate(elapsed / duration);
-            ApplyEmissiveState(materials, v, emissionColor, emissionMultiplier);
+            ApplyEmissiveState(materials, v, emissionColors, emissionMultiplier);
             elapsed += Time.deltaTime;
             yield return null;
         }
 
         // land exactly on the curve's final value
-        ApplyEmissiveState(materials, curve.Evaluate(1f), emissionColor, emissionMultiplier);
+        ApplyEmissiveState(materials, curve.Evaluate(1f), emissionColors, emissionMultiplier);
     }
 
     public void ApplyEmissiveState(Material[] mats, float curveValue
-        , Color emissionColor, float emissionMultiplier)
+        , Color[] emissionColors, float emissionMultiplier)
     {
         if (mats != null)
         {
-            Color emission = emissionColor * (curveValue * emissionMultiplier);
-            foreach (Material m in mats)
-                if (m != null) m.SetColor("_EmissionColor", emission);
+            for(int i=0; i < mats.Length; i++)
+            {
+                if (mats[i] != null)
+                {
+                    Color emission = emissionColors[i] * (curveValue * emissionMultiplier);
+                    mats[i].SetColor("_EmissionColor", emission);
+                }
+            }
         }
     }
     #endregion
@@ -182,7 +200,7 @@ public class Event : MonoBehaviour
         AnimationCurve curve,
         float duration,
         float lightIntensityMultiplier,
-        Color emissionColor,
+        Color[] emissionColors,
         float emissionMultiplier)
     {
         float elapsed = 0f;
@@ -190,19 +208,19 @@ public class Event : MonoBehaviour
         while (elapsed < duration)
         {
             float v = curve.Evaluate(elapsed / duration);
-            ApplyLightState(lights, emissiveMaterials, v, lightIntensityMultiplier, emissionColor, emissionMultiplier);
+            ApplyLightState(lights, emissiveMaterials, v, lightIntensityMultiplier, emissionColors, emissionMultiplier);
 
             elapsed += Time.deltaTime;
             yield return null;
         }
 
         // land exactly on the curve's final value
-        ApplyLightState(lights, emissiveMaterials, curve.Evaluate(1f), lightIntensityMultiplier, emissionColor, emissionMultiplier);
+        ApplyLightState(lights, emissiveMaterials, curve.Evaluate(1f), lightIntensityMultiplier, emissionColors, emissionMultiplier);
     }
 
     private void ApplyLightState(
         Light[] lights, Material[] mats, float curveValue,
-        float lightMultiplier, Color emissionColor, float emissionMultiplier)
+        float lightMultiplier, Color[] emissionColors, float emissionMultiplier)
     {
         if (lights != null)
         {
@@ -216,9 +234,14 @@ public class Event : MonoBehaviour
 
         if (mats != null)
         {
-            Color emission = emissionColor * (curveValue * emissionMultiplier);
-            foreach (Material m in mats)
-                if (m != null) m.SetColor("_EmissionColor", emission);
+            for(int i = 0; i < mats.Length; i++)
+            {
+                if (mats[i] != null)
+                {
+                    Color emission = emissionColors[i] * (curveValue * emissionMultiplier);
+                    mats[i].SetColor("_EmissionColor", emission);
+                }
+            }
         }
     }
 
@@ -242,7 +265,7 @@ public class Event : MonoBehaviour
         Light[] lights,
         float[] targetIntensities,
         Material[] mats,
-        Color targetEmission,
+        Color[] targetEmissions,
         float duration = 2f,
         float frequency = 15f,
         bool reenableLightFlicker = false)
@@ -270,7 +293,7 @@ public class Event : MonoBehaviour
             for (int i = 0; i < matsCount; i++)
             {
                 if (mats[i] == null) continue;
-                mats[i].SetColor("_EmissionColor", targetEmission * FlickerValue(matsSeeds[i], t, ramp));
+                mats[i].SetColor("_EmissionColor", targetEmissions[i] * FlickerValue(matsSeeds[i], t, ramp));
             }
 
             elapsed += Time.deltaTime;
@@ -278,19 +301,19 @@ public class Event : MonoBehaviour
         }
 
         // set back to the original values
-        RestoreLightState(lights, targetIntensities, mats, targetEmission, reenableLightFlicker);
+        RestoreLightState(lights, targetIntensities, mats, targetEmissions, reenableLightFlicker);
     }
 
     public void RestoreLightState(
         Light[] lights, float[] targetIntensities,
-        Material[] mats, Color targetEmission,
+        Material[] mats, Color[] targetEmissions,
         bool reenableLightFlicker = false)
     {
         if(lights != null)
         {
             for(int i = 0; i <lights.Length; i++)
             {
-                if (lights[i] == null) return;
+                if (lights[i] == null) continue;
                 lights[i].intensity = TargetIntensity(targetIntensities, i);
 
                 if (reenableLightFlicker)
@@ -303,8 +326,8 @@ public class Event : MonoBehaviour
 
         if(mats != null)
         {
-            foreach (Material mat in mats)
-                if (mat != null) mat.SetColor("_EmissionColor", targetEmission);
+            for(int i = 0; i < mats.Length; i++)
+                if (mats != null) mats[i].SetColor("_EmissionColor", targetEmissions[i]);
         }
     }
 

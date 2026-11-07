@@ -20,7 +20,7 @@ public class Lvl2IntroSequenceEvents : Event
     [SerializeField] private GameObject barsGroup;
     public Material[] barsMaterials;
     public MeshRenderer[] barsMeshes;
-    private Color initBarEmissive;
+    private Color[] initBarEmissives;
     
 
     [Header("Light Glitch")]
@@ -40,7 +40,7 @@ public class Lvl2IntroSequenceEvents : Event
     public Light[] lights;
     private Material[] lightMaterials;
     private float[] initLightIntensities;
-    private Color initLightEmissive;
+    private Color[] initLightEmissives;
 
     [Header("Hazard Lights")]
     //hazard light group
@@ -52,7 +52,7 @@ public class Lvl2IntroSequenceEvents : Event
     public GameObject wallLightGroup;
     public MeshRenderer[] wallLightMeshes;
     public Material[] wallLightMaterials;
-    public Color initWallLightEmissionColor;
+    public Color[] initWallLightEmissionColors;
 
     [Header("Doors")]
     //doors references
@@ -60,7 +60,7 @@ public class Lvl2IntroSequenceEvents : Event
     [SerializeField] private GameObject doorsGroup;
     [SerializeField] private MeshRenderer[] doorMeshes;
     [SerializeField] private Material[] doorMaterials;
-    Color initDoorEmissionColor;
+    Color[] initDoorEmissionColors;
     [SerializeField] private DoorScript exitFromStorage;
 
     [Header("Connectors")]
@@ -68,7 +68,7 @@ public class Lvl2IntroSequenceEvents : Event
     [SerializeField] private GameObject connectorGroup;
     [SerializeField] private MeshRenderer[] connectorMeshes;
     [SerializeField] private Material[] connectorMaterials;
-    Color initConnectorEmissionColor;
+    Color[] initConnectorEmissionColors;
 
     [Header("Floating Objects Static Before Event")]
     [SerializeField] private GameObject floatingObjectsGroup;
@@ -114,39 +114,39 @@ public class Lvl2IntroSequenceEvents : Event
         //store the light data using a helper function from Event.cs
         lights = GetLights(lightsGroup);
         initLightIntensities = GetLightIntensities(lights);
-        var (mats, meshes, initEmissive) = GetLightMaterials(lightsGroup);
+        var (mats, meshes, initEmissive) = GetObjectMaterialsPerObject(lightsGroup);
         lightMaterials = mats;
         lightMeshes = meshes;
-        initLightEmissive = initEmissive;
+        initLightEmissives = initEmissive;
 
         //hazardlights
         hazardLights = GetHazardLights(hazardLightGroup);
 
         //bars
-        var (matsb, meshesb, initEmissiveb) = GetObjectMaterials(barsGroup);
+        var (matsb, meshesb, initEmissivesb) = GetObjectMaterialsPerObject(barsGroup);
         barsMaterials = matsb;
         barsMeshes = meshesb;
-        initBarEmissive = initEmissiveb;
+        initBarEmissives = initEmissivesb;
 
         //wall lights
-        var (matsw, meshsw, initEmissivew) = GetObjectMaterials(wallLightGroup);
+        var (matsw, meshsw, initEmissivesw) = GetObjectMaterialsPerObject(wallLightGroup);
         wallLightMaterials = matsw;
         wallLightMeshes = meshsw;
-        initWallLightEmissionColor = initEmissivew;
+        initWallLightEmissionColors = initEmissivesw;
 
         //doors
-        var (matsd, meshesd, initEmissived) = GetObjectMaterials(connectorGroup);
-        doorMaterials = matsd;
-        doorMeshes = meshesd;
-        initDoorEmissionColor = initEmissived;
-        doorScripts = GetDoors(doorsGroup);
-        StoreDoorStates(doorScripts);
+        //var (matsd, meshesd, initEmissivesd) = GetObjectMaterialsPerObject(doorsGroup);
+        //doorMaterials = matsd;
+        //doorMeshes = meshesd;
+        //initDoorEmissionColors = initEmissivesd;
+        //doorScripts = GetDoors(doorsGroup);
+        //StoreDoorStates(doorScripts);
 
         //connectors
-        var (matsc, meshesc, initEmissivec) = GetObjectMaterials(connectorGroup);
+        var (matsc, meshesc, initEmissivesc) = GetObjectMaterialsPerObject(connectorGroup);
         connectorMaterials = matsc;
         connectorMeshes = meshesc;
-        initConnectorEmissionColor = initEmissivec;
+        initConnectorEmissionColors = initEmissivesc;
 
         //floating objects
         floatingObjects = GetFloatingObjects(floatingObjectsGroup);
@@ -190,22 +190,22 @@ public class Lvl2IntroSequenceEvents : Event
             //start glitching of the lights
             StartCoroutine(GlitchLights(
                 lights, lightMaterials, glitchCurve, glitchDuration,
-                intensityMultiplier, initLightEmissive, 1f));
+                intensityMultiplier, initLightEmissives, 1f));
             //bars glitch with this
             StartCoroutine(GlitchObjectEmissives(
-                barsMaterials, glitchCurve, glitchDuration, initBarEmissive, 1f));
+                barsMaterials, glitchCurve, glitchDuration, initBarEmissives, 1f));
             //wall lights glitch too
             StartCoroutine(GlitchObjectEmissives(
                 wallLightMaterials, glitchCurve, glitchDuration, 
-                initWallLightEmissionColor, 1f));
+                initWallLightEmissionColors, 1f));
             //connector lights
             StartCoroutine(GlitchObjectEmissives(
                 connectorMaterials, glitchCurve, glitchDuration,
-                initConnectorEmissionColor, 1f));
+                initConnectorEmissionColors, 1f));
             //door lights
-            StartCoroutine(GlitchObjectEmissives(
-                doorMaterials, glitchCurve, glitchDuration,
-                initDoorEmissionColor, 1f));
+            //StartCoroutine(GlitchObjectEmissives(
+            //    doorMaterials, glitchCurve, glitchDuration,
+            //    initDoorEmissionColors, 1f));
             //set doors broken
             StartCoroutine(SetBrokenDoors(true, false, doorScripts, 1f));
             
@@ -234,12 +234,12 @@ public class Lvl2IntroSequenceEvents : Event
         Debug.Log("Power restored called");
 
         yield return StartCoroutine(FlickerLightsOn(
-            lights, initLightIntensities, lightMaterials, initLightEmissive, restoreDuration, restoreFrequency));
+            lights, initLightIntensities, lightMaterials, initLightEmissives, restoreDuration, restoreFrequency));
 
-        StartCoroutine(FlickerLightsOn(null, null, barsMaterials, initBarEmissive, restoreDuration, restoreFrequency));
-        StartCoroutine(FlickerLightsOn(null, null, wallLightMaterials, initWallLightEmissionColor, restoreDuration, restoreFrequency));
-        StartCoroutine(FlickerLightsOn(null, null, connectorMaterials, initConnectorEmissionColor, restoreDuration, restoreFrequency));
-        StartCoroutine(FlickerLightsOn(null, null, doorMaterials, initDoorEmissionColor, restoreDuration, restoreFrequency));
+        StartCoroutine(FlickerLightsOn(null, null, barsMaterials, initBarEmissives, restoreDuration, restoreFrequency));
+        StartCoroutine(FlickerLightsOn(null, null, wallLightMaterials, initWallLightEmissionColors, restoreDuration, restoreFrequency));
+        StartCoroutine(FlickerLightsOn(null, null, connectorMaterials, initConnectorEmissionColors, restoreDuration, restoreFrequency));
+        StartCoroutine(FlickerLightsOn(null, null, doorMaterials, initDoorEmissionColors, restoreDuration, restoreFrequency));
 
         StartCoroutine(SetBrokenDoors(false, true, doorScripts, 1f));
     }
