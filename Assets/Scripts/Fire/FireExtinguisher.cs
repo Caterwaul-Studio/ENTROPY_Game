@@ -78,6 +78,8 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
         sysEmission = sys.emission;
     }
 
+
+
     private void Start()
     {
         if (player == null)
@@ -112,6 +114,14 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             !inventoryManager.pauseMenu.activeSelf && 
             !inventoryManager.deathMenu.activeSelf && !zeroGravity.IsDead)
             StartCoroutine(MakePuff());
+
+        //if the player is dead
+        if (zeroGravity.IsDead)
+        {
+            //stop the audio coming from the extinguisher
+            extinguisherGameObj.GetComponent<ExtinguisherObject>().StopAudio();
+            extinguisherGameObj.GetComponent<ExtinguisherObject>().audioSource.PlayOneShot(extinguisherGameObj.GetComponent<ExtinguisherObject>().offSFX);
+        }
 
         if (extinguisherContainer == null)
         {
@@ -181,6 +191,15 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             yield return new WaitForSeconds(0.15f);
             sysEmission.rateOverTime = 0;
             canPuff = true;
+            //audio
+            //extinguisherGameObj.GetComponent<ExtinguisherObject>().PlayAudio();
+        }
+        else if (!extinguisherGameObj.GetComponent<ExtinguisherObject>().hasGoneEmpty)
+        {
+                //stop the audio coming from the extinguisher
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().StopAudio();
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().audioSource.PlayOneShot(extinguisherGameObj.GetComponent<ExtinguisherObject>().offSFX);
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().hasGoneEmpty = true;
         }
     }
 
@@ -232,12 +251,21 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             if (context.phase == InputActionPhase.Started)
             {
                 holding = true;
-                //Debug.Log("Holding started");
+                Debug.Log("Holding started");
+                //audio
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().audioSource.volume = 1;
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().PlayAudio();
+                Debug.Log("holding started. has released: " + extinguisherGameObj.GetComponent<ExtinguisherObject>().hasRelased);
             }
             else if (context.phase == InputActionPhase.Canceled)
             {
                 holding = false;
-                //Debug.Log("Holding ended");
+                Debug.Log("Holding ended");
+                //audio
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().audioSource.volume = 0;
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().StopAudio();
+                extinguisherGameObj.GetComponent<ExtinguisherObject>().hasRelased = false;
+                Debug.Log("holding ended. has released: " + extinguisherGameObj.GetComponent<ExtinguisherObject>().hasRelased);
             }
             if (!tutorialComplete)
                 OnFireExtinguisherUsed?.Invoke(true);

@@ -37,6 +37,11 @@ public class FireNodeScript : MonoBehaviour
     [SerializeField] private ParticleSystem.SizeOverLifetimeModule sysSOL;
     [SerializeField] private ParticleSystem.LightsModule sysLight;
 
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip burningSFX;
+    public AudioClip fireSFX;
+    public float audioStrengthMult;
 
     [SerializeField] public bool fireActive;
 
@@ -111,32 +116,42 @@ public class FireNodeScript : MonoBehaviour
 
                 //flame regeneration
                 if (flameStrength < flameSteady * 20)
+                { 
                     flameStrength += Time.deltaTime * regenRate;
+                    
+                }
 
                 if (flameStrength > 81)
                 {
                     flameSteady = 5;
+                    
                 }
                 else if (flameStrength > 61)
                 {
                     flameSteady = 4;
+                    
                 }
                 else if (flameStrength > 41)
                 {
                     flameSteady = 3;
+                   
                 }
                 else if (flameStrength > 21)
                 {
                     flameSteady = 2;
+                    
                 }
                 else if (flameStrength > 11)
                 {
                     flameSteady = 1;
+                   
                 }
+                audioSource.volume = flameStrength / audioStrengthMult;
             }
         }
         if (fireActive)
             UpdateFlicker();
+       
     }
 
     private void UpdateFlicker()
@@ -156,19 +171,25 @@ public class FireNodeScript : MonoBehaviour
         {
             fireActive = false;
             sysMain.startSize = 0;
+            audioSource.Stop();
+            audioSource.volume = 0;
 
             /* //old method
             myFire.myFireNodes.Remove(this.gameObject); //update the parent with the destruction of the node
             Destroy(this.gameObject);
             */
         }
+        //update audio
+       
     }
 
     System.Collections.IEnumerator BurnPlayer()
     {
         player.GetComponent<ZeroGravity>().DecreaseHealth(1);
+        player.gameObject.transform.GetChild(1).GetComponent<AudioSource>().PlayOneShot(burningSFX);
         yield return new WaitForSeconds(3f);
         player.GetComponent<ZeroGravity>().DecreaseHealth(1);
+        player.gameObject.transform.GetChild(1).GetComponent<AudioSource>().PlayOneShot(burningSFX);
     }
     private void ChangeFlame()
     {
