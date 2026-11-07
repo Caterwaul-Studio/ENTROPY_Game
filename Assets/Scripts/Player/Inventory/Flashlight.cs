@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.InputSystem;
 using System.Collections;
+using System.Threading;
 
 public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 {
@@ -97,14 +98,15 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         {
             return hasFlashlight;
         }
-        set { if (hasFlashlight == value) return;
+        set {
+            if (hasFlashlight == value) return;
             hasFlashlight = value;
             OnFlashlightAcquired?.Invoke(hasFlashlight);
         }
     }
     public bool TutorialComplete
     {
-        get { return tutorialComplete;  }
+        get { return tutorialComplete; }
         set { tutorialComplete = value; }
     }
 
@@ -121,6 +123,9 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     // Update is called once per frame
     void Update()
     {
+        if (lvl2IntroSequenceEvents == null)
+            lvl2IntroSequenceEvents = FindFirstObjectByType<Lvl2IntroSequenceEvents>();
+
         //this determines if the value scaling should be running on the flashlight in hand or out of hand
         if (hasFlashlight)
         {
@@ -143,7 +148,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
                         inventoryManager.persistant.PlayerUIManager.ToggleThrowIndicatorVisible(false);
                 }
             }
-        } 
+        }
     }
 
     /// <summary>
@@ -158,7 +163,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         foreach (Light light in flashlight.GetComponentsInChildren<Light>())
         {
             //if it's a spotlight
-            if(light.type == UnityEngine.LightType.Spot)
+            if (light.type == UnityEngine.LightType.Spot)
             {
                 float targetIntensity = intensityMax / spotRangeMax * distance;
                 //Debug.Log("scaling light intensity");
@@ -194,7 +199,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 
         float totalDistance = 0f;
         int rayCount = directions.Length;
-        foreach(Vector3 dir in directions)
+        foreach (Vector3 dir in directions)
         {
             //create the ray
             ray = new Ray(t.position, dir);
@@ -241,11 +246,11 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
     public void ToggleFlashlightFromInventory(InputAction.CallbackContext context)
     {
         //if the player has picked up the flashlight and performs key click of 1
-        if (hasFlashlight && context.performed 
+        if (hasFlashlight && context.performed
             && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf
             && !inventoryManager.persistant.WristMonitor.IsActive)
         {
-            if(flashlightEquipped)
+            if (flashlightEquipped)
             {
                 inventoryManager.DeactivateCurrent();
                 if (inventoryManager.ShowIndicators)
@@ -276,13 +281,15 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
                 //Debug.Log("light found");
                 light.enabled = flashlightOn;
             }
-            if(!tutorialComplete)
-            OnFlashlightTurnedOn?.Invoke(!flashlightOn);
+            if (!tutorialComplete)
+                OnFlashlightTurnedOn?.Invoke(!flashlightOn);
         }
     }
 
     public void Equip()
     {
+        if (!hasFlashlight) return;
+
         flashlightEquipped = true;
         flashlightInHand.SetActive(true);
         inventoryManager.SetChildrenToHoldLayer(flashlightInHand);
@@ -292,7 +299,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             light.enabled = flashlightOn;
         }
 
-        if(flashlightOutHand != null)
+        if (flashlightOutHand != null)
         {
             Destroy(flashlightOutHand);
         }
@@ -313,7 +320,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
                 //set the config joint flashlight true (clipped to belt)
                 if (flashlightClippedToBelt)
                 {
-                    if (flashlightOutHand != null)   
+                    if (flashlightOutHand != null)
                     {
                         Destroy(flashlightOutHand);
                         flashlightOutHand = null;
@@ -338,7 +345,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
                     RayCastDistance(flashlightInHand);
                 }
             }
-        }  
+        }
     }
 
     private void OnDrawGizmos()
@@ -422,9 +429,16 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
             ref toggleFlashlightCanvas, ref toggleFlashlightCanvasGroup,
            inventoryManager.tutorialCanvases.tutorialCanvasesPos);
 
-        //wait until the player uses left click to toggle the flashlight
+        //wait until the player uses 1 to toggle the flashlight to belt position
         flashlightToggledInv = false;
-        yield return new WaitUntil(() => flashlightToggledInv);
+        float timeout = 3f;
+        float elapsed = 0f;
+
+        yield return new WaitUntil(() =>
+        {
+            elapsed += Time.deltaTime;
+            return flashlightToggledInv || elapsed >= timeout;
+        });
 
         //fade out the toggle flashlight panel
         inventoryManager.tutorialCanvases.FadeOut(
@@ -480,6 +494,15 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
         inventoryManager.InTutorial = false;
     }
 
+    public void ResetLightState()
+    {
+        flashlightOn = false;
+        foreach (Light light in flashlightInHand.GetComponentsInChildren<Light>())
+        {
+            light.enabled = flashlightOn;
+        }
+    }
+
     #region ISaveableInventoryItem
     public class FlashlightSaveData
     {
@@ -489,7 +512,8 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 
     public string GetSaveData()
     {
-        return JsonUtility.ToJson(new FlashlightSaveData { hasFlashlight = hasFlashlight, TutorialComplete = tutorialComplete});
+        string json = JsonUtility.ToJson(new FlashlightSaveData { hasFlashlight = hasFlashlight, TutorialComplete = tutorialComplete});
+        return json;
     }
 
     public void LoadSaveData(string json)
@@ -510,6 +534,7 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 
         if (!HasFlashlight)
         {
+            ResetLightState();
             flashlightEquipped = false;
             if (flashlightInHand != null) flashlightInHand.SetActive(false);
             Destroy(flashlightOutHand);
@@ -522,7 +547,6 @@ public class Flashlight : MonoBehaviour, IInventoryItem, ISaveableInventoryItem
 
     public void ClearRuntimeState()
     {
-        //Debug.Log("ClearRuntimeState Flashlight " + HasFlashlight);
         if (!HasFlashlight)
         {
             flashlightEquipped = false;

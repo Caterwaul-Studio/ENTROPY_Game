@@ -66,7 +66,6 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
         canGrab = false;
         isGrabbable = true;
 
@@ -137,7 +136,7 @@ public class FlashlightFirstPickup : MonoBehaviour, IInteractable
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        if(canGrab && isGrabbable)
+        if (canGrab && isGrabbable)
         {
             isGrabbable = false;
             canGrab = false;
