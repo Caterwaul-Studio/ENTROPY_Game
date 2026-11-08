@@ -19,6 +19,7 @@ public class SparkScript : MonoBehaviour
     //audio stuff
     //audio source
     public AudioSource audioSource;
+    public AudioSource shockAudioSource;
     //sound effects
     public AudioClip humSound;
     public AudioClip shockSound;
@@ -73,7 +74,11 @@ public class SparkScript : MonoBehaviour
                 sparkBounds = new Bounds(transform.position, boxSize); //updating the position of the bounds is only relevant for wires which move around
             else
                 if (sparkBounds.Contains(player.transform.position) && damageCoolDown > 1f && sys.particleCount > 0)
-                    DamagePlayer(); //the player is shocked when they are within the bounds and the niagara has active particles
+            {
+                DamagePlayer(); //the player is shocked when they are within the bounds and the niagara has active particles
+                //play sound effect
+                audioSource.PlayOneShot(shockSound);
+            }
         }
         else
         {

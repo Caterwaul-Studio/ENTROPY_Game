@@ -5075,6 +5075,7 @@ MonoBehaviour:
   electricActive: 1
   prevElectricActive: 0
   audioSource: {fileID: -2577561126562059736}
+  shockAudioSource: {fileID: 0}
   humSound: {fileID: 0}
   shockSound: {fileID: 0}
 --- !u!65 &5553886581419244254
@@ -5107,7 +5108,7 @@ AudioSource:
   m_GameObject: {fileID: 7064406071178595442}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 6920808023429773222, guid: 720f457489e44c440b5082c1b507453e, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
@@ -5120,7 +5121,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 1.01
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -5155,7 +5156,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
