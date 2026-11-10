@@ -14,6 +14,10 @@ using static UnityEngine.Rendering.DebugUI.Table;
 
 public class ZeroGravity : MonoBehaviour, ISaveable
 {
+    //im gonna figure out where to put these later
+    bool hasStartedMovingOnBar = false;
+
+
     #region Inspector Variables
     [Header("== Player Elements ==")]
     [SerializeField]
@@ -146,7 +150,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     [SerializeField]
     private float grabDrag = .99f;
     [SerializeField]
-    private float pullDrag = .95f;
+    private float pullDrag = .45f;
     [SerializeField]
     private float pullToBarMod = 1f;
     [SerializeField]
@@ -845,7 +849,9 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         if (isGrabbing && bar != null)
         {
             PropelOffBar();
-            Swing(bar.transform);
+            //Swing(bar.transform);
+
+            OldSwing(bar.transform);
             uiManager.UpdateGrabberPosition(bar);
         }
     }
@@ -860,6 +866,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     public void GrabBar()
     {
+        StartCoroutine(PullDragTimer(1.5f));
+
         //Put lines 962-954 in if statement to only call if bar is ACTUALLY being grabbed
 
         //isGrabbing = true;
@@ -1050,6 +1058,94 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             //ensure that the player will bounce off the wall
             DetectBarrierAndBounce();
         }
+    }
+    //Old swing written originally by Thomas Roman, edited later by others
+    private void OldSwing(Transform bar)
+    {
+
+        if (isGrabbing && bar != null)
+        {
+
+            swingPoint = currentGrabPosition;
+            float distanceFromPoint = Vector3.Distance(cam.transform.position, swingPoint);
+            Vector3 directionToRung = (swingPoint - cam.transform.position).normalized;
+            float closeUpAngleAdjustment = math.remap(distanceFromPoint, 0, grabRange, 5, 0);
+
+            //if (Mathf.Abs(Vector3.Angle(directionToRung, cam.transform.forward)) < 15f + closeUpAngleAdjustment)
+            //{
+                //if (!useManualPullIn)
+                //{
+                    SwingCoolDown(bar);
+                //}
+            //}
+
+
+            if (distanceFromPoint > grabRange)
+            {
+                Vector3 tension = Vector3.Project(rb.linearVelocity, directionToRung);
+
+                if (tension.magnitude < 2f)
+                {
+                    transform.position = swingPoint + -directionToRung * grabRange;
+
+                    rb.linearVelocity -= tension;
+                } else
+                {
+                    rb.linearVelocity -= tension.normalized * 2f;
+                    ReleaseBar();
+                    return;
+                }
+            }
+
+
+            //ensure that the player isn't alr swinging on another bar
+            if (this.gameObject.GetComponent<SpringJoint>() == null)
+            {
+                joint = this.gameObject.AddComponent<SpringJoint>();
+                joint.autoConfigureConnectedAnchor = false;
+                joint.connectedAnchor = swingPoint;
+
+
+                //disable the collision with bar when grabbing
+                joint.enableCollision = false;
+
+                //ensure the max and min distances are set properly
+                if (!useManualPullIn)
+                {
+                    joint.maxDistance = grabRange;
+                    joint.minDistance = minGrabRange;
+                }
+                else
+                {
+                    joint.maxDistance = 1.0f;
+                    joint.minDistance = 0.5f;
+                }
+
+            }
+
+
+            //tweak these values for the spring for better pendulum values
+            joint.spring = jointSpringForce; //higher pull and push of the spring
+            joint.damper = jointDamperForce;
+            joint.massScale = jointMassScale;
+
+            //if the player is not swinging introduce pull drag
+            if (!swinging && !hasStartedMovingOnBar)
+            {
+                rb.linearVelocity *= pullDrag;
+                // if the player is not moving too fast to pull in, then pull to the bar
+                if ((!useManualPullIn || isPullingIn) && rb.linearVelocity.magnitude < 2f)
+                {
+                    PullToBar(pullToBarMod, bar);
+                }
+
+                return;
+            }
+
+            DetectBarrierAndBounce();
+        }
+
+
     }
 
     /// <summary>
@@ -1298,6 +1394,14 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 //set the player velocity to half to ensure the momentum doesn't influence the propel
                 //rb.linearVelocity *= 0.5f;
 
+                if (isThrusting || isStrafing)
+                {
+                    if (hasStartedMovingOnBar)
+                        StopCoroutine(PullDragTimer(1.5f));
+
+                    StartCoroutine(PullDragTimer(1.5f));
+                }
+
                 //if W or S are pressed
                 if (isThrusting)
                 {
@@ -1340,11 +1444,22 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 movementKeysReleased = true;
             }
         }
+
+        DetectBarrierAndBounce();
     }
+
+
+    private IEnumerator PullDragTimer(float waitTime)
+    {
+        hasStartedMovingOnBar = true;
+        yield return new WaitForSeconds(waitTime);
+        hasStartedMovingOnBar = false;
+    }
+
 
     #endregion
 
-    #region Collision Detection and Health Handling
+        #region Collision Detection and Health Handling
 
 
     private void DetectBarrierAndBounce()
@@ -1358,7 +1473,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             if (isGrabbing && rb.linearVelocity.magnitude < zeroGWalkSpeed)
             {
                 //ignore bouncing
-                return;
+                //return;
+                //lol ignore the ignore
             }
         }
 
