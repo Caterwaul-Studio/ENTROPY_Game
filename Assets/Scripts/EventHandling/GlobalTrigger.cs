@@ -15,15 +15,28 @@ public class GlobalTrigger : MonoBehaviour
     
     public bool isTriggered = false;
 
-    //When we reload the scene and this trigger has already been set off, do we call the behavior of this trigger again?
+    //When reload the scene and this trigger has already been set off, call the behavior of this trigger again?
     public bool recallUponSceneLoad;
 
-    //When when we recall this trigger, do we use the triggered event or the specialized load event?
+    //When trigger recalled, use the triggered event or the specialized load event?
     public bool useLoadEvent;
+
+    private Collider triggerCollider;
+
+    private void Awake()
+    {
+        triggerCollider = GetComponent<Collider>();
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if (isTriggered)
+        {
+            triggerCollider.enabled = false;
+            if(recallUponSceneLoad)
+                RecallTriggeredBehavior();
+        }
     }
 
     /// <summary>
@@ -32,24 +45,22 @@ public class GlobalTrigger : MonoBehaviour
     /// <param name="other"></param>
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            isTriggered = true;
-            this.GetComponent<Collider>().enabled = false;
-            triggeredEvent?.Invoke();
+        if (isTriggered || !other.CompareTag("Player")) return;
 
-        }
+        isTriggered = true;
+        this.GetComponent<Collider>().enabled = false;
+        triggeredEvent?.Invoke();
     }
 
     public void ResetTrigger()
     {
-        this.GetComponent<Collider>().enabled = true;
+        triggerCollider.enabled = true;
         isTriggered = false;
     }
 
     public void Deactivate()
     {
-        this.GetComponent<Collider>().enabled = false;
+        triggerCollider.enabled = false;
     }
 
     /// <summary>
@@ -59,7 +70,7 @@ public class GlobalTrigger : MonoBehaviour
     {
         if (useLoadEvent)
         {
-            if (loadEvent != null)
+            if (loadEvent.GetPersistentEventCount() > 0)
             {
                 loadEvent.Invoke();
             }
