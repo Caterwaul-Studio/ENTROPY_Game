@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.InputSystem;
 using UnityEngine.ProBuilder;
+using UnityEngine.ProBuilder.MeshOperations;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static UnityEngine.Rendering.DebugUI.Table;
@@ -16,7 +17,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 {
     //im gonna figure out where to put these later
     bool hasStartedMovingOnBar = false;
+    [SerializeField]
+    private float barMinTravelSpeed = 0.45f;
+    [SerializeField]
+    private float barMaxTravelSpeed = 0.6f;
 
+    private float barLocalTravelSpeed = 0.45f;
 
     #region Inspector Variables
     [Header("== Player Elements ==")]
@@ -558,6 +564,25 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     #region Update Methods
     void FixedUpdate()
     {
+
+        bool isThrusting = Mathf.Abs(thrust1D) > 0.1f;
+        bool isStrafing = Mathf.Abs(strafe1D) > 0.1f;
+        bool isElevating = Mathf.Abs(upandDown1D) > 0.1f;
+        if (isThrusting || isStrafing || isElevating)
+        {
+            if (barLocalTravelSpeed < barMaxTravelSpeed)
+            {
+                barLocalTravelSpeed += Time.deltaTime * 0.5f;
+            }
+        } else //if (!isThrusting && !isStrafing && !isElevating)
+        {
+            barLocalTravelSpeed = barMinTravelSpeed;
+            Debug.Log("reset");
+        }
+
+
+            //Debug.Log(barLocalTravelSpeed);
+
         if (isBeingGrabbed)
         {
             return; // skip all other movement
@@ -796,6 +821,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         // Up and Down leverage upandDown1D
         moveDirection += cam.transform.up * upandDown1D;
 
+
         // directly set the position based on the moveDirection we calculated
         transform.position += moveDirection.normalized * NoClipMoveSpeed * Time.fixedDeltaTime;
     }
@@ -866,6 +892,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     public void GrabBar()
     {
+        barLocalTravelSpeed = barMinTravelSpeed;
+
         StartCoroutine(PullDragTimer(1.5f));
 
         //Put lines 962-954 in if statement to only call if bar is ACTUALLY being grabbed
@@ -1136,7 +1164,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 // if the player is not moving too fast to pull in, then pull to the bar
                 if ((!useManualPullIn || isPullingIn) && rb.linearVelocity.magnitude < 2f)
                 {
-                    PullToBar(pullToBarMod, bar);
+                    PullToBar(distanceFromPoint / 10f, bar);
                 }
 
                 return;
@@ -1204,7 +1232,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                     // then I will add the grab offset to the target
                     target += grabOffset;
                     //if the position of the player and the target are about equal
-                    if (Vector3.Distance(rb.transform.position, target) < .1f)
+                    if (Vector3.Distance(rb.transform.position, target) < 0.03f)
                     {
                         //Debug.Log("They are touching :)");
                         rb.linearVelocity = Vector3.zero;
@@ -1381,10 +1409,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             //check if no movement buttons are currently being pressed
             bool isThrusting = Mathf.Abs(thrust1D) > 0.1f;
             bool isStrafing = Mathf.Abs(strafe1D) > 0.1f;
+            bool isElevating = Mathf.Abs(upandDown1D) > 0.01f;
             float distanceAway = Vector3.Distance(transform.position, currentGrabPosition);
 
 
-            if (movementKeysReleased && (isThrusting || isStrafing))
+            if (movementKeysReleased && (isThrusting || isStrafing || isElevating))
             {
 
                 //initialize a vector 3 for the propel direction
@@ -1394,13 +1423,14 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 //set the player velocity to half to ensure the momentum doesn't influence the propel
                 //rb.linearVelocity *= 0.5f;
 
-                if (isThrusting || isStrafing)
+                if (isThrusting || isStrafing || isElevating)
                 {
                     if (hasStartedMovingOnBar)
                         StopCoroutine(PullDragTimer(1.5f));
 
                     StartCoroutine(PullDragTimer(1.5f));
                 }
+
 
                 //if W or S are pressed
                 if (isThrusting)
@@ -1417,21 +1447,26 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                     //ReleaseBar();
                     propelDirection += cam.transform.right * strafe1D * propelThrust;
                     //Debug.Log("Propelled right or left");
+                } else if (isElevating)
+                {
+                    propelDirection += cam.transform.up * upandDown1D * propelThrust;
                 }
+
                 //add the propel force to the rigid body
                 rb.linearVelocity *= .5f;
-                if (distanceAway  > 0.45)
-                    rb.AddForce(propelDirection * initialVelocityMagnitude * distanceAway * 0.6f, ForceMode.VelocityChange);
-               else
-                    rb.AddForce(propelDirection * initialVelocityMagnitude * 0.45f * 0.6f, ForceMode.VelocityChange);
+
+                //if (distanceAway  > 0.45)
+                    rb.AddForce(propelDirection * initialVelocityMagnitude * barLocalTravelSpeed, ForceMode.VelocityChange);
+                //else
+                //    rb.AddForce(propelDirection * initialVelocityMagnitude * barMinTravelSpeed * barLocalTravelSpeed, ForceMode.VelocityChange);
                 //alt value for distance away hardcoded for now but will be changed
 
                     // Set the flag to false since keys are now pressed
                     //movementKeysReleased = false;
 
 
-                    Debug.Log(distanceAway);
-                Debug.Log(GrabRange);
+                //Debug.Log(distanceAway);
+                //Debug.Log(GrabRange);
                 if (distanceAway > GrabRange)
                 {
                     ReleaseBar();
@@ -1439,13 +1474,13 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 }
             }
             // Update the flag if no movement keys are pressed
-            else if (!isThrusting && !isStrafing)
+            else if (!isThrusting && !isStrafing && !isElevating)
             {
                 movementKeysReleased = true;
+                DetectBarrierAndBounce();
             }
         }
 
-        DetectBarrierAndBounce();
     }
 
 
