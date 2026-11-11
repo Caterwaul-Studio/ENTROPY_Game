@@ -174,7 +174,7 @@ public class Lvl2IntroSequenceEvents : Event
 
     public IEnumerator ExplosionRocksTheShip()
     {
-        Debug.Log("ExplosionRocksTheShip event started.");
+        //Debug.Log("ExplosionRocksTheShip event started.");
         //flag that guards if th flashlight has been aquired
         if (flashlight.HasFlashlight)
         {
@@ -231,7 +231,7 @@ public class Lvl2IntroSequenceEvents : Event
 
     private IEnumerator PowerRestored()
     {
-        Debug.Log("Power restored called");
+        //Debug.Log("Power restored called");
 
         yield return StartCoroutine(FlickerLightsOn(
             lights, initLightIntensities, lightMaterials, initLightEmissives, restoreDuration, restoreFrequency));
