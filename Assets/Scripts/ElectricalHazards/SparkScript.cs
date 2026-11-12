@@ -103,7 +103,7 @@ public class SparkScript : MonoBehaviour
         { //we dont want to damage the player if they either dont have the gloves or they do have them but arent currently grabbing a bar
             zeroG.DecreaseHealth(1);
             //play shock sound
-            shockAudioSource.PlayOneShot(shockSound);
+            player.gameObject.transform.GetChild(1).GetComponent<AudioSource>().PlayOneShot(shockSound);
             Debug.Log("shock sound should have played");
             StartCoroutine(zeroG.ShockEffect());
             damageCoolDown = 0;
