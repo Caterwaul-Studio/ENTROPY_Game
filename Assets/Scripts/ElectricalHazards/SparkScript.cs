@@ -76,8 +76,8 @@ public class SparkScript : MonoBehaviour
                 if (sparkBounds.Contains(player.transform.position) && damageCoolDown > 1f && sys.particleCount > 0)
             {
                 DamagePlayer(); //the player is shocked when they are within the bounds and the niagara has active particles
-                //play sound effect
-                audioSource.PlayOneShot(shockSound);
+               
+               
             }
         }
         else
@@ -102,6 +102,9 @@ public class SparkScript : MonoBehaviour
         if ((!zeroG.hasGloves || (zeroG.hasGloves && !zeroG.IsGrabbing)) && !zeroG.PlayerFreeMoveNoClip)
         { //we dont want to damage the player if they either dont have the gloves or they do have them but arent currently grabbing a bar
             zeroG.DecreaseHealth(1);
+            //play shock sound
+            shockAudioSource.PlayOneShot(shockSound);
+            Debug.Log("shock sound should have played");
             StartCoroutine(zeroG.ShockEffect());
             damageCoolDown = 0;
             zeroG.GetThrown(MainCamera.transform.forward * -1, 8);
