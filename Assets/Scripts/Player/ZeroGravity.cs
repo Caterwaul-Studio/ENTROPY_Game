@@ -16,12 +16,13 @@ using static UnityEngine.Rendering.DebugUI.Table;
 public class ZeroGravity : MonoBehaviour, ISaveable
 {
     //im gonna figure out where to put these later
-    bool hasStartedMovingOnBar = false;
+    private bool hasStartedMovingOnBar = false;
     [SerializeField]
     private float barMinTravelSpeed = 0.45f;
     [SerializeField]
     private float barMaxTravelSpeed = 0.6f;
 
+    private bool propelling = false;
     private float barLocalTravelSpeed = 0.45f;
 
     #region Inspector Variables
@@ -572,11 +573,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         {
             if (barLocalTravelSpeed < barMaxTravelSpeed)
             {
-                barLocalTravelSpeed += Time.deltaTime * 0.5f;
+                barLocalTravelSpeed += Time.deltaTime * 0.3f;
             }
         } else //if (!isThrusting && !isStrafing && !isElevating)
         {
             barLocalTravelSpeed = barMinTravelSpeed;
+            propelling = false;
             Debug.Log("reset");
         }
 
@@ -1389,6 +1391,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     //player uses WASD to propel themselves faster, only while currently grabbing a bar
     private void PropelOffBar()
     {
+        propelling = true;
         //save the initial velocity to help scale the propel
         float initialVelocityMagnitude = rb.linearVelocity.magnitude * .35f;
 
@@ -1441,13 +1444,14 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                     //Debug.Log("Propelled forward or back");
                 }
                 //if A or D are pressed
-                else if (isStrafing)
+                if (isStrafing)
                 {
                     //release the bar and calculate the vector to propel based on the right look
                     //ReleaseBar();
                     propelDirection += cam.transform.right * strafe1D * propelThrust;
                     //Debug.Log("Propelled right or left");
-                } else if (isElevating)
+                }
+                if (isElevating)
                 {
                     propelDirection += cam.transform.up * upandDown1D * propelThrust;
                 }
@@ -1477,7 +1481,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             else if (!isThrusting && !isStrafing && !isElevating)
             {
                 movementKeysReleased = true;
-                DetectBarrierAndBounce();
+                //DetectBarrierAndBounce();
             }
         }
 
@@ -1512,6 +1516,9 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 //lol ignore the ignore
             }
         }
+
+        if (IsGrabbing && propelling)
+            return;
 
         //Debug.Log(hitColliders.Length);
 
