@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 /// <summary>
@@ -30,6 +31,9 @@ public class MapProxyLibrary : ScriptableObject
     }
 
     public List<Entry> entries = new List<Entry>();
+
+    [Tooltip("The TextMesh Pro font asset map labels use, glow and colors included, like Oxanium-Regular SDF. Empty: TextMesh Pro's default font.")]
+    public TMP_FontAsset labelFont;
 
     public Entry Find(GameObject levelPrefab)
     {

@@ -164,14 +164,32 @@ public static class MapLines
         return lines;
     }
 
-    public static Mesh ToMesh(List<Vector3> lines)
+    /// <summary>
+    /// Builds a map mesh: lines as the first part, and faces as the second when there are any.
+    /// The faces hide the lines behind them and draw as a faint surface.
+    /// </summary>
+    public static Mesh ToMesh(List<Vector3> lines, List<Vector3> faceVertices = null, List<int> faceTriangles = null)
     {
-        var indices = new int[lines.Count];
-        for (int i = 0; i < indices.Length; i++) indices[i] = i;
+        var vertices = new List<Vector3>(lines);
+        var lineIndices = new int[lines.Count];
+        for (int i = 0; i < lineIndices.Length; i++) lineIndices[i] = i;
 
         var mesh = new Mesh { indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
-        mesh.SetVertices(lines);
-        mesh.SetIndices(indices, MeshTopology.Lines, 0);
+        if (faceTriangles == null)
+        {
+            mesh.SetVertices(vertices);
+            mesh.SetIndices(lineIndices, MeshTopology.Lines, 0);
+            return mesh;
+        }
+
+        vertices.AddRange(faceVertices);
+        var faceIndices = new int[faceTriangles.Count];
+        for (int i = 0; i < faceIndices.Length; i++) faceIndices[i] = faceTriangles[i] + lines.Count;
+
+        mesh.SetVertices(vertices);
+        mesh.subMeshCount = 2;
+        mesh.SetIndices(lineIndices, MeshTopology.Lines, 0);
+        mesh.SetIndices(faceIndices, MeshTopology.Triangles, 1);
         return mesh;
     }
 
