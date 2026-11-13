@@ -1835,7 +1835,7 @@ MonoBehaviour:
     m_ActionName: 'PlayerControls/INV4<>Equip[/Keyboard/4]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: c5c2d747-86e5-436e-beda-87de5475b966
+  m_DefaultActionMap: PlayerControls
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 2519919635387003401}
 --- !u!114 &3700987545340591992
@@ -1850,6 +1850,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2c010e61a32f7c459d12ddb06d9d37a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  barMinTravelSpeed: 0.45
+  barMaxTravelSpeed: 0.65
   rb: {fileID: 1408877014302736871}
   boundingSphere: {fileID: 3461489924209017322}
   cam: {fileID: 2519919635387003401}
