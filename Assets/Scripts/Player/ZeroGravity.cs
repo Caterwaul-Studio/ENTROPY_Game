@@ -21,8 +21,9 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     private float barMinTravelSpeed = 0.45f;
     [SerializeField]
     private float barMaxTravelSpeed = 0.6f;
-
+    [SerializeField]
     private bool propelling = false;
+    [SerializeField]
     private float barLocalTravelSpeed = 0.45f;
 
     #region Inspector Variables
@@ -578,12 +579,13 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         } else //if (!isThrusting && !isStrafing && !isElevating)
         {
             barLocalTravelSpeed = barMinTravelSpeed;
-            propelling = false;
-            Debug.Log("reset");
         }
 
+        if (!isThrusting && !isStrafing && !isElevating)
+            propelling = false;
 
-            //Debug.Log(barLocalTravelSpeed);
+
+        //Debug.Log(barLocalTravelSpeed);
 
         if (isBeingGrabbed)
         {
@@ -1264,6 +1266,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         //confirm I have just grabbed a bar
         if (isGrabbing && justGrabbed && !prevJustGrabbed)
         {
+            /*
             //Debug.Log("Linear velocity: " + rb.linearVelocity.magnitude);
             //create time stamps based on how fast the player is moving
             //if the player is moving at the dangerous speed
@@ -1286,7 +1289,9 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             else if(rb.linearVelocity.magnitude < zeroGWalkSpeed)
             {
                 grabSwingTimeStamp = Time.time + swingCoolDownFastest;
-            }
+            }*/
+
+            grabSwingTimeStamp = Time.time + swingCoolDownSlowest;
             //set the prev just grabbed bool to confirm we do this once 
             prevJustGrabbed = justGrabbed;
         }
@@ -1391,7 +1396,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     //player uses WASD to propel themselves faster, only while currently grabbing a bar
     private void PropelOffBar()
     {
-        propelling = true;
         //save the initial velocity to help scale the propel
         float initialVelocityMagnitude = rb.linearVelocity.magnitude * .35f;
 
@@ -1418,7 +1422,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
             if (movementKeysReleased && (isThrusting || isStrafing || isElevating))
             {
-
+                propelling = true;
                 //initialize a vector 3 for the propel direction
                 hasPropelled = true;
                 Vector3 propelDirection = Vector3.zero;
@@ -1481,7 +1485,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             else if (!isThrusting && !isStrafing && !isElevating)
             {
                 movementKeysReleased = true;
-                //DetectBarrierAndBounce();
+                DetectBarrierAndBounce();
             }
         }
 
