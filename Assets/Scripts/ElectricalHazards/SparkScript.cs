@@ -16,9 +16,18 @@ public class SparkScript : MonoBehaviour
     [SerializeField] private bool WireSpark;
     public bool electricActive;
     public bool prevElectricActive = false;
-
+    //audio stuff
+    //audio source
+    public AudioSource audioSource;
+    public AudioSource shockAudioSource;
+    //sound effects
+    public AudioClip humSound;
+    public AudioClip shockSound;
+    public AudioClip SparkSound;
     private Vector3 boxSize;
     private float damageCoolDown;
+    private bool particleCheck;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -34,6 +43,7 @@ public class SparkScript : MonoBehaviour
 
         if (myGrabbable != null) //the behavior for damaging the player when they grab onto an electrified bar is handled in ZeroGravity.cs
             myGrabbable.AddComponent<SparkBar>(); //it is dependent on the object with the grabbable tag having this component on it
+        particleCheck = false;
     }
 
     // Update is called once per frame
@@ -62,12 +72,27 @@ public class SparkScript : MonoBehaviour
         }
         if (electricActive)
         {
-
+            particleCheck = true;
             if (WireSpark)
+            {
+               
                 sparkBounds = new Bounds(transform.position, boxSize); //updating the position of the bounds is only relevant for wires which move around
-            else
-                if (sparkBounds.Contains(player.transform.position) && damageCoolDown > 1f && sys.particleCount > 0)
-                    DamagePlayer(); //the player is shocked when they are within the bounds and the niagara has active particles
+                
+            }
+            else if (sparkBounds.Contains(player.transform.position) && damageCoolDown > 1f && sys.particleCount > 0)
+            {
+
+                DamagePlayer(); //the player is shocked when they are within the bounds and the niagara has active particles
+                
+
+
+            }
+            if (sys.particleCount > 0 && particleCheck)
+            {
+                particleCheck = false;
+                shockAudioSource.PlayOneShot(SparkSound);
+                //Debug.Log("wirespark sound");
+            }
         }
         else
         {
@@ -84,6 +109,7 @@ public class SparkScript : MonoBehaviour
             prevElectricActive = electricActive;
         }
         prevElectricActive = electricActive;
+       
     }
 
     private void DamagePlayer()
@@ -91,6 +117,9 @@ public class SparkScript : MonoBehaviour
         if ((!zeroG.hasGloves || (zeroG.hasGloves && !zeroG.IsGrabbing)) && !zeroG.PlayerFreeMoveNoClip)
         { //we dont want to damage the player if they either dont have the gloves or they do have them but arent currently grabbing a bar
             zeroG.DecreaseHealth(1);
+            //play shock sound
+            player.gameObject.transform.GetChild(1).GetComponent<AudioSource>().PlayOneShot(shockSound);
+            Debug.Log("shock sound should have played");
             StartCoroutine(zeroG.ShockEffect());
             damageCoolDown = 0;
             zeroG.GetThrown(MainCamera.transform.forward * -1, 8);
