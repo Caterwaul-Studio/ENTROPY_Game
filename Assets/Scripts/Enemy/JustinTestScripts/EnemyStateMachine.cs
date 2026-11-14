@@ -69,6 +69,8 @@ public class EnemyStateMachine : MonoBehaviour
     public Vector3 playersLastKnownLocation;
     private bool isInvestigating;
     public bool shouldFollow;
+    private readonly RaycastHit[] detectHits = new RaycastHit[16];
+    private const string BlindTag = "GeistBlind";
 
     [Header("Retreat Settings")]
     public float retreatDuration = 3f;
@@ -145,7 +147,7 @@ public class EnemyStateMachine : MonoBehaviour
             if (currentGeneralState == GeneralEnemyState.Pause) return;
 
             //run a detect player but store it as a temp so we can debug log the flip
-            bool newDetect = PerformRaycastDetection();
+            bool newDetect = PerformRaycastDetection(out bool blinded);
             if (newDetect != canDetectPlayer)
                 Debug.Log($"<color=yellow>[DETECT] {canDetectPlayer}->{newDetect}</color> | state={currentSpecificState} | frame={Time.frameCount}");
             if (newDetect)
@@ -153,11 +155,11 @@ public class EnemyStateMachine : MonoBehaviour
                 canDetectPlayer = true;
                 loseSightTimer = 0f;
             }
-            else if (!newDetect)
+            else
             {
                 loseSightTimer += Time.deltaTime;
                 //this helps ignore the flickering can detect when the player is on the edge of the detect radius
-                if(loseSightTimer >= loseSightGraceTime)
+                if(blinded || loseSightTimer >= loseSightGraceTime)
                     canDetectPlayer = false;
             }
 
@@ -198,8 +200,6 @@ public class EnemyStateMachine : MonoBehaviour
         }
         
     }
-
-
 
     #region Active Logic
     private void HandleActiveLogic()
@@ -738,29 +738,37 @@ public class EnemyStateMachine : MonoBehaviour
         //Debug.Log($"State Changed to: {newState}");
     }
 
-    private bool PerformRaycastDetection()
+    private bool PerformRaycastDetection(out bool blinded)
     {
+        blinded = false;
         if (player == null) return false;
 
-        Vector3 dir = player.transform.position - transform.position;
+        Vector3 toPlayer = player.transform.position - transform.position;
         RaycastHit hit;
 
-        float distToPlayer = Vector3.Distance(transform.position, player.transform.position);
+        float distToPlayer = toPlayer.magnitude;
+        if (distToPlayer < 0.0001f) return true;
+        Vector3 dir = toPlayer / distToPlayer;
         //Debug.Log($"[DIST] {distToPlayer:F2} / radius={detectionRadius} frame={Time.frameCount}");
 
-        bool didHit = Physics.Raycast(transform.position, 
-            dir.normalized, out hit, detectionRadius, detectionMask,
-            QueryTriggerInteraction.Ignore); //ignore trigger colliders;
+        RaycastHit[] blindHits = Physics.RaycastAll(transform.position, dir, distToPlayer,
+    ~0, QueryTriggerInteraction.Collide);
+        foreach (RaycastHit hitB in blindHits)
+        {
+            if (hitB.collider.CompareTag("GeistBlind"))
+            {
+                Debug.Log("player detected behind geist blind");
+                blinded = true;
+                return false; //geist blind collider between geist and player, can't see the player
+            }
+        }
 
-        if (didHit)
+        if (Physics.Raycast(transform.position,
+            dir.normalized, out hit, detectionRadius, detectionMask,
+            QueryTriggerInteraction.Ignore)) //ignore trigger colliders;
         {
             //Debug.Log($"[RAYCAST] hit={hit.collider.name} tag={hit.collider.tag} dist={hit.distance:F2} frame={Time.frameCount}");
-            if (hit.collider.CompareTag("Player"))
-                return true;
-        }
-        else
-        {
-            //Debug.Log($"[RAYCAST] MISS (dist to player={dir.magnitude:F2}, detectionRadius={detectionRadius}) frame={Time.frameCount}");
+            return hit.collider.CompareTag("Player");
         }
         return false;
     }
