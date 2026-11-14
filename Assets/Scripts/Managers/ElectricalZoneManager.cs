@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ElectricalZoneManager : MonoBehaviour, PowerObject
+public class ElectricalZoneManager : Event, PowerObject
 {
     [SerializeField]
     private GameObject doors;
@@ -20,27 +20,22 @@ public class ElectricalZoneManager : MonoBehaviour, PowerObject
         get { return currentPowerState; }
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    override protected void Start()
     {
+        base.Start();
         if (elecBarCover != null)
         {
             elecBars = elecBarCover.GetComponentsInChildren<Transform>();
         }
         SetPowerState(currentPowerState);
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     public void SetPowerState (PowerObject.PowerStates powerState) {
         currentPowerState = powerState;
-        DoorScript[] doorScripts = doors.GetComponentsInChildren<DoorScript>();
+        DoorScript[] doorScripts = GetDoors(doors);
         foreach (DoorScript doorScript in doorScripts) {
             doorScript.SetPowerState(powerState);
         }
-        DoorScript[] connectorScripts = connectors.GetComponentsInChildren<DoorScript>();
+        DoorScript[] connectorScripts = GetDoors(connectors);
         foreach (DoorScript connectorScript in connectorScripts)
         {
             connectorScript.SetPowerState(powerState);

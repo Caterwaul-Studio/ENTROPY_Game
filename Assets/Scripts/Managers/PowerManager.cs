@@ -40,6 +40,26 @@ public class PowerManager : MonoBehaviour
         {
             PowerKeyPress("C1");
         }
+        if (Keyboard.current[Key.Digit8].wasPressedThisFrame)
+        {
+            PowerKeyPress("C2");
+        }
+        if (Keyboard.current[Key.Digit9].wasPressedThisFrame)
+        {
+            PowerKeyPress("C3");
+        }
+        if (Keyboard.current[Key.Digit0].wasPressedThisFrame)
+        {
+            PowerKeyPress("D1");
+        }
+        if (Keyboard.current[Key.Minus].wasPressedThisFrame)
+        {
+            PowerKeyPress("D2");
+        }
+        if (Keyboard.current[Key.Equals].wasPressedThisFrame)
+        {
+            PowerKeyPress("D3");
+        }
     }
     private void PowerKeyPress(string zone)
     {
