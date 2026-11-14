@@ -14,39 +14,43 @@ public class PowerManager : MonoBehaviour
     {
         if (Keyboard.current[Key.Digit1].wasPressedThisFrame)
         {
-            switch (GetZonePower("TestZone"))
-            {
-                case PowerObject.PowerStates.Powered:
-                    SetZonePower("TestZone",PowerObject.PowerStates.Unpowered);
-                    break;
-                case PowerObject.PowerStates.Unpowered:
-                    SetZonePower("TestZone", PowerObject.PowerStates.Powered);
-                    break;
-            }
+            PowerKeyPress("A1");
         }
         if (Keyboard.current[Key.Digit2].wasPressedThisFrame)
         {
-            switch (GetZonePower("A2"))
-            {
-                case PowerObject.PowerStates.Powered:
-                    SetZonePower("A2", PowerObject.PowerStates.Unpowered);
-                    break;
-                case PowerObject.PowerStates.Unpowered:
-                    SetZonePower("A2", PowerObject.PowerStates.Powered);
-                    break;
-            }
+            PowerKeyPress("A2");
         }
         if (Keyboard.current[Key.Digit3].wasPressedThisFrame)
         {
-            switch (GetZonePower("A3"))
-            {
-                case PowerObject.PowerStates.Powered:
-                    SetZonePower("A3", PowerObject.PowerStates.Unpowered);
-                    break;
-                case PowerObject.PowerStates.Unpowered:
-                    SetZonePower("A3", PowerObject.PowerStates.Powered);
-                    break;
-            }
+            PowerKeyPress("A3"); 
+        }
+        if (Keyboard.current[Key.Digit4].wasPressedThisFrame)
+        {
+            PowerKeyPress("B1");
+        }
+        if (Keyboard.current[Key.Digit5].wasPressedThisFrame)
+        {
+            PowerKeyPress("B2");
+        }
+        if (Keyboard.current[Key.Digit6].wasPressedThisFrame)
+        {
+            PowerKeyPress("B3");
+        }
+        if (Keyboard.current[Key.Digit7].wasPressedThisFrame)
+        {
+            PowerKeyPress("C1");
+        }
+    }
+    private void PowerKeyPress(string zone)
+    {
+        switch (GetZonePower(zone))
+        {
+            case PowerObject.PowerStates.Powered:
+                SetZonePower(zone, PowerObject.PowerStates.Unpowered);
+                break;
+            case PowerObject.PowerStates.Unpowered:
+                SetZonePower(zone, PowerObject.PowerStates.Powered);
+                break;
         }
     }
     public PowerObject.PowerStates GetZonePower(string zoneName)
