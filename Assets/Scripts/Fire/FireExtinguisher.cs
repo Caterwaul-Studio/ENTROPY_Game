@@ -116,7 +116,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
             StartCoroutine(MakePuff());
 
         //if the player is dead
-        if (zeroGravity.IsDead && holding)
+        if (zeroGravity.IsDead && extinguisherGameObj != null)
         {
             //stop the audio coming from the extinguisher
             extinguisherGameObj.GetComponent<ExtinguisherObject>().StopAudio();
@@ -509,7 +509,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
 
         if (currentlyHeld != null)
         {
-            Debug.Log($"[FireExtinguisher] Discarding leftover held extinguisher (id={currentlyHeld.ExtinguisherID}) — not eligible for retention on this reload.");
+            Debug.Log($"[FireExtinguisher] Discarding leftover held extinguisher (id={currentlyHeld.ExtinguisherID}) ï¿½Enot eligible for retention on this reload.");
             Destroy(currentlyHeld.gameObject); // it's a runtime clone with no valid "original" scene position, so destroy rather than ForceReturn
         }
 

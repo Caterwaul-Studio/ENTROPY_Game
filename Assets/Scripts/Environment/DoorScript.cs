@@ -18,7 +18,7 @@ public class DoorScript : MonoBehaviour, PowerObject
         Opening,
         Broken,
         BrokenShort,
-        JoltOpen
+        JoltOpen, 
     }
 
     public enum PermissionLevel
@@ -103,6 +103,8 @@ public class DoorScript : MonoBehaviour, PowerObject
 
     public bool showingBody = false;
     public bool aboutToJolt = false;
+
+    private Coroutine brokenRoutine;
 
     [Header("Hologram")]
     [SerializeField]
@@ -231,11 +233,11 @@ public class DoorScript : MonoBehaviour, PowerObject
             }
 
 
-            if (states == States.Broken)
-            {
-                SetButtonColor(yellowBase, yellowEmis);
-                StartCoroutine(HandleBrokenDoorLoop());
-            }
+        if (states == States.Broken)
+        {
+            SetButtonColor(yellowBase, yellowEmis);
+            StartBrokenRoutine(HandleBrokenDoorLoop());
+        }
 
             if (states == States.Locked)
             {
@@ -243,11 +245,11 @@ public class DoorScript : MonoBehaviour, PowerObject
                 SetButtonColor(redBase, redEmis);
             }
 
-            if (states == States.BrokenShort)
-            {
-                SetButtonColor(yellowBase, yellowEmis);
-                StartCoroutine(HandleBrokenDoorShort());
-            }
+        if (states == States.BrokenShort)
+        {
+            SetButtonColor(yellowBase, yellowEmis);
+            StartBrokenRoutine(HandleBrokenDoorShort());
+        }
 
             foreach (Sparks spark in sparks)
             {
@@ -447,6 +449,39 @@ public class DoorScript : MonoBehaviour, PowerObject
 
         isShortBreakOver = true;
     }
+    private void StartBrokenRoutine(IEnumerator routine)
+    {
+        StopBrokenRoutine();
+        ToggleSparks(true);
+        brokenRoutine = StartCoroutine(routine);
+    }
+
+    private void StopBrokenRoutine()
+    {
+        if (brokenRoutine != null)
+        {
+            StopCoroutine(brokenRoutine);   // also stops the nested MoveDoor
+            brokenRoutine = null;
+        }
+        ToggleSparks(false);
+        isClosing = false;
+    }
+
+    public void FixBroken(States restoreTo)
+    {
+        if (states != States.Broken && states != States.BrokenShort) return;
+
+        StopBrokenRoutine();
+        StartCoroutine(FixBrokenRoutine(restoreTo));
+    }
+
+    private IEnumerator FixBrokenRoutine(States restoreTo)
+    {
+        isClosing = true;
+        yield return MoveDoor(doorPart.localPosition, closedPos, brokenCloseDuration, null);
+        isClosing = false;
+        ForceState(restoreTo);   // sets colors, visuals, and final position
+    }
 
     public IEnumerator HandleDoorStuck()
     {
@@ -463,16 +498,11 @@ public class DoorScript : MonoBehaviour, PowerObject
         //yield return new WaitForSeconds(0.2f);
 
         StartCoroutine(HandleDoorJoltOpen());
-
-
     }
 
     public IEnumerator HandleDoorJoltOpen()
     {
         //StartCoroutine(FadeOutAndStop(middleAudioSource, 0.1f));
-
-
-
         startAudioSource.clip = doorBrokenJolt;
         if (startAudioSource.isActiveAndEnabled)
             startAudioSource.Play();
@@ -482,8 +512,6 @@ public class DoorScript : MonoBehaviour, PowerObject
         yield return MoveDoor(doorPart.localPosition, bodyPos, 0.2f, null);
 
         showingBody = true;
-
-
     }
 
 
@@ -496,7 +524,10 @@ public class DoorScript : MonoBehaviour, PowerObject
         if (currentPowerState == PowerObject.PowerStates.Powered)
         {
             States previousState = this.states;
-            this.DoorState = state;
+            // leaving a broken state? stop the loop and sparks
+        if (state != States.Broken && state != States.BrokenShort)
+            StopBrokenRoutine();
+        this.DoorState = state;
 
             if (state == States.Closed || state == States.Open)
             {
@@ -525,7 +556,7 @@ public class DoorScript : MonoBehaviour, PowerObject
             {
                 SetButtonColor(yellowBase, yellowEmis);
                 ChangeStatusVisual();
-                StartCoroutine(HandleBrokenDoorLoop());
+                StartBrokenRoutine(HandleBrokenDoorLoop());
             }
             else if (state == States.Locked)
             {
@@ -542,7 +573,7 @@ public class DoorScript : MonoBehaviour, PowerObject
             {
                 SetButtonColor(yellowBase, yellowEmis);
                 ChangeStatusVisual();
-                StartCoroutine(HandleBrokenDoorShort());
+                StartBrokenRoutine(HandleBrokenDoorShort());
             }
             else if (state == States.JoltOpen)
             {
@@ -561,6 +592,9 @@ public class DoorScript : MonoBehaviour, PowerObject
     public void ForceState(States state)
     {
         States previousState = this.states;
+        // leaving a broken state? stop the loop and sparks
+        if (state != States.Broken && state != States.BrokenShort)
+            StopBrokenRoutine();
         this.DoorState = state;
 
         if (state == States.Closed || state == States.Open)

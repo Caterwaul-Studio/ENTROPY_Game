@@ -47,6 +47,11 @@ public class InventoryManager : MonoBehaviour, ISaveable
     public int FloatingObjLayer => floatingObjLayer;
     public int IInteractableLayer => iInteractableLayer;
 
+    public bool IsLoading
+    {
+        get; private set;
+    }
+
     /// <summary>
     /// this method is called by the object to register it to the inventory slot, usually called in the Start()
     /// </summary>
@@ -203,7 +208,6 @@ public class InventoryManager : MonoBehaviour, ISaveable
             }
         }
         _inventoryData = new InventoryData(currentIndex, data);
-
     }
 
     private void LoadInventoryData()
@@ -214,7 +218,6 @@ public class InventoryManager : MonoBehaviour, ISaveable
     private IEnumerator ApplyLoadedInventory()
     {
         yield return null; // let new items finish RegisterSlot in Start()
-
         for (int i = 0; i < slots.Length; i++)
         {
             //Debug.Log($"ApplyLoadedInventory: itemData length = {(_inventoryData.itemData == null ? "null" : _inventoryData.itemData.Length.ToString())}");
@@ -241,19 +244,30 @@ public class InventoryManager : MonoBehaviour, ISaveable
             }
         }
 
-            int indexToLoad = _inventoryData.currentIndex;
-            if(indexToLoad < 0 || indexToLoad >= slots.Length || slots[indexToLoad] == null)
-            {
-                DeactivateCurrent();
-                yield break;
-            }
-
-            currentIndex = -1;
-            RequestActivate(indexToLoad);
+        int indexToLoad = _inventoryData.currentIndex;
+        if(indexToLoad < 0 || indexToLoad >= slots.Length || slots[indexToLoad] == null)
+        {
+            DeactivateCurrent();
+            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate();
+            IsLoading = false;
+            yield break;
         }
+
+        currentIndex = -1;
+        RequestActivate(indexToLoad);
+        yield return new WaitForFixedUpdate();
+        yield return new WaitForFixedUpdate();
+        IsLoading = false;
+    }
 
     public void CreateSaveFile(string fileName)
     {
+        if (IsLoading)
+        {
+            return;
+        }
+
         StoreInventoryData();
         string json = JsonUtility.ToJson(_inventoryData);
         //Debug.Log($"CreateSaveFile: full inventory json = {json}");
@@ -269,6 +283,7 @@ public class InventoryManager : MonoBehaviour, ISaveable
         if (!string.IsNullOrEmpty(loadedData))
         {
             _inventoryData = JsonUtility.FromJson<InventoryData>(loadedData);
+            IsLoading = true;
             //Debug.Log($"LoadSaveFile: parsed itemData = {(_inventoryData.itemData == null ? "null" : string.Join(" | ", _inventoryData.itemData))}");
             LoadInventoryData();
         }
