@@ -233,11 +233,11 @@ public class DoorScript : MonoBehaviour, PowerObject
             }
 
 
-        if (states == States.Broken)
-        {
-            SetButtonColor(yellowBase, yellowEmis);
-            StartBrokenRoutine(HandleBrokenDoorLoop());
-        }
+            if (states == States.Broken)
+            {
+                SetButtonColor(yellowBase, yellowEmis);
+                StartBrokenRoutine(HandleBrokenDoorLoop());
+            }
 
             if (states == States.Locked)
             {
@@ -245,11 +245,11 @@ public class DoorScript : MonoBehaviour, PowerObject
                 SetButtonColor(redBase, redEmis);
             }
 
-        if (states == States.BrokenShort)
-        {
-            SetButtonColor(yellowBase, yellowEmis);
-            StartBrokenRoutine(HandleBrokenDoorShort());
-        }
+            if (states == States.BrokenShort)
+            {
+                SetButtonColor(yellowBase, yellowEmis);
+                StartBrokenRoutine(HandleBrokenDoorShort());
+            }
 
             foreach (Sparks spark in sparks)
             {
@@ -525,9 +525,9 @@ public class DoorScript : MonoBehaviour, PowerObject
         {
             States previousState = this.states;
             // leaving a broken state? stop the loop and sparks
-        if (state != States.Broken && state != States.BrokenShort)
-            StopBrokenRoutine();
-        this.DoorState = state;
+            if (state != States.Broken && state != States.BrokenShort)
+                StopBrokenRoutine();
+            this.DoorState = state;
 
             if (state == States.Closed || state == States.Open)
             {
