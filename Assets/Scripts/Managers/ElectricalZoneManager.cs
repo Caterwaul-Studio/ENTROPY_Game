@@ -17,7 +17,17 @@ public class ElectricalZoneManager : Event, PowerObject
 
     private DoorScript[] doorScripts;
     private DoorScript[] connectorScripts;
+    //door materials
+    [SerializeField] private MeshRenderer[] doorMeshes;
+    [SerializeField] private Material[] doorMaterials;
+    Color[] initDoorEmissionColors;
+    //connector materials
+    [SerializeField] private MeshRenderer[] connectorMeshes;
+    [SerializeField] private Material[] connectorMaterials;
+    Color[] initConnectorEmissionColors;
+
     private LiveWire[] wireScripts;
+    //light materials
     [SerializeField] private MeshRenderer[] lightMeshes;
     public Light[] lights;
     private Material[] lightMaterials;
@@ -26,12 +36,12 @@ public class ElectricalZoneManager : Event, PowerObject
     //modifiers for turning off and on lights, copied and modified from IntroSequenceEvents.cs
     [Header("Off Curve")]
     public AnimationCurve offCurve;
-    //bool flags for event triggers
     public float powerDownDuration = .3f; // How long one cycle of the curve takes
     public float intensityMultiplier = 1f;
     [Header("On Factors")]
     public float restoreDuration = .3f;
     public float restoreFrequency = 15f;
+    //used to prevent light coroutines from running simultaneously
     private bool settingLights = false;
 
     [SerializeField]
@@ -44,8 +54,18 @@ public class ElectricalZoneManager : Event, PowerObject
     override protected void Start()
     {
         base.Start();
+
         doorScripts = GetDoors(doors);
+        var (matsd, meshesd, initEmissivesd) = GetObjectMaterialsPerObject(doors);
+        doorMaterials = matsd;
+        doorMeshes = meshesd;
+        initDoorEmissionColors = initEmissivesd;
+
         connectorScripts = GetDoors(connectors);
+        var (matsc, meshesc, initEmissivesc) = GetObjectMaterialsPerObject(connectors);
+        connectorMaterials = matsc;
+        connectorMeshes = meshesc;
+        initConnectorEmissionColors = initEmissivesc;
 
         if (wires != null)
         {
@@ -80,9 +100,12 @@ public class ElectricalZoneManager : Event, PowerObject
             yield return new WaitUntil(()=>!settingLights);
             settingLights = true;
             Debug.Log("Turn Lights Off");
+            StartCoroutine(GlitchObjectEmissives(doorMaterials, offCurve, powerDownDuration, initDoorEmissionColors, 1f));
+            StartCoroutine(GlitchObjectEmissives(connectorMaterials, offCurve, powerDownDuration, initConnectorEmissionColors, 1f));
             yield return StartCoroutine(GlitchLights(
                 lights, lightMaterials, offCurve, powerDownDuration,
                 intensityMultiplier, initLightEmissives, 1f));
+
             settingLights = false;
         }
         else
@@ -90,6 +113,8 @@ public class ElectricalZoneManager : Event, PowerObject
             yield return new WaitUntil(() => !settingLights);
             settingLights = true;
             Debug.Log("Turn Lights On");
+            StartCoroutine(FlickerLightsOn(null, null, connectorMaterials, initConnectorEmissionColors, restoreDuration, restoreFrequency));
+            StartCoroutine(FlickerLightsOn(null, null, doorMaterials, initDoorEmissionColors, restoreDuration, restoreFrequency));
             yield return StartCoroutine(FlickerLightsOn(lights, initLightIntensities, lightMaterials, initLightEmissives, restoreDuration, restoreFrequency));
             settingLights = false;
         }
