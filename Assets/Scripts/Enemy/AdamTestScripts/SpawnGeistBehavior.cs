@@ -26,7 +26,7 @@ public class SpawnGeistBehavior : MonoBehaviour
     public GameObject SpawnedGeist { get; private set; }
     public BehaviorGraphAgent GeistAgent { get; private set; }
     public GeistDirectorBrain GeistBrain { get; private set; }
-    public CutSceneStates Cutscene { get; private set; } //update this later as a state of the behavior graph
+    public GeistCutSceneMode Cutscene { get; private set; } //update this later as a state of the behavior graph
 
     public bool GeistIsWoken { get; private set; }
 
@@ -84,7 +84,7 @@ public class SpawnGeistBehavior : MonoBehaviour
     private IEnumerable<Waypoint> GetLevelWaypoints()
     {
         if(LevelWaypointGroup != null)
-            return LevelWaypointGroup.GetComponentsInChildren<Waypoint>();
+            return LevelWaypointGroup.GetComponentsInChildren<Waypoint>(true);
 
         Debug.LogWarning("SpawnGeist: no LevelWaypointGroup assigned, using SpawnLocations as the waypoint list");
         return SpawnLocations;
@@ -106,8 +106,8 @@ public class SpawnGeistBehavior : MonoBehaviour
 
         GeistAgent = SpawnedGeist.GetComponent<BehaviorGraphAgent>();
         GeistBrain = SpawnedGeist.GetComponent<GeistDirectorBrain>();
-        Cutscene = SpawnedGeist.GetComponent<CutSceneStates>();
-        if (Cutscene == null) Cutscene = SpawnedGeist.AddComponent<CutSceneStates>();
+        Cutscene = SpawnedGeist.GetComponent<GeistCutSceneMode>();
+        if (Cutscene == null) Cutscene = SpawnedGeist.AddComponent<GeistCutSceneMode>();
 
         if(GeistAgent == null || GeistBrain == null)
         {

@@ -41,7 +41,8 @@ public class GeistDirectorBrain : MonoBehaviour
     public Queue<Waypoint> Path { get; set; } = new Queue<Waypoint>();
     public Transform PathTarget { get; set; } //The interest point the current Path was calculated for.
     public IReadOnlyList<Waypoint> AllWaypoints => allWaypoints;
-    private List<Waypoint> allWaypoints = new List<Waypoint>();
+    [Header("Runtime (filled by the spawner)")]
+    [SerializeField] private List<Waypoint> allWaypoints = new List<Waypoint>();
 
     void Awake()
     {
@@ -94,6 +95,7 @@ public class GeistDirectorBrain : MonoBehaviour
 
         if (snapToStart && startingWaypoint != null)
             transform.position = startingWaypoint.transform.position;
+        Debug.Log($"[GeistBrain] InitializeNavigation: {allWaypoints.Count} waypoints, start = {(CurrentWaypoint != null ? CurrentWaypoint.name : "NONE")}", this);
     }
     /// <summary>
     /// the graph's top level switch (ComplexGeisAI / Dormant / Cutscene)

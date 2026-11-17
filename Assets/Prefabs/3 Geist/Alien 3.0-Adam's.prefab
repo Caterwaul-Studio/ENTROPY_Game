@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 1981256898708670038}
   - component: {fileID: 2813364571777998535}
   - component: {fileID: 5981580356134212302}
+  - component: {fileID: 7986539700324126475}
   m_Layer: 0
   m_Name: Alien 3.0-Adam's
   m_TagString: Untagged
@@ -299,16 +300,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c2bb4624806aca4fbe691d739dda945, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  persistant: {fileID: 0}
+  persistantManager: {fileID: 0}
   playerObj: {fileID: 0}
   player: {fileID: 0}
   geist: {fileID: 2813364571777998535}
-  grabPlayerPos: {fileID: 0}
+  grabPlayerPos: {fileID: 1891620099349330151}
+  modeVariableName: New GeistEnums
   wayPointGroup: {fileID: 0}
   startingWaypoint: {fileID: 0}
   moveSpeed: 3
   rotationSpeed: 2.5
   arriveThreshold: 0.5
+--- !u!114 &7986539700324126475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 887167724497493879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5f7895e0a443db40ae4df6e5e5f9a83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &910494578802743601
 GameObject:
   m_ObjectHideFlags: 0
