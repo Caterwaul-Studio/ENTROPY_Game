@@ -14,11 +14,11 @@ GameObject:
   - component: {fileID: 722802607508554546}
   - component: {fileID: 8338648422554474142}
   - component: {fileID: 6395283908433824621}
-  - component: {fileID: 779664456537576595}
-  - component: {fileID: 7138638095641941418}
   - component: {fileID: 1981256898708670038}
+  - component: {fileID: 2813364571777998535}
+  - component: {fileID: 5981580356134212302}
   m_Layer: 0
-  m_Name: Alien 2.0-NoFarMusicTest
+  m_Name: Alien 3.0-Adam's
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -244,144 +244,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &779664456537576595
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 887167724497493879}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e597e09e3da4344a9ef2bd960e3aa19, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemyVersion: 0
-  currentGeneralState: 1
-  pastGeneralState: 0
-  currentSpecificState: 3
-  pastSpecificState: 0
-  persistant: {fileID: 0}
-  player: {fileID: 0}
-  playerController: {fileID: 0}
-  complexEnemyAI: {fileID: 0}
-  simpleEnemyEnemyAI: {fileID: 0}
-  grabPlayerPos: {fileID: 1891620099349330151}
-  detectionMask:
-    serializedVersion: 2
-    m_Bits: 16577
-  detectionRadius: 9
-  defaultDetectionRadius: 8
-  chaseDetectionRadius: 7
-  detectionDuration: 1
-  detectionTimer: 0
-  canDetectPlayer: 0
-  chasePlayer: 0
-  interestDuration: 3
-  interestTimer: 0
-  loseSightGraceTime: 1
-  loseSightTimer: 0
-  playersLastKnownLocation: {x: 0, y: 0, z: 0}
-  shouldFollow: 0
-  retreatDuration: 5
-  retreatDistanceCheck: 0
-  barrierLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  waypointLayer:
-    serializedVersion: 2
-    m_Bits: 65536
-  minRadius: 13
-  maxRadius: 16
-  retreatTimer: 0
-  retreatPointReroll: 0
-  canRetreat: 0
-  throwDistanceCheck: 0
-  checkRadius: 0
-  canThrow: 0
-  wallLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  throwCheckLimit: 0
-  throwCheckOffset: {x: 0, y: 0, z: 0}
-  canTakeHealth: 0
-  forceLookSpeedTime: 0.3
-  isBeingGrabbedByGeist: 0
-  grabDuration: 3
-  showPhaseRadius: 1
-  grabWallCheckRadius: 0.5
-  idleDuration: 5
-  minChaseDistance: 0
-  maxChaseDistance: 4
-  maxChaseSpeed: 4
-  minChaseSpeed: 1
-  showDetectionRadius: 1
-  showRetreatRadius: 0
-  roarBank:
-  - {fileID: 8300000, guid: 179d999618f55e44c8dafcf3d8e1747a, type: 3}
-  - {fileID: 8300000, guid: 7a08f256087e6a847b5057fd7a89db34, type: 3}
-  - {fileID: 8300000, guid: e6adad2c10a0f7143a3dabaa200534f9, type: 3}
-  - {fileID: 8300000, guid: e9d94bf4da6a077448dc1eaaa6eec915, type: 3}
-  roarSource: {fileID: 502880735938082764}
-  roaring: 0
---- !u!114 &7138638095641941418
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 887167724497493879}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53c125d3bff671c45b1321354920a789, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 5
-  useRandomRoaming: 0
-  setRotationSpeed: 2.5
-  stunSeconds: 3
-  stunVelocityThreshold: 4
-  persistant: {fileID: 0}
-  player: {fileID: 0}
-  playerController: {fileID: 0}
-  startingWaypoint: {fileID: 0}
-  waypointGroup: {fileID: 0}
-  enemyStateMachine: {fileID: 779664456537576595}
-  farMusic: {fileID: 8253486236916359353}
-  nearMusic: {fileID: 3547463372703755087}
-  hitSource: {fileID: 8091156176817811785}
-  hitAudioBank:
-  - {fileID: 8300000, guid: fc63d2c9e95b9a94589e1624a5f7e4fb, type: 3}
-  - {fileID: 8300000, guid: db0ee92c7ecbd5e4384fd631611b3494, type: 3}
-  - {fileID: 8300000, guid: b59cd105c114f4e4f8ba06a7aba196a7, type: 3}
-  tendrilPrefab: {fileID: 5341443121709070393, guid: 74545c336bfdea942b5351b1f9244c3b, type: 3}
-  tendrilOrigins: []
-  backwardsOrigins: []
-  spawnInterval: 4
-  wakeDistance: 50
-  barrierLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  wakeLossCooldown: 10
-  currentWaypoint: {fileID: 0}
-  playerWaypoint: {fileID: 0}
-  targetWaypoint: {fileID: 0}
-  retreatWaypoint: {fileID: 0}
-  lastSeenWaypoint: {fileID: 0}
-  investigatingWaypoint: {fileID: 0}
-  isChasingPlayer: 0
-  isStunned: 0
-  shouldPlaySting: 1
-  stuckThreshold: 2
-  availableOrigins: []
-  FailSafe: {fileID: 0}
-  throwLocation: {x: 0, y: 0, z: 0}
-  minThrowDistance: 10
-  throwForce: 50
-  throwWallLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  stateSwitchLog: 1
 --- !u!114 &1981256898708670038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -396,6 +258,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   geistRigPrefab: {fileID: 5441912815523802169, guid: 76284ea7a92a5754d9aadd31c9ed492a, type: 3}
   children: []
+--- !u!114 &2813364571777998535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 887167724497493879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0038c16c34866b4f9e25c9c0dc0f7e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Graph: {fileID: 7604982333152128989, guid: c3d81b251b283794d8760b31e542f450, type: 2}
+  m_BlackboardVariableOverridesList:
+  - rid: 741558288388980935
+  m_OriginalGraph: {fileID: 7604982333152128989, guid: c3d81b251b283794d8760b31e542f450, type: 2}
+  m_IsInitialised: 0
+  m_IsStarted: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 741558288388980935
+      type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 1
+          m_Value1: 0
+        Name: Self
+        m_Value: {fileID: 887167724497493879}
+--- !u!114 &5981580356134212302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 887167724497493879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c2bb4624806aca4fbe691d739dda945, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  persistant: {fileID: 0}
+  playerObj: {fileID: 0}
+  player: {fileID: 0}
+  geist: {fileID: 2813364571777998535}
+  grabPlayerPos: {fileID: 0}
+  wayPointGroup: {fileID: 0}
+  startingWaypoint: {fileID: 0}
+  moveSpeed: 3
+  rotationSpeed: 2.5
+  arriveThreshold: 0.5
 --- !u!1 &910494578802743601
 GameObject:
   m_ObjectHideFlags: 0
