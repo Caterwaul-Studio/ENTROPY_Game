@@ -72,7 +72,6 @@ public class SparkScript : MonoBehaviour
         }
         if (electricActive)
         {
-            particleCheck = true;
             if (WireSpark)
             {
                
@@ -81,18 +80,16 @@ public class SparkScript : MonoBehaviour
             }
             else if (sparkBounds.Contains(player.transform.position) && damageCoolDown > 1f && sys.particleCount > 0)
             {
-
                 DamagePlayer(); //the player is shocked when they are within the bounds and the niagara has active particles
-                
-
-
             }
-            if (sys.particleCount > 0 && particleCheck)
+            else if (sys.particleCount > 0 && !particleCheck)
             {
-                particleCheck = false;
+                particleCheck = true;
                 shockAudioSource.PlayOneShot(SparkSound);
                 //Debug.Log("wirespark sound");
             }
+            if(sys.particleCount <= 0 && particleCheck)
+                particleCheck = false;
         }
         else
         {
