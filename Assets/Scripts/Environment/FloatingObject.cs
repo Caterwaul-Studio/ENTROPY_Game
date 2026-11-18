@@ -3,7 +3,7 @@ using UnityEngine;
 public class FloatingObject : MonoBehaviour
 {
 
-    Rigidbody rb;
+    public Rigidbody rb;
     Collider collider;
 
 
@@ -17,7 +17,9 @@ public class FloatingObject : MonoBehaviour
     Vector3 initDirection;
 
     [SerializeField]
-    bool useSpeedInput = false;
+    public bool useSpeedInput = false;
+    [SerializeField]
+    public bool startNoSpeed = false;
     [SerializeField]
     float initSpeed = 100f;
 
@@ -67,7 +69,14 @@ public class FloatingObject : MonoBehaviour
 
         if (!useSpeedInput)
         {
-            initSpeed = Random.Range(randomSpeedLower, randomSpeedUpper);
+            if (startNoSpeed)
+            {
+                initSpeed = 0f;
+            }
+            else
+            {
+                initSpeed = Random.Range(randomSpeedLower, randomSpeedUpper);
+            }   
         }
         
         // very basic scaling: more mass = less speed

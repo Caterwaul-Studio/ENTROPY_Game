@@ -100,6 +100,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     [Header("Audio")]
     public BarAudioHandler barAudioHandler;
+    public AudioClip shockSound;
 
     [Header("== Grabbing Settings ==")]
     // Grabbing mechanic variables
@@ -737,6 +738,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     public IEnumerator ShockEffect()
     {
+        gameObject.transform.GetChild(1).GetComponent<AudioSource>().PlayOneShot(shockSound);
+        Debug.Log("Shock sound should have played");
         canMove = false;
         StartCoroutine(CameraShake());
 
@@ -748,7 +751,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         canGrab = true;
         yield return null;
         safetyTick = 0;
-
+       
     }
 
     private IEnumerator CameraShake()
@@ -856,6 +859,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         DecreaseHealth(1);
         StartCoroutine(ShockEffect());
         ReleaseBar();
+       
     }
 
     public void GrabBar()
