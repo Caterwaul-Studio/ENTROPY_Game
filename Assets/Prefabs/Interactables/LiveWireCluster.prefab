@@ -201,15 +201,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2986816446016937642, guid: 998cf63b161b1be44be7cfc12a2c0ff1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.2731612
+      value: 1.01
       objectReference: {fileID: 0}
     - target: {fileID: 2986816446016937642, guid: 998cf63b161b1be44be7cfc12a2c0ff1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -7.846678
+      value: -4.8
       objectReference: {fileID: 0}
     - target: {fileID: 2986816446016937642, guid: 998cf63b161b1be44be7cfc12a2c0ff1, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.594595
+      value: -4.8
       objectReference: {fileID: 0}
     - target: {fileID: 4016453596554141040, guid: 998cf63b161b1be44be7cfc12a2c0ff1, type: 3}
       propertyPath: m_Color.b
@@ -379,6 +379,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -56.375
       objectReference: {fileID: 0}
+    - target: {fileID: 2976352946538148695, guid: 998cf63b161b1be44be7cfc12a2c0ff1, type: 3}
+      propertyPath: lengthInSec
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2976352946538148695, guid: 998cf63b161b1be44be7cfc12a2c0ff1, type: 3}
+      propertyPath: EmissionModule.m_Bursts.Array.data[0].probability
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2976352946538148695, guid: 998cf63b161b1be44be7cfc12a2c0ff1, type: 3}
+      propertyPath: EmissionModule.m_Bursts.Array.data[0].repeatInterval
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 4016453596554141040, guid: 998cf63b161b1be44be7cfc12a2c0ff1, type: 3}
       propertyPath: m_Color.b
       value: 0.6226415
@@ -394,6 +406,10 @@ PrefabInstance:
     - target: {fileID: 4653479643081939086, guid: 998cf63b161b1be44be7cfc12a2c0ff1, type: 3}
       propertyPath: m_Name
       value: LiveWire (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8773308330006717921, guid: 998cf63b161b1be44be7cfc12a2c0ff1, type: 3}
+      propertyPath: cooldown
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
