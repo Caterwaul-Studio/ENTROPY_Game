@@ -30,13 +30,17 @@ public static class MapBuilder
     const string DoorFolder = GeneratedFolder + "/Doors";
     const string LabelMaterialPath = GeneratedFolder + "/MapLabel.mat";
     const string LabelMaskMaterialPath = GeneratedFolder + "/MapLabel Mask.mat";
+    const string PlayerMaterialPath = GeneratedFolder + "/MapPlayer.mat";
     const string LabelFolder = GeneratedFolder + "/Labels";
     const string LineShader = "Entropy/HoloMap Lines";
     const string FaceShader = "Entropy/HoloMap Faces";
 
     // Raise MapVersion when the baked layout changes, so existing maps rebuild.
     // Raise WireVersion only when the saved line meshes change, since it renames every one of them
-    const int MapVersion = 14;
+    const int MapVersion = 15;
+
+    // The player shows as a nearly solid orange ball
+    static readonly Color PlayerColor = new Color(1f, 0.55f, 0.15f, 0.95f);
 
     // Doors show their state: blue working, yellow broken, red locked
     static readonly Color[] DoorColors =
@@ -144,6 +148,7 @@ public static class MapBuilder
         public List<Placement> placements = new List<Placement>();
         public List<LabelPlacement> labels = new List<LabelPlacement>();
         public float labelSize;
+        public float playerMarkerSize;
         public List<string> lostAnchors = new List<string>();
         public List<string> duplicateTerminals = new List<string>();
         public List<string> missingMeshes = new List<string>();
@@ -922,6 +927,8 @@ public static class MapBuilder
             text.Append($",{placement.wireKey},{placement.index},{placement.active},{placement.doorState}");
         }
 
+        text.Append($"|P,{GetKeyText(scan.playerMarkerSize)}");
+
         // TextMesh Pro is only touched when there are labels, since reading its settings can open its import window
         if (scan.labels.Count > 0)
         {
@@ -973,12 +980,40 @@ public static class MapBuilder
             {
                 AddLabels(scan, labels);
             }
+            AddPlayerMarker(root.transform, levelName, scan.playerMarkerSize);
             PrefabUtility.SaveAsPrefabAsset(root, mapPath);
         }
         finally
         {
             EditorSceneManager.ClosePreviewScene(scene);
         }
+    }
+
+    /// <summary>
+    /// The orange ball showing where the player is. MapPlayerMarker moves it while the game runs,
+    /// and it stays hidden until there's a player to show.
+    /// </summary>
+    static void AddPlayerMarker(Transform root, string levelName, float size)
+    {
+        var marker = new GameObject(MapLevel.PlayerMarkerName, typeof(MeshFilter), typeof(MeshRenderer));
+        marker.transform.SetParent(root, false);
+        marker.transform.localScale = Vector3.one * size;
+        marker.GetComponent<MeshFilter>().sharedMesh = Resources.GetBuiltinResource<Mesh>("Sphere.fbx");
+
+        var ball = marker.GetComponent<MeshRenderer>();
+        ball.sharedMaterial = GetPlayerMaterial();
+        ball.enabled = false;
+        marker.AddComponent<MapPlayerMarker>().levelScene = levelName;
+    }
+
+    // Drawn in front of rooms like terminals, so the player shows through walls
+    static Material GetPlayerMaterial()
+    {
+        return KeepQueue(GetMaterial(PlayerMaterialPath, FaceShader, ball =>
+        {
+            ball.SetColor("_Color", PlayerColor);
+            ball.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Back);
+        }), InFrontOfRoomsQueue);
     }
 
     static Transform AddGroup(string name, Transform parent)
@@ -1485,6 +1520,7 @@ public static class MapBuilder
         }
 
         result.labelSize = level.labelSize;
+        result.playerMarkerSize = level.playerMarkerSize;
         foreach (MapLevel.LabelEntry label in level.labels)
         {
             if (label == null || string.IsNullOrWhiteSpace(label.text)) continue;

@@ -36,6 +36,7 @@ public class MapLevel : MonoBehaviour
     public const string TerminalsGroup = "Terminals";
     public const string DoorsGroup = "Doors";
     public const string LabelsGroup = "Labels";
+    public const string PlayerMarkerName = "Player";
 
     /// <summary>
     /// One object in this scene, added by hand. These live here because the project-wide
@@ -79,4 +80,7 @@ public class MapLevel : MonoBehaviour
 
     [Tooltip("Label text size in metres at full map size, about the height of one line.")]
     public float labelSize = 1f;
+
+    [Tooltip("How wide the orange ball showing the player is, in metres at full map size.")]
+    public float playerMarkerSize = 1f;
 }

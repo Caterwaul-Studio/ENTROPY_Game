@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
+
 /// <summary>
 /// The Map Builder's labels: the Labels list in the window, and placing, picking and dragging them in the Scene view.
 /// </summary>
@@ -309,7 +310,7 @@ public partial class MapBuilderWindow
 
     private void DrawSceneLabels(SceneView view)
     {
-        Event current = Event.current;
+        UnityEngine.Event current = UnityEngine.Event.current;
         Camera camera = view.camera;
         int clicked = -1;
         for (int i = 0; i < overlayLevel.labels.Count; i++)
@@ -414,7 +415,7 @@ public partial class MapBuilderWindow
 
     private void HandlePlacing(SceneView view)
     {
-        Event current = Event.current;
+        UnityEngine.Event current = UnityEngine.Event.current;
         int id = GUIUtility.GetControlID(PlaceHint, FocusType.Passive);
         EditorGUIUtility.AddCursorRect(new Rect(0f, 0f, view.position.width, view.position.height), MouseCursor.ArrowPlus);
 

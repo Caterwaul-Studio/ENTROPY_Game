@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+
 using UnityEngine.Rendering;
 
 /// <summary>
 /// The Map Builder window: scan a level, pair its prefabs with proxies, and bake the map.
 /// Rows read and write the data directly, because this redraws on every event and
 /// SerializedProperty is far too slow for lists this long. Labels are in MapBuilderWindow.Labels.cs.
+/// Unity's input event is written as UnityEngine.Event, because the game has its own Event class.
 /// </summary>
 public partial class MapBuilderWindow : EditorWindow
 {
@@ -24,6 +26,7 @@ public partial class MapBuilderWindow : EditorWindow
     const string DoorsHelp = "Everything with the game's DoorScript goes on the map, drawn from its main parts and colored by its state: "
         + "blue working, yellow broken, red locked. While the game runs the map follows each door's state. "
         + "The number is its place in the DoorManager's list.";
+    static readonly GUIContent PlayerMarkerLabel = new GUIContent("Player Marker Size (m)", "How wide the orange ball showing the player is, in metres at full map size. It follows the player while the game runs.");
     static readonly GUIContent AddScanLabel = new GUIContent("Add Object to Scan", "An object beside the level root whose children belong on the map, such as rooms kept outside it. Terminals don't need this: they're found anywhere in the scene.");
     static readonly GUIContent LookInsideLabel = new GUIContent("Look Inside", "List this prefab's children so you can put them on the map one by one.");
     static readonly GUIContent UseMeshesLabel = new GUIContent("Use Meshes", "Pick which meshes draw this, instead of a box. Terminals start with all their meshes ticked.");
@@ -143,10 +146,10 @@ public partial class MapBuilderWindow : EditorWindow
         }
 
         // Right after pressing Place Labels the window still has focus, so Esc has to work here too
-        if (placingLabels && Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
+        if (placingLabels && UnityEngine.Event.current.type == EventType.KeyDown && UnityEngine.Event.current.keyCode == KeyCode.Escape)
         {
             SetPlacing(false);
-            Event.current.Use();
+            UnityEngine.Event.current.Use();
         }
 
         if (library == null)
@@ -155,7 +158,7 @@ public partial class MapBuilderWindow : EditorWindow
         }
 
         // Layout only, because the rows have to stay the same between Layout and Repaint
-        if (Event.current.type == EventType.Layout && (levelIsStale || level == null))
+        if (UnityEngine.Event.current.type == EventType.Layout && (levelIsStale || level == null))
         {
             level = MapBuilder.FindLevel(EditorSceneManager.GetActiveScene());
             foundTerminals = level != null ? MapBuilder.FindTerminals(level) : new List<(Terminal terminal, int index)>();
@@ -223,6 +226,16 @@ public partial class MapBuilderWindow : EditorWindow
             {
                 SetPlacing(placing);
             }
+        }
+
+        // Only when it's moved, so drawing never rewrites a value typed in the Inspector
+        EditorGUI.BeginChangeCheck();
+        float markerSize = EditorGUILayout.Slider(PlayerMarkerLabel, level.playerMarkerSize, 0.25f, 5f);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(level, "Change Player Marker Size");
+            level.playerMarkerSize = Mathf.Round(markerSize * 10f) / 10f;
+            EditorUtility.SetDirty(level);
         }
 
         if (placingLabels)
@@ -881,7 +894,7 @@ public partial class MapBuilderWindow : EditorWindow
     /// </summary>
     private void DrawOverlay(SceneView view)
     {
-        if (!DrawsInScene || library == null || Event.current.type != EventType.Repaint) return;
+        if (!DrawsInScene || library == null || UnityEngine.Event.current.type != EventType.Repaint) return;
         if (EditorApplication.isPlayingOrWillChangePlaymode) return;
 
         RefreshOverlay();
