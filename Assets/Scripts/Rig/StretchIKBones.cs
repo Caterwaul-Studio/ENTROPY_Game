@@ -21,6 +21,9 @@ public class StretchIKBones : MonoBehaviour
     [SerializeField]
     private float distance;
 
+    // 0 = rest length, 1 = full stretch
+    public float Weight { get; set; } = 1f;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -45,10 +48,20 @@ public class StretchIKBones : MonoBehaviour
         distance = Vector3.Distance(root.position, target.position);
         stretchFactor = distance > MAX_DISTANCE ? distance / MAX_DISTANCE : 1f;
         previousPosition = target.position;
-        
+
+
+        float factor = Mathf.Lerp(1f, stretchFactor, Weight);
+        for (int i = 1; i < bones.Count; i++)
+            bones[i].localPosition = initPositions[i] * factor;
+    }
+
+    void OnDisable()
+    {
+        // Put the bones back to rest length
+        if (bones == null) return;
 
         for (int i = 1; i < bones.Count; i++)
-            bones[i].localPosition = initPositions[i] * stretchFactor;
+            bones[i].localPosition = initPositions[i];
     }
 
     List<Transform> GetBoneChain(Transform root)

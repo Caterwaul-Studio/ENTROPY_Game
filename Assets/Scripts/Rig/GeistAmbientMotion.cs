@@ -43,6 +43,10 @@ public class GeistAmbientMotion : MonoBehaviour
     private float targetPrecessionSpeed;
     private float precessionHoldTimer;
 
+    private bool started;
+
+    public Quaternion RestRotation => restRotation;
+
     void Start()
     {
         restRotation = transform.localRotation;
@@ -53,6 +57,14 @@ public class GeistAmbientMotion : MonoBehaviour
 
         currentPrecessionSpeed = Random.Range(-maxPrecessionSpeed, maxPrecessionSpeed);
         PickNewPrecessionTarget();
+        started = true;
+    }
+
+    void OnEnable()
+    {
+        // We may have been rotated while disabled, so start a new tilt from here
+        if (started)
+            PickNewTiltTarget();
     }
 
     void Update()
