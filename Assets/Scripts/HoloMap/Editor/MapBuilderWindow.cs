@@ -23,9 +23,9 @@ public partial class MapBuilderWindow : EditorWindow
     const float HiddenOverlayAlpha = 0.3f;
     const string TerminalsHelp = "Everything with the game's Terminal script goes on the map in orange, drawn from its own meshes. "
         + "The number is its place in the TerminalManager's list, which the map can use to show each terminal's state.";
-    const string DoorsHelp = "Everything with the game's DoorScript goes on the map, drawn from its main parts and colored by its state: "
-        + "blue working, yellow broken, red locked. While the game runs the map follows each door's state. "
-        + "The number is its place in the DoorManager's list.";
+    const string DoorsHelp = "Everything with the game's DoorScript goes on the map, drawn from its main parts. Its panel (the DoorScript's Door Part) "
+        + "is colored by its state: blue working, yellow broken, red locked. While the game runs the map follows each door's state. "
+        + "A door with no Door Part is drawn in the map's usual color. The number is its place in the DoorManager's list.";
     static readonly GUIContent PlayerMarkerLabel = new GUIContent("Player Marker Size (m)", "How wide the orange ball showing the player is, in metres at full map size. It follows the player while the game runs.");
     static readonly GUIContent AddScanLabel = new GUIContent("Add Object to Scan", "An object beside the level root whose children belong on the map, such as rooms kept outside it. Terminals don't need this: they're found anywhere in the scene.");
     static readonly GUIContent LookInsideLabel = new GUIContent("Look Inside", "List this prefab's children so you can put them on the map one by one.");
@@ -46,6 +46,7 @@ public partial class MapBuilderWindow : EditorWindow
     private bool levelIsStale = true;
     private List<(Terminal terminal, int index)> foundTerminals = new List<(Terminal terminal, int index)>();
     private List<(DoorScript door, int index)> foundDoors = new List<(DoorScript door, int index)>();
+    private readonly HashSet<DoorScript> doorsWithoutPanel = new HashSet<DoorScript>();
     private Vector2 scroll;
     private readonly List<string> report = new List<string>();
     private readonly HashSet<object> openMeshLists = new HashSet<object>();
@@ -163,6 +164,11 @@ public partial class MapBuilderWindow : EditorWindow
             level = MapBuilder.FindLevel(EditorSceneManager.GetActiveScene());
             foundTerminals = level != null ? MapBuilder.FindTerminals(level) : new List<(Terminal terminal, int index)>();
             foundDoors = level != null ? MapBuilder.FindDoors(level) : new List<(DoorScript door, int index)>();
+            doorsWithoutPanel.Clear();
+            foreach ((DoorScript door, int _) in foundDoors)
+            {
+                if (door != null && MapBuilder.GetDoorPanel(door) == null) doorsWithoutPanel.Add(door);
+            }
             levelIsStale = false;
         }
 
@@ -476,6 +482,7 @@ public partial class MapBuilderWindow : EditorWindow
                 string hidden = door.gameObject.activeInHierarchy ? "" : ", starts hidden";
                 string status = row != null && row.kind != MapEntryKind.Door
                     ? $"added by hand as {row.kind}"
+                    : doorsWithoutPanel.Contains(door) ? $"{number}, no door part{hidden}"
                     : $"{number}, {MapDoors.GetState(door.DoorState).ToString().ToLower()}{hidden}";
                 GUILayout.Label(status, GUILayout.Width(170));
             }

@@ -34,22 +34,24 @@ public static class MapBuilder
     const string LabelFolder = GeneratedFolder + "/Labels";
     const string LineShader = "Entropy/HoloMap Lines";
     const string FaceShader = "Entropy/HoloMap Faces";
+    const string SeeThroughLineShader = "Entropy/HoloMap Lines XRay";
 
     // Raise MapVersion when the baked layout changes, so existing maps rebuild.
     // Raise WireVersion only when the saved line meshes change, since it renames every one of them
-    const int MapVersion = 15;
+    const int MapVersion = 19;
 
     // The player shows as a nearly solid orange ball
     static readonly Color PlayerColor = new Color(1f, 0.55f, 0.15f, 0.95f);
 
-    // Doors show their state: blue working, yellow broken, red locked
+    // Doors show their state: blue working, yellow broken, red locked. A working door is barely set apart
+    // from the rooms around it, a broken or locked one clearly so, and terminals and the player stand out most
     static readonly Color[] DoorColors =
     {
-        new Color(0.35f, 0.85f, 1f, 1f),
-        new Color(1f, 0.82f, 0.15f, 1f),
-        new Color(1f, 0.22f, 0.18f, 1f),
+        new Color(0.35f, 0.85f, 1f, 0.6f),
+        new Color(0.9f, 0.74f, 0.14f, 1f),
+        new Color(0.9f, 0.2f, 0.16f, 1f),
     };
-    const float DoorFillAlpha = 0.4f;
+    static readonly float[] DoorFillAlphas = { 0.06f, 0.3f, 0.3f };
 
     // Doors are drawn from their main parts. Anything smaller than this share of the door,
     // like grab bars and screens, is left out so it doesn't clutter the map
@@ -81,6 +83,10 @@ public static class MapBuilder
     const int LabelQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 97;
     const int InFrontOfRoomsQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 98;
     const int FaceDepthQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 99;
+
+    // The rooms' own tint and lines, matching the shaders' queues, for pieces drawn like rooms
+    const int RoomTintQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 100;
+    const int RoomLinesQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 101;
 
     // Stencil values. URP leaves 1 to 8 for projects, but its stencil LOD cross-fade uses 4 and 8.
     // Label letters mark 1, which HoloMapLines.shader checks. Terminal and door fills mark 2 as they draw, so each pixel fills once
@@ -123,6 +129,9 @@ public static class MapBuilder
 
         // For doors: the state they show
         public MapDoorState doorState;
+
+        // For doors: where the moving panel is under the door, so the map's panel can follow it
+        public string panelPath = "";
     }
 
     /// <summary>
@@ -379,13 +388,13 @@ public static class MapBuilder
 
     /// <summary>
     /// A door's frame is drawn like the rest of the map, and only its moving panel (the DoorScript's doorPart)
-    /// is colored by the door's state. A door with no panel set is colored as a whole.
+    /// is colored by the door's state. A door with no panel has nothing to show its state, so all of it
+    /// is drawn in the map's usual color.
     /// </summary>
     static void AddDoor(DoorScript door, Transform levelRoot, int index, ScanResult result)
     {
         Transform t = door.transform;
-        Transform panel = new SerializedObject(door).FindProperty("doorPart")?.objectReferenceValue as Transform;
-        if (panel != null && !panel.IsChildOf(t)) panel = null;
+        Transform panel = GetDoorPanel(door);
 
         var frameShape = new MapShape { useMeshes = true, mergeDistance = DoorMergeDistance };
         var panelShape = new MapShape { useMeshes = true, mergeDistance = DoorMergeDistance };
@@ -394,23 +403,33 @@ public static class MapBuilder
             MapShape shape = panel != null && filter.transform.IsChildOf(panel) ? panelShape : frameShape;
             if (!shape.meshes.Contains(filter.sharedMesh)) shape.meshes.Add(filter.sharedMesh);
         }
-
-        if (panel == null || panelShape.meshes.Count == 0)
-        {
-            Placement whole = AddShape(t, levelRoot, MapEntryKind.Door, null, frameShape, result);
-            if (whole != null) SetDoorState(whole, door, index, result);
-            return;
-        }
+        bool showsState = panel != null && panelShape.meshes.Count > 0;
 
         if (frameShape.meshes.Count > 0)
         {
-            Placement frame = AddShape(t, levelRoot, MapEntryKind.Room, null, frameShape, result, panel);
-            if (frame != null) frame.active = t.gameObject.activeInHierarchy;
+            Placement frame = AddShape(t, levelRoot, MapEntryKind.Room, null, frameShape, result, showsState ? panel : null);
+            if (frame != null)
+            {
+                frame.active = t.gameObject.activeInHierarchy;
+                if (!showsState && !frame.active) result.hidden.Add(t.name);
+            }
         }
+        if (!showsState) return;
+
         Placement panelPiece = AddShape(panel, levelRoot, MapEntryKind.Door, null, panelShape, result);
         if (panelPiece == null) return;
         panelPiece.name = t.name;
+        panelPiece.panelPath = AnimationUtility.CalculateTransformPath(panel, t);
         SetDoorState(panelPiece, door, index, result);
+    }
+
+    /// <summary>
+    /// The door's moving panel, from the DoorScript's Door Part field. Null when it isn't set, or isn't part of the door.
+    /// </summary>
+    public static Transform GetDoorPanel(DoorScript door)
+    {
+        var panel = new SerializedObject(door).FindProperty("doorPart")?.objectReferenceValue as Transform;
+        return panel != null && panel.IsChildOf(door.transform) ? panel : null;
     }
 
     /// <summary>
@@ -924,7 +943,7 @@ public static class MapBuilder
             text.Append($"|{placement.name},{placement.kind},{AssetDatabase.AssetPathToGUID(proxyPath)}");
             text.Append($",{placement.position:F3},{placement.rotation:F4},{placement.scale:F3}");
             text.Append($",{placement.box.center:F3},{placement.box.size:F3}");
-            text.Append($",{placement.wireKey},{placement.index},{placement.active},{placement.doorState}");
+            text.Append($",{placement.wireKey},{placement.index},{placement.active},{placement.doorState},{placement.panelPath}");
         }
 
         text.Append($"|P,{GetKeyText(scan.playerMarkerSize)}");
@@ -967,6 +986,7 @@ public static class MapBuilder
             doorColors.working = GetDoorMaterials(MapDoorState.Working);
             doorColors.broken = GetDoorMaterials(MapDoorState.Broken);
             doorColors.locked = GetDoorMaterials(MapDoorState.Locked);
+            doorColors.levelScene = levelName;
 
             foreach (Placement placement in scan.placements)
             {
@@ -1066,6 +1086,7 @@ public static class MapBuilder
             var door = node.AddComponent<MapDoor>();
             door.index = placement.index;
             door.state = placement.doorState;
+            door.panelPath = placement.panelPath;
             door.pieces = lines != null ? new[] { lines.GetComponent<MeshRenderer>() } : new MeshRenderer[0];
         }
 
@@ -1241,11 +1262,26 @@ public static class MapBuilder
     static Material[] GetDoorMaterials(MapDoorState state)
     {
         Color color = DoorColors[(int)state];
+
+        // A working door is drawn like the walls, but shows through them near the front of the map, so the doors
+        // right in front of the viewer stay readable without every door showing at once. Broken and locked
+        // doors show through everywhere, since they matter anywhere
+        if (state == MapDoorState.Working)
+        {
+            Material lines = GetMaterial($"{DoorFolder}/MapDoorLines {state}.mat", SeeThroughLineShader, created => created.SetColor("_Color", color));
+            return new[]
+            {
+                KeepQueue(KeepShader(lines, SeeThroughLineShader), RoomLinesQueue),
+                GetFaceDepthMaterial(),
+                GetTintMaterial($"{DoorFolder}/MapDoorFill {state}.mat", new Color(color.r, color.g, color.b, DoorFillAlphas[(int)state])),
+            };
+        }
+
         return new[]
         {
             KeepQueue(GetMaterial($"{DoorFolder}/MapDoorLines {state}.mat", LineShader, lines => lines.SetColor("_Color", color)), InFrontOfRoomsQueue),
             GetFaceDepthMaterial(),
-            GetFillMaterial($"{DoorFolder}/MapDoorFill {state}.mat", new Color(color.r, color.g, color.b, DoorFillAlpha), DoorFillQueue),
+            GetFillMaterial($"{DoorFolder}/MapDoorFill {state}.mat", new Color(color.r, color.g, color.b, DoorFillAlphas[(int)state]), DoorFillQueue),
         };
     }
 
@@ -1313,6 +1349,32 @@ public static class MapBuilder
         }), queue);
     }
 
+    /// <summary>
+    /// A faint tint drawn like the rooms' own: only on the nearest face, hidden behind anything in front.
+    /// How it draws is set every time, which also updates older materials.
+    /// </summary>
+    static Material GetTintMaterial(string path, Color color)
+    {
+        Material tint = GetMaterial(path, FaceShader, created => created.SetColor("_Color", color));
+        bool changed = false;
+        void Set(string property, float value)
+        {
+            if (tint.GetFloat(property) == value) return;
+            tint.SetFloat(property, value);
+            changed = true;
+        }
+        Set("_Cull", (float)UnityEngine.Rendering.CullMode.Off);
+        Set("_StencilComp", (float)UnityEngine.Rendering.CompareFunction.Always);
+        Set("_StencilPass", (float)UnityEngine.Rendering.StencilOp.Keep);
+        Set("_StencilRef", 0f);
+        if (changed)
+        {
+            EditorUtility.SetDirty(tint);
+            AssetDatabase.SaveAssetIfDirty(tint);
+        }
+        return KeepQueue(tint, RoomTintQueue);
+    }
+
     static Material GetTerminalFillMaterial()
     {
         return GetFillMaterial(TerminalFaceTintMaterialPath, new Color(TerminalColor.r, TerminalColor.g, TerminalColor.b, TerminalTintAlpha), TerminalFillQueue);
@@ -1346,6 +1408,17 @@ public static class MapBuilder
             AssetDatabase.SaveAssetIfDirty(fill);
         }
         return KeepQueue(fill, queue);
+    }
+
+    // For materials whose shader is part of how the map works. Updates materials made by older versions, keeping their colors
+    static Material KeepShader(Material material, string shaderName)
+    {
+        Shader shader = Shader.Find(shaderName);
+        if (shader == null || material.shader == shader) return material;
+        material.shader = shader;
+        EditorUtility.SetDirty(material);
+        AssetDatabase.SaveAssetIfDirty(material);
+        return material;
     }
 
     // For materials whose draw order is part of how the map works. Set every time, which also updates older materials

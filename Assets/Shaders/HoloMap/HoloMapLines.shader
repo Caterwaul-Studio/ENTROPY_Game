@@ -6,6 +6,12 @@ Shader "Entropy/HoloMap Lines"
     {
         _Color ("Color", Color) = (0.35, 0.85, 1, 1)
         _Lift ("Lift Toward Camera", Range(0, 0.05)) = 0.005
+
+        // Lines are one pixel wide, so from far away they crowd together. They fade toward Far Opacity
+        // between these distances from the camera, so a far-off map reads lighter instead of solid
+        _FadeStart ("Fade Start (m)", Float) = 2
+        _FadeEnd ("Fade End (m)", Float) = 8
+        _FarOpacity ("Far Opacity", Range(0, 1)) = 0.35
     }
 
     SubShader
@@ -37,6 +43,9 @@ Shader "Entropy/HoloMap Lines"
             CBUFFER_START(UnityPerMaterial)
                 half4 _Color;
                 float _Lift;
+                float _FadeStart;
+                float _FadeEnd;
+                float _FarOpacity;
             CBUFFER_END
 
             struct Attributes
@@ -48,6 +57,7 @@ Shader "Entropy/HoloMap Lines"
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
+                float depth : TEXCOORD0;
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
@@ -64,12 +74,15 @@ Shader "Entropy/HoloMap Lines"
                 positionWS += GetWorldSpaceNormalizeViewDir(positionWS) * depth * _Lift;
 
                 output.positionCS = TransformWorldToHClip(positionWS);
+                output.depth = depth;
                 return output;
             }
 
             half4 Frag(Varyings input) : SV_Target
             {
-                return _Color;
+                half4 color = _Color;
+                color.a *= lerp(1, _FarOpacity, saturate((input.depth - _FadeStart) / max(_FadeEnd - _FadeStart, 0.001)));
+                return color;
             }
             ENDHLSL
         }
