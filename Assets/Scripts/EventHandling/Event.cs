@@ -218,7 +218,7 @@ public class Event : MonoBehaviour
         ApplyLightState(lights, emissiveMaterials, curve.Evaluate(1f), lightIntensityMultiplier, emissionColors, emissionMultiplier);
     }
 
-    private void ApplyLightState(
+    protected void ApplyLightState(
         Light[] lights, Material[] mats, float curveValue,
         float lightMultiplier, Color[] emissionColors, float emissionMultiplier)
     {

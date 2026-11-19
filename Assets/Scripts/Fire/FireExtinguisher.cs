@@ -509,7 +509,7 @@ public class FireExtinguisher : MonoBehaviour, IInventoryItem, ISaveableInventor
 
         if (currentlyHeld != null)
         {
-            Debug.Log($"[FireExtinguisher] Discarding leftover held extinguisher (id={currentlyHeld.ExtinguisherID}) ÅEnot eligible for retention on this reload.");
+            Debug.Log($"[FireExtinguisher] Discarding leftover held extinguisher (id={currentlyHeld.ExtinguisherID}) ÔøΩEnot eligible for retention on this reload.");
             Destroy(currentlyHeld.gameObject); // it's a runtime clone with no valid "original" scene position, so destroy rather than ForceReturn
         }
 

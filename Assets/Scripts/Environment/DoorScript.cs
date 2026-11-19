@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Jobs;
 using UnityEngine.ProBuilder;
 using UnityEngine.Rendering.Universal;
-public class DoorScript : MonoBehaviour
+public class DoorScript : MonoBehaviour, PowerObject
 {
     [Serializable]
     public enum States
@@ -40,6 +40,8 @@ public class DoorScript : MonoBehaviour
     [SerializeField]
     private PermissionLevel level;
 
+    [SerializeField]
+    private PowerObject.PowerStates currentPowerState;
 
     [SerializeField]
     private float openDuration = 1.8f;
@@ -172,6 +174,11 @@ public class DoorScript : MonoBehaviour
         }
     }
 
+    public PowerObject.PowerStates CurrentPowerState
+    {
+        get { return currentPowerState;  }
+    }
+
     public bool HasPermissionLevel
     {
         get { return hasPermissionlevel; }
@@ -196,78 +203,81 @@ public class DoorScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GetChildButtons();
-
-        closedPos = doorPart.transform.localPosition;
-        Vector3 worldRight = doorPart.forward * -1;  // Direction in world space
-        Vector3 localRight = doorPart.parent.InverseTransformDirection(worldRight);  // Convert to local space
-        //Debug.Log(closedPos.ToString());
-        openPos = closedPos + localRight * openSize;
-        isClosing = false;
-        
-        // set visual status based on initial state
-        ChangeStatusVisual();
-
-        // labels need to applied on start up to properly instance the shader material
-        ApplyTextSign();
-
-        if (states == States.Open)
+        if (currentPowerState == PowerObject.PowerStates.Powered)
         {
-            doorPart.localPosition = openPos;
-            SetButtonColor(greenBase, greenEmis);
-        }
+            GetChildButtons();
 
-        if (states == States.Closed)
-        {
-            doorPart.localPosition = closedPos;
-            SetButtonColor(greenBase, greenEmis);
-        }
+            closedPos = doorPart.transform.localPosition;
+            Vector3 worldRight = doorPart.forward * -1;  // Direction in world space
+            Vector3 localRight = doorPart.parent.InverseTransformDirection(worldRight);  // Convert to local space
+                                                                                         //Debug.Log(closedPos.ToString());
+            openPos = closedPos + localRight * openSize;
+            isClosing = false;
 
+            // set visual status based on initial state
+            ChangeStatusVisual();
 
-        if (states == States.Broken)
-        {
-            SetButtonColor(yellowBase, yellowEmis);
-            StartBrokenRoutine(HandleBrokenDoorLoop());
-        }
+            // labels need to applied on start up to properly instance the shader material
+            ApplyTextSign();
 
-        if (states == States.Locked)
-        {
-            doorPart.localPosition = closedPos;
-            SetButtonColor(redBase, redEmis);
-        }
-
-        if (states == States.BrokenShort)
-        {
-            SetButtonColor(yellowBase, yellowEmis);
-            StartBrokenRoutine(HandleBrokenDoorShort());
-        }
-
-        foreach (Sparks spark in sparks)
-        {
-            if (spark != null)
+            if (states == States.Open)
             {
-                spark.ToggleSparks(showSparks);
+                doorPart.localPosition = openPos;
+                SetButtonColor(greenBase, greenEmis);
             }
 
+            if (states == States.Closed)
+            {
+                doorPart.localPosition = closedPos;
+                SetButtonColor(greenBase, greenEmis);
+            }
+
+
+            if (states == States.Broken)
+            {
+                SetButtonColor(yellowBase, yellowEmis);
+                StartBrokenRoutine(HandleBrokenDoorLoop());
+            }
+
+            if (states == States.Locked)
+            {
+                doorPart.localPosition = closedPos;
+                SetButtonColor(redBase, redEmis);
+            }
+
+            if (states == States.BrokenShort)
+            {
+                SetButtonColor(yellowBase, yellowEmis);
+                StartBrokenRoutine(HandleBrokenDoorShort());
+            }
+
+            foreach (Sparks spark in sparks)
+            {
+                if (spark != null)
+                {
+                    spark.ToggleSparks(showSparks);
+                }
+
+            }
+
+            if (midReference != null)
+            {
+                midPos = midReference.transform.localPosition;
+            }
+
+            if (shortReference != null)
+            {
+                shortPos = shortReference.transform.localPosition;
+            }
+
+            if (bodyOpenReference != null)
+            {
+                bodyPos = bodyOpenReference.transform.localPosition;
+            }
+
+
+            //dialogueManager.StartDialogueSequence(0);
         }
-
-        if (midReference != null)
-        {
-            midPos = midReference.transform.localPosition;
-        }
-
-        if (shortReference != null)
-        {
-            shortPos = shortReference.transform.localPosition;
-        }
-
-        if (bodyOpenReference != null)
-        {
-            bodyPos = bodyOpenReference.transform.localPosition;
-        }
-
-
-        //dialogueManager.StartDialogueSequence(0);
     }
 
     // Update is called once per frame
@@ -295,14 +305,17 @@ public class DoorScript : MonoBehaviour
 
     public void UseDoor()
     {
-        if (states == States.Open)
+        if (currentPowerState == PowerObject.PowerStates.Powered)
         {
-            StartCoroutine(CloseDoor());
+            if (states == States.Open)
+            {
+                StartCoroutine(CloseDoor());
 
-        }
-        else if (states == States.Closed)
-        {
-            StartCoroutine(OpenDoor());
+            }
+            else if (states == States.Closed)
+            {
+                StartCoroutine(OpenDoor());
+            }
         }
     }
 
@@ -508,65 +521,69 @@ public class DoorScript : MonoBehaviour
     /// <param name="state"></param>
     public void SetState(States state)
     {
-        States previousState = this.states;
-        // leaving a broken state? stop the loop and sparks
-        if (state != States.Broken && state != States.BrokenShort)
-            StopBrokenRoutine();
-        this.DoorState = state;
-
-        if (state == States.Closed || state == States.Open)
+        if (currentPowerState == PowerObject.PowerStates.Powered)
         {
-            SetButtonColor(greenBase, greenEmis);
-            ChangeStatusVisual();
+            States previousState = this.states;
+            // leaving a broken state? stop the loop and sparks
+            if (state != States.Broken && state != States.BrokenShort)
+                StopBrokenRoutine();
+            this.DoorState = state;
 
-            if (state == States.Open)
+            if (state == States.Closed || state == States.Open)
             {
-                //Debug.Log("This part of the script is happening");
-                //open the door if it wasn't already opening
-                if (previousState != States.Open && previousState != States.Opening)
+                SetButtonColor(greenBase, greenEmis);
+                ChangeStatusVisual();
+
+                if (state == States.Open)
                 {
-                    StartCoroutine(OpenDoor());
+                    //Debug.Log("This part of the script is happening");
+                    //open the door if it wasn't already opening
+                    if (previousState != States.Open && previousState != States.Opening)
+                    {
+                        StartCoroutine(OpenDoor());
+                    }
+                }
+                if (state == States.Closed)
+                {
+                    //close the door if it wasn't already closed
+                    if (previousState != States.Closed && previousState != States.Locked && previousState != States.Closing)
+                    {
+                        StartCoroutine(CloseDoor());
+                    }
                 }
             }
-            if (state == States.Closed)
+            else if (state == States.Broken)
             {
-                //close the door if it wasn't already closed
-                if (previousState != States.Closed && previousState != States.Locked && previousState != States.Closing)
+                SetButtonColor(yellowBase, yellowEmis);
+                ChangeStatusVisual();
+                StartBrokenRoutine(HandleBrokenDoorLoop());
+            }
+            else if (state == States.Locked)
+            {
+                SetButtonColor(redBase, redEmis);
+                ChangeStatusVisual();
+
+                if (previousState != States.Locked && previousState != States.Closed)
                 {
-                    StartCoroutine(CloseDoor());
+                    StartCoroutine(CloseAndLock());
                 }
-            }
-        }
-        else if (state == States.Broken)
-        {
-            SetButtonColor(yellowBase, yellowEmis);
-            ChangeStatusVisual();
-            StartBrokenRoutine(HandleBrokenDoorLoop());
-        }
-        else if (state == States.Locked)
-        {
-            SetButtonColor(redBase, redEmis);
-            ChangeStatusVisual();
 
-            if (previousState != States.Locked && previousState != States.Closed)
+            }
+            else if (state == States.BrokenShort)
             {
-                StartCoroutine(CloseAndLock());
+                SetButtonColor(yellowBase, yellowEmis);
+                ChangeStatusVisual();
+                StartBrokenRoutine(HandleBrokenDoorShort());
             }
-
-        }
-        else if (state == States.BrokenShort)
-        {
-            SetButtonColor(yellowBase, yellowEmis);
-            ChangeStatusVisual();
-            StartBrokenRoutine(HandleBrokenDoorShort());
-        }
-        else if (state == States.JoltOpen)
-        {
-            SetButtonColor(yellowBase, yellowEmis);
-            ChangeStatusVisual();
-            StartCoroutine(HandleDoorStuck());
+            else if (state == States.JoltOpen)
+            {
+                SetButtonColor(yellowBase, yellowEmis);
+                ChangeStatusVisual();
+                StartCoroutine(HandleDoorStuck());
+            }
         }
     }
+
 
     /// <summary>
     /// Sets the state of the door without playing the whole moving animation. Used by the save manager to load doors
@@ -656,7 +673,10 @@ public class DoorScript : MonoBehaviour
         }
     }
 
-
+    public void SetPowerState(PowerObject.PowerStates powerState)
+    {
+        currentPowerState = powerState;
+    }
 
     private IEnumerator CloseAndLock()
     {
@@ -690,7 +710,7 @@ public class DoorScript : MonoBehaviour
 
     public void UnlockDoor()
     {
-        if (states == States.Locked)
+        if (states == States.Locked && currentPowerState == PowerObject.PowerStates.Powered)
         {
             DoorState = States.Closed;
             UseDoor();
@@ -710,7 +730,7 @@ public class DoorScript : MonoBehaviour
 
     private void AutomaticDoor()
     {
-        if (states != States.Locked && states != States.Broken)
+        if (currentPowerState == PowerObject.PowerStates.Powered && states != States.Locked && states != States.Broken)
         {
             if (inRange)
             {
