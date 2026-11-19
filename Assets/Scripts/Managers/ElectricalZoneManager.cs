@@ -89,7 +89,7 @@ public class ElectricalZoneManager : Event, PowerObject
             initLightEmissives = initEmissive;
         }
 
-        SetPowerState(currentPowerState);
+        SetPowerState(PowerObject.PowerStates.Unpowered);
     }
     //Used to prevent light modifying coroutines from overlapping
     private IEnumerator SetLights(PowerObject.PowerStates powerState)

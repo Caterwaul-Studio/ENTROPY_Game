@@ -7,14 +7,14 @@ using UnityEngine;
 public class GeistDirectorBrain : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private PersistantManager persistantManager;
-    [SerializeField] private GameObject playerObj;
-    [SerializeField] private ZeroGravity player;
+    private PersistantManager persistantManager;
+    private GameObject playerObj;
+    private ZeroGravity player;
 
     [Header("GeistObjs")]
     [SerializeField] private BehaviorGraphAgent geist;
     [SerializeField] private GameObject grabPlayerPos;
-    [SerializeField] private string modeVariableName = "New GeistEnums";
+    private string modeVariableName = "New GeistEnums";
     BlackboardVariable<bool> playerInAOE,
         playerInLOS,
         playerInGrabRange,
@@ -95,6 +95,9 @@ public class GeistDirectorBrain : MonoBehaviour
 
         if (snapToStart && startingWaypoint != null)
             transform.position = startingWaypoint.transform.position;
+
+        RebuildZoneMembership(); //initialize the electrical zones
+
         Debug.Log($"[GeistBrain] InitializeNavigation: {allWaypoints.Count} waypoints, start = {(CurrentWaypoint != null ? CurrentWaypoint.name : "NONE")}", this);
     }
     /// <summary>
@@ -167,6 +170,142 @@ public class GeistDirectorBrain : MonoBehaviour
 
     #endregion
 
+    #region Electrical zones (waypoint groups that can be switched in/out of pathfinding)
+
+    private class Zone
+    {
+        public UnityEngine.Object key;     // the ElectricalZoneManager
+        public List<Collider> bounds;      // its box colliders
+        public bool powered = true;
+    }
+
+    private readonly List<Zone> zones = new List<Zone>();
+    private readonly Dictionary<Waypoint, List<Zone>> waypointZones = new Dictionary<Waypoint, List<Zone>>();
+
+    /// <summary>
+    /// Registers a zone and assigns every waypoint inside its colliders to it.
+    /// Waypoints that aren't inside any zone are always available.
+    /// </summary>
+    public void RegisterZone(UnityEngine.Object key, IEnumerable<Collider> bounds, bool powered)
+    {
+        Zone zone = zones.Find(z => z.key == key);
+        if (zone == null)
+        {
+            zone = new Zone { key = key };
+            zones.Add(zone);
+        }
+        zone.bounds = bounds.Where(c => c != null).ToList();
+        zone.powered = powered;
+        RebuildZoneMembership();
+    }
+
+    /// <summary>Zone turned on (waypoints rejoin A*) or off (waypoints leave A*).</summary>
+    public void SetZonePowered(UnityEngine.Object key, bool powered)
+    {
+        Zone zone = zones.Find(z => z.key == key);
+        if (zone == null || zone.powered == powered) return;
+
+        zone.powered = powered;
+        Debug.Log($"[GeistBrain] Zone {key.name} powered = {powered}", this);
+
+        // If the route we're walking crosses powered zone. ditch it.
+        if (powered && PathIsBlocked())
+            Path.Clear();
+    }
+
+    public bool IsWaypointActive(Waypoint wp)
+    {
+        if (!waypointZones.TryGetValue(wp, out List<Zone> inside)) return true;
+        foreach (Zone z in inside)
+            if (z.powered) return false;
+        return true;
+    }
+
+    private void RebuildZoneMembership()
+    {
+        waypointZones.Clear();
+        foreach (Waypoint wp in allWaypoints)
+        {
+            if (wp == null) continue;
+            foreach (Zone zone in zones)
+            {
+                if (!zone.bounds.Any(c => ContainsPoint(c, wp.transform.position))) continue;
+                if (!waypointZones.TryGetValue(wp, out List<Zone> list))
+                    waypointZones[wp] = list = new List<Zone>();
+                list.Add(zone);
+            }
+        }
+        Debug.Log($"[GeistBrain] {waypointZones.Count}/{allWaypoints.Count} waypoints are inside electrical zones", this);
+    }
+
+    private static bool ContainsPoint(Collider c, Vector3 point)
+    {
+        if (c == null) return false;
+
+        // box test in local space: handles rotation and scale, and works while collider is disabled
+        if (c is BoxCollider box)
+        {
+            Vector3 local = box.transform.InverseTransformPoint(point) - box.center;
+            Vector3 half = box.size * 0.5f;
+            return Mathf.Abs(local.x) <= half.x && Mathf.Abs(local.y) <= half.y && Mathf.Abs(local.z) <= half.z;
+        }
+        return c.bounds.Contains(point);
+    }
+
+    private bool SegmentBlocked(Vector3 a, Vector3 b)
+    {
+        foreach (Zone zone in zones)
+        {
+            if (!zone.powered) continue;
+            // an endpoint already inside this zone is handled elsewhere (and lets the Geist leave it)
+            if (zone.bounds.Any(c => ContainsPoint(c, a) || ContainsPoint(c, b))) continue;
+
+            foreach (Collider c in zone.bounds)
+                if (c is BoxCollider box && SegmentIntersectsBox(box, a, b)) return true;
+        }
+        return false;
+    }
+
+    private static bool SegmentIntersectsBox(BoxCollider box, Vector3 a, Vector3 b)
+    {
+        Vector3 p0 = box.transform.InverseTransformPoint(a) - box.center;
+        Vector3 p1 = box.transform.InverseTransformPoint(b) - box.center;
+        Vector3 half = box.size * 0.5f;
+        Vector3 d = p1 - p0;
+        float tMin = 0f, tMax = 1f;
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (Mathf.Abs(d[i]) < 1e-6f)
+            {
+                if (p0[i] < -half[i] || p0[i] > half[i]) return false;
+            }
+            else
+            {
+                float t1 = (-half[i] - p0[i]) / d[i];
+                float t2 = (half[i] - p0[i]) / d[i];
+                if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; }
+                tMin = Mathf.Max(tMin, t1);
+                tMax = Mathf.Min(tMax, t2);
+                if (tMin > tMax) return false;
+            }
+        }
+        return true;
+    }
+
+    private bool PathIsBlocked()
+    {
+        Vector3 prev = transform.position;
+        foreach (Waypoint w in Path)
+        {
+            if (!IsWaypointActive(w) || SegmentBlocked(prev, w.transform.position)) return true;
+            prev = w.transform.position;
+        }
+        return false;
+    }
+
+    #endregion
+
     #region Navigation (ported from ComplexEnemyAI)
 
     /// <summary>
@@ -222,9 +361,10 @@ public class GeistDirectorBrain : MonoBehaviour
     /// <returns></returns>
     public Waypoint GetRandomWaypoint()
     {
-        List<Waypoint> options = allWaypoints.Where(wp => wp != CurrentWaypoint).ToList();
+        List<Waypoint> options = allWaypoints.Where(wp => wp != CurrentWaypoint && IsWaypointActive(wp)).ToList();
         return options.Count > 0 ? options[Random.Range(0, options.Count)] : null;
     }
+
     /// <summary>
     /// A* pathfinding hat finds paths to goal waypoint, The InterestPt
     /// </summary>
@@ -239,6 +379,7 @@ public class GeistDirectorBrain : MonoBehaviour
             Debug.LogWarning($"A* stopped: start {(start == null ? "Null" : "Valid")}, goal {(goal == null ? "Null" : "Valid")}");
             return result;
         }
+        if (!IsWaypointActive(goal)) return result; // no route to powered zone
 
         var open = new List<Waypoint> { start };
         var closed = new HashSet<Waypoint>();
@@ -265,6 +406,8 @@ public class GeistDirectorBrain : MonoBehaviour
             foreach (Waypoint neighbor in current.neighbors)
             {
                 if (neighbor == null || closed.Contains(neighbor)) continue;
+                if(!IsWaypointActive(neighbor)) continue; // powered zone? not part of the graph
+                if (SegmentBlocked(current.transform.position, neighbor.transform.position)) continue;
 
                 float tentative = g[current] + Vector3.Distance(current.transform.position, neighbor.transform.position);
                 if(!g.TryGetValue(neighbor, out float existing) || tentative < existing)
