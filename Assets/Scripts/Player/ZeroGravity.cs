@@ -1105,13 +1105,13 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             Vector3 directionToRung = (swingPoint - cam.transform.position).normalized;
             float closeUpAngleAdjustment = math.remap(distanceFromPoint, 0, grabRange, 5, 0);
 
-            //if (Mathf.Abs(Vector3.Angle(directionToRung, cam.transform.forward)) < 15f + closeUpAngleAdjustment)
-            //{
-                //if (!useManualPullIn)
-                //{
+            if (Mathf.Abs(Vector3.Angle(directionToRung, cam.transform.forward)) < 15f + closeUpAngleAdjustment)
+            {
+                if (!useManualPullIn)
+                {
                     SwingCoolDown(bar);
-                //}
-            //}
+                }
+            }
 
 
             if (distanceFromPoint > grabRange)
