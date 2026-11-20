@@ -66,6 +66,8 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField]
     private UnityEngine.UI.Image progressBar;
 
+    public UnityEngine.UI.Image throwChargeBar;
+
     //sprite assets
     //grabber
     [SerializeField]
@@ -275,6 +277,7 @@ public class PlayerUIManager : MonoBehaviour
         if(stimDispenserContainer != null)
         stimDispensers = stimDispenserContainer.GetComponentsInChildren<StimDispenser>();
         progressBar.enabled = false;
+        throwChargeBar.enabled = false;
     }
 
     // Update is called once per frame

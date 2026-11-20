@@ -636,8 +636,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     }
 
     void Update()
-    {
-        if (!wristMonitor.IsActive)
+    { //we have decided that moving the camera while the wrist monitor is being looked at is bad
+        if (!wristMonitor.IsActive) //the wristmonitor is active when its being looked at, so dont rotate the camera while its active.
         {
             RotateCam();
         }

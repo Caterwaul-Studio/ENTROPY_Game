@@ -186,7 +186,10 @@ public class PickupScript : MonoBehaviour
             coolDown -= Time.deltaTime;
         }
 
-
+        if (isChargingThrow)
+        {
+            uiManager.throwChargeBar.fillAmount = (Time.time - chargeStartTime) / maxChargeTime;
+        }
     }
 
     public void OnInteract(InputAction.CallbackContext context)
@@ -250,12 +253,14 @@ public class PickupScript : MonoBehaviour
                 {
                     isChargingThrow = true;
                     chargeStartTime = Time.time;
+                    uiManager.throwChargeBar.enabled = true;
                 }
             }
             else if (context.canceled)
             {
                 if (!isChargingThrow) return;
                 isChargingThrow = false;
+                uiManager.throwChargeBar.enabled = false;
 
                 if (heldObj != null && inventoryManager.heldFloatingObject.objInHand && !inventoryManager.pauseMenu.activeSelf && !inventoryManager.deathMenu.activeSelf)
                 {
@@ -273,6 +278,7 @@ public class PickupScript : MonoBehaviour
                     ThrowObject();
                 }
             }
+            
         }
     }
 
