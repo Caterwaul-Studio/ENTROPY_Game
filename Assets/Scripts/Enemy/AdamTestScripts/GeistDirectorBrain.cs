@@ -25,11 +25,18 @@ public class GeistDirectorBrain : MonoBehaviour
         geistBlinded,
         geistHeardSoundOfInterest,
         newElectricalZoneActivated,
+        geistInPoweredZone,
         newInterestPt;
+    [Header("NewActiveElectricalZone")]
+    BlackboardVariable<Transform> newActiveElectricalZone;
+
 
     [Header("Waypoints")]
     [SerializeField] private Transform wayPointGroup;
     [SerializeField] private Waypoint startingWaypoint;
+
+    [Header("Phasing")]
+    [SerializeField] private List<Waypoint> phasingWaypoints = new List<Waypoint>();
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 3f;
@@ -63,7 +70,11 @@ public class GeistDirectorBrain : MonoBehaviour
         geist.GetVariable("GeistBlinded", out geistBlinded);
         geist.GetVariable("GeistHeardSoundOfInterest", out geistHeardSoundOfInterest);
         geist.GetVariable("NewElectricalZoneActivated", out newElectricalZoneActivated);
+        geist.GetVariable("GeistInPoweredZone", out geistInPoweredZone);
         geist.GetVariable("NewInterestPt", out newInterestPt);
+        geist.GetVariable("NewActiveElectricalZone", out newActiveElectricalZone);
+        if (newActiveElectricalZone == null)
+            Debug.LogWarning("[GeistBrain] No Transform variable named 'NewElectricalZone' on the blackboard", this);
     }
     // Update is called once per frame
     void Update()
@@ -182,6 +193,16 @@ public class GeistDirectorBrain : MonoBehaviour
     private readonly List<Zone> zones = new List<Zone>();
     private readonly Dictionary<Waypoint, List<Zone>> waypointZones = new Dictionary<Waypoint, List<Zone>>();
 
+    public bool IsPositionInPoweredZone(Vector3 position)
+    {
+        foreach (Zone zone in zones)
+        {
+            if (!zone.powered) continue;
+            if (zone.bounds.Any(c => ContainsPoint(c, position))) return true;
+        }
+        return false;
+    }
+
     /// <summary>
     /// Registers a zone and assigns every waypoint inside its colliders to it.
     /// Waypoints that aren't inside any zone are always available.
@@ -208,9 +229,47 @@ public class GeistDirectorBrain : MonoBehaviour
         zone.powered = powered;
         Debug.Log($"[GeistBrain] Zone {key.name} powered = {powered}", this);
 
+        if (powered)
+        {
+            Transform zoneTransform = (key as Component)?.transform;
+            if (zoneTransform != null)
+            {
+                SaveZoneHint(zoneTransform);
+                if (newActiveElectricalZone != null)
+                    newActiveElectricalZone.Value = zoneTransform; // set before the flag so the guard sees it
+            }
+
+            if (newElectricalZoneActivated != null)
+                newElectricalZoneActivated.Value = true;
+        }
+
         // If the route we're walking crosses powered zone. ditch it.
         if (powered && PathIsBlocked())
             Path.Clear();
+    }
+
+    // Where the most recent zone came on. The Geist can use this as a hint.
+    public Transform ZoneHint { get; private set; }
+    public Vector3 ZoneHintPosition { get; private set; }
+
+    public void SaveZoneHint(Transform zone)
+    {
+        ZoneHint = zone;
+
+        // centre of the zone's colliders; the manager object's own pivot can sit off to the side
+        Collider[] cols = zone.GetComponents<Collider>();
+        if (cols.Length > 0)
+        {
+            Bounds b = cols[0].bounds;
+            for (int i = 1; i < cols.Length; i++) b.Encapsulate(cols[i].bounds);
+            ZoneHintPosition = b.center;
+        }
+        else
+        {
+            ZoneHintPosition = zone.position;
+        }
+
+        Debug.Log($"[GeistBrain] Zone hint saved: {zone.name} at {ZoneHintPosition}", this);
     }
 
     public bool IsWaypointActive(Waypoint wp)
@@ -235,10 +294,10 @@ public class GeistDirectorBrain : MonoBehaviour
                 list.Add(zone);
             }
         }
-        Debug.Log($"[GeistBrain] {waypointZones.Count}/{allWaypoints.Count} waypoints are inside electrical zones", this);
+        //Debug.Log($"[GeistBrain] {waypointZones.Count}/{allWaypoints.Count} waypoints are inside electrical zones", this);
     }
 
-    private static bool ContainsPoint(Collider c, Vector3 point)
+    public static bool ContainsPoint(Collider c, Vector3 point)
     {
         if (c == null) return false;
 
@@ -302,6 +361,42 @@ public class GeistDirectorBrain : MonoBehaviour
             prev = w.transform.position;
         }
         return false;
+    }
+
+    #endregion
+
+    #region Phasing waypoints (edge case when the Geist needs to bail from electrical zone)
+    public void SetPhasingWaypoints(IEnumerable<Waypoint> waypoints)
+    {
+        phasingWaypoints = waypoints != null ? waypoints.Where(w => w != null).ToList() : new List<Waypoint>();
+        //Debug.Log($"[GeistBrain] {phasingWaypoints.Count} phasing waypoints", this);
+    }
+
+    public Waypoint GetClosestPhasingWaypoint(Vector3 position)
+    {
+        Waypoint closest = null;
+        float closestDistSqr = float.MaxValue;
+        foreach (Waypoint wp in phasingWaypoints)
+        {
+            float distSqr = (position - wp.transform.position).sqrMagnitude;
+            if (distSqr < closestDistSqr)
+            {
+                closestDistSqr = distSqr;
+                closest = wp;
+            }
+        }
+        return closest;
+    }
+
+    /// <summary>
+    /// Straight line to one waypoint, no A*. Move follows it like any other path.
+    /// </summary>
+    /// <param name="target"></param>
+    public void SetDirectPath(Waypoint target)
+    {
+        Path.Clear();
+        Path.Enqueue(target);
+        PathTarget = target.transform;
     }
 
     #endregion

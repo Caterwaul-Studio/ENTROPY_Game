@@ -21,6 +21,7 @@ public class SpawnGeistBehavior : MonoBehaviour
     [SerializeField] private bool useSpawnTimer;
     [SerializeField] private float waitTimer;
     [SerializeField] private Transform LevelWaypointGroup;
+    [SerializeField] private Transform PhasingRouteGroup;
     [SerializeField] private Waypoint startingWaypoint;
 
     public GameObject SpawnedGeist { get; private set; }
@@ -90,6 +91,20 @@ public class SpawnGeistBehavior : MonoBehaviour
         return SpawnLocations;
     }
 
+    /// <summary>
+    /// Get only the waypoints that are phasing routes so the Geist can find them when it need to bail out of electrified zones
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerable<Waypoint> GetPhasingWaypoints()
+    {
+        if (PhasingRouteGroup == null)
+        {
+            Debug.LogWarning("SpawnGeist: no PhasingRouteGroup assigned", this);
+            return null;
+        }
+        return PhasingRouteGroup.GetComponentsInChildren<Waypoint>(true);
+    }
+
     private void SetGeistMode(GeistEnums newMode)
     {
         if (GeistAgent == null) return;
@@ -120,6 +135,7 @@ public class SpawnGeistBehavior : MonoBehaviour
         {
             GeistBrain.Initialize(persistant);
             GeistBrain.InitializeNavigation(GetLevelWaypoints(), startingWaypoint);
+            GeistBrain.SetPhasingWaypoints(GetPhasingWaypoints());
         }
 
         SetGeistMode(GeistEnums.Dormant);

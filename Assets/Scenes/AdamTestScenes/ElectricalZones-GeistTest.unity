@@ -6833,7 +6833,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7407803550336279741, guid: 3a280f3b663fbe34ea7bca1e0b9328cf, type: 3}
       propertyPath: neighbors.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7407803550336279741, guid: 3a280f3b663fbe34ea7bca1e0b9328cf, type: 3}
       propertyPath: 'neighbors.Array.data[0]'
@@ -6843,6 +6843,10 @@ PrefabInstance:
       propertyPath: 'neighbors.Array.data[1]'
       value: 
       objectReference: {fileID: 1903204275}
+    - target: {fileID: 7407803550336279741, guid: 3a280f3b663fbe34ea7bca1e0b9328cf, type: 3}
+      propertyPath: 'neighbors.Array.data[2]'
+      value: 
+      objectReference: {fileID: 294190201}
     - target: {fileID: 8036696551161670863, guid: 3a280f3b663fbe34ea7bca1e0b9328cf, type: 3}
       propertyPath: m_LocalPosition.x
       value: -21.00005
@@ -27159,7 +27163,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7407803550336279741, guid: 3a280f3b663fbe34ea7bca1e0b9328cf, type: 3}
       propertyPath: neighbors.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7407803550336279741, guid: 3a280f3b663fbe34ea7bca1e0b9328cf, type: 3}
       propertyPath: 'neighbors.Array.data[0]'
@@ -27169,6 +27173,10 @@ PrefabInstance:
       propertyPath: 'neighbors.Array.data[1]'
       value: 
       objectReference: {fileID: 1103560819}
+    - target: {fileID: 7407803550336279741, guid: 3a280f3b663fbe34ea7bca1e0b9328cf, type: 3}
+      propertyPath: 'neighbors.Array.data[2]'
+      value: 
+      objectReference: {fileID: 44025684}
     - target: {fileID: 8036696551161670863, guid: 3a280f3b663fbe34ea7bca1e0b9328cf, type: 3}
       propertyPath: m_LocalPosition.x
       value: -28.000029
@@ -111070,14 +111078,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   persistant: {fileID: 0}
-  trigger: {fileID: 0}
+  trigger: {fileID: 1974983673}
   geist3PreFab: {fileID: 887167724497493879, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
   geistModeVariable: New GeistEnums
   SpawnLocations:
   - {fileID: 144623214}
-  useSpawnTimer: 1
+  useSpawnTimer: 0
   waitTimer: 1
   LevelWaypointGroup: {fileID: 1495658753}
+  PhasingRouteGroup: {fileID: 762472160}
   startingWaypoint: {fileID: 0}
 --- !u!1001 &1200907160
 PrefabInstance:
@@ -160697,6 +160706,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Alien 3.0-Adam's
       objectReference: {fileID: 0}
+    - target: {fileID: 5981580356134212302, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
+      propertyPath: wayPointGroup
+      value: 
+      objectReference: {fileID: 1495658753}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

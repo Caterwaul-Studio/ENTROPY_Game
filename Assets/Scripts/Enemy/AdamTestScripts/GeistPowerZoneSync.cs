@@ -25,7 +25,7 @@ public class GeistPowerZoneSync : MonoBehaviour
             lastState[zone] = powered;
             brain.RegisterZone(zone, zone.GetComponents<Collider>(), powered);
         }
-        Debug.Log($"[GeistZoneSync] Registered {zones.Count} electrical zones", this);
+        //Debug.Log($"[GeistZoneSync] Registered {zones.Count} electrical zones", this);
     }
 
     void OnEnable()
