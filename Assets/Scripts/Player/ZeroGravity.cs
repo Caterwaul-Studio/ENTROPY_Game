@@ -637,7 +637,10 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     void Update()
     {
-        RotateCam();
+        if (!wristMonitor.IsActive)
+        {
+            RotateCam();
+        }
 
         if (canMove && !tutorialMode && !InCutscene)
         {
@@ -667,7 +670,6 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
         float rotateAngleX = rotationHoriz * sensitivityX;
         float rotateAngleY = -rotationVert * sensitivityY;
-
         // Horizontal and vertical rotation
         cam.transform.Rotate(Vector3.up, rotateAngleX * Time.deltaTime);
         cam.transform.Rotate(Vector3.right, rotateAngleY * Time.deltaTime);
@@ -678,7 +680,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         // Apply roll rotation (Z-axis)
         if (canRoll)
         {
-            //determine the friction of teh roll depending on if the player is grabbing a bar or not
+            //determine the friction of the roll depending on if the player is grabbing a bar or not
             //if the player is grabbing a bar
             if (isGrabbing)
             {
