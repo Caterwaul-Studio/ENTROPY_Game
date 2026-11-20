@@ -8,6 +8,10 @@ Shader "Entropy/HoloMap Faces"
     {
         _Color ("Color", Color) = (0.35, 0.85, 1, 0.08)
         [HideInInspector] _ColorMask ("Color Mask", Float) = 15
+        [HideInInspector] _Fade ("Fade", Range(0, 1)) = 1
+
+        // Off for terminals and the player, which stay full brightness wherever they are in the map
+        [HideInInspector] _DepthDimmed ("Dims With Depth", Float) = 1
         [HideInInspector] _ZWrite ("Depth Write", Float) = 0
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 0
 
@@ -52,7 +56,25 @@ Shader "Entropy/HoloMap Faces"
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _Color;
+                float _Fade;
+                float _DepthDimmed;
             CBUFFER_END
+
+            // Where the map starts and ends from the camera, and how much its far side dims. Set by MapDoors
+            float _HoloMapNear;
+            float _HoloMapFar;
+            float _HoloMapDepthDim;
+
+            // Full brightness at the map's nearest point, dimming toward its farthest, so what's in front reads first
+            half DepthDim(float depth)
+            {
+                float range = _HoloMapFar - _HoloMapNear;
+                if (range <= 0.0001) return 1;
+                // Fully dimmed three quarters of the way back, since the farthest corner alone is too little to see.
+                // Eased, so the front stays bright a little longer before it fades
+                half t = saturate((depth - _HoloMapNear) / (range * 0.75));
+                return 1 - _HoloMapDepthDim * _DepthDimmed * t * t * (3 - 2 * t);
+            }
 
             struct Attributes
             {
@@ -63,6 +85,7 @@ Shader "Entropy/HoloMap Faces"
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
+                float depth : TEXCOORD0;
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
@@ -71,13 +94,17 @@ Shader "Entropy/HoloMap Faces"
                 Varyings output;
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-                output.positionCS = TransformObjectToHClip(input.positionOS);
+                float3 positionWS = TransformObjectToWorld(input.positionOS);
+                output.positionCS = TransformWorldToHClip(positionWS);
+                output.depth = -TransformWorldToView(positionWS).z;
                 return output;
             }
 
             half4 Frag(Varyings input) : SV_Target
             {
-                return _Color;
+                half4 color = _Color;
+                color.a *= _Fade * DepthDim(input.depth);
+                return color;
             }
             ENDHLSL
         }

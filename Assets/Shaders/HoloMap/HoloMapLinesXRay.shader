@@ -19,6 +19,12 @@ Shader "Entropy/HoloMap Lines XRay"
         _FadeStart ("Fade Start (m)", Float) = 2
         _FadeEnd ("Fade End (m)", Float) = 8
         _FarOpacity ("Far Opacity", Range(0, 1)) = 0.35
+
+        // Set by the holo table while the map fades in and out, through each part's property block
+        [HideInInspector] _Fade ("Fade", Range(0, 1)) = 1
+
+        // Off for terminals and the player, which stay full brightness wherever they are in the map
+        [HideInInspector] _DepthDimmed ("Dims With Depth", Float) = 1
     }
 
     HLSLINCLUDE
@@ -34,16 +40,30 @@ Shader "Entropy/HoloMap Lines XRay"
         float _FadeStart;
         float _FadeEnd;
         float _FarOpacity;
+        float _Fade;
+        float _DepthDimmed;
     CBUFFER_END
 
     half DistanceFade(float depth)
     {
-        return lerp(1, _FarOpacity, saturate((depth - _FadeStart) / max(_FadeEnd - _FadeStart, 0.001)));
+        return _Fade * lerp(1, _FarOpacity, saturate((depth - _FadeStart) / max(_FadeEnd - _FadeStart, 0.001)));
     }
 
-    // The nearest and farthest the map reaches from the camera, set by MapDoors
+    // The nearest and farthest the map reaches from the camera, and how much its far side dims. Set by MapDoors
     float _HoloMapNear;
     float _HoloMapFar;
+    float _HoloMapDepthDim;
+
+    // Full brightness at the map's nearest point, dimming toward its farthest, so what's in front reads first
+    half DepthDim(float depth)
+    {
+        float range = _HoloMapFar - _HoloMapNear;
+        if (range <= 0.0001) return 1;
+        // Fully dimmed three quarters of the way back, since the farthest corner alone is too little to see.
+        // Eased, so the front stays bright a little longer before it fades
+        half t = saturate((depth - _HoloMapNear) / (range * 0.75));
+        return 1 - _HoloMapDepthDim * _DepthDimmed * t * t * (3 - 2 * t);
+    }
 
     struct Attributes
     {
@@ -77,7 +97,7 @@ Shader "Entropy/HoloMap Lines XRay"
     half4 FragShown(Varyings input) : SV_Target
     {
         half4 color = _Color;
-        color.a *= DistanceFade(input.depth);
+        color.a *= DistanceFade(input.depth) * DepthDim(input.depth);
         return color;
     }
 
@@ -90,7 +110,7 @@ Shader "Entropy/HoloMap Lines XRay"
         // Only when the camera is close to the map
         float closeness = 1 - saturate((_HoloMapNear - _SeeThroughNear) / max(_SeeThroughFar - _SeeThroughNear, 0.001));
         half4 color = _Color;
-        color.a *= fade * closeness * _XRayStrength * DistanceFade(input.depth);
+        color.a *= fade * closeness * _XRayStrength * DistanceFade(input.depth) * DepthDim(input.depth);
         if (color.a <= 0.001) discard;
         return color;
     }

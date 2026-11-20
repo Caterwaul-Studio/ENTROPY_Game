@@ -26,7 +26,8 @@ public partial class MapBuilderWindow : EditorWindow
     const string DoorsHelp = "Everything with the game's DoorScript goes on the map, drawn from its main parts. Its panel (the DoorScript's Door Part) "
         + "is colored by its state: blue working, yellow broken, red locked. While the game runs the map follows each door's state. "
         + "A door with no Door Part is drawn in the map's usual color. The number is its place in the DoorManager's list.";
-    static readonly GUIContent PlayerMarkerLabel = new GUIContent("Player Marker Size (m)", "How wide the orange ball showing the player is, in metres at full map size. It follows the player while the game runs.");
+    static readonly GUIContent PlayerMarkerLabel = new GUIContent("Player Marker Size (m)", "How wide the green ball showing the player is, in metres at full map size. It follows the player while the game runs.");
+    static readonly GUIContent DepthDimmingLabel = new GUIContent("Depth Dimming", "How much the map's far side dims, so what's in front reads first. 0 is even, 1 fades the far side out. Terminals and the player always stay full brightness.");
     static readonly GUIContent AddScanLabel = new GUIContent("Add Object to Scan", "An object beside the level root whose children belong on the map, such as rooms kept outside it. Terminals don't need this: they're found anywhere in the scene.");
     static readonly GUIContent LookInsideLabel = new GUIContent("Look Inside", "List this prefab's children so you can put them on the map one by one.");
     static readonly GUIContent UseMeshesLabel = new GUIContent("Use Meshes", "Pick which meshes draw this, instead of a box. Terminals start with all their meshes ticked.");
@@ -241,6 +242,15 @@ public partial class MapBuilderWindow : EditorWindow
         {
             Undo.RecordObject(level, "Change Player Marker Size");
             level.playerMarkerSize = Mathf.Round(markerSize * 10f) / 10f;
+            EditorUtility.SetDirty(level);
+        }
+
+        EditorGUI.BeginChangeCheck();
+        float dimming = EditorGUILayout.Slider(DepthDimmingLabel, level.depthDimming, 0f, 1f);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(level, "Change Depth Dimming");
+            level.depthDimming = Mathf.Round(dimming * 20f) / 20f;
             EditorUtility.SetDirty(level);
         }
 

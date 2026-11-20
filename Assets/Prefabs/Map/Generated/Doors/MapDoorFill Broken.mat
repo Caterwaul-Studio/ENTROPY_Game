@@ -16,7 +16,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3096
+  m_CustomRenderQueue: 3100
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -27,13 +27,15 @@ Material:
     m_Floats:
     - _ColorMask: 15
     - _Cull: 0
-    - _StencilComp: 6
-    - _StencilPass: 2
+    - _DepthDimmed: 1
+    - _Fade: 1
+    - _StencilComp: 8
+    - _StencilPass: 0
     - _StencilReadMask: 2
-    - _StencilRef: 2
+    - _StencilRef: 0
     - _StencilWriteMask: 2
     - _ZWrite: 0
     m_Colors:
-    - _Color: {r: 0.9, g: 0.74, b: 0.14, a: 0.3}
+    - _Color: {r: 0.9, g: 0.74, b: 0.14, a: 0.12}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

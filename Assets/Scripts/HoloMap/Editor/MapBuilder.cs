@@ -38,20 +38,20 @@ public static class MapBuilder
 
     // Raise MapVersion when the baked layout changes, so existing maps rebuild.
     // Raise WireVersion only when the saved line meshes change, since it renames every one of them
-    const int MapVersion = 19;
+    const int MapVersion = 23;
 
-    // The player shows as a nearly solid orange ball
-    static readonly Color PlayerColor = new Color(1f, 0.55f, 0.15f, 0.95f);
+    // The player shows as a nearly solid green ball, so it stands apart from the orange terminals
+    static readonly Color PlayerColor = new Color(0.3f, 1f, 0.45f, 0.95f);
 
     // Doors show their state: blue working, yellow broken, red locked. A working door is barely set apart
     // from the rooms around it, a broken or locked one clearly so, and terminals and the player stand out most
     static readonly Color[] DoorColors =
     {
         new Color(0.35f, 0.85f, 1f, 0.6f),
-        new Color(0.9f, 0.74f, 0.14f, 1f),
-        new Color(0.9f, 0.2f, 0.16f, 1f),
+        new Color(0.9f, 0.74f, 0.14f, 0.75f),
+        new Color(0.9f, 0.2f, 0.16f, 0.75f),
     };
-    static readonly float[] DoorFillAlphas = { 0.06f, 0.3f, 0.3f };
+    static readonly float[] DoorFillAlphas = { 0.06f, 0.12f, 0.12f };
 
     // Doors are drawn from their main parts. Anything smaller than this share of the door,
     // like grab bars and screens, is left out so it doesn't clutter the map
@@ -76,9 +76,8 @@ public static class MapBuilder
     // terminal lines, all before the faces record what's in front, so rooms never hide labels or terminals.
     // The room tint and room lines come after, from their shaders' queues (Transparent+100 and +101).
     // Lines skip the pixels label letters marked, so no line draws over text.
-    // Terminal fill before door fill, so where they overlap the terminal keeps its color
+    // Terminal fill draws early, so it keeps its color where doors and rooms overlap it
     const int TerminalFillQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 95;
-    const int DoorFillQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 96;
     const int LabelMaskQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 96;
     const int LabelQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 97;
     const int InFrontOfRoomsQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 98;
@@ -157,7 +156,9 @@ public static class MapBuilder
         public List<Placement> placements = new List<Placement>();
         public List<LabelPlacement> labels = new List<LabelPlacement>();
         public float labelSize;
+        public Color labelColor = Color.white;
         public float playerMarkerSize;
+        public float depthDimming;
         public List<string> lostAnchors = new List<string>();
         public List<string> duplicateTerminals = new List<string>();
         public List<string> missingMeshes = new List<string>();
@@ -947,11 +948,12 @@ public static class MapBuilder
         }
 
         text.Append($"|P,{GetKeyText(scan.playerMarkerSize)}");
+        text.Append($"|D,{GetKeyText(scan.depthDimming)}");
 
         // TextMesh Pro is only touched when there are labels, since reading its settings can open its import window
         if (scan.labels.Count > 0)
         {
-            text.Append($"|L,{GetKeyText(scan.labelSize)}");
+            text.Append($"|L,{GetKeyText(scan.labelSize)},{ColorUtility.ToHtmlStringRGBA(scan.labelColor)}");
             foreach (LabelPlacement label in scan.labels)
             {
                 // The length in front stops a label containing '|' or ',' from looking like another one
@@ -987,6 +989,7 @@ public static class MapBuilder
             doorColors.broken = GetDoorMaterials(MapDoorState.Broken);
             doorColors.locked = GetDoorMaterials(MapDoorState.Locked);
             doorColors.levelScene = levelName;
+            doorColors.depthDimming = scan.depthDimming;
 
             foreach (Placement placement in scan.placements)
             {
@@ -1029,11 +1032,11 @@ public static class MapBuilder
     // Drawn in front of rooms like terminals, so the player shows through walls
     static Material GetPlayerMaterial()
     {
-        return KeepQueue(GetMaterial(PlayerMaterialPath, FaceShader, ball =>
+        return KeepFloat(KeepQueue(GetMaterial(PlayerMaterialPath, FaceShader, ball =>
         {
             ball.SetColor("_Color", PlayerColor);
             ball.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Back);
-        }), InFrontOfRoomsQueue);
+        }), InFrontOfRoomsQueue), DepthDimmedProperty, 0f);
     }
 
     static Transform AddGroup(string name, Transform parent)
@@ -1117,7 +1120,7 @@ public static class MapBuilder
                 return;
             }
             bool picked = label.font != null;
-            CreateLabel(label, group, font, GetLabelMaterial(font, picked), GetLabelMaskMaterial(font, picked), scan.labelSize);
+            CreateLabel(label, group, font, GetLabelMaterial(font, picked), GetLabelMaskMaterial(font, picked), scan.labelSize, scan.labelColor);
         }
     }
 
@@ -1137,7 +1140,7 @@ public static class MapBuilder
         return font != null ? font : TMP_Settings.defaultFontAsset;
     }
 
-    static void CreateLabel(LabelPlacement label, Transform group, TMP_FontAsset font, Material material, Material mask, float size)
+    static void CreateLabel(LabelPlacement label, Transform group, TMP_FontAsset font, Material material, Material mask, float size, Color color)
     {
         var go = new GameObject(label.text, typeof(RectTransform));
         go.transform.SetParent(group, false);
@@ -1145,6 +1148,9 @@ public static class MapBuilder
         // Lying flat so it reads from above until MapFaceCamera turns it toward a camera
         go.transform.SetLocalPositionAndRotation(label.position, Quaternion.Euler(90f, 0f, 0f));
         AddLabelText(go, label.text, font, material, size);
+
+        // The text's own color, as the game's texts are colored, so labels match them
+        go.GetComponent<TextMeshPro>().color = color;
         go.SetActive(label.active);
 
         // The invisible copy that keeps map lines off the letters, moving with the label
@@ -1263,25 +1269,14 @@ public static class MapBuilder
     {
         Color color = DoorColors[(int)state];
 
-        // A working door is drawn like the walls, but shows through them near the front of the map, so the doors
-        // right in front of the viewer stay readable without every door showing at once. Broken and locked
-        // doors show through everywhere, since they matter anywhere
-        if (state == MapDoorState.Working)
-        {
-            Material lines = GetMaterial($"{DoorFolder}/MapDoorLines {state}.mat", SeeThroughLineShader, created => created.SetColor("_Color", color));
-            return new[]
-            {
-                KeepQueue(KeepShader(lines, SeeThroughLineShader), RoomLinesQueue),
-                GetFaceDepthMaterial(),
-                GetTintMaterial($"{DoorFolder}/MapDoorFill {state}.mat", new Color(color.r, color.g, color.b, DoorFillAlphas[(int)state])),
-            };
-        }
-
+        // Every door is drawn like the walls, but shows through them near the front of the map, so the doors
+        // right in front of the viewer stay readable without every door showing at once. Only the color says its state
+        Material lines = GetMaterial($"{DoorFolder}/MapDoorLines {state}.mat", SeeThroughLineShader, created => created.SetColor("_Color", color));
         return new[]
         {
-            KeepQueue(GetMaterial($"{DoorFolder}/MapDoorLines {state}.mat", LineShader, lines => lines.SetColor("_Color", color)), InFrontOfRoomsQueue),
+            KeepQueue(KeepShader(lines, SeeThroughLineShader), RoomLinesQueue),
             GetFaceDepthMaterial(),
-            GetFillMaterial($"{DoorFolder}/MapDoorFill {state}.mat", new Color(color.r, color.g, color.b, DoorFillAlphas[(int)state]), DoorFillQueue),
+            GetTintMaterial($"{DoorFolder}/MapDoorFill {state}.mat", new Color(color.r, color.g, color.b, DoorFillAlphas[(int)state])),
         };
     }
 
@@ -1301,11 +1296,11 @@ public static class MapBuilder
         {
             return new[]
             {
-                GetMaterial(TerminalLineMaterialPath, LineShader, lines =>
+                KeepFloat(GetMaterial(TerminalLineMaterialPath, LineShader, lines =>
                 {
                     lines.SetColor("_Color", TerminalColor);
                     lines.renderQueue = InFrontOfRoomsQueue;
-                }),
+                }), DepthDimmedProperty, 0f),
                 GetFaceDepthMaterial(),
                 GetTerminalFillMaterial(),
             };
@@ -1377,7 +1372,7 @@ public static class MapBuilder
 
     static Material GetTerminalFillMaterial()
     {
-        return GetFillMaterial(TerminalFaceTintMaterialPath, new Color(TerminalColor.r, TerminalColor.g, TerminalColor.b, TerminalTintAlpha), TerminalFillQueue);
+        return KeepFloat(GetFillMaterial(TerminalFaceTintMaterialPath, new Color(TerminalColor.r, TerminalColor.g, TerminalColor.b, TerminalTintAlpha), TerminalFillQueue), DepthDimmedProperty, 0f);
     }
 
     /// <summary>
@@ -1408,6 +1403,19 @@ public static class MapBuilder
             AssetDatabase.SaveAssetIfDirty(fill);
         }
         return KeepQueue(fill, queue);
+    }
+
+    // Terminals and the player are objectives, so they never dim with depth
+    const string DepthDimmedProperty = "_DepthDimmed";
+
+    // For material settings that are part of how the map works
+    static Material KeepFloat(Material material, string property, float value)
+    {
+        if (!material.HasProperty(property) || material.GetFloat(property) == value) return material;
+        material.SetFloat(property, value);
+        EditorUtility.SetDirty(material);
+        AssetDatabase.SaveAssetIfDirty(material);
+        return material;
     }
 
     // For materials whose shader is part of how the map works. Updates materials made by older versions, keeping their colors
@@ -1593,7 +1601,9 @@ public static class MapBuilder
         }
 
         result.labelSize = level.labelSize;
+        result.labelColor = library.labelColor;
         result.playerMarkerSize = level.playerMarkerSize;
+        result.depthDimming = level.depthDimming;
         foreach (MapLevel.LabelEntry label in level.labels)
         {
             if (label == null || string.IsNullOrWhiteSpace(label.text)) continue;

@@ -12,6 +12,12 @@ Shader "Entropy/HoloMap Lines"
         _FadeStart ("Fade Start (m)", Float) = 2
         _FadeEnd ("Fade End (m)", Float) = 8
         _FarOpacity ("Far Opacity", Range(0, 1)) = 0.35
+
+        // Set by the holo table while the map fades in and out, through each part's property block
+        [HideInInspector] _Fade ("Fade", Range(0, 1)) = 1
+
+        // Off for terminals and the player, which stay full brightness wherever they are in the map
+        [HideInInspector] _DepthDimmed ("Dims With Depth", Float) = 1
     }
 
     SubShader
@@ -46,7 +52,25 @@ Shader "Entropy/HoloMap Lines"
                 float _FadeStart;
                 float _FadeEnd;
                 float _FarOpacity;
+                float _Fade;
+                float _DepthDimmed;
             CBUFFER_END
+
+            // Where the map starts and ends from the camera, and how much its far side dims. Set by MapDoors
+            float _HoloMapNear;
+            float _HoloMapFar;
+            float _HoloMapDepthDim;
+
+            // Full brightness at the map's nearest point, dimming toward its farthest, so what's in front reads first
+            half DepthDim(float depth)
+            {
+                float range = _HoloMapFar - _HoloMapNear;
+                if (range <= 0.0001) return 1;
+                // Fully dimmed three quarters of the way back, since the farthest corner alone is too little to see.
+                // Eased, so the front stays bright a little longer before it fades
+                half t = saturate((depth - _HoloMapNear) / (range * 0.75));
+                return 1 - _HoloMapDepthDim * _DepthDimmed * t * t * (3 - 2 * t);
+            }
 
             struct Attributes
             {
@@ -81,7 +105,7 @@ Shader "Entropy/HoloMap Lines"
             half4 Frag(Varyings input) : SV_Target
             {
                 half4 color = _Color;
-                color.a *= lerp(1, _FarOpacity, saturate((input.depth - _FadeStart) / max(_FadeEnd - _FadeStart, 0.001)));
+                color.a *= _Fade * DepthDim(input.depth) * lerp(1, _FarOpacity, saturate((input.depth - _FadeStart) / max(_FadeEnd - _FadeStart, 0.001)));
                 return color;
             }
             ENDHLSL

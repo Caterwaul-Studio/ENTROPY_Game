@@ -13,10 +13,18 @@ public class MapPlayerMarker : MonoBehaviour
     [Tooltip("The scene this map was baked from, so the marker follows the player through that level.")]
     public string levelScene;
 
+    [Tooltip("Warns in the Console when the ball stays hidden because its level or the player can't be found.")]
+    public bool debugLogging = true;
+
+    // How long to look before warning, so a level still loading doesn't count
+    const float WarnAfter = 3f;
+
     private MapLevel level;
     private ZeroGravity player;
     private Renderer ball;
     private float nextSearch;
+    private float lookingSince = -1f;
+    private bool warned;
 
     private void Awake()
     {
@@ -36,6 +44,18 @@ public class MapPlayerMarker : MonoBehaviour
         bool tracking = level != null && player != null;
         if (ball != null) ball.enabled = tracking;
         if (tracking) Track(level.transform, player.transform);
+        else WarnIfLost();
+    }
+
+    private void WarnIfLost()
+    {
+        if (!debugLogging || warned) return;
+        if (lookingSince < 0f) lookingSince = Time.unscaledTime;
+        if (Time.unscaledTime - lookingSince < WarnAfter) return;
+
+        warned = true;
+        if (level == null) Debug.LogWarning($"[HoloMap] The player ball is hidden: no MapLevel found in a loaded scene named '{levelScene}'. Add one to the level root (Map Builder) and save the scene.", this);
+        if (player == null) Debug.LogWarning("[HoloMap] The player ball is hidden: no ZeroGravity player found.", this);
     }
 
     /// <summary>

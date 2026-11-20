@@ -81,6 +81,9 @@ public class MapLevel : MonoBehaviour
     [Tooltip("Label text size in metres at full map size, about the height of one line.")]
     public float labelSize = 1f;
 
-    [Tooltip("How wide the orange ball showing the player is, in metres at full map size.")]
+    [Tooltip("How wide the green ball showing the player is, in metres at full map size.")]
     public float playerMarkerSize = 1f;
+
+    [Tooltip("How much the map's far side dims, so what's in front reads first. 0 is even, 1 fades the far side out. Terminals and the player always stay full brightness.")]
+    [Range(0f, 1f)] public float depthDimming = 0.9f;
 }

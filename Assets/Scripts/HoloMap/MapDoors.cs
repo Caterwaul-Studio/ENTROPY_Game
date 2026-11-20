@@ -16,6 +16,12 @@ public class MapDoors : MonoBehaviour
     public Material[] broken = new Material[0];
     public Material[] locked = new Material[0];
 
+    [Tooltip("How much the map's far side dims, so what's in front reads first. 0 is even, 1 fades the far side out. Set from the level's Map Level settings when the map is built.")]
+    [Range(0f, 1f)] public float depthDimming = 0.9f;
+
+    [Tooltip("Prints, once a second, the map's near and far depth for every camera that draws it. For checking the depth dimming.")]
+    public bool debugLogging;
+
     [Tooltip("The scene of the level this map was built from, for finding its level root.")]
     public string levelScene = "";
 
@@ -29,11 +35,21 @@ public class MapDoors : MonoBehaviour
     // The real panel each map door follows, found with the doors
     private Transform[] panels;
 
-    // The map's corners in its own space, measured once, for working out its depth from each camera
+    // The corners of each of the map's pieces in the map's own space, measured once, for working out its depth
+    // from each camera. Each piece's own box fits the map far closer than one box around all of it, whose corners
+    // stick out past the real front and back and leave the dimming too weak to see
     private Vector3[] mapCorners;
+
+    // The labels, which dim with depth through their own script since their font shaders can't
+    private MapFaceCamera labels;
 
     private static readonly int NearId = Shader.PropertyToID("_HoloMapNear");
     private static readonly int FarId = Shader.PropertyToID("_HoloMapFar");
+    private static readonly int DimId = Shader.PropertyToID("_HoloMapDepthDim");
+
+    // Logging covers every camera of one frame, once a second
+    private float nextLog;
+    private int logFrame = -1;
 
     private void OnEnable()
     {
@@ -43,6 +59,12 @@ public class MapDoors : MonoBehaviour
     private void OnDisable()
     {
         RenderPipelineManager.beginCameraRendering -= SetDepthRange;
+
+        // These are shared by every shader and outlive Play mode. Left set, the editor would draw the map dimmed
+        // and see-through from where the game camera last was. Zero means no dimming and no see-through
+        Shader.SetGlobalFloat(NearId, 0f);
+        Shader.SetGlobalFloat(FarId, 0f);
+        Shader.SetGlobalFloat(DimId, 0f);
     }
 
     private void SetDepthRange(ScriptableRenderContext context, Camera camera)
@@ -70,24 +92,41 @@ public class MapDoors : MonoBehaviour
         }
         Shader.SetGlobalFloat(NearId, Mathf.Max(near, 0f));
         Shader.SetGlobalFloat(FarId, far);
+        Shader.SetGlobalFloat(DimId, depthDimming);
+
+        if (labels == null) labels = map.GetComponentInChildren<MapFaceCamera>(true);
+        if (labels != null) labels.ApplyDepth(camera, Mathf.Max(near, 0f), far, depthDimming);
+
+        if (debugLogging)
+        {
+            if (Time.frameCount != logFrame && Time.unscaledTime >= nextLog)
+            {
+                logFrame = Time.frameCount;
+                nextLog = Time.unscaledTime + 1f;
+            }
+            if (Time.frameCount == logFrame)
+            {
+                Debug.Log($"[HoloMap] frame {logFrame}, camera '{camera.name}' (depth {camera.depth}, target {(camera.targetTexture != null ? camera.targetTexture.name : "screen")}): "
+                    + $"map near {near:F2} m, far {far:F2} m, dimming {depthDimming:F2}, measured from {mapCorners.Length / 8} pieces", this);
+            }
+        }
     }
 
     private static Vector3[] MeasureCorners(Transform map)
     {
-        Renderer[] parts = map.GetComponentsInChildren<Renderer>(true);
-        if (parts.Length == 0) return new[] { Vector3.zero };
-
         Matrix4x4 toMap = map.worldToLocalMatrix;
-        var bounds = new Bounds(toMap.MultiplyPoint3x4(parts[0].bounds.center), Vector3.zero);
-        foreach (Renderer part in parts)
+        var corners = new System.Collections.Generic.List<Vector3>();
+        foreach (Renderer part in map.GetComponentsInChildren<Renderer>())
         {
-            Bounds world = part.bounds;
-            for (int i = 0; i < 8; i++) bounds.Encapsulate(toMap.MultiplyPoint3x4(Corner(world, i)));
-        }
+            // Hidden pieces aren't part of what's seen. The player ball moves, so it doesn't count either
+            if (!part.enabled || part.GetComponent<MapPlayerMarker>() != null) continue;
 
-        var corners = new Vector3[8];
-        for (int i = 0; i < 8; i++) corners[i] = Corner(bounds, i);
-        return corners;
+            // The piece's own box, turned with it, rather than a world-aligned box around it
+            Matrix4x4 pieceToMap = toMap * part.transform.localToWorldMatrix;
+            Bounds own = part.localBounds;
+            for (int i = 0; i < 8; i++) corners.Add(pieceToMap.MultiplyPoint3x4(Corner(own, i)));
+        }
+        return corners.Count > 0 ? corners.ToArray() : new[] { Vector3.zero };
     }
 
     private static Vector3 Corner(Bounds bounds, int i)
