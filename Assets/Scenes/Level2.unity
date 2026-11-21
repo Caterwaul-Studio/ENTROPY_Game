@@ -52825,13 +52825,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 779664456537576595, guid: b0dfdbaa6fba59a439f5aa0379d7e435, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 887167724497493879, guid: b0dfdbaa6fba59a439f5aa0379d7e435, type: 3}
       propertyPath: m_Name
       value: Alien 2.0-NoFarMusicTest
       objectReference: {fileID: 0}
     - target: {fileID: 887167724497493879, guid: b0dfdbaa6fba59a439f5aa0379d7e435, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -64542,6 +64546,7 @@ MonoBehaviour:
   states: 1
   hasPermissionlevel: 1
   level: 0
+  currentPowerState: 0
   openDuration: 1.8
   closeDuration: 2.3
   brokenOpenDuration: 2.7
@@ -129056,6 +129061,7 @@ MonoBehaviour:
   states: 1
   hasPermissionlevel: 1
   level: 0
+  currentPowerState: 0
   openDuration: 1.8
   closeDuration: 2.3
   brokenOpenDuration: 1
@@ -178632,6 +178638,7 @@ MonoBehaviour:
   states: 1
   hasPermissionlevel: 1
   level: 0
+  currentPowerState: 0
   openDuration: 1.8
   closeDuration: 2.3
   brokenOpenDuration: 1

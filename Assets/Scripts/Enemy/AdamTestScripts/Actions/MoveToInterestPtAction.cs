@@ -10,6 +10,7 @@ public partial class MoveToInterestPtAction : Action
 {
     [SerializeReference] public BlackboardVariable<GameObject> Geist;
     [SerializeReference] public BlackboardVariable<Transform> InterestPt;
+    [SerializeReference] public BlackboardVariable<bool> PlayerInAOE;
 
     private GeistDirectorBrain brain;
 
@@ -28,6 +29,9 @@ public partial class MoveToInterestPtAction : Action
 
     protected override Status OnUpdate()
     {
+        if (PlayerInAOE.Value == true)
+            return Status.Failure;
+
         return brain.Step() ? Status.Success : Status.Running;
     }
 

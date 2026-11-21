@@ -301,13 +301,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c2bb4624806aca4fbe691d739dda945, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDetectionRadius: 1
+  showRetreatRadius: 1
+  persistantManager: {fileID: 0}
+  playerObj: {fileID: 0}
+  player: {fileID: 0}
   geist: {fileID: 2813364571777998535}
   grabPlayerPos: {fileID: 1891620099349330151}
   wayPointGroup: {fileID: 0}
   startingWaypoint: {fileID: 0}
+  phasingWaypoints: []
   moveSpeed: 2
   rotationSpeed: 2.5
   arriveThreshold: 0.5
+  detectionMask:
+    serializedVersion: 2
+    m_Bits: 16577
+  detectionRadius: 9
+  defaultDetectionRadius: 10
+  chaseDetectionRadius: 15
+  detectionDuration: 1.5
   allWaypoints: []
 --- !u!114 &7986539700324126475
 MonoBehaviour:

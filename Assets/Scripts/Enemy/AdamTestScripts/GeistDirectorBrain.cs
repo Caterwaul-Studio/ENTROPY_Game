@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,10 +7,14 @@ using UnityEngine;
 
 public class GeistDirectorBrain : MonoBehaviour
 {
+    [Header("Gizmos")]
+    [SerializeField] private bool showDetectionRadius;
+    [SerializeField] private bool showRetreatRadius;
+
     [Header("References")]
-    private PersistantManager persistantManager;
-    private GameObject playerObj;
-    private ZeroGravity player;
+    [SerializeField] private PersistantManager persistantManager;
+    [SerializeField] private GameObject playerObj;
+    [SerializeField] private ZeroGravity player;
 
     [Header("GeistObjs")]
     [SerializeField] private BehaviorGraphAgent geist;
@@ -42,6 +47,14 @@ public class GeistDirectorBrain : MonoBehaviour
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float rotationSpeed = 2.5f;
     [SerializeField] private float arriveThreshold = 0.5f; //Distance at which a waypoint counts as reached (original used 0.5)
+
+    //ported from EnemyStateMachine
+    [Header("Detection Settings")]
+    public LayerMask detectionMask; // Set this to "Default", "Player", and "Obstacles"
+    public float detectionRadius;
+    public float defaultDetectionRadius = 10f;
+    public float chaseDetectionRadius = 15f;
+    public float detectionDuration = 1.5f; // Time to "spot" player
 
     //Shared state (read/written by the behvaior graph nodes)
     public Waypoint CurrentWaypoint { get; set; }
@@ -79,7 +92,11 @@ public class GeistDirectorBrain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (playerInAOE == null || geistBlinded == null) return;
 
+        bool inAoe = PlayerInAOE(out bool blinded);
+        if (playerInAOE.Value != inAoe) playerInAOE.Value = inAoe;
+        if (geistBlinded.Value != blinded) geistBlinded.Value = blinded;
     }
 
     #region Setup (called by SpawnGeistBehavior)
@@ -178,6 +195,42 @@ public class GeistDirectorBrain : MonoBehaviour
         }
         callback?.Invoke();
     }
+
+    #endregion
+
+    #region Sensing (some ported from EnemyStateMachine)
+    /// <summary>
+    /// ported from EnemyStateMachine
+    /// </summary>
+    /// <returns></returns>
+    public bool PlayerInAOE(out bool blinded)
+    {
+        blinded = false;
+        if (player == null) return false;
+
+        Vector3 origin = transform.position;
+        Vector3 target = player.transform.position;
+
+        Vector3 toPlayer = target - origin;
+        float distToPlayer = toPlayer.magnitude;
+
+        if (distToPlayer > detectionRadius) return false;
+        if (distToPlayer < 0.0001f) return true;
+
+        Vector3 dir = toPlayer / distToPlayer;
+        //Debug.Log($"[DIST] {distToPlayer:F2} / radius={detectionRadius} frame={Time.frameCount}");
+
+        foreach (RaycastHit h in Physics.RaycastAll(origin, dir, distToPlayer, ~0, QueryTriggerInteraction.Collide))
+        {
+            if (h.collider.CompareTag("GeistBlind"))
+            {
+                blinded = true;
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     #endregion
 
@@ -536,5 +589,19 @@ public class GeistDirectorBrain : MonoBehaviour
         return new Queue<Waypoint>(reversed);
     }
 
+    #endregion
+
+    #region Gizmos
+    private void OnDrawGizmos()
+    {
+        if (showDetectionRadius)
+        {
+            Gizmos.color = playerInAOE ? Color.green : Color.red;
+            Gizmos.DrawWireSphere(transform.position, detectionRadius);
+
+            if (player != null)
+                Gizmos.DrawLine(transform.position, player.transform.position);
+        }
+    }
     #endregion
 }
