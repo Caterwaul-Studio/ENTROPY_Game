@@ -15,16 +15,6 @@ using static UnityEngine.Rendering.DebugUI.Table;
 
 public class ZeroGravity : MonoBehaviour, ISaveable
 {
-    //im gonna figure out where to put these later
-    private bool hasStartedMovingOnBar = false;
-    [SerializeField]
-    private float barMinTravelSpeed = 0.45f;
-    [SerializeField]
-    private float barMaxTravelSpeed = 0.6f;
-    [SerializeField]
-    private bool propelling = false;
-    [SerializeField]
-    private float barLocalTravelSpeed = 0.45f;
 
     #region Inspector Variables
     [Header("== Player Elements ==")]
@@ -109,6 +99,16 @@ public class ZeroGravity : MonoBehaviour, ISaveable
     private float prevRotZ = 0f;
     [SerializeField]
     private float bounceAcc = 1f;
+    //keeping this private unserialized because it shouldnt be editable, no reason for it to be.
+    private bool hasStartedMovingOnBar = false;
+    [SerializeField]
+    private float barMinTravelSpeed = 0.45f;
+    [SerializeField]
+    private float barMaxTravelSpeed = 0.6f;
+    [SerializeField]
+    private bool propelling = false;
+    [SerializeField]
+    private float barLocalTravelSpeed = 0.45f;
 
     [Header("Audio")]
     public BarAudioHandler barAudioHandler;
@@ -949,6 +949,10 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         //Debug.Log(rb.linearVelocity.magnitude);
     }
 
+
+    //DEPRECTED
+    //This method is a variant of the swing method which is no longer in use
+    /*
     public void NewSwing(Transform bar)
     {
         if(isGrabbing && bar != null)
@@ -963,7 +967,11 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             }
         }
     }
+    */
 
+    //DEPRECATED
+    //This method is a variant of the pull to bar method which is no longer in use.
+    /*
     public void NewPullToBar(float multiplier, Transform bar)
     {
         //Debug.Log(bar.gameObject.name);
@@ -1028,12 +1036,17 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
         //Debug.Log("linear velocity: " + rb.linearVelocity.magnitude);
     }
+    */
 
+    //DEPRECATED
+    //This method is a variant of the swing method which is no longer in use
+    /*
     /// <summary>
     /// This method is created to allow player to swing on the bars, similar to a grappling hook feature found in other games
     /// It creates a sringjoint between the player and the bar the length of the players arm
     /// </summary>
     /// <param name="bar"></param>
+    /// 
     private void Swing(Transform bar)
     {
         if (isGrabbing && bar != null)
@@ -1093,13 +1106,15 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             DetectBarrierAndBounce();
         }
     }
+    */
+
     //Old swing written originally by Thomas Roman, edited later by others
     private void OldSwing(Transform bar)
     {
 
         if (isGrabbing && bar != null)
         {
-
+            //The following code up until the STOP comment is written by Thomas Roman and is the implementation for the pendulum swing math.
             swingPoint = currentGrabPosition;
             float distanceFromPoint = Vector3.Distance(cam.transform.position, swingPoint);
             Vector3 directionToRung = (swingPoint - cam.transform.position).normalized;
@@ -1130,11 +1145,12 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                     return;
                 }
             }
-
+            //STOP
 
             //ensure that the player isn't alr swinging on another bar
             if (this.gameObject.GetComponent<SpringJoint>() == null)
             {
+                //joint setup
                 joint = this.gameObject.AddComponent<SpringJoint>();
                 joint.autoConfigureConnectedAnchor = false;
                 joint.connectedAnchor = swingPoint;
@@ -1268,6 +1284,9 @@ public class ZeroGravity : MonoBehaviour, ISaveable
         //confirm I have just grabbed a bar
         if (isGrabbing && justGrabbed && !prevJustGrabbed)
         {
+            //DEPRECATED
+            //The system for having multiple variations of the cool down depending on speed has been deprecated, one constant speed is now used instead.
+
             /*
             //Debug.Log("Linear velocity: " + rb.linearVelocity.magnitude);
             //create time stamps based on how fast the player is moving
@@ -1293,7 +1312,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 grabSwingTimeStamp = Time.time + swingCoolDownFastest;
             }*/
 
-            grabSwingTimeStamp = Time.time + swingCoolDownSlowest;
+            grabSwingTimeStamp = Time.time + swingCoolDownFastest;
+            //grabSwingTimeStamp = Time.time + swingCoolDownSlowest;
             //set the prev just grabbed bool to confirm we do this once 
             prevJustGrabbed = justGrabbed;
         }
@@ -1429,14 +1449,16 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 hasPropelled = true;
                 Vector3 propelDirection = Vector3.zero;
 
-                //set the player velocity to half to ensure the momentum doesn't influence the propel
+                //(DEPRECATED) set the player velocity to half to ensure the momentum doesn't influence the propel
                 //rb.linearVelocity *= 0.5f;
 
+
+                //Check if the player is pressing an input key of some kind
                 if (isThrusting || isStrafing || isElevating)
                 {
-                    if (hasStartedMovingOnBar)
-                        StopCoroutine(PullDragTimer(1.5f));
-
+                    if (hasStartedMovingOnBar)//If the palyer has started moving on the bar, we are assuming that we are in the midst of a pulldragtimer coroutine
+                        StopCoroutine(PullDragTimer(1.5f)); //we need to stop this coroutine before we call it again
+                    //if the player has started moving on the bar, start the pull drag coroutine.
                     StartCoroutine(PullDragTimer(1.5f));
                 }
 
@@ -1444,26 +1466,38 @@ public class ZeroGravity : MonoBehaviour, ISaveable
                 //if W or S are pressed
                 if (isThrusting)
                 {
-                    //release the bar and calculate the vector to propel based on the forward look
+                    //(DEPRECATED) release the bar and calculate the vector to propel based on the forward look
                     //ReleaseBar();
+
+                    //this new method of propelling assumes a constant change in speed not a single setting of the speed and does not release from the bar.
                     propelDirection += cam.transform.forward * thrust1D * propelThrust;
                     //Debug.Log("Propelled forward or back");
                 }
                 //if A or D are pressed
                 if (isStrafing)
                 {
-                    //release the bar and calculate the vector to propel based on the right look
+                    //(DEPRECATED) release the bar and calculate the vector to propel based on the forward look
                     //ReleaseBar();
+
+                    //this new method of propelling assumes a constant change in speed not a single setting of the speed and does not release from the bar.
                     propelDirection += cam.transform.right * strafe1D * propelThrust;
                     //Debug.Log("Propelled right or left");
                 }
                 if (isElevating)
                 {
+                    //(DEPRECATED) release the bar and calculate the vector to propel based on the forward look
+                    //ReleaseBar();
+
+                    //this new method of propelling assumes a constant change in speed not a single setting of the speed and does not release from the bar.
                     propelDirection += cam.transform.up * upandDown1D * propelThrust;
                 }
 
                 //add the propel force to the rigid body
                 rb.linearVelocity *= .5f;
+
+
+                //This line of code is actually applying the force to the player to move them based on the previously calculated direction and local travel speed.
+                //There are other currently deprecated lines of code which if reinstated would introduce a seperate minimum speed.
 
                 //if (distanceAway  > 0.45)
                     rb.AddForce(propelDirection * initialVelocityMagnitude * barLocalTravelSpeed, ForceMode.VelocityChange);
@@ -1477,6 +1511,8 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
                 //Debug.Log(distanceAway);
                 //Debug.Log(GrabRange);
+
+                //This new method of propelling releases the bar once the player has moved outside of the grab range from the grabbed bar.
                 if (distanceAway > GrabRange)
                 {
                     ReleaseBar();
@@ -1487,6 +1523,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
             else if (!isThrusting && !isStrafing && !isElevating)
             {
                 movementKeysReleased = true;
+                //we want to be able to bounce off walls when swinging but not when moving on the bar, so this happens on this check as well.
                 DetectBarrierAndBounce();
             }
         }
@@ -1496,6 +1533,7 @@ public class ZeroGravity : MonoBehaviour, ISaveable
 
     private IEnumerator PullDragTimer(float waitTime)
     {
+        //the hasstartedmovingonbar variable affects the pulldrag function which pulls the player towards the bar
         hasStartedMovingOnBar = true;
         yield return new WaitForSeconds(waitTime);
         hasStartedMovingOnBar = false;
