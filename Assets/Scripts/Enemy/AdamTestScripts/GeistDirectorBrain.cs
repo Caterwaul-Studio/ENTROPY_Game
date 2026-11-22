@@ -2,13 +2,16 @@ using NUnit.Framework;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.AppUI.Core;
 using Unity.Behavior;
 using UnityEngine;
+
 
 public class GeistDirectorBrain : MonoBehaviour
 {
     [Header("Gizmos")]
     [SerializeField] private bool showDetectionRadius;
+    [SerializeField] private bool showLOSCone;
     [SerializeField] private bool showRetreatRadius;
 
     [Header("References")]
@@ -19,6 +22,16 @@ public class GeistDirectorBrain : MonoBehaviour
     [Header("GeistObjs")]
     [SerializeField] private BehaviorGraphAgent geist;
     [SerializeField] private GameObject grabPlayerPos;
+    [SerializeField] public GeistStepper GeistRig;
+    [Header("Vision Cone (passed from GeistLookAt.cs: editing these values does nothing)")]
+    [SerializeField] public Transform GeistEye;
+    public Transform target;
+    public float coneHalfAngle;
+    [SerializeField] public GeistLookAt GeistEyeRig;
+    [SerializeField] public float geistEyeRangeMax;
+    [SerializeField] private LayerMask barrierLayer;
+    [SerializeField] private string playerTag = "Player";
+
     private string modeVariableName = "New GeistEnums";
     BlackboardVariable<bool> playerInAOE,
         playerInLOS,
@@ -34,7 +47,6 @@ public class GeistDirectorBrain : MonoBehaviour
         newInterestPt;
     [Header("NewActiveElectricalZone")]
     BlackboardVariable<Transform> newActiveElectricalZone;
-
 
     [Header("Waypoints")]
     [SerializeField] private Transform wayPointGroup;
@@ -88,14 +100,19 @@ public class GeistDirectorBrain : MonoBehaviour
         geist.GetVariable("NewActiveElectricalZone", out newActiveElectricalZone);
         if (newActiveElectricalZone == null)
             Debug.LogWarning("[GeistBrain] No Transform variable named 'NewElectricalZone' on the blackboard", this);
+
+       
     }
     // Update is called once per frame
     void Update()
     {
-        if (playerInAOE == null || geistBlinded == null) return;
+        if (playerInAOE == null || playerInLOS == null || geistBlinded == null) return;
 
-        bool inAoe = PlayerInAOE(out bool blinded);
+        bool inAoe = PlayerInAOE();
         if (playerInAOE.Value != inAoe) playerInAOE.Value = inAoe;
+
+        bool inLOS = PlayerInLOS(out bool blinded);
+        if (playerInLOS.Value != inLOS) playerInLOS.Value = inLOS;
         if (geistBlinded.Value != blinded) geistBlinded.Value = blinded;
     }
 
@@ -203,9 +220,8 @@ public class GeistDirectorBrain : MonoBehaviour
     /// ported from EnemyStateMachine
     /// </summary>
     /// <returns></returns>
-    public bool PlayerInAOE(out bool blinded)
+    public bool PlayerInAOE()
     {
-        blinded = false;
         if (player == null) return false;
 
         Vector3 origin = transform.position;
@@ -217,8 +233,26 @@ public class GeistDirectorBrain : MonoBehaviour
         if (distToPlayer > detectionRadius) return false;
         if (distToPlayer < 0.0001f) return true;
 
+        return true;
+    }
+
+    public bool PlayerInLOS(out bool blinded)
+    {
+        blinded = false;
+        if (player == null || GeistEye == null || GeistEyeRig == null) return false;
+
+        Vector3 origin = transform.position;
+        Vector3 target = player.transform.position;
+
+        Vector3 toPlayer = target - origin;
+        float distToPlayer = toPlayer.magnitude;
+
+        // inside the eye's cone (same numbers GeistLookAt uses)
+        if (distToPlayer > GeistEyeRig.detectionRange) return false;
+        if (Vector3.Angle(GeistEye.up, toPlayer) > GeistEyeRig.coneHalfAngle) return false;
+
+        //performa simple single ray cast to establish the flashlight's distance to the closest object in front of it
         Vector3 dir = toPlayer / distToPlayer;
-        //Debug.Log($"[DIST] {distToPlayer:F2} / radius={detectionRadius} frame={Time.frameCount}");
 
         foreach (RaycastHit h in Physics.RaycastAll(origin, dir, distToPlayer, ~0, QueryTriggerInteraction.Collide))
         {
@@ -228,6 +262,9 @@ public class GeistDirectorBrain : MonoBehaviour
                 return false;
             }
         }
+        if (Physics.Raycast(origin, dir, out RaycastHit hit, distToPlayer, barrierLayer, QueryTriggerInteraction.Ignore))
+            return hit.collider.GetComponentInParent<ZeroGravity>() != null;
+        //return an average of the distances
         return true;
     }
 
@@ -601,6 +638,38 @@ public class GeistDirectorBrain : MonoBehaviour
 
             if (player != null)
                 Gizmos.DrawLine(transform.position, player.transform.position);
+        }
+        if (showLOSCone)
+        {
+            if (GeistEye == null) return;
+
+            DrawWireCone(GeistEye.position, GeistEye.up, coneHalfAngle, geistEyeRangeMax,
+                         playerInLOS ? Color.green : Color.yellow);
+        }
+    }
+
+    private static void DrawWireCone(Vector3 origin, Vector3 forward,
+                                    float halfAngleDeg, float range, Color color)
+    {
+        Gizmos.color = color;
+        const int segments = 20;
+
+        Vector3 up = Mathf.Abs(Vector3.Dot(forward, Vector3.up)) > 0.99f ? Vector3.right : Vector3.up;
+        Vector3 perpStart = Vector3.Cross(forward, up).normalized;
+        Vector3 prevRim = Vector3.zero;
+
+        float cosA = Mathf.Cos(halfAngleDeg * Mathf.Deg2Rad);
+        float sinA = Mathf.Sin(halfAngleDeg * Mathf.Deg2Rad);
+
+        for (int i = 0; i <= segments; i++)
+        {
+            Vector3 perp = Quaternion.AngleAxis((float)i / segments * 360f, forward) * perpStart;
+            Vector3 rimPoint = origin + (forward * cosA + perp * sinA).normalized * range;
+
+            if (i > 0) Gizmos.DrawLine(prevRim, rimPoint);
+            if (i % (segments / 4) == 0) Gizmos.DrawLine(origin, rimPoint);
+
+            prevRim = rimPoint;
         }
     }
     #endregion

@@ -259,7 +259,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   geistRigPrefab: {fileID: 5441912815523802169, guid: 76284ea7a92a5754d9aadd31c9ed492a, type: 3}
+  brain: {fileID: 5981580356134212302}
+  geistRig: {fileID: 0}
   children: []
+  rigYawOffset: 0
 --- !u!114 &2813364571777998535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302,12 +305,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showDetectionRadius: 1
+  showLOSCone: 1
   showRetreatRadius: 1
   persistantManager: {fileID: 0}
   playerObj: {fileID: 0}
   player: {fileID: 0}
   geist: {fileID: 2813364571777998535}
   grabPlayerPos: {fileID: 1891620099349330151}
+  GeistRig: {fileID: 0}
+  GeistEye: {fileID: 0}
+  target: {fileID: 0}
+  coneHalfAngle: 0
+  GeistEyeRig: {fileID: 0}
+  geistEyeRangeMax: 10
+  barrierLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  playerTag: Player
   wayPointGroup: {fileID: 0}
   startingWaypoint: {fileID: 0}
   phasingWaypoints: []
