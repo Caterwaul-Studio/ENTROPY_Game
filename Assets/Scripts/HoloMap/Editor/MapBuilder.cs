@@ -425,6 +425,27 @@ public static class MapBuilder
     }
 
     /// <summary>
+    /// Whether an automatically found door is drawn. Leaving one off adds an Ignore row for it, the same as
+    /// adding it by hand as Ignore, so it shows in the level's list and can be put back from there too.
+    /// </summary>
+    public static bool IsDoorOnMap(MapLevel level, GameObject door)
+    {
+        return !level.sceneEntries.Exists(item => item.target == door && item.kind == MapEntryKind.Ignore);
+    }
+
+    public static void SetDoorOnMap(MapLevel level, GameObject door, bool onMap)
+    {
+        if (onMap)
+        {
+            level.sceneEntries.RemoveAll(item => item.target == door && item.kind == MapEntryKind.Ignore);
+        }
+        else if (!level.sceneEntries.Exists(item => item.target == door))
+        {
+            level.sceneEntries.Add(new MapLevel.SceneEntry { target = door, kind = MapEntryKind.Ignore });
+        }
+    }
+
+    /// <summary>
     /// The door's moving panel, from the DoorScript's Door Part field. Null when it isn't set, or isn't part of the door.
     /// </summary>
     public static Transform GetDoorPanel(DoorScript door)

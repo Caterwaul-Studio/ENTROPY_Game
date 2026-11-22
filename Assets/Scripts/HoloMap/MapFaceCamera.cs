@@ -4,7 +4,8 @@ using UnityEngine.Rendering;
 
 /// <summary>
 /// Turns the map's labels to face each camera just before it draws, so they read right on a turning
-/// holotable and on the wrist monitor at the same time. It also fades them with the rest of the map:
+/// holotable and on the wrist monitor at the same time. They stay upright on the map, so a rolled or
+/// upside-down camera doesn't turn them over. It also fades them with the rest of the map:
 /// dimmer toward the back of the map, and in and out with the holo table.
 /// The Map Builder puts this on the baked map's Labels group.
 /// </summary>
@@ -32,12 +33,32 @@ public class MapFaceCamera : MonoBehaviour
     {
         // Cameras that can't see the map don't need the labels turned
         if ((camera.cullingMask & (1 << gameObject.layer)) == 0) return;
+        Face(camera);
+    }
 
-        Quaternion facing = camera.transform.rotation;
+    /// <summary>
+    /// Turns every label toward this camera, keeping the map's up as the labels' up.
+    /// </summary>
+    public void Face(Camera camera)
+    {
+        Quaternion facing = GetFacing(camera.transform.forward, camera.transform.up, transform.up);
         foreach (Transform label in transform)
         {
             label.rotation = facing;
         }
+    }
+
+    /// <summary>
+    /// Facing the camera with the map's up as the label's up. Looking almost straight down or up the map's up
+    /// leaves no sideways direction to stand the label on, so there it follows the camera's own up instead,
+    /// blended in so the label doesn't snap.
+    /// </summary>
+    public static Quaternion GetFacing(Vector3 cameraForward, Vector3 cameraUp, Vector3 mapUp)
+    {
+        float alongUp = Mathf.Abs(Vector3.Dot(cameraForward.normalized, mapUp.normalized));
+        float useCamera = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.9f, 0.995f, alongUp));
+        Vector3 up = Vector3.Lerp(mapUp.normalized, cameraUp.normalized, useCamera);
+        return Quaternion.LookRotation(cameraForward, up.sqrMagnitude > 0.0001f ? up : cameraUp);
     }
 
     /// <summary>

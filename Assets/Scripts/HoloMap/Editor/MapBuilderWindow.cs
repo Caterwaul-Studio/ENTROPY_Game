@@ -25,7 +25,9 @@ public partial class MapBuilderWindow : EditorWindow
         + "The number is its place in the TerminalManager's list, which the map can use to show each terminal's state.";
     const string DoorsHelp = "Everything with the game's DoorScript goes on the map, drawn from its main parts. Its panel (the DoorScript's Door Part) "
         + "is colored by its state: blue working, yellow broken, red locked. While the game runs the map follows each door's state. "
-        + "A door with no Door Part is drawn in the map's usual color. The number is its place in the DoorManager's list.";
+        + "A door with no Door Part is drawn in the map's usual color. The number is its place in the DoorManager's list. "
+        + "Untick On Map to leave a door off.";
+    static readonly GUIContent DoorOnMapLabel = new GUIContent("On Map", "Untick to leave this door off the map. It's added to Objects in This Level as Ignore, and ticking it again takes that row away.");
     static readonly GUIContent PlayerMarkerLabel = new GUIContent("Player Marker Size (m)", "How wide the green ball showing the player is, in metres at full map size. It follows the player while the game runs.");
     static readonly GUIContent DepthDimmingLabel = new GUIContent("Depth Dimming", "How much the map's far side dims, so what's in front reads first. 0 is even, 1 fades the far side out. Terminals and the player always stay full brightness.");
     static readonly GUIContent AddScanLabel = new GUIContent("Add Object to Scan", "An object beside the level root whose children belong on the map, such as rooms kept outside it. Terminals don't need this: they're found anywhere in the scene.");
@@ -488,13 +490,26 @@ public partial class MapBuilderWindow : EditorWindow
             {
                 DrawObjectName(door.gameObject);
                 MapLevel.SceneEntry row = level.sceneEntries.Find(item => item.target == door.gameObject);
+                bool onMap = MapBuilder.IsDoorOnMap(level, door.gameObject);
                 string number = index >= 0 ? $"#{index}" : "not in DoorManager";
                 string hidden = door.gameObject.activeInHierarchy ? "" : ", starts hidden";
-                string status = row != null && row.kind != MapEntryKind.Door
-                    ? $"added by hand as {row.kind}"
+                string status = !onMap ? "left off the map"
+                    : row != null && row.kind != MapEntryKind.Door ? $"added by hand as {row.kind}"
                     : doorsWithoutPanel.Contains(door) ? $"{number}, no door part{hidden}"
                     : $"{number}, {MapDoors.GetState(door.DoorState).ToString().ToLower()}{hidden}";
                 GUILayout.Label(status, GUILayout.Width(170));
+
+                // A door added by hand as something else is managed from its own row instead
+                using (new EditorGUI.DisabledScope(onMap && row != null))
+                {
+                    bool show = GUILayout.Toggle(onMap, DoorOnMapLabel, GUILayout.Width(70));
+                    if (show != onMap)
+                    {
+                        Undo.RecordObject(level, show ? "Put Door on Map" : "Leave Door off Map");
+                        MapBuilder.SetDoorOnMap(level, door.gameObject, show);
+                        MarkChanged(level);
+                    }
+                }
             }
         }
     }

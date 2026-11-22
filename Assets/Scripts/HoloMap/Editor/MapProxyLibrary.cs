@@ -35,8 +35,8 @@ public class MapProxyLibrary : ScriptableObject
     [Tooltip("The TextMesh Pro font asset map labels use, glow and colors included, like Oxanium-Regular SDF. Empty: TextMesh Pro's default font.")]
     public TMP_FontAsset labelFont;
 
-    [Tooltip("The color of the label text, set the way the game's own texts get theirs. Default: the game's cyan, #00C3EB.")]
-    public Color labelColor = new Color(0f, 0.765f, 0.922f, 1f);
+    [Tooltip("The color of the label text, set the way the game's own texts get theirs. Default: a deep translucent cyan, #006A80 at 49%, so labels sit back from the map's lines.")]
+    public Color labelColor = new Color(0f, 0.4148f, 0.5f, 0.4901f);
 
     public Entry Find(GameObject levelPrefab)
     {

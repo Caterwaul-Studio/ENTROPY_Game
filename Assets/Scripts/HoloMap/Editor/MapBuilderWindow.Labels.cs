@@ -24,7 +24,7 @@ public partial class MapBuilderWindow
     static readonly Color LabelShadowColor = new Color(0f, 0f, 0f, 0.8f);
     static readonly Color SceneLabelColor = new Color(0.85f, 0.95f, 1f, 1f);
     static readonly GUIContent LabelSizeLabel = new GUIContent("Label Size (m)", "Label text size in metres at full map size, about the height of one line.");
-    static readonly GUIContent LabelColorLabel = new GUIContent("Label Color", "The color of the label text, set the way the game's own texts get theirs. Default: the game's cyan, #00C3EB. Shared by every level.");
+    static readonly GUIContent LabelColorLabel = new GUIContent("Label Color", "The color of the label text, set the way the game's own texts get theirs. Default: a deep translucent cyan, #006A80 at 49%. Shared by every level.");
     static readonly GUIContent LabelFontLabel = new GUIContent("Label Font", "A TextMesh Pro font asset from the game, like Oxanium-Regular SDF. Its glow and colors are used as they are. Shared by every level. Empty: TextMesh Pro's default font.");
     static readonly GUIContent FindButton = new GUIContent("Find", "Show this label in the Scene view and select it. Drag its arrows to move it.");
 
