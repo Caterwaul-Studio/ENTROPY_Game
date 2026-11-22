@@ -608,7 +608,7 @@ public class Event : MonoBehaviour
        and instantiates a fire at a point parented to the centerPos (spawnPos). SpawnPos is placed away from the centerPos to create its radius,
        and rotating centerPos rotates spawnPos on that radius, giving a point along the circumference. RotMod can be used to not start from zero 
        on iterating through points on the circumference, but normally you can set it to zero. */
-    public async void InstantiateFireInCircumference(GameObject centerPos, GameObject spawnPos, int fireCount, float rotMod, float range) {
+    public async void InstantiateFireInCircumference(GameObject centerPos, GameObject spawnPos, int fireCount, float rotMod, float range, GameObject fireParent) {
         //Count for the for loop is determined by fireCount passed in
         int count = fireCount;
         //The step or distance traveled along the circumference is based upon how many fires are being created
@@ -644,7 +644,7 @@ public class Event : MonoBehaviour
             await Awaitable.WaitForSecondsAsync(fireSeeds[i]);
 
             //Calls instatiateFire with the generated variables
-            InstantiateFire(spawnPos.transform.position, flippedRot, null);
+            InstantiateFire(spawnPos.transform.position, flippedRot, fireParent.transform);
         }
     }
 

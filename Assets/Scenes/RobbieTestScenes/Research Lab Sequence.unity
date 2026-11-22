@@ -35470,6 +35470,37 @@ Mesh:
     offset: 0
     size: 0
     path: 
+--- !u!1 &315113104
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 315113105}
+  m_Layer: 0
+  m_Name: Fire
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &315113105
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 315113104}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 832380966}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &315393060
 GameObject:
   m_ObjectHideFlags: 0
@@ -74413,6 +74444,7 @@ Transform:
   - {fileID: 1419133178}
   - {fileID: 870224899}
   - {fileID: 403995614}
+  - {fileID: 315113105}
   m_Father: {fileID: 1732801574}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &832380967
@@ -74432,6 +74464,7 @@ MonoBehaviour:
   lights: []
   hazardLightGroup: {fileID: 0}
   hazardLights: []
+  fireParent: {fileID: 315113104}
   centerPos: {fileID: 1914320757}
   spawnPos: {fileID: 197186152}
   centerPos1: {fileID: 1419133177}
