@@ -69,10 +69,10 @@ public class ResearchLabSequence : Event {
     //Function that starts fire in the research lab carousel
     private IEnumerator startFires() {
         /* Calls the event method that instantiates fires in a circular zone for each module in the carasoul */
-        instantiateFireInCircumference(centerPos, spawnPos, 4, 0, 0);
-        instantiateFireInCircumference(centerPos1, spawnPos1, 4, 45, 15);
-        instantiateFireInCircumference(centerPos2, spawnPos2, 4, 0, 0);
-        instantiateFireInCircumference(centerPos3, spawnPos3, 4, 45, 15);
+        InstantiateFireInCircumference(centerPos, spawnPos, 4, 0, 5);
+        InstantiateFireInCircumference(centerPos1, spawnPos1, 4, 45, 15);
+        InstantiateFireInCircumference(centerPos2, spawnPos2, 4, 0, 5);
+        InstantiateFireInCircumference(centerPos3, spawnPos3, 4, 45, 15);
 
         yield return null;
     }

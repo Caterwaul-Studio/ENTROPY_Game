@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem.Utilities;
@@ -577,7 +578,7 @@ public class Event : MonoBehaviour
     /* This method can be used to instantiate a fire if you you know an explicit position and rotation you want it at. Otherwise, this is
        a basis any method of more complex fire instantiation can repeatedly call */
     //Instantiates a fire prefab based on position and rotation passed in. Pass in the .transform of a parent object so the fire is grouped
-    public virtual Object instantiateFire(Vector3 position, Quaternion rotation, Transform parent) {
+    public virtual Object InstantiateFire(Vector3 position, Quaternion rotation, Transform parent) {
         //Assigns the fire node from the resources folder. This cannot be done outside the method, otherwise it is null
         Object fire = Resources.Load<Object>("Prefabs/FireNode");
 
@@ -585,20 +586,40 @@ public class Event : MonoBehaviour
         return Instantiate(fire, position, rotation, parent);
     }
 
+    //If you are making your own fire spawning method, include this seeding method:
+
+    /*
+        Outside of the loop:
+        
+        //Creates a seed for each fire spawn, utilized to spawn them at different times
+        float[] fireSeeds = new float[count];
+        for (int i = 0; i < count; i++) fireSeeds[i] = Random.Range(0.1f, 0.5f);
+
+
+        Inside the loop:
+        
+        //Waits to instantiate the fire based on this instance's generated seed
+        await Awaitable.WaitForSecondsAsync(fireSeeds[i]);
+
+                                                                                            */
+
     /* Using a point in space provided to it (centerPos), creates points along the circumference of a circle by rotating said point in space
        and applies a random variation to it (range) to prevent uniformity. Performs this as many times as required by the call (fireCount) 
        and instantiates a fire at a point parented to the centerPos (spawnPos). SpawnPos is placed away from the centerPos to create its radius,
        and rotating centerPos rotates spawnPos on that radius, giving a point along the circumference. RotMod can be used to not start from zero 
        on iterating through points on the circumference, but normally you can set it to zero. */
-    public virtual void instantiateFireInCircumference(GameObject centerPos, GameObject spawnPos, int fireCount, float rotMod, float range) {
+    public async void InstantiateFireInCircumference(GameObject centerPos, GameObject spawnPos, int fireCount, float rotMod, float range) {
         //Count for the for loop is determined by fireCount passed in
         int count = fireCount;
         //The step or distance traveled along the circumference is based upon how many fires are being created
         float step = (360f / count);
 
+        //Creates a seed for each fire spawn, utilized to spawn them at different times
+        float[] fireSeeds = new float[count];
+        for (int i = 0; i < count; i++) fireSeeds[i] = Random.Range(0.1f, 0.5f);
+
         //Loops through the logic for each fire to be instantiated
         for (int i = 0; i < count; i++) {
-
             /* Creates a variation of the step along the circumference by getting:
                 - The current iteration of the loop multiplied by the step
                 - A random range, positive or negative, based on the range passed into the method
@@ -619,8 +640,11 @@ public class Event : MonoBehaviour
                 centerPos.transform.eulerAngles.z - 180f
             );
 
+            //Waits to instantiate the fire based on this instance's generated seed
+            await Awaitable.WaitForSecondsAsync(fireSeeds[i]);
+
             //Calls instatiateFire with the generated variables
-            instantiateFire(spawnPos.transform.position, flippedRot, null);
+            InstantiateFire(spawnPos.transform.position, flippedRot, null);
         }
     }
 
