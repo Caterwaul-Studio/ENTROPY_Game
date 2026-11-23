@@ -62,7 +62,7 @@ public class GeistDirectorBrain : MonoBehaviour
 
     //ported from EnemyStateMachine
     [Header("Detection Settings")]
-    public LayerMask detectionMask; // Set this to "Default", "Player", and "Obstacles"
+    public LayerMask detectionMask;
     public float detectionRadius;
     public float defaultDetectionRadius = 10f;
     public float chaseDetectionRadius = 15f;
@@ -80,6 +80,12 @@ public class GeistDirectorBrain : MonoBehaviour
     [SerializeField] private LayerMask wallLayer;          // copy from the old EnemyStateMachine
     [SerializeField] private float grabWallCheckRadius = 0.5f;
 
+    [Header("Throw / Kill")]
+    [SerializeField] private float minThrowDistance = 5f;
+    [SerializeField] private float throwForce = 20f;
+    [SerializeField] private float grabDuration = 5.5f;     // time spent turning toward the throw target
+    [SerializeField] private float killHoldDuration = 3f;   // old GrabAndWait hold time
+    private Vector3 throwLocation;
 
     //Shared state (read/written by the behvaior graph nodes)
     public Waypoint CurrentWaypoint { get; set; }
@@ -132,6 +138,12 @@ public class GeistDirectorBrain : MonoBehaviour
         bool inLOS = PlayerInLOS(out bool blinded);
         if (playerInLOS.Value != inLOS) playerInLOS.Value = inLOS;
         if (geistBlinded.Value != blinded) geistBlinded.Value = blinded;
+
+        if (playerWithinChaseDistance != null)
+        {
+            bool within = PlayerWithinChaseDistance();
+            if (playerWithinChaseDistance.Value != within) playerWithinChaseDistance.Value = within;
+        }
     }
 
     #region Setup (called by SpawnGeistBehavior)
@@ -296,6 +308,13 @@ public class GeistDirectorBrain : MonoBehaviour
     public Transform PlayerCamera => player != null ? player.cam.transform : null;
     public bool HasPlayer => playerObj != null;
 
+    public bool PlayerWithinChaseDistance()
+    {
+        if (player == null) return false;
+        float r = chaseDetectionRadius;
+        return (player.transform.position - transform.position).sqrMagnitude <= r * r;
+    }
+
     public void ChaseStep()
     {
         if (playerObj == null) return;
@@ -380,11 +399,23 @@ public class GeistDirectorBrain : MonoBehaviour
 
     #region Grab (some ported from ComplexEnemyAI)
 
-    // Ported from the Player branch of ComplexEnemyAI.OnCollisionEnter.
-    // The grab itself runs in the graph when PlayerInGrabRange is true.
     private void OnCollisionEnter(Collision collision)
     {
-        if (!collision.gameObject.CompareTag("Player")) return;
+        Debug.Log($"[GeistBrain] collision with {collision.gameObject.name} (tag {collision.gameObject.tag})", this); // remove once it works
+        HandlePlayerContact(collision.gameObject);
+    }
+
+    // Enter fires only on first contact. Stay keeps trying while touching, so a grab that was
+    // blocked (cooldown, wall, still throwing) isn't lost.
+    private void OnCollisionStay(Collision collision)
+    {
+        HandlePlayerContact(collision.gameObject);
+    }
+
+    private void HandlePlayerContact(GameObject other)
+    {
+        // the collider can be on a child of the player, so check the hierarchy as well as the tag
+        if (!other.CompareTag("Player") && other.GetComponentInParent<ZeroGravity>() == null) return;
 
         if (IsGrabbingPlayer) return;
 
@@ -398,6 +429,8 @@ public class GeistDirectorBrain : MonoBehaviour
 
         if (playerInGrabRange != null) playerInGrabRange.Value = true;
     }
+
+    public bool GrabRangeFlagged => playerInGrabRange != null && playerInGrabRange.Value;
 
     public bool IsInsideWall()
     {
@@ -424,6 +457,102 @@ public class GeistDirectorBrain : MonoBehaviour
         player.RB.linearVelocity = Vector3.zero;
         player.RB.angularVelocity = Vector3.zero;
         player.RB.linearVelocity = reflect * (minChaseSpeed * 1.3f);
+    }
+
+    #endregion
+
+    #region Throw & Kill (some ported from ComplexEnemyAI)
+    public Vector3 ThrowLocation => throwLocation;
+    public float GrabDuration => grabDuration;
+    public float KillHoldDuration => killHoldDuration;
+    public bool HasPlayerRefs => player != null && persistantManager != null;
+
+    // Ported from ComplexEnemyAI.ForceLookAtPlayer
+    public void FacePlayerStep()
+    {
+        if (player == null) return;
+        Vector3 toPlayer = player.transform.position - transform.position;
+        if (toPlayer.sqrMagnitude < 0.01f) return;
+
+        Quaternion look = Quaternion.LookRotation(toPlayer.normalized, Vector3.up);
+        transform.rotation = Quaternion.Slerp(transform.rotation, look, rotationSpeed * Time.deltaTime);
+    }
+
+    // Ported from ComplexEnemyAI.DetermineThrowTarget
+    public bool DetermineThrowTarget()
+    {
+        Vector3 origin = player.transform.position;
+        Vector3 primaryDir = (player.transform.position - transform.position).normalized;
+
+        // 1. straight away from the Geist
+        if (IsSpaceClear(origin, primaryDir, minThrowDistance, out throwLocation)) return true;
+
+        // 2. five random offsets around that direction
+        for (int i = 0; i < 5; i++)
+        {
+            Vector3 offset = new Vector3(Random.Range(-0.4f, 0.4f), Random.Range(-0.4f, 0.4f), Random.Range(-0.4f, 0.4f));
+            if (IsSpaceClear(origin, (primaryDir + offset).normalized, minThrowDistance, out throwLocation)) return true;
+        }
+
+        // 3. a waypoint that's far enough but close enough
+        return FindFallbackWaypoint();
+    }
+
+    private bool IsSpaceClear(Vector3 origin, Vector3 direction, float minDistance, out Vector3 hitPoint)
+    {
+        // sphere cast so the player fits through the gap, not just a thin line
+        if (Physics.SphereCast(origin, 0.5f, direction, out RaycastHit hit, minDistance, wallLayer, QueryTriggerInteraction.Ignore))
+        {
+            hitPoint = hit.point;
+            return false;
+        }
+        hitPoint = origin + direction * minDistance;
+        return true;
+    }
+
+    private bool FindFallbackWaypoint()
+    {
+        var valid = allWaypoints.Where(wp =>
+        {
+            float d = Vector3.Distance(player.transform.position, wp.transform.position);
+            return d >= 5f && d <= 15f;
+        }).ToList();
+
+        if (valid.Count > 0)
+        {
+            throwLocation = valid[Random.Range(0, valid.Count)].transform.position;
+            return true;
+        }
+
+        // last resort: a shove from where the Geist is
+        throwLocation = transform.position;
+        return false;
+    }
+
+    // Ported from ComplexEnemyAI.ExecuteKinematicThrow (+ the release that preceded it)
+    public void ExecuteKinematicThrow()
+    {
+        if (player == null) return;
+
+        Vector3 dir = (throwLocation - player.transform.position).normalized;
+        UnlockPlayerInputs();            // re-parents the player and restores physics and controls
+        player.GetThrown(dir, throwForce);
+    }
+
+    // End of the old KillSequence. Doesn't restore CanMove etc.; IsDead sets the rest of the flags.
+    public void KillPlayer()
+    {
+        if (player == null) return;
+
+        player.IsBeingGrabbed = false;
+        player.RB.isKinematic = false;
+
+        if (!player.IsDead)
+        {
+            player.transform.SetParent(persistantManager.PlayerParent.transform, true);
+            player.IsDead = true;
+        }
+        IsGrabbingPlayer = false;
     }
 
     #endregion

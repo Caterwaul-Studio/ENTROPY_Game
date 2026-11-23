@@ -10,7 +10,7 @@ public partial class PlayerWithinChaseDistanceCondition : Condition
 
     public override bool IsTrue()
     {
-        return true;
+        return PlayerWithinChaseDistance != null && PlayerWithinChaseDistance.Value;
     }
 
     public override void OnStart()

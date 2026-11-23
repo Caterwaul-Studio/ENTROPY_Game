@@ -10,7 +10,7 @@ public partial class PlayerInGrabRangeCondition : Condition
 
     public override bool IsTrue()
     {
-        return true;
+        return PlayerInGrabRange != null && PlayerInGrabRange.Value;
     }
 
     public override void OnStart()

@@ -26,7 +26,7 @@ public partial class StraightLineChaseAction : Action
     protected override Status OnUpdate()
     {
         brain.ChaseStep();
-        return Status.Running;
+        return brain.GrabRangeFlagged ? Status.Success : Status.Running;
     }
 
     protected override void OnEnd()
