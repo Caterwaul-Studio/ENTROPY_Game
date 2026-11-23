@@ -9,6 +9,10 @@ public class UniversalDevTools : EditorWindow
 {
     //declare a gameobject so we can set the player as a reference.
     //with the reference to the player we can set the processes. 
+    private Component geistBrain;
+    private PropertyInfo geistWaypointProp, geistPathProp, geistGrabbingProp;
+    private double nextGeistSearch;
+
     private GameObject player;
 
     //booleans for the all toggleable elements
@@ -24,6 +28,12 @@ public class UniversalDevTools : EditorWindow
     private static bool drawBarLines = true;
     private static bool drawLaunchDirection = false;
     private static bool drawBoundingSphere = false;
+
+    private static bool drawGeist = false;
+    private static bool showGeistStatus = true;
+    private static bool drawGeistLabel = true;
+    private static bool drawGeistWaypointLine = true;
+    private static bool drawGeistPath = true;
 
 
     [MenuItem("Tools/UniversalDevTools")]
@@ -45,6 +55,7 @@ public class UniversalDevTools : EditorWindow
     }
     public void OnGUI()
     {
+
         // Get a reference to the player
         // This is a reference to the container component of the player
         // ZeroGravity.cs is a component of "Zero G Player", therefore we need to search for the script in the children components
@@ -52,6 +63,7 @@ public class UniversalDevTools : EditorWindow
         {
             FindPlayer();
         }
+        TryFindGeist();
 
         //create a label for the window also bold it so we can see it
         GUILayout.Label("Player Controller Tools", EditorStyles.boldLabel);
@@ -63,6 +75,7 @@ public class UniversalDevTools : EditorWindow
         playerFreeMoveNoClip = EditorGUILayout.Toggle("->Free Move with No Clip",  playerFreeMoveNoClip);
         //method calls to set up each section of the dev tools window
         PlayerControlsTools();
+        GeistTools();
         // Gizmo toggles section
         GizmoToggles();
     }
@@ -266,6 +279,129 @@ public class UniversalDevTools : EditorWindow
 
     #endregion
 
+    #region Geist
+    private void TryFindGeist()
+    {
+        if (geistBrain != null || !Application.isPlaying) return;
+        if (EditorApplication.timeSinceStartup < nextGeistSearch) return;
+        nextGeistSearch = EditorApplication.timeSinceStartup + 1.0; // don't scan the scene every repaint
+        FindGeist();
+    }
+
+    private void FindGeist()
+    {
+        if (!Application.isPlaying) return;
+
+        foreach (MonoBehaviour mb in UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (mb != null && mb.GetType().Name == "GeistDirectorBrain")
+            {
+                geistBrain = mb;
+                System.Type t = mb.GetType();
+                geistWaypointProp = t.GetProperty("CurrentWaypoint");
+                geistPathProp = t.GetProperty("Path");
+                geistGrabbingProp = t.GetProperty("IsGrabbingPlayer");
+                return;
+            }
+        }
+    }
+
+    private Component GetGeistWaypoint()
+    {
+        return geistWaypointProp != null ? geistWaypointProp.GetValue(geistBrain) as Component : null;
+    }
+
+    private int GetGeistPathCount()
+    {
+        System.Collections.ICollection path = geistPathProp != null ? geistPathProp.GetValue(geistBrain) as System.Collections.ICollection : null;
+        return path != null ? path.Count : 0;
+    }
+
+    private void GeistTools()
+    {
+        EditorGUILayout.Space();
+        GUILayout.Label("Geist Tools", EditorStyles.boldLabel);
+
+        showGeistStatus = EditorGUILayout.ToggleLeft("Show Geist Status", showGeistStatus);
+        drawGeist = EditorGUILayout.ToggleLeft("Draw Geist Position (Scene View)", drawGeist);
+        if (drawGeist)
+        {
+            EditorGUI.indentLevel++;
+            drawGeistLabel = EditorGUILayout.ToggleLeft("Label", drawGeistLabel);
+            drawGeistWaypointLine = EditorGUILayout.ToggleLeft("Line to Current Waypoint", drawGeistWaypointLine);
+            drawGeistPath = EditorGUILayout.ToggleLeft("Remaining Path", drawGeistPath);
+            EditorGUI.indentLevel--;
+        }
+
+        if (geistBrain == null)
+        {
+            EditorGUILayout.HelpBox(Application.isPlaying ? "Searching for the Geist..." : "Enter Play mode, the Geist is spawned at runtime.", MessageType.Info);
+            return;
+        }
+
+        Vector3 pos = geistBrain.transform.position;
+
+        if (showGeistStatus)
+        {
+            Component wp = GetGeistWaypoint();
+            EditorGUILayout.LabelField("Active: " + (geistBrain.gameObject.activeInHierarchy ? "Yes" : "No (dormant)"));
+            EditorGUILayout.LabelField("Position: " + pos.ToString("F1"));
+            EditorGUILayout.LabelField("Current Waypoint: " + (wp != null ? wp.name : "None"));
+            EditorGUILayout.LabelField("Path Remaining: " + GetGeistPathCount());
+            if (geistGrabbingProp != null)
+                EditorGUILayout.LabelField("Grabbing Player: " + geistGrabbingProp.GetValue(geistBrain));
+        }
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Select Geist")) Selection.activeGameObject = geistBrain.gameObject;
+        if (GUILayout.Button("Frame in Scene View") && SceneView.lastActiveSceneView != null)
+            SceneView.lastActiveSceneView.Frame(new Bounds(pos, Vector3.one * 3f), false);
+        EditorGUILayout.EndHorizontal();
+    }
+
+    private void DrawGeistGizmos(SceneView sceneView)
+    {
+        if (geistBrain == null) return;
+
+        Vector3 pos = geistBrain.transform.position;
+        Component wp = GetGeistWaypoint();
+
+        // marker always draws while the main toggle is on
+        Handles.color = Color.magenta;
+        Handles.DrawWireDisc(pos, Vector3.up, 1f);
+        Handles.DrawWireDisc(pos, Vector3.right, 1f);
+        Handles.DrawWireDisc(pos, Vector3.forward, 1f);
+
+        if (drawGeistLabel)
+            Handles.Label(pos + Vector3.up * 1.3f, "Geist" + (wp != null ? "\n@ " + wp.name : ""));
+
+        if (drawGeistWaypointLine && wp != null)
+        {
+            Handles.color = Color.yellow;
+            Handles.DrawLine(pos, wp.transform.position);
+        }
+
+        if (drawGeistPath)
+        {
+            System.Collections.IEnumerable path = geistPathProp != null ? geistPathProp.GetValue(geistBrain) as System.Collections.IEnumerable : null;
+            if (path != null)
+            {
+                Handles.color = Color.green;
+                Vector3 previous = pos;
+                foreach (object o in path)
+                {
+                    Component pw = o as Component;
+                    if (pw == null) continue;
+                    Handles.DrawLine(previous, pw.transform.position);
+                    previous = pw.transform.position;
+                }
+            }
+        }
+
+        sceneView.Repaint();
+    }
+    #endregion
+
     #region Gizmo Draw Methods
     /// <summary>
     /// Handles custom scene view rendering for visualizing player-related gizmos in the Unity Editor.
@@ -276,6 +412,7 @@ public class UniversalDevTools : EditorWindow
     /// <param name="sceneView">The SceneView instance in which the custom gizmos are drawn.</param>
     private void OnSceneGUI(SceneView sceneView)
     {
+        if (drawGeist) DrawGeistGizmos(sceneView);
         // ensure the player reference is valid
         if (player == null) return;
 

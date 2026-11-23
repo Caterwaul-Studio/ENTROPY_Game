@@ -68,6 +68,19 @@ public class GeistDirectorBrain : MonoBehaviour
     public float chaseDetectionRadius = 15f;
     public float detectionDuration = 1.5f; // Time to "spot" player
 
+    [Header("Chase")]
+    [SerializeField] private float minChaseSpeed = 3f;
+    [SerializeField] private float maxChaseSpeed = 6f;
+    [SerializeField] private float maxChaseDistance = 20f;
+
+    [Header("Grab")]
+    [SerializeField] private float forceLookDuration = 0.5f;
+
+    [Header("Grab Trigger")]
+    [SerializeField] private LayerMask wallLayer;          // copy from the old EnemyStateMachine
+    [SerializeField] private float grabWallCheckRadius = 0.5f;
+
+
     //Shared state (read/written by the behvaior graph nodes)
     public Waypoint CurrentWaypoint { get; set; }
     public Queue<Waypoint> Path { get; set; } = new Queue<Waypoint>();
@@ -78,7 +91,12 @@ public class GeistDirectorBrain : MonoBehaviour
 
     void Awake()
     {
-        if(wayPointGroup != null)
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        if (wayPointGroup != null)
             InitializeNavigation(wayPointGroup.GetComponentsInChildren<Waypoint>(), startingWaypoint, false);
     }
 
@@ -268,6 +286,145 @@ public class GeistDirectorBrain : MonoBehaviour
         return true;
     }
 
+
+    #endregion
+
+    #region Chasing (some ported from ComplexEnemyAI)
+    public bool IsGrabbingPlayer { get; private set; }
+    public bool CanGrabPlayer => player != null && persistantManager != null && !IsGrabbingPlayer;
+    public float ForceLookDuration => forceLookDuration;
+    public Transform PlayerCamera => player != null ? player.cam.transform : null;
+    public bool HasPlayer => playerObj != null;
+
+    public void ChaseStep()
+    {
+        if (playerObj == null) return;
+
+        Vector3 toPlayer = playerObj.transform.position - transform.position;
+        float dist = toPlayer.magnitude;
+
+        // faster the farther away it is, same lerp as EnemyStateMachine.DetermineGeistSpeedChange
+        float chaseSpeed = Mathf.Lerp(minChaseSpeed, maxChaseSpeed, Mathf.Clamp01(dist / maxChaseDistance));
+        transform.position = Vector3.MoveTowards(transform.position, playerObj.transform.position, chaseSpeed * Time.deltaTime);
+
+        if (toPlayer.sqrMagnitude > 0.001f)
+        {
+            Quaternion look = Quaternion.LookRotation(toPlayer.normalized, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, look, rotationSpeed * Time.deltaTime);
+        }
+
+        UpdateCurrentWaypointToClosest();
+    }
+
+    // Ported from ComplexEnemyAI: keeps CurrentWaypoint near the Geist while it flies free of the waypoint graph
+    public void UpdateCurrentWaypointToClosest()
+    {
+        if (CurrentWaypoint == null)
+        {
+            CurrentWaypoint = FindClosestWaypoint(transform.position);
+            if (CurrentWaypoint == null) return;
+        }
+
+        Waypoint closest = CurrentWaypoint;
+        float minSqr = (transform.position - CurrentWaypoint.transform.position).sqrMagnitude;
+
+        foreach (Waypoint neighbor in CurrentWaypoint.neighbors)
+        {
+            if (neighbor == null) continue;
+            float sqr = (transform.position - neighbor.transform.position).sqrMagnitude;
+            if (sqr < minSqr)
+            {
+                closest = neighbor;
+                minSqr = sqr;
+            }
+        }
+        CurrentWaypoint = closest;
+    }
+
+    // Ported from EnemyStateMachine.LockPlayerInputs
+    public void LockPlayerInputs()
+    {
+        player.transform.SetParent(grabPlayerPos.transform, true);
+
+        persistantManager.PlayerUIManager.HideInteractables();
+        persistantManager.PlayerUIManager.HideGrabber();
+        player.ReleaseBar();
+
+        player.CanMove = false;
+        player.CanGrab = false;
+        player.CanPushOff = false;
+        player.StopRollingQuickly();
+
+        // kill all momentum and freeze physics
+        player.RB.linearVelocity = Vector3.zero;
+        player.RB.angularVelocity = Vector3.zero;
+        player.RB.isKinematic = true;
+
+        player.IsBeingGrabbed = true;
+        IsGrabbingPlayer = true;
+    }
+
+    // Ported from EnemyStateMachine.UnlockPlayerInputs. The throw and kill actions will call this.
+    public void UnlockPlayerInputs()
+    {
+        player.transform.SetParent(persistantManager.PlayerParent.transform, true);
+
+        player.CanMove = true;
+        player.CanGrab = true;
+        player.CanPushOff = true;
+        player.IsBeingGrabbed = false;
+        player.RB.isKinematic = false;
+        IsGrabbingPlayer = false;
+    }
+    #endregion
+
+    #region Grab (some ported from ComplexEnemyAI)
+
+    // Ported from the Player branch of ComplexEnemyAI.OnCollisionEnter.
+    // The grab itself runs in the graph when PlayerInGrabRange is true.
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!collision.gameObject.CompareTag("Player")) return;
+
+        if (IsGrabbingPlayer) return;
+
+        // phasing through a wall: back out of the grab
+        if (IsInsideWall())
+        {
+            Debug.Log("Geist Phasing while trying to Grab");
+            BounceAwayFromGeist();
+            return;
+        }
+
+        if (playerInGrabRange != null) playerInGrabRange.Value = true;
+    }
+
+    public bool IsInsideWall()
+    {
+        return Physics.CheckSphere(transform.position, grabWallCheckRadius, wallLayer);
+    }
+
+    public void ClearPlayerInGrabRange()
+    {
+        if (playerInGrabRange != null) playerInGrabRange.Value = false;
+    }
+
+    public void BounceAwayFromGeist()
+    {
+        if (player == null) return;
+
+        Vector3 geistNormal = (player.transform.position - transform.position).normalized;
+        Vector3 incoming = player.RB.linearVelocity;
+        Vector3 reflect = incoming.sqrMagnitude > 0.001f
+            ? Vector3.Reflect(incoming.normalized, geistNormal)
+            : geistNormal;
+
+        player.transform.position += geistNormal * 0.3f; // small offset to prevent overlap
+
+        player.RB.linearVelocity = Vector3.zero;
+        player.RB.angularVelocity = Vector3.zero;
+        player.RB.linearVelocity = reflect * (minChaseSpeed * 1.3f);
+    }
 
     #endregion
 
