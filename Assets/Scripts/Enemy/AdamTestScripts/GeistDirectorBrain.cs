@@ -62,6 +62,7 @@ public class GeistDirectorBrain : MonoBehaviour
 
     //ported from EnemyStateMachine
     [Header("Detection Settings")]
+    [SerializeField] private float closeSightDistance = 2f; // point blank, the Geist can't "lose" the player
     public LayerMask detectionMask;
     public float detectionRadius;
     public float defaultDetectionRadius = 10f;
@@ -79,6 +80,8 @@ public class GeistDirectorBrain : MonoBehaviour
     [Header("Grab Trigger")]
     [SerializeField] private LayerMask wallLayer;          // copy from the old EnemyStateMachine
     [SerializeField] private float grabWallCheckRadius = 0.5f;
+    [SerializeField] private float grabCooldown = 5f;
+    private float nextGrabTime;
 
     [Header("Throw / Kill")]
     [SerializeField] private float minThrowDistance = 5f;
@@ -277,11 +280,19 @@ public class GeistDirectorBrain : MonoBehaviour
         Vector3 toPlayer = target - origin;
         float distToPlayer = toPlayer.magnitude;
 
-        // inside the eye's cone (same numbers GeistLookAt uses)
-        if (distToPlayer > GeistEyeRig.detectionRange) return false;
-        if (Vector3.Angle(GeistEye.up, toPlayer) > GeistEyeRig.coneHalfAngle) return false;
+        // holding the player, or a collision just flagged a grab: they're in contact, so no wall in between
+        if (IsGrabbingPlayer || GrabRangeFlagged) return true;
 
-        //performa simple single ray cast to establish the flashlight's distance to the closest object in front of it
+        // Point blank skips the cone and range checks, because the player can sit beside the eye.
+        // It does NOT skip the barrier check below.
+        bool pointBlank = distToPlayer <= closeSightDistance;
+        if (!pointBlank)
+        {
+            if (distToPlayer > GeistEyeRig.detectionRange) return false;
+            if (Vector3.Angle(GeistEye.up, toPlayer) > GeistEyeRig.coneHalfAngle) return false;
+        }
+
+        if (distToPlayer < 0.0001f) return true;
         Vector3 dir = toPlayer / distToPlayer;
 
         foreach (RaycastHit h in Physics.RaycastAll(origin, dir, distToPlayer, ~0, QueryTriggerInteraction.Collide))
@@ -303,7 +314,7 @@ public class GeistDirectorBrain : MonoBehaviour
 
     #region Chasing (some ported from ComplexEnemyAI)
     public bool IsGrabbingPlayer { get; private set; }
-    public bool CanGrabPlayer => player != null && persistantManager != null && !IsGrabbingPlayer;
+    public bool CanGrabPlayer => player != null && persistantManager != null && !IsGrabbingPlayer && Time.time >= nextGrabTime;
     public float ForceLookDuration => forceLookDuration;
     public Transform PlayerCamera => player != null ? player.cam.transform : null;
     public bool HasPlayer => playerObj != null;
@@ -394,6 +405,8 @@ public class GeistDirectorBrain : MonoBehaviour
         player.IsBeingGrabbed = false;
         player.RB.isKinematic = false;
         IsGrabbingPlayer = false;
+        nextGrabTime = Time.time + grabCooldown;
+        ClearPlayerInGrabRange();
     }
     #endregion
 
@@ -418,6 +431,7 @@ public class GeistDirectorBrain : MonoBehaviour
         if (!other.CompareTag("Player") && other.GetComponentInParent<ZeroGravity>() == null) return;
 
         if (IsGrabbingPlayer) return;
+        if (Time.time < nextGrabTime) return;
 
         // phasing through a wall: back out of the grab
         if (IsInsideWall())
