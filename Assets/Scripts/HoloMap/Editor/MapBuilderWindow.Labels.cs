@@ -4,10 +4,6 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-
-/// <summary>
-/// The Map Builder's labels: the Labels list in the window, and placing, picking and dragging them in the Scene view.
-/// </summary>
 public partial class MapBuilderWindow
 {
     const float MinLabelPixels = 8f;
@@ -18,15 +14,14 @@ public partial class MapBuilderWindow
     static readonly int PlaceHint = "MapBuilderPlaceLabel".GetHashCode();
     static readonly int LabelTextHint = "MapBuilderLabelText".GetHashCode();
 
-    // Just under the 5 pixels Unity gives empty-space clicks, so label text beats box selection,
-    // while any real handle near the mouse, like a selected object's move arrows, still wins
+    // Just under Unity's 5px default, so label text beats box select
     const float LabelTextPickDistance = 4.9f;
     static readonly Color LabelShadowColor = new Color(0f, 0f, 0f, 0.8f);
     static readonly Color SceneLabelColor = new Color(0.85f, 0.95f, 1f, 1f);
-    static readonly GUIContent LabelSizeLabel = new GUIContent("Label Size (m)", "Label text size in metres at full map size, about the height of one line.");
-    static readonly GUIContent LabelColorLabel = new GUIContent("Label Color", "The color of the label text, set the way the game's own texts get theirs. Default: a deep translucent cyan, #006A80 at 49%. Shared by every level.");
-    static readonly GUIContent LabelFontLabel = new GUIContent("Label Font", "A TextMesh Pro font asset from the game, like Oxanium-Regular SDF. Its glow and colors are used as they are. Shared by every level. Empty: TextMesh Pro's default font.");
-    static readonly GUIContent FindButton = new GUIContent("Find", "Show this label in the Scene view and select it. Drag its arrows to move it.");
+    static readonly GUIContent LabelSizeLabel = new GUIContent("Label Size (m)");
+    static readonly GUIContent LabelColorLabel = new GUIContent("Label Color");
+    static readonly GUIContent LabelFontLabel = new GUIContent("Label Font");
+    static readonly GUIContent FindButton = new GUIContent("Find");
 
     private bool placingLabels;
     private bool toolsWereHidden;
@@ -39,10 +34,10 @@ public partial class MapBuilderWindow
     {
         if (placing == placingLabels) return;
 
-        // Hiding the move tool stops it covering the rooms being clicked
         placingLabels = placing;
         if (placing)
         {
+            SelectBox(-1, -1);
             toolsWereHidden = Tools.hidden;
             Tools.hidden = true;
             overlayIsStale = true;
@@ -56,12 +51,10 @@ public partial class MapBuilderWindow
         SceneView.RepaintAll();
     }
 
-    /// <summary>
-    /// Selects a label for its move arrows. Selected objects are cleared, or their own move tool shows as well.
-    /// </summary>
     private void SelectLabel(int index)
     {
         selectedLabel = index;
+        selectedSector = selectedBox = -1;
         Selection.activeObject = null;
         Repaint();
     }
@@ -82,14 +75,11 @@ public partial class MapBuilderWindow
         return anchor != null && anchor.transform == source;
     }
 
-    // ---- The Labels list in the window
-
     private void DrawLabelsSection()
     {
         EditorGUILayout.Space();
         GUILayout.Label($"Labels ({level.labels.Count})", EditorStyles.boldLabel);
 
-        // Only when it's moved, so drawing never rewrites a value typed in the Inspector
         EditorGUI.BeginChangeCheck();
         float size = EditorGUILayout.Slider(LabelSizeLabel, level.labelSize, MinLabelSize, MaxLabelSize);
         if (EditorGUI.EndChangeCheck())
@@ -99,7 +89,6 @@ public partial class MapBuilderWindow
             MarkLabelsChanged(level);
         }
 
-        // The fonts are shared by every level, so they live in the library
         var font = (TMP_FontAsset)EditorGUILayout.ObjectField(LabelFontLabel, library.labelFont, typeof(TMP_FontAsset), false);
         if (font != library.labelFont)
         {
@@ -133,10 +122,6 @@ public partial class MapBuilderWindow
         }
     }
 
-    /// <summary>
-    /// Removing a row moves the rows below it up, so a half-typed name would land on the next label.
-    /// The name field lets go first, and the row goes once that has finished.
-    /// </summary>
     private void RemoveLabelLater(MapLevel owner, int index)
     {
         GUI.FocusControl(null);
@@ -152,9 +137,6 @@ public partial class MapBuilderWindow
         };
     }
 
-    /// <summary>
-    /// Draws one label row. Returns true if its remove button was pressed.
-    /// </summary>
     private bool DrawLabelRow(int index)
     {
         MapLevel.LabelEntry label = level.labels[index];
@@ -172,12 +154,10 @@ public partial class MapBuilderWindow
 
             if (lost)
             {
-                var warning = new GUIContent(EditorGUIUtility.IconContent("console.warnicon.sml").image,
-                    "The object this label sat over was deleted. Give it a new Anchor, or remove it.");
+                var warning = new GUIContent(EditorGUIUtility.IconContent("console.warnicon.sml").image, "Its anchor was deleted. Set a new one or remove the label");
                 GUILayout.Label(warning, GUILayout.Width(20));
             }
 
-            // Delayed, so a word typed is one undo step instead of one per letter
             string text = EditorGUILayout.DelayedTextField(label.text);
             if (text != label.text)
             {
@@ -197,9 +177,6 @@ public partial class MapBuilderWindow
         return false;
     }
 
-    /// <summary>
-    /// A label keeps its spot when it gets a new anchor. One that had lost its anchor moves over the new one.
-    /// </summary>
     private void SetAnchor(MapLevel.LabelEntry label, GameObject anchor, bool lost, Vector3 world)
     {
         if (anchor != null && anchor.scene != level.gameObject.scene)
@@ -224,7 +201,7 @@ public partial class MapBuilderWindow
             overlayIsStale = true;
         }
 
-        // Before selecting, so a refresh that finds a new level can't clear the selection afterwards
+        // Refresh first so it can't clear the new selection
         RefreshOverlay();
         SelectLabel(index);
 
@@ -233,11 +210,6 @@ public partial class MapBuilderWindow
         SceneView.RepaintAll();
     }
 
-    // ---- Placing a label
-
-    /// <summary>
-    /// Adds a label over a room or terminal, named after it, or at an exact spot. Returns the new label's index.
-    /// </summary>
     private int AddLabel(MapLevel owner, Transform piece, Vector3? spot)
     {
         var label = new MapLevel.LabelEntry
@@ -254,10 +226,6 @@ public partial class MapBuilderWindow
         return selectedLabel;
     }
 
-    /// <summary>
-    /// The room under the mouse: the nearest room holding whatever Unity picks there.
-    /// Null over a terminal or door, since they don't get labels.
-    /// </summary>
     private Transform PickPiece(Vector2 mouse)
     {
         GameObject picked = HandleUtility.PickGameObject(mouse, false);
@@ -280,27 +248,22 @@ public partial class MapBuilderWindow
 
     private void PlaceLabel(Vector2 mouse, bool exactSpot)
     {
-        // Terminals and doors stand out by their fill, so clicking one adds no label
         if (IsOnTerminal(HandleUtility.PickGameObject(mouse, false))) return;
 
         Transform piece = PickPiece(mouse);
         Vector3? spot = null;
         if (exactSpot || piece == null)
         {
-            // Clicking something else labels that spot, and clicking empty space does nothing
             if (!HandleUtility.PlaceObject(mouse, out Vector3 hit, out _)) return;
             spot = hit + overlayLevel.transform.up * MapBuilder.LabelGap;
         }
         AddLabel(overlayLevel, piece, spot);
     }
 
-    // ---- Scene view
-
     private void OnLabelsSceneGUI(SceneView view)
     {
         if (!DrawsInScene || library == null) return;
 
-        // Labels belong to the open level, not a prefab being edited or a game being played
         if (EditorApplication.isPlayingOrWillChangePlaymode || StageUtility.GetCurrentStageHandle() != StageUtility.GetMainStageHandle())
         {
             SetPlacing(false);
@@ -338,8 +301,7 @@ public partial class MapBuilderWindow
                     break;
 
                 case EventType.Layout:
-                    // Clicking a label's text selects it, except while placing, which keeps clicks for the rooms.
-                    // Later labels win ties, so the one drawn on top gets the click
+                    // Later labels win ties, so the one on top gets the click
                     if (!placingLabels && rect.Contains(current.mousePosition)) HandleUtility.AddControl(textId, LabelTextPickDistance);
                     break;
 
@@ -348,7 +310,6 @@ public partial class MapBuilderWindow
                     break;
             }
 
-            // A dot to select the label by
             float dot = HandleUtility.GetHandleSize(world) * 0.06f;
             using (new Handles.DrawingScope(i == selectedLabel ? Color.white : SceneLabelColor))
             {
@@ -358,7 +319,6 @@ public partial class MapBuilderWindow
                 }
             }
 
-            // Placing keeps clicks free for the next room, so the arrows only show when it's done
             if (i == selectedLabel && !placingLabels)
             {
                 EditorGUI.BeginChangeCheck();
@@ -372,7 +332,6 @@ public partial class MapBuilderWindow
             }
         }
 
-        // Checked after the arrows, so grabbing one of this label's arrows still wins
         if (clicked >= 0 && current.type == EventType.MouseDown)
         {
             SelectLabel(clicked);
@@ -387,10 +346,6 @@ public partial class MapBuilderWindow
         }
     }
 
-    /// <summary>
-    /// Where a label's text goes on screen, at the size it will be on the map, so it shows how labels fit together.
-    /// Also sets up the style and text that DrawSceneLabel draws.
-    /// </summary>
     private Rect GetSceneLabelRect(string text, Vector3 world, Camera camera, bool selected)
     {
         Vector2 bottom = HandleUtility.WorldToGUIPoint(world);
@@ -409,9 +364,6 @@ public partial class MapBuilderWindow
         return new Rect(bottom.x - size.x * 0.5f, bottom.y - size.y, size.x, size.y);
     }
 
-    /// <summary>
-    /// Draws the text set up by GetSceneLabelRect. A slight shadow keeps it readable over bright walls, with no box behind it.
-    /// </summary>
     private void DrawSceneLabel(Rect rect)
     {
         Color color = sceneLabelStyle.normal.textColor;
@@ -432,13 +384,10 @@ public partial class MapBuilderWindow
         switch (current.GetTypeForControl(id))
         {
             case EventType.Layout:
-                // Clicks that hit nothing else come here instead of selecting objects
                 HandleUtility.AddDefaultControl(id);
                 break;
 
             case EventType.MouseMove:
-                // The piece under the mouse shows white, so it's the one a click will label.
-                // Over a label's dot the click selects that label instead, so nothing shows white
                 Transform hovered = HandleUtility.nearestControl == id ? PickPiece(current.mousePosition) : null;
                 if (hovered != hoverSource)
                 {
@@ -456,7 +405,6 @@ public partial class MapBuilderWindow
                 break;
 
             case EventType.MouseDown:
-                // Alt and the other buttons still move the camera
                 if (current.button == 0 && !current.alt && HandleUtility.nearestControl == id)
                 {
                     GUIUtility.hotControl = id;

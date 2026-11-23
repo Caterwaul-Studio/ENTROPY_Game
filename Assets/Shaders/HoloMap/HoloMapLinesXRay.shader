@@ -25,6 +25,11 @@ Shader "Entropy/HoloMap Lines XRay"
 
         // Off for terminals and the player, which stay full brightness wherever they are in the map
         [HideInInspector] _DepthDimmed ("Dims With Depth", Float) = 1
+
+        // Set by the map's sectors through each part's property block: 1 powered, 0 unpowered, and how unpowered looks
+        [HideInInspector] _Power ("Power", Range(0, 1)) = 1
+        [HideInInspector] _UnpoweredBrightness ("Unpowered Brightness", Range(0, 1)) = 0.25
+        [HideInInspector] _UnpoweredSaturation ("Unpowered Saturation", Range(0, 1)) = 0.2
     }
 
     HLSLINCLUDE
@@ -42,7 +47,19 @@ Shader "Entropy/HoloMap Lines XRay"
         float _FarOpacity;
         float _Fade;
         float _DepthDimmed;
+        float _Power;
+        float _UnpoweredBrightness;
+        float _UnpoweredSaturation;
     CBUFFER_END
+
+    // An unpowered sector is drawn dim and greyed out
+    half4 PowerLook(half4 color)
+    {
+        half grey = dot(color.rgb, half3(0.299, 0.587, 0.114));
+        color.rgb = lerp(grey.xxx, color.rgb, lerp(_UnpoweredSaturation, 1, _Power));
+        color.a *= lerp(_UnpoweredBrightness, 1, _Power);
+        return color;
+    }
 
     half DistanceFade(float depth)
     {
@@ -96,7 +113,7 @@ Shader "Entropy/HoloMap Lines XRay"
 
     half4 FragShown(Varyings input) : SV_Target
     {
-        half4 color = _Color;
+        half4 color = PowerLook(_Color);
         color.a *= DistanceFade(input.depth) * DepthDim(input.depth);
         return color;
     }
@@ -109,7 +126,7 @@ Shader "Entropy/HoloMap Lines XRay"
 
         // Only when the camera is close to the map
         float closeness = 1 - saturate((_HoloMapNear - _SeeThroughNear) / max(_SeeThroughFar - _SeeThroughNear, 0.001));
-        half4 color = _Color;
+        half4 color = PowerLook(_Color);
         color.a *= fade * closeness * _XRayStrength * DistanceFade(input.depth) * DepthDim(input.depth);
         if (color.a <= 0.001) discard;
         return color;

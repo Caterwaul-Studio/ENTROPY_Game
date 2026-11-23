@@ -12,6 +12,11 @@ Shader "Entropy/HoloMap Faces"
 
         // Off for terminals and the player, which stay full brightness wherever they are in the map
         [HideInInspector] _DepthDimmed ("Dims With Depth", Float) = 1
+
+        // Set by the map's sectors through each part's property block: 1 powered, 0 unpowered, and how unpowered looks
+        [HideInInspector] _Power ("Power", Range(0, 1)) = 1
+        [HideInInspector] _UnpoweredBrightness ("Unpowered Brightness", Range(0, 1)) = 0.25
+        [HideInInspector] _UnpoweredSaturation ("Unpowered Saturation", Range(0, 1)) = 0.2
         [HideInInspector] _ZWrite ("Depth Write", Float) = 0
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 0
 
@@ -58,7 +63,19 @@ Shader "Entropy/HoloMap Faces"
                 half4 _Color;
                 float _Fade;
                 float _DepthDimmed;
+                float _Power;
+                float _UnpoweredBrightness;
+                float _UnpoweredSaturation;
             CBUFFER_END
+
+            // An unpowered sector is drawn dim and greyed out
+            half4 PowerLook(half4 color)
+            {
+                half grey = dot(color.rgb, half3(0.299, 0.587, 0.114));
+                color.rgb = lerp(grey.xxx, color.rgb, lerp(_UnpoweredSaturation, 1, _Power));
+                color.a *= lerp(_UnpoweredBrightness, 1, _Power);
+                return color;
+            }
 
             // Where the map starts and ends from the camera, and how much its far side dims. Set by MapDoors
             float _HoloMapNear;
@@ -102,7 +119,7 @@ Shader "Entropy/HoloMap Faces"
 
             half4 Frag(Varyings input) : SV_Target
             {
-                half4 color = _Color;
+                half4 color = PowerLook(_Color);
                 color.a *= _Fade * DepthDim(input.depth);
                 return color;
             }

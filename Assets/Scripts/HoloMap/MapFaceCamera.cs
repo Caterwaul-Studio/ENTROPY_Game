@@ -1,23 +1,20 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-/// <summary>
-/// Turns the map's labels to face each camera just before it draws, so they read right on a turning
-/// holotable and on the wrist monitor at the same time. They stay upright on the map, so a rolled or
-/// upside-down camera doesn't turn them over. It also fades them with the rest of the map:
-/// dimmer toward the back of the map, and in and out with the holo table.
-/// The Map Builder puts this on the baked map's Labels group.
-/// </summary>
 public class MapFaceCamera : MonoBehaviour
 {
-    // Changes smaller than this aren't worth rebuilding a label's text for
     const float AlphaStep = 0.01f;
 
     private TMP_Text[] texts;
-    private float[] baseAlphas;
-    private float[] shownAlphas;
+    private Color[] baseColors;
+    private Color[] shownColors;
     private float opacity = 1f;
+
+    private float[] powerBrightness;
+    private float[] powerSaturation;
+    private Dictionary<TMP_Text, int> indexes;
 
     private void OnEnable()
     {
@@ -31,14 +28,10 @@ public class MapFaceCamera : MonoBehaviour
 
     private void FaceCamera(ScriptableRenderContext context, Camera camera)
     {
-        // Cameras that can't see the map don't need the labels turned
         if ((camera.cullingMask & (1 << gameObject.layer)) == 0) return;
         Face(camera);
     }
 
-    /// <summary>
-    /// Turns every label toward this camera, keeping the map's up as the labels' up.
-    /// </summary>
     public void Face(Camera camera)
     {
         Quaternion facing = GetFacing(camera.transform.forward, camera.transform.up, transform.up);
@@ -48,11 +41,6 @@ public class MapFaceCamera : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Facing the camera with the map's up as the label's up. Looking almost straight down or up the map's up
-    /// leaves no sideways direction to stand the label on, so there it follows the camera's own up instead,
-    /// blended in so the label doesn't snap.
-    /// </summary>
     public static Quaternion GetFacing(Vector3 cameraForward, Vector3 cameraUp, Vector3 mapUp)
     {
         float alongUp = Mathf.Abs(Vector3.Dot(cameraForward.normalized, mapUp.normalized));
@@ -61,34 +49,14 @@ public class MapFaceCamera : MonoBehaviour
         return Quaternion.LookRotation(cameraForward, up.sqrMagnitude > 0.0001f ? up : cameraUp);
     }
 
-    /// <summary>
-    /// How much of the labels shows, 0 to 1. The holo table sets it as the map fades in and out.
-    /// </summary>
     public void SetOpacity(float value)
     {
         opacity = value;
     }
 
-    /// <summary>
-    /// Dims each label by how far back in the map it is from this camera, the same way the map's shaders dim
-    /// its lines. Labels use the game's font shaders, which can't do it themselves, so their text's alpha changes.
-    /// MapDoors calls this with the map's depth for each camera.
-    /// </summary>
     public void ApplyDepth(Camera camera, float near, float far, float dimming)
     {
-        if (texts == null)
-        {
-            // Includes the invisible letter copies, so lines show through a faded label again
-            texts = GetComponentsInChildren<TMP_Text>(true);
-            baseAlphas = new float[texts.Length];
-            shownAlphas = new float[texts.Length];
-            for (int i = 0; i < texts.Length; i++)
-            {
-                baseAlphas[i] = texts[i].alpha;
-                shownAlphas[i] = baseAlphas[i];
-            }
-        }
-
+        FindTexts();
         Matrix4x4 toView = camera.worldToCameraMatrix;
         for (int i = 0; i < texts.Length; i++)
         {
@@ -96,18 +64,53 @@ public class MapFaceCamera : MonoBehaviour
             if (text == null) continue;
 
             float depth = -toView.MultiplyPoint3x4(text.transform.position).z;
-            float alpha = baseAlphas[i] * opacity * GetDepthBrightness(depth, near, far, dimming);
-            if (Mathf.Abs(alpha - shownAlphas[i]) < AlphaStep && alpha > 0f && alpha < baseAlphas[i]) continue;
-            if (Mathf.Approximately(alpha, shownAlphas[i])) continue;
+            Color color = baseColors[i];
+            float grey = color.r * 0.299f + color.g * 0.587f + color.b * 0.114f;
+            color = Color.Lerp(new Color(grey, grey, grey, color.a), color, powerSaturation[i]);
+            color.a = baseColors[i].a * opacity * powerBrightness[i] * GetDepthBrightness(depth, near, far, dimming);
 
-            shownAlphas[i] = alpha;
-            text.alpha = alpha;
+            Color shown = shownColors[i];
+            float change = Mathf.Abs(color.r - shown.r) + Mathf.Abs(color.g - shown.g) + Mathf.Abs(color.b - shown.b) + Mathf.Abs(color.a - shown.a);
+            bool settled = color.a <= 0f || color == baseColors[i];
+            if (change < AlphaStep && !settled) continue;
+            if (color == shown) continue;
+
+            shownColors[i] = color;
+            text.color = color;
         }
     }
 
-    /// <summary>
-    /// The same dimming as the map's shaders: full at the map's front, fully dimmed three quarters of the way back, eased.
-    /// </summary>
+    public void SetPower(TMP_Text label, float power, float unpoweredBrightness, float unpoweredSaturation)
+    {
+        FindTexts();
+        foreach (TMP_Text text in label.GetComponentsInChildren<TMP_Text>(true))
+        {
+            if (!indexes.TryGetValue(text, out int i)) continue;
+            powerBrightness[i] = Mathf.Lerp(unpoweredBrightness, 1f, power);
+            powerSaturation[i] = Mathf.Lerp(unpoweredSaturation, 1f, power);
+        }
+    }
+
+    private void FindTexts()
+    {
+        if (texts != null) return;
+
+        texts = GetComponentsInChildren<TMP_Text>(true);
+        baseColors = new Color[texts.Length];
+        shownColors = new Color[texts.Length];
+        powerBrightness = new float[texts.Length];
+        powerSaturation = new float[texts.Length];
+        indexes = new Dictionary<TMP_Text, int>();
+        for (int i = 0; i < texts.Length; i++)
+        {
+            baseColors[i] = texts[i].color;
+            shownColors[i] = baseColors[i];
+            powerBrightness[i] = 1f;
+            powerSaturation[i] = 1f;
+            indexes[texts[i]] = i;
+        }
+    }
+
     public static float GetDepthBrightness(float depth, float near, float far, float dimming)
     {
         float range = far - near;

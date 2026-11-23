@@ -1,16 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
 using UnityEngine.Rendering;
 
-/// <summary>
-/// The Map Builder window: scan a level, pair its prefabs with proxies, and bake the map.
-/// Rows read and write the data directly, because this redraws on every event and
-/// SerializedProperty is far too slow for lists this long. Labels are in MapBuilderWindow.Labels.cs.
-/// Unity's input event is written as UnityEngine.Event, because the game has its own Event class.
-/// </summary>
 public partial class MapBuilderWindow : EditorWindow
 {
     const float ListIndent = 18f;
@@ -21,23 +16,14 @@ public partial class MapBuilderWindow : EditorWindow
 
     const float OverlayAlpha = 0.9f;
     const float HiddenOverlayAlpha = 0.3f;
-    const string TerminalsHelp = "Everything with the game's Terminal script goes on the map in orange, drawn from its own meshes. "
-        + "The number is its place in the TerminalManager's list, which the map can use to show each terminal's state.";
-    const string DoorsHelp = "Everything with the game's DoorScript goes on the map, drawn from its main parts. Its panel (the DoorScript's Door Part) "
-        + "is colored by its state: blue working, yellow broken, red locked. While the game runs the map follows each door's state. "
-        + "A door with no Door Part is drawn in the map's usual color. The number is its place in the DoorManager's list. "
-        + "Untick On Map to leave a door off.";
-    static readonly GUIContent DoorOnMapLabel = new GUIContent("On Map", "Untick to leave this door off the map. It's added to Objects in This Level as Ignore, and ticking it again takes that row away.");
-    static readonly GUIContent PlayerMarkerLabel = new GUIContent("Player Marker Size (m)", "How wide the green ball showing the player is, in metres at full map size. It follows the player while the game runs.");
-    static readonly GUIContent DepthDimmingLabel = new GUIContent("Depth Dimming", "How much the map's far side dims, so what's in front reads first. 0 is even, 1 fades the far side out. Terminals and the player always stay full brightness.");
-    static readonly GUIContent AddScanLabel = new GUIContent("Add Object to Scan", "An object beside the level root whose children belong on the map, such as rooms kept outside it. Terminals don't need this: they're found anywhere in the scene.");
-    static readonly GUIContent LookInsideLabel = new GUIContent("Look Inside", "List this prefab's children so you can put them on the map one by one.");
-    static readonly GUIContent UseMeshesLabel = new GUIContent("Use Meshes", "Pick which meshes draw this, instead of a box. Terminals start with all their meshes ticked.");
-    static readonly GUIContent MergeLabel = new GUIContent("Merge (m)", "Lines closer together than this merge into one. Raise it to clear up dense areas, lower it if curves get lumpy. 0 is off.");
+    static readonly GUIContent DoorOnMapLabel = new GUIContent("On Map");
+    static readonly GUIContent PlayerMarkerLabel = new GUIContent("Player Marker Size (m)");
+    static readonly GUIContent DepthDimmingLabel = new GUIContent("Depth Dimming");
+    static readonly GUIContent AddScanLabel = new GUIContent("Add Object to Scan");
+    static readonly GUIContent LookInsideLabel = new GUIContent("Look Inside");
+    static readonly GUIContent UseMeshesLabel = new GUIContent("Use Meshes");
+    static readonly GUIContent MergeLabel = new GUIContent("Merge (m)");
 
-    /// <summary>
-    /// A mesh in a pick list, with its label worked out once instead of on every redraw.
-    /// </summary>
     private class MeshRow
     {
         public Mesh mesh;
@@ -55,7 +41,6 @@ public partial class MapBuilderWindow : EditorWindow
     private readonly HashSet<object> openMeshLists = new HashSet<object>();
     private readonly HashSet<object> openInsideLists = new HashSet<object>();
     private readonly Dictionary<GameObject, List<MeshRow>> meshLists = new Dictionary<GameObject, List<MeshRow>>();
-
     private bool showOverlay;
     private bool overlayIsStale = true;
     private MapLevel overlayLevel;
@@ -79,6 +64,7 @@ public partial class MapBuilderWindow : EditorWindow
         levelIsStale = true;
         SceneView.duringSceneGui += DrawOverlay;
         SceneView.duringSceneGui += OnLabelsSceneGUI;
+        SceneView.duringSceneGui += OnSectorsSceneGUI;
         EditorApplication.hierarchyChanged += OnLevelChanged;
         Undo.undoRedoPerformed += OnUndoRedo;
     }
@@ -86,8 +72,10 @@ public partial class MapBuilderWindow : EditorWindow
     private void OnDisable()
     {
         SetPlacing(false);
+        SelectBox(-1, -1);
         SceneView.duringSceneGui -= DrawOverlay;
         SceneView.duringSceneGui -= OnLabelsSceneGUI;
+        SceneView.duringSceneGui -= OnSectorsSceneGUI;
         EditorApplication.hierarchyChanged -= OnLevelChanged;
         Undo.undoRedoPerformed -= OnUndoRedo;
         SaveLibrary();
@@ -102,7 +90,6 @@ public partial class MapBuilderWindow : EditorWindow
         SaveLibrary();
     }
 
-    // Edits made elsewhere, like reordering the TerminalManager's list, show when coming back to the window
     private void OnFocus()
     {
         levelIsStale = true;
@@ -121,12 +108,10 @@ public partial class MapBuilderWindow : EditorWindow
         Repaint();
     }
 
-    // The map and its labels show in the Scene view while either of these is on
-    private bool DrawsInScene => showOverlay || placingLabels;
+    private bool DrawsInScene => showOverlay || placingLabels || showSectors;
 
     private void OnUndoRedo()
     {
-        // Undo can remove the selected label
         selectedLabel = -1;
         OnLevelChanged();
         Repaint();
@@ -145,14 +130,15 @@ public partial class MapBuilderWindow : EditorWindow
         if (EditorApplication.isPlayingOrWillChangePlaymode)
         {
             SetPlacing(false);
+            SelectBox(-1, -1);
             EditorGUILayout.HelpBox("The Map Builder is off in Play mode, so a bake can't capture a level mid-game.", MessageType.Info);
             return;
         }
 
-        // Right after pressing Place Labels the window still has focus, so Esc has to work here too
-        if (placingLabels && UnityEngine.Event.current.type == EventType.KeyDown && UnityEngine.Event.current.keyCode == KeyCode.Escape)
+        if ((placingLabels || selectedSector >= 0) && UnityEngine.Event.current.type == EventType.KeyDown && UnityEngine.Event.current.keyCode == KeyCode.Escape)
         {
             SetPlacing(false);
+            SelectBox(-1, -1);
             UnityEngine.Event.current.Use();
         }
 
@@ -161,7 +147,7 @@ public partial class MapBuilderWindow : EditorWindow
             library = MapBuilder.GetOrCreateLibrary();
         }
 
-        // Layout only, because the rows have to stay the same between Layout and Repaint
+        // Layout only, rows must match between Layout and Repaint
         if (UnityEngine.Event.current.type == EventType.Layout && (levelIsStale || level == null))
         {
             level = MapBuilder.FindLevel(EditorSceneManager.GetActiveScene());
@@ -237,7 +223,6 @@ public partial class MapBuilderWindow : EditorWindow
             }
         }
 
-        // Only when it's moved, so drawing never rewrites a value typed in the Inspector
         EditorGUI.BeginChangeCheck();
         float markerSize = EditorGUILayout.Slider(PlayerMarkerLabel, level.playerMarkerSize, 0.25f, 5f);
         if (EditorGUI.EndChangeCheck())
@@ -262,9 +247,6 @@ public partial class MapBuilderWindow : EditorWindow
         }
     }
 
-    /// <summary>
-    /// Objects beside the level root whose children are scanned too.
-    /// </summary>
     private void DrawAlsoScan()
     {
         for (int i = 0; i < level.alsoScan.Count; i++)
@@ -313,7 +295,6 @@ public partial class MapBuilderWindow : EditorWindow
             Undo.RecordObject(level, "Add Object to Scan");
             level.alsoScan.Add(go);
 
-            // Anything already listed inside it is covered now
             int covered = level.alsoScan.RemoveAll(other => other != null && other != go && other.transform.IsChildOf(go.transform));
             if (covered > 0) report.Add($"Removed {covered} object(s) now scanned as part of {go.name}.");
             MarkChanged(level);
@@ -400,6 +381,14 @@ public partial class MapBuilderWindow : EditorWindow
         {
             report.Add($"Label \"{text}\" lost the object it sat over, so it's left off the map. Give it a new Anchor, or remove it.");
         }
+        foreach (string name in scan.emptySectors)
+        {
+            report.Add($"Sector {name} has nothing on the map inside its boxes yet.");
+        }
+        if (scan.unsectored.Count > 0)
+        {
+            report.Add($"{scan.unsectored.Count} room(s) have meshes outside every sector's boxes, so those always look powered: {string.Join(", ", scan.unsectored)}");
+        }
     }
 
     private void DrawEntriesSection()
@@ -422,6 +411,7 @@ public partial class MapBuilderWindow : EditorWindow
         {
             DrawTerminalsSection();
             DrawDoorsSection();
+            DrawSectorsSection();
 
             EditorGUILayout.Space();
             GUILayout.Label($"Objects in This Level ({level.sceneEntries.Count})", EditorStyles.boldLabel);
@@ -442,13 +432,10 @@ public partial class MapBuilderWindow : EditorWindow
         EditorGUILayout.EndScrollView();
     }
 
-    /// <summary>
-    /// The terminals found in the level. Nothing to set up: they go on the map on their own.
-    /// </summary>
     private void DrawTerminalsSection()
     {
         EditorGUILayout.Space();
-        GUILayout.Label(new GUIContent($"Terminals ({foundTerminals.Count}), found automatically", TerminalsHelp), EditorStyles.boldLabel);
+        GUILayout.Label($"Terminals ({foundTerminals.Count}), found automatically", EditorStyles.boldLabel);
         if (foundTerminals.Count == 0)
         {
             EditorGUILayout.HelpBox("No terminals in this level. Anything with the game's Terminal script shows up here.", MessageType.None);
@@ -470,13 +457,10 @@ public partial class MapBuilderWindow : EditorWindow
         }
     }
 
-    /// <summary>
-    /// The doors found in the level, with the state each shows. Nothing to set up.
-    /// </summary>
     private void DrawDoorsSection()
     {
         EditorGUILayout.Space();
-        GUILayout.Label(new GUIContent($"Doors ({foundDoors.Count}), found automatically", DoorsHelp), EditorStyles.boldLabel);
+        GUILayout.Label($"Doors ({foundDoors.Count}), found automatically", EditorStyles.boldLabel);
         if (foundDoors.Count == 0)
         {
             EditorGUILayout.HelpBox("No doors in this level. Anything with the game's DoorScript shows up here.", MessageType.None);
@@ -499,7 +483,6 @@ public partial class MapBuilderWindow : EditorWindow
                     : $"{number}, {MapDoors.GetState(door.DoorState).ToString().ToLower()}{hidden}";
                 GUILayout.Label(status, GUILayout.Width(170));
 
-                // A door added by hand as something else is managed from its own row instead
                 using (new EditorGUI.DisabledScope(onMap && row != null))
                 {
                     bool show = GUILayout.Toggle(onMap, DoorOnMapLabel, GUILayout.Width(70));
@@ -514,9 +497,6 @@ public partial class MapBuilderWindow : EditorWindow
         }
     }
 
-    /// <summary>
-    /// Draws one library row and any lists open under it. Returns true if its remove button was pressed.
-    /// </summary>
     private bool DrawLibraryRow(MapProxyLibrary.Entry entry)
     {
         using (new EditorGUILayout.HorizontalScope())
@@ -551,9 +531,6 @@ public partial class MapBuilderWindow : EditorWindow
         return false;
     }
 
-    /// <summary>
-    /// Draws one "Objects in This Level" row. Returns true if its remove button was pressed.
-    /// </summary>
     private bool DrawSceneRow(MapLevel.SceneEntry entry)
     {
         using (new EditorGUILayout.HorizontalScope())
@@ -587,16 +564,11 @@ public partial class MapBuilderWindow : EditorWindow
             Undo.RecordObject(owner, "Change Map Entry Type");
             entry.kind = kind;
 
-            // Doors draw their own lines in their state's color, so they don't take a proxy
             if (kind == MapEntryKind.Door) entry.proxy = null;
             MarkChanged(owner);
         }
     }
 
-    /// <summary>
-    /// Draws the proxy slot and the Use Meshes checkbox. A proxy wins over picked meshes,
-    /// so the checkbox greys out while one is set.
-    /// </summary>
     private void DrawShapeControls(Object owner, MapShape shape, GameObject source)
     {
         MapEntryKind kind = shape is MapEntry entry ? entry.kind : MapEntryKind.Room;
@@ -625,10 +597,6 @@ public partial class MapBuilderWindow : EditorWindow
         }
     }
 
-    /// <summary>
-    /// A terminal is small and every part of it matters, so it starts with all its meshes ticked.
-    /// Rooms start with none, since they have far more.
-    /// </summary>
     private void TickAllForTerminal(MapEntryKind kind, MapShape shape, GameObject source)
     {
         if (kind != MapEntryKind.Terminal || shape.meshes.Count > 0 || source == null) return;
@@ -639,9 +607,6 @@ public partial class MapBuilderWindow : EditorWindow
         }
     }
 
-    /// <summary>
-    /// A collapsible list of every mesh under the source object, biggest first and all off until ticked.
-    /// </summary>
     private void DrawMeshSection(Object owner, MapShape shape, GameObject source, float indent)
     {
         if (!shape.useMeshes || shape.proxy != null || source == null) return;
@@ -680,7 +645,6 @@ public partial class MapBuilderWindow : EditorWindow
             merge = EditorGUILayout.Slider(MergeLabel, shape.mergeDistance, 0f, MaxMergeDistance);
         }
 
-        // Only when it's moved, so drawing never rewrites a value typed elsewhere
         if (EditorGUI.EndChangeCheck())
         {
             Undo.RecordObject(owner, "Change Merge Distance");
@@ -689,10 +653,6 @@ public partial class MapBuilderWindow : EditorWindow
         }
     }
 
-    /// <summary>
-    /// A collapsible list of the prefab's direct children, all off until ticked.
-    /// A ticked child gets its own piece on the map.
-    /// </summary>
     private void DrawInsideSection(MapProxyLibrary.Entry entry)
     {
         if (entry.levelPrefab == null) return;
@@ -816,10 +776,6 @@ public partial class MapBuilderWindow : EditorWindow
         }
     }
 
-    /// <summary>
-    /// A prefab from the Project window goes in the library and covers every copy of it.
-    /// An object from the Hierarchy is saved on the level and covers only that object.
-    /// </summary>
     private void AddToMap(GameObject go)
     {
         if (EditorUtility.IsPersistent(go))
@@ -856,10 +812,6 @@ public partial class MapBuilderWindow : EditorWindow
         }
     }
 
-    /// <summary>
-    /// A new row starts like the row it overrides, so adding a terminal or its variant keeps it a terminal.
-    /// Picked meshes aren't copied, since a new row is usually added for different ones.
-    /// </summary>
     private void StartLike(MapEntry added, GameObject go)
     {
         MapProxyLibrary.Entry current = MapBuilder.FindEntry(go, library);
@@ -879,14 +831,10 @@ public partial class MapBuilderWindow : EditorWindow
         }
     }
 
-    /// <summary>
-    /// Works out the map again after something changed. Shared by the overlay and the label tools.
-    /// </summary>
     private void RefreshOverlay()
     {
         if (!overlayIsStale) return;
 
-        // A selected label or hovered piece belongs to the level it was picked in
         MapLevel found = MapBuilder.FindLevel(EditorSceneManager.GetActiveScene());
         if (found != overlayLevel)
         {
@@ -898,13 +846,11 @@ public partial class MapBuilderWindow : EditorWindow
             ? MapBuilder.Collect(overlayLevel, library).placements
             : new List<MapBuilder.Placement>();
 
-        // Rooms can be clicked to label them. Terminals can't, since they stand out by their fill instead
         pieces.Clear();
         markerParts.Clear();
         foreach (MapBuilder.Placement placement in overlayPlacements)
         {
             if (placement.source == null) continue;
-            // A door's frame is drawn as a room, but it's still part of a door
             bool doorFrame = placement.source.TryGetComponent<DoorScript>(out _);
             if (placement.kind == MapEntryKind.Room && !doorFrame) pieces.Add(placement.source);
             else if (placement.kind != MapEntryKind.Room || doorFrame) markerParts.Add(placement.source);
@@ -918,12 +864,10 @@ public partial class MapBuilderWindow : EditorWindow
             doorOverlayColors[i] = MapBuilder.GetDoorColor((MapDoorState)i);
             doorOverlayColors[i].a = OverlayAlpha;
         }
+        RefreshSectorOverlay();
         overlayIsStale = false;
     }
 
-    /// <summary>
-    /// Draws the proxies, meshes and boxes over the real level. Nothing here is saved into the scene.
-    /// </summary>
     private void DrawOverlay(SceneView view)
     {
         if (!DrawsInScene || library == null || UnityEngine.Event.current.type != EventType.Repaint) return;
@@ -938,24 +882,27 @@ public partial class MapBuilderWindow : EditorWindow
             overlayMaterial.SetInt("_ZWrite", 0);
         }
 
-        // Handles settings are shared with every other tool drawing in the Scene view, so put them back
+        // Handles settings are shared, so put them back
         CompareFunction previousZTest = Handles.zTest;
         Handles.zTest = CompareFunction.Always;
         try
         {
+            // No-sector pieces last so they show on top
+            IEnumerable<MapBuilder.Placement> drawOrder = ShowsSectors
+                ? overlayPlacements.OrderBy(placement => placement.sector == "" ? 1 : 0)
+                : overlayPlacements;
             using (new Handles.DrawingScope(Handles.color))
             {
-                foreach (MapBuilder.Placement placement in overlayPlacements)
+                foreach (MapBuilder.Placement placement in drawOrder)
                 {
                     if (placement.source == null) continue;
 
-                    // The piece a click would label, or the selected label's piece, shows in white
                     Color color = IsHighlighted(placement.source) ? new Color(1f, 1f, 1f, OverlayAlpha)
+                        : ShowsSectors ? GetSectorOverlayColor(placement)
                         : placement.kind == MapEntryKind.Terminal ? terminalOverlayColor
                         : placement.kind == MapEntryKind.Door ? doorOverlayColors[(int)placement.doorState]
                         : roomOverlayColor;
 
-                    // A terminal that starts hidden is drawn faint
                     if (!placement.active) color.a = HiddenOverlayAlpha;
                     Handles.color = color;
                     overlayMaterial.SetColor("_Color", color);
@@ -975,6 +922,7 @@ public partial class MapBuilderWindow : EditorWindow
                         Handles.DrawWireCube(placement.box.center, placement.box.size);
                     }
                 }
+                Handles.matrix = Matrix4x4.identity;
             }
         }
         finally

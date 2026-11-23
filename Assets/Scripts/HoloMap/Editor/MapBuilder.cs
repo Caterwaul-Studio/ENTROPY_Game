@@ -9,10 +9,6 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Finds the prefabs in a level and bakes the hologram map prefab from the Map Proxy Library.
-/// The level's own prefabs are only read, never changed.
-/// </summary>
 [InitializeOnLoad]
 public static class MapBuilder
 {
@@ -36,15 +32,11 @@ public static class MapBuilder
     const string FaceShader = "Entropy/HoloMap Faces";
     const string SeeThroughLineShader = "Entropy/HoloMap Lines XRay";
 
-    // Raise MapVersion when the baked layout changes, so existing maps rebuild.
-    // Raise WireVersion only when the saved line meshes change, since it renames every one of them
-    const int MapVersion = 23;
+    // Raise MapVersion to rebuild every map, WireVersion to remake every line mesh
+    const int MapVersion = 25;
 
-    // The player shows as a nearly solid green ball, so it stands apart from the orange terminals
     static readonly Color PlayerColor = new Color(0.3f, 1f, 0.45f, 0.95f);
 
-    // Doors show their state: blue working, yellow broken, red locked. A working door is barely set apart
-    // from the rooms around it, a broken or locked one clearly so, and terminals and the player stand out most
     static readonly Color[] DoorColors =
     {
         new Color(0.35f, 0.85f, 1f, 0.6f),
@@ -53,60 +45,42 @@ public static class MapBuilder
     };
     static readonly float[] DoorFillAlphas = { 0.06f, 0.12f, 0.12f };
 
-    // Doors are drawn from their main parts. Anything smaller than this share of the door,
-    // like grab bars and screens, is left out so it doesn't clutter the map
+    // Door parts smaller than this share of the door are left out
     const float DoorPartShare = 0.25f;
     const float DoorMergeDistance = 0.15f;
 
-    // The grab bars on the game's doors are objects with this name in every door prefab
     const string DoorBarsName = "DoorBars";
 
-    // Terminals are small, so their lines merge only when very close
     const float TerminalMergeDistance = 0.02f;
     const int WireVersion = 3;
 
     public static readonly Color RoomColor = new Color(0.35f, 0.85f, 1f, 1f);
     public static readonly Color TerminalColor = new Color(1f, 0.55f, 0.15f, 1f);
     static readonly Color LabelColor = new Color(0.85f, 0.95f, 1f, 1f);
-    // Terminals are filled in strongly, so they stand out as objectives
     const float TerminalTintAlpha = 0.6f;
 
-    // The map draws in this order, after ordinary see-through things like smoke so its invisible faces can't
-    // cut holes in them. Terminal fill and label letter marks first, then label text over the fill, then
-    // terminal lines, all before the faces record what's in front, so rooms never hide labels or terminals.
-    // The room tint and room lines come after, from their shaders' queues (Transparent+100 and +101).
-    // Lines skip the pixels label letters marked, so no line draws over text.
-    // Terminal fill draws early, so it keeps its color where doors and rooms overlap it
+    // Draw order: fills and label masks, then labels, then terminal lines, then room faces and lines
     const int TerminalFillQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 95;
     const int LabelMaskQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 96;
     const int LabelQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 97;
     const int InFrontOfRoomsQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 98;
     const int FaceDepthQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 99;
 
-    // The rooms' own tint and lines, matching the shaders' queues, for pieces drawn like rooms
     const int RoomTintQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 100;
     const int RoomLinesQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 101;
 
-    // Stencil values. URP leaves 1 to 8 for projects, but its stencil LOD cross-fade uses 4 and 8.
-    // Label letters mark 1, which HoloMapLines.shader checks. Terminal and door fills mark 2 as they draw, so each pixel fills once
+    // Stencil: label letters mark 1, fills mark 2 (URP uses 4 and 8)
     const int LabelStencilBit = 1;
     const int FillStencilBit = 2;
 
-    // How far above the thing it names a label sits, in metres
     public const float LabelGap = 0.5f;
 
-    /// <summary>
-    /// One copy of a picked mesh inside a room, stored relative to that room.
-    /// </summary>
     public class WirePiece
     {
         public Mesh mesh;
         public Matrix4x4 toRoom;
     }
 
-    /// <summary>
-    /// One thing to place on the map, stored relative to the level root.
-    /// </summary>
     public class Placement
     {
         public string name;
@@ -122,35 +96,37 @@ public static class MapBuilder
         public float mergeDistance;
         public string wireKey;
 
-        // For terminals and doors: their number in their manager's list, and whether they're showing in the scene
         public int index = -1;
         public bool active = true;
 
-        // For doors: the state they show
         public MapDoorState doorState;
 
-        // For doors: where the moving panel is under the door, so the map's panel can follow it
         public string panelPath = "";
+
+        // Empty means always powered
+        public string sector = "";
+
+        public Placement CopyWith(List<WirePiece> someWires)
+        {
+            var copy = (Placement)MemberwiseClone();
+            copy.wires = someWires;
+            return copy;
+        }
     }
 
-    /// <summary>
-    /// One label to bake, stored relative to the level root.
-    /// </summary>
     public class LabelPlacement
     {
         public string text;
         public Vector3 position;
 
-        // A font asset picked in the library. Empty: TextMesh Pro's default font
         public TMP_FontAsset font;
 
-        // A label over a terminal that's disabled in the scene starts hidden with it
         public bool active = true;
+
+        public GameObject anchor;
+        public string sector = "";
     }
 
-    /// <summary>
-    /// Everything found in one pass over the level.
-    /// </summary>
     public class ScanResult
     {
         public List<Placement> placements = new List<Placement>();
@@ -159,6 +135,12 @@ public static class MapBuilder
         public Color labelColor = Color.white;
         public float playerMarkerSize;
         public float depthDimming;
+        public float unpoweredBrightness;
+        public float unpoweredSaturation;
+
+        public List<string> sectorNames = new List<string>();
+        public List<string> unsectored = new List<string>();
+        public List<string> emptySectors = new List<string>();
         public List<string> lostAnchors = new List<string>();
         public List<string> duplicateTerminals = new List<string>();
         public List<string> missingMeshes = new List<string>();
@@ -210,14 +192,10 @@ public static class MapBuilder
         return library;
     }
 
-    /// <summary>
-    /// Walks the level and works out what belongs on the map, without changing anything.
-    /// </summary>
     public static ScanResult Collect(MapLevel level, MapProxyLibrary library)
     {
         var result = new ScanResult();
 
-        // Objects added by hand go first, so they override whatever the walk would find
         foreach (MapLevel.SceneEntry entry in level.sceneEntries)
         {
             if (entry.target == null) continue;
@@ -225,7 +203,6 @@ public static class MapBuilder
             result.handAdded[entry.target] = entry.kind;
             if (HasShape(entry.kind))
             {
-                // A door always draws its own lines, so it can show its state
                 GameObject proxy = entry.kind == MapEntryKind.Door ? null : entry.proxy;
                 AddShape(entry.target.transform, level.transform, entry.kind, proxy, entry.useMeshes ? entry : null, result);
             }
@@ -235,14 +212,11 @@ public static class MapBuilder
             }
         }
 
-        // Terminals are built in: every terminal in the level goes on the map, with no setup.
-        // A hand-added row for one still wins, and the walk leaves them alone like any marker
         foreach ((Terminal terminal, int index) in FindTerminals(level))
         {
             GameObject go = terminal.gameObject;
             if (result.handAdded.TryGetValue(go, out MapEntryKind addedKind))
             {
-                // Added by hand as a terminal, such as to give it a proxy: it still keeps its number and hidden state
                 Placement own = addedKind == MapEntryKind.Terminal ? result.placements.Find(p => p.source == terminal.transform) : null;
                 if (own != null) SetTerminalState(own, terminal, index, result);
                 continue;
@@ -252,7 +226,6 @@ public static class MapBuilder
             AddTerminal(terminal.transform, level.transform, index, result);
         }
 
-        // Doors are built in the same way, colored by their state
         foreach ((DoorScript door, int index) in FindDoors(level))
         {
             GameObject go = door.gameObject;
@@ -272,7 +245,6 @@ public static class MapBuilder
             Walk(child, child, level.transform, false, library, result);
         }
 
-        // Things kept outside the level root, like the terminals, are walked the same way
         var walked = new HashSet<GameObject>();
         foreach (GameObject extra in level.alsoScan)
         {
@@ -288,7 +260,6 @@ public static class MapBuilder
             }
         }
 
-        // Objects added by hand outside the level still get what's inside them, as they would inside it
         foreach (MapLevel.SceneEntry entry in level.sceneEntries)
         {
             if (entry.target == null || !entry.target.activeInHierarchy) continue;
@@ -300,8 +271,9 @@ public static class MapBuilder
         }
 
         CollectLabels(level, library, result);
+        AssignSectors(level, result);
 
-        // The map display will match terminals to the real ones by name, so names have to be unique
+        // Terminals are matched by name, so names must be unique
         var terminalNames = new HashSet<string>();
         foreach (Placement placement in result.placements)
         {
@@ -311,10 +283,6 @@ public static class MapBuilder
         return result;
     }
 
-    /// <summary>
-    /// Every terminal in the level's scene, found by the game's Terminal script. They're numbered by the
-    /// TerminalManager's list, the same numbering the terminals' save data uses. Any not in that list come last, as -1.
-    /// </summary>
     public static List<(Terminal terminal, int index)> FindTerminals(MapLevel level)
     {
         var found = new List<(Terminal terminal, int index)>();
@@ -323,7 +291,7 @@ public static class MapBuilder
         {
             foreach (TerminalManager manager in root.GetComponentsInChildren<TerminalManager>(true))
             {
-                // The list is private to the game's code, so it's read the way the Inspector reads it
+                // Private in the game's code, so read the way the Inspector does
                 SerializedProperty list = new SerializedObject(manager).FindProperty("terminals");
                 if (list == null) continue;
                 for (int i = 0; i < list.arraySize; i++)
@@ -343,9 +311,6 @@ public static class MapBuilder
         return found;
     }
 
-    /// <summary>
-    /// A terminal is drawn from all of its own meshes, so every kind of terminal looks like itself.
-    /// </summary>
     static void AddTerminal(Transform terminal, Transform levelRoot, int index, ScanResult result)
     {
         var shape = new MapShape { useMeshes = true, mergeDistance = TerminalMergeDistance };
@@ -358,10 +323,6 @@ public static class MapBuilder
         if (placement != null) SetTerminalState(placement, terminal.GetComponent<Terminal>(), index, result);
     }
 
-    /// <summary>
-    /// Every door in the level's scene, found by the game's DoorScript. They're numbered the way the
-    /// DoorManager numbers them, which its save data uses too. Any it doesn't count come last, as -1.
-    /// </summary>
     public static List<(DoorScript door, int index)> FindDoors(MapLevel level)
     {
         var found = new List<(DoorScript door, int index)>();
@@ -387,11 +348,6 @@ public static class MapBuilder
         return found;
     }
 
-    /// <summary>
-    /// A door's frame is drawn like the rest of the map, and only its moving panel (the DoorScript's doorPart)
-    /// is colored by the door's state. A door with no panel has nothing to show its state, so all of it
-    /// is drawn in the map's usual color.
-    /// </summary>
     static void AddDoor(DoorScript door, Transform levelRoot, int index, ScanResult result)
     {
         Transform t = door.transform;
@@ -424,10 +380,6 @@ public static class MapBuilder
         SetDoorState(panelPiece, door, index, result);
     }
 
-    /// <summary>
-    /// Whether an automatically found door is drawn. Leaving one off adds an Ignore row for it, the same as
-    /// adding it by hand as Ignore, so it shows in the level's list and can be put back from there too.
-    /// </summary>
     public static bool IsDoorOnMap(MapLevel level, GameObject door)
     {
         return !level.sceneEntries.Exists(item => item.target == door && item.kind == MapEntryKind.Ignore);
@@ -445,19 +397,12 @@ public static class MapBuilder
         }
     }
 
-    /// <summary>
-    /// The door's moving panel, from the DoorScript's Door Part field. Null when it isn't set, or isn't part of the door.
-    /// </summary>
     public static Transform GetDoorPanel(DoorScript door)
     {
         var panel = new SerializedObject(door).FindProperty("doorPart")?.objectReferenceValue as Transform;
         return panel != null && panel.IsChildOf(door.transform) ? panel : null;
     }
 
-    /// <summary>
-    /// A door's main parts: its frame and panel. The holograms (the DoorScript's hologramGroup) and the
-    /// grab bars are left out, along with anything much smaller than the door.
-    /// </summary>
     static List<MeshFilter> GetDoorParts(DoorScript doorScript)
     {
         Transform door = doorScript.transform;
@@ -506,10 +451,6 @@ public static class MapBuilder
         if (!placement.active) result.hidden.Add(terminal.name);
     }
 
-    /// <summary>
-    /// An Also Scan object has to sit beside the level root, not inside it, around it, or inside another
-    /// Also Scan object, so nothing is walked twice.
-    /// </summary>
     public static bool CanAlsoScan(GameObject go, MapLevel level)
     {
         if (go == null || go.scene != level.gameObject.scene) return false;
@@ -519,16 +460,9 @@ public static class MapBuilder
         return !level.alsoScan.Exists(other => other != null && other != go && t.IsChildOf(other.transform));
     }
 
-    /// <summary>
-    /// Shapes are drawn with lines and faces. Markers stand for one spot: they show even inside
-    /// a room, and nothing under them is looked at.
-    /// </summary>
     public static bool HasShape(MapEntryKind kind) => kind == MapEntryKind.Room || kind == MapEntryKind.Terminal || kind == MapEntryKind.Door;
     public static bool IsMarker(MapEntryKind kind) => kind == MapEntryKind.Icon || kind == MapEntryKind.Terminal || kind == MapEntryKind.Door;
 
-    /// <summary>
-    /// Adds every prefab the level uses to the library. Returns how many were new.
-    /// </summary>
     public static int Scan(MapLevel level, MapProxyLibrary library)
     {
         List<GameObject> unlisted = Collect(level, library).unlisted;
@@ -537,7 +471,6 @@ public static class MapBuilder
         int added = 0;
         foreach (GameObject prefab in unlisted)
         {
-            // A variant shares its base prefab's entry, so only the base needs listing
             if (HasBaseIn(prefab, unlisted)) continue;
 
             library.entries.Add(new MapProxyLibrary.Entry { levelPrefab = prefab, kind = GuessKind(prefab) });
@@ -549,10 +482,6 @@ public static class MapBuilder
         return added;
     }
 
-    /// <summary>
-    /// Bakes the level's map prefab. Skips the save when nothing has changed, so saving a scene
-    /// doesn't rewrite the prefab and fill up everyone's git changes. Returns true if it saved.
-    /// </summary>
     public static bool Build(MapLevel level, MapProxyLibrary library)
     {
         return Build(level, library, Collect(level, library));
@@ -582,7 +511,6 @@ public static class MapBuilder
             DeleteUnused(LabelFolder, "t:Material");
             Debug.Log($"Hologram map built: {mapPath}");
 
-            // A save rebuilds with the window closed, so lost labels are mentioned here too
             foreach (string label in scan.lostAnchors)
             {
                 Debug.LogWarning($"Map label \"{label}\" lost the object it sat over, so it was left off the map. Fix it in the Map Builder's Labels list.");
@@ -590,8 +518,6 @@ public static class MapBuilder
         }
         else
         {
-            // A font's glow or colors can change with nothing else changing. The labels' materials are
-            // separate files from the map, so they're brought up to date without rebuilding it
             foreach (LabelPlacement label in scan.labels)
             {
                 TMP_FontAsset font = GetLabelFont(label);
@@ -610,16 +536,13 @@ public static class MapBuilder
         return changed;
     }
 
-    /// <param name="top">The walked root's child this branch started from, named in reports</param>
     static void Walk(Transform t, Transform top, Transform levelRoot, bool inRoom, MapProxyLibrary library, ScanResult result)
     {
         GameObject go = t.gameObject;
         if (result.handAdded.TryGetValue(go, out MapEntryKind handAddedKind))
         {
-            // Already handled by Collect. Markers and disabled objects have nothing more to find underneath
             if (IsMarker(handAddedKind) || !go.activeSelf) return;
 
-            // Its own row replaces the prefab's, but the children ticked on the prefab still count
             MapProxyLibrary.Entry entry = FindEntry(go, library);
             if (entry != null && entry.lookInside)
             {
@@ -637,7 +560,6 @@ public static class MapBuilder
             MapProxyLibrary.Entry entry = FindEntry(go, library);
             if (entry == null)
             {
-                // Prefabs nested inside a room are part of that room, so only standalone ones get listed
                 if (!inRoom)
                 {
                     GameObject prefab = PrefabUtility.GetCorrespondingObjectFromSource(go);
@@ -653,7 +575,6 @@ public static class MapBuilder
             }
             else if (entry.kind == MapEntryKind.Icon)
             {
-                // A ticked Look Inside child may already be on the map as a room
                 if (result.placed.Add(t))
                 {
                     result.placements.Add(CreatePlacement(t, levelRoot, entry.kind, entry.proxy));
@@ -671,13 +592,11 @@ public static class MapBuilder
                     AddInside(t, levelRoot, entry, library, result);
                 }
 
-                // Ignore only turns off this prefab's own piece, so the walk carries on inside it
                 inRoom = true;
             }
         }
         else if (!inRoom && go.TryGetComponent<Renderer>(out _))
         {
-            // Report the top-level object once instead of every piece under it
             if (!result.notPrefabs.Contains(top.name)) result.notPrefabs.Add(top.name);
         }
 
@@ -687,10 +606,6 @@ public static class MapBuilder
         }
     }
 
-    /// <summary>
-    /// Places the children ticked under Look Inside. A child with no shape of its own
-    /// uses its prefab's proxy or meshes if that prefab is in the library.
-    /// </summary>
     static void AddInside(Transform room, Transform levelRoot, MapProxyLibrary.Entry entry, MapProxyLibrary library, ScanResult result)
     {
         foreach (Transform child in room)
@@ -711,7 +626,6 @@ public static class MapBuilder
                 if (proxy == null) proxy = listed.proxy;
                 if (meshSource == null && listed.useMeshes) meshSource = listed;
 
-                // Placed first here, so a terminal would otherwise end up as a room
                 if (listed.kind == MapEntryKind.Terminal || listed.kind == MapEntryKind.Door) kind = listed.kind;
                 if (kind == MapEntryKind.Door) proxy = null;
             }
@@ -719,13 +633,8 @@ public static class MapBuilder
         }
     }
 
-    /// <summary>
-    /// Places a room or terminal drawn by its proxy, its picked meshes, or a box around it.
-    /// </summary>
-    /// <param name="skip">Something inside that's placed on its own, like a door's panel, so its meshes are left out here</param>
     static Placement AddShape(Transform room, Transform levelRoot, MapEntryKind kind, GameObject proxy, MapShape meshSource, ScanResult result, Transform skip = null)
     {
-        // The same object can be reached more than once, such as a hand-added prefab ticked under Look Inside
         if (!result.placed.Add(room)) return null;
 
         Placement placement = CreatePlacement(room, levelRoot, kind, proxy);
@@ -736,7 +645,6 @@ public static class MapBuilder
             placement.mergeDistance = meshSource.mergeDistance;
             placement.wireKey = GetWireKey(placement, result);
 
-            // Such as a prefab variant that swapped out its base's meshes
             if (meshSource.meshes.Count > 0 && placement.wires.Count == 0) result.missingMeshes.Add(room.name);
         }
         if (proxy == null && placement.wires.Count == 0)
@@ -752,9 +660,6 @@ public static class MapBuilder
         return placement;
     }
 
-    /// <summary>
-    /// Finds every copy of the picked meshes inside a room, so they land where they really are.
-    /// </summary>
     static List<WirePiece> FindWires(Transform room, List<Mesh> meshes, Transform skip = null)
     {
         var wires = new List<WirePiece>();
@@ -772,10 +677,6 @@ public static class MapBuilder
         return wires;
     }
 
-    /// <summary>
-    /// Identifies a room's lines by everything that goes into them, so identical rooms
-    /// share one saved line mesh and a change to any input makes a new one.
-    /// </summary>
     static string GetWireKey(Placement placement, ScanResult result)
     {
         Vector3 scale = placement.worldScale;
@@ -791,10 +692,6 @@ public static class MapBuilder
         return Hash128.Compute(text.ToString()).ToString();
     }
 
-    /// <summary>
-    /// Hashes the geometry itself, so the same model gives the same key on everyone's machine,
-    /// and meshes that aren't assets, like ProBuilder's, still get told apart.
-    /// </summary>
     static string GetMeshHash(Mesh mesh, ScanResult result)
     {
         if (!result.meshHashes.TryGetValue(mesh, out string hash))
@@ -805,16 +702,12 @@ public static class MapBuilder
         return hash;
     }
 
-    // Rounded to whole steps, so float noise in a rotated copy of a room doesn't make it look different
+    // Rounded so float noise doesn't change the key
     static int GetKeyText(float value)
     {
         return Mathf.RoundToInt(value * 1000f);
     }
 
-    /// <summary>
-    /// Builds a room's lines from all its picked meshes together, so lines from different
-    /// meshes merge too. Merging happens at real size so the distance is in metres.
-    /// </summary>
     public static List<Vector3> GetWireLines(Placement placement)
     {
         Vector3 scale = placement.worldScale;
@@ -857,10 +750,6 @@ public static class MapBuilder
         };
     }
 
-    /// <summary>
-    /// Follows an object back through the prefabs it came from, nearest first. Going through the whole
-    /// chain is what lets nested prefabs and variants match, including a variant using its base's entry.
-    /// </summary>
     static IEnumerable<GameObject> GetSources(GameObject go)
     {
         GameObject source = PrefabUtility.GetCorrespondingObjectFromSource(go);
@@ -871,9 +760,6 @@ public static class MapBuilder
         }
     }
 
-    /// <summary>
-    /// The library row an object or prefab falls under now, through the prefabs it came from. Null if none.
-    /// </summary>
     public static MapProxyLibrary.Entry FindEntry(GameObject go, MapProxyLibrary library)
     {
         foreach (GameObject source in GetSources(go))
@@ -905,30 +791,22 @@ public static class MapBuilder
 
     static MapEntryKind GuessKind(GameObject prefab)
     {
-        // Rooms are never rigged, so a skinned mesh means a character
         return prefab.GetComponentInChildren<SkinnedMeshRenderer>(true) != null
             ? MapEntryKind.Ignore
             : MapEntryKind.Room;
     }
 
-    /// <summary>
-    /// Measures a room in its own space, so a rotated room still gets a tight box.
-    /// </summary>
     static Bounds GetLocalBounds(Transform room)
     {
         TryGetBounds(room, room, out Bounds bounds);
         return bounds;
     }
 
-    /// <summary>
-    /// Measures everything drawn under the target, in the given object's space.
-    /// </summary>
     static bool TryGetBounds(Transform target, Transform space, out Bounds bounds)
     {
         bounds = new Bounds();
         bool hasBounds = false;
 
-        // A disabled object was added by hand, so it still needs measuring
         bool includeInactive = !target.gameObject.activeInHierarchy;
         foreach (Renderer renderer in target.GetComponentsInChildren<Renderer>(includeInactive))
         {
@@ -965,29 +843,28 @@ public static class MapBuilder
             text.Append($"|{placement.name},{placement.kind},{AssetDatabase.AssetPathToGUID(proxyPath)}");
             text.Append($",{placement.position:F3},{placement.rotation:F4},{placement.scale:F3}");
             text.Append($",{placement.box.center:F3},{placement.box.size:F3}");
-            text.Append($",{placement.wireKey},{placement.index},{placement.active},{placement.doorState},{placement.panelPath}");
+            text.Append($",{placement.wireKey},{placement.index},{placement.active},{placement.doorState},{placement.panelPath},{placement.sector}");
         }
+        text.Append($"|S,{GetKeyText(scan.unpoweredBrightness)},{GetKeyText(scan.unpoweredSaturation)}");
+        foreach (string sector in scan.sectorNames) text.Append($",{sector.Length}:{sector}");
 
         text.Append($"|P,{GetKeyText(scan.playerMarkerSize)}");
         text.Append($"|D,{GetKeyText(scan.depthDimming)}");
 
-        // TextMesh Pro is only touched when there are labels, since reading its settings can open its import window
+        // Reading TMP settings can open its import window
         if (scan.labels.Count > 0)
         {
             text.Append($"|L,{GetKeyText(scan.labelSize)},{ColorUtility.ToHtmlStringRGBA(scan.labelColor)}");
             foreach (LabelPlacement label in scan.labels)
             {
-                // The length in front stops a label containing '|' or ',' from looking like another one
+                // Length prefix keeps labels containing | or , apart
                 string font = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(GetLabelFont(label)));
-                text.Append($"|{label.text.Length}:{label.text},{label.position:F3},{font},{(label.font != null ? "picked" : "default")},{label.active}");
+                text.Append($"|{label.text.Length}:{label.text},{label.position:F3},{font},{(label.font != null ? "picked" : "default")},{label.active},{label.sector}");
             }
         }
         return Hash128.Compute(text.ToString()).ToString();
     }
 
-    /// <summary>
-    /// Assembles the map in a preview scene, so baking never touches or dirties the open level.
-    /// </summary>
     static void SaveMap(string mapPath, string levelName, ScanResult scan)
     {
         Scene scene = EditorSceneManager.NewPreviewScene();
@@ -996,7 +873,6 @@ public static class MapBuilder
             var root = new GameObject($"{levelName}_Map");
             SceneManager.MoveGameObjectToScene(root, scene);
 
-            // Every group is always there, so the map display can rely on finding them
             Transform rooms = AddGroup(MapLevel.RoomsGroup, root.transform);
             Transform icons = AddGroup(MapLevel.IconsGroup, root.transform);
             Transform terminals = AddGroup(MapLevel.TerminalsGroup, root.transform);
@@ -1004,7 +880,6 @@ public static class MapBuilder
             Transform labels = AddGroup(MapLevel.LabelsGroup, root.transform);
             labels.gameObject.AddComponent<MapFaceCamera>();
 
-            // Keeps doors colored by their real state while the game runs
             var doorColors = doors.gameObject.AddComponent<MapDoors>();
             doorColors.working = GetDoorMaterials(MapDoorState.Working);
             doorColors.broken = GetDoorMaterials(MapDoorState.Broken);
@@ -1012,19 +887,23 @@ public static class MapBuilder
             doorColors.levelScene = levelName;
             doorColors.depthDimming = scan.depthDimming;
 
+            var sectorParts = new Dictionary<string, List<Renderer>>();
+            var sectorLabels = new Dictionary<string, List<TMP_Text>>();
             foreach (Placement placement in scan.placements)
             {
                 Transform group = placement.kind == MapEntryKind.Terminal ? terminals
                     : placement.kind == MapEntryKind.Door ? doors
                     : placement.kind == MapEntryKind.Icon ? icons
                     : rooms;
-                CreateNode(placement, group);
+                GameObject node = CreateNode(placement, group);
+                if (placement.sector != "") GetList(sectorParts, placement.sector).AddRange(node.GetComponentsInChildren<Renderer>(true));
             }
             if (scan.labels.Count > 0)
             {
-                AddLabels(scan, labels);
+                AddLabels(scan, labels, sectorLabels);
             }
             AddPlayerMarker(root.transform, levelName, scan.playerMarkerSize);
+            AddSectors(root, scan, sectorParts, sectorLabels);
             PrefabUtility.SaveAsPrefabAsset(root, mapPath);
         }
         finally
@@ -1033,10 +912,6 @@ public static class MapBuilder
         }
     }
 
-    /// <summary>
-    /// The orange ball showing where the player is. MapPlayerMarker moves it while the game runs,
-    /// and it stays hidden until there's a player to show.
-    /// </summary>
     static void AddPlayerMarker(Transform root, string levelName, float size)
     {
         var marker = new GameObject(MapLevel.PlayerMarkerName, typeof(MeshFilter), typeof(MeshRenderer));
@@ -1050,7 +925,6 @@ public static class MapBuilder
         marker.AddComponent<MapPlayerMarker>().levelScene = levelName;
     }
 
-    // Drawn in front of rooms like terminals, so the player shows through walls
     static Material GetPlayerMaterial()
     {
         return KeepFloat(KeepQueue(GetMaterial(PlayerMaterialPath, FaceShader, ball =>
@@ -1060,6 +934,141 @@ public static class MapBuilder
         }), InFrontOfRoomsQueue), DepthDimmedProperty, 0f);
     }
 
+    static void AddSectors(GameObject root, ScanResult scan, Dictionary<string, List<Renderer>> parts, Dictionary<string, List<TMP_Text>> labels)
+    {
+        if (scan.sectorNames.Count == 0) return;
+
+        var script = root.AddComponent<MapSectors>();
+        script.unpoweredBrightness = scan.unpoweredBrightness;
+        script.unpoweredSaturation = scan.unpoweredSaturation;
+        script.sectors = scan.sectorNames.Select(name => new MapSectors.Sector
+        {
+            name = name,
+            parts = GetList(parts, name).ToArray(),
+            labels = GetList(labels, name).ToArray(),
+        }).ToArray();
+    }
+
+    static List<T> GetList<T>(Dictionary<string, List<T>> lists, string key)
+    {
+        if (!lists.TryGetValue(key, out List<T> list))
+        {
+            list = new List<T>();
+            lists[key] = list;
+        }
+        return list;
+    }
+
+    static void AssignSectors(MapLevel level, ScanResult result)
+    {
+        result.unpoweredBrightness = level.unpoweredBrightness;
+        result.unpoweredSaturation = level.unpoweredSaturation;
+        foreach (MapLevel.SectorEntry sector in level.sectors)
+        {
+            string name = GetSectorName(sector);
+            if (name != "" && !result.sectorNames.Contains(name)) result.sectorNames.Add(name);
+        }
+        if (result.sectorNames.Count == 0) return;
+
+        Transform levelRoot = level.transform;
+        var placements = new List<Placement>();
+        foreach (Placement placement in result.placements)
+        {
+            if (placement.source == null)
+            {
+                placements.Add(placement);
+                continue;
+            }
+
+            if (placement.kind == MapEntryKind.Room && placement.wires.Count > 0 && !placement.source.TryGetComponent<DoorScript>(out _))
+            {
+                var groups = new List<(string sector, List<WirePiece> wires)>();
+                foreach (WirePiece wire in placement.wires)
+                {
+                    Vector3 world = placement.source.TransformPoint(wire.toRoom.MultiplyPoint3x4(wire.mesh.bounds.center));
+                    string sector = FindSectorAt(level, levelRoot.InverseTransformPoint(world));
+                    int group = groups.FindIndex(g => g.sector == sector);
+                    if (group >= 0) groups[group].wires.Add(wire);
+                    else groups.Add((sector, new List<WirePiece> { wire }));
+                }
+
+                if (groups.Count == 1)
+                {
+                    placement.sector = groups[0].sector;
+                    placements.Add(placement);
+                    continue;
+                }
+                foreach ((string sector, List<WirePiece> wires) in groups)
+                {
+                    Placement part = placement.CopyWith(wires);
+                    part.sector = sector;
+                    part.name = sector != "" ? $"{placement.name} ({sector})" : placement.name;
+                    part.wireKey = GetWireKey(part, result);
+                    placements.Add(part);
+                }
+                continue;
+            }
+
+            Vector3 middle = TryGetBounds(placement.source, levelRoot, out Bounds own) ? own.center : placement.position;
+            placement.sector = FindSectorAt(level, middle);
+            placements.Add(placement);
+        }
+        result.placements.Clear();
+        result.placements.AddRange(placements);
+
+        foreach (Placement placement in result.placements)
+        {
+            bool isRoom = placement.kind == MapEntryKind.Room && placement.source != null && !placement.source.TryGetComponent<DoorScript>(out _);
+            if (placement.sector == "" && isRoom && !result.unsectored.Contains(placement.name)) result.unsectored.Add(placement.name);
+        }
+
+        foreach (LabelPlacement label in result.labels)
+        {
+            label.sector = FindSectorAt(level, label.position - Vector3.up * LabelGap);
+            if (label.sector != "" || label.anchor == null) continue;
+
+            Placement over = null;
+            foreach (Placement placement in result.placements)
+            {
+                if (placement.source == null || !label.anchor.transform.IsChildOf(placement.source)) continue;
+                if (over == null || placement.source.IsChildOf(over.source)) over = placement;
+            }
+            if (over != null) label.sector = over.sector;
+        }
+
+        foreach (string name in result.sectorNames)
+        {
+            if (!result.placements.Exists(placement => placement.sector == name)) result.emptySectors.Add(name);
+        }
+    }
+
+    public static string GetSectorName(MapLevel.SectorEntry sector)
+    {
+        return sector.name != null ? sector.name.Trim() : "";
+    }
+
+    public static string FindSectorAt(MapLevel level, Vector3 point)
+    {
+        string best = "";
+        float bestSize = float.MaxValue;
+        foreach (MapLevel.SectorEntry sector in level.sectors)
+        {
+            string name = GetSectorName(sector);
+            if (name == "") continue;
+            foreach (Bounds box in sector.boxes)
+            {
+                if (!box.Contains(point)) continue;
+                float size = box.size.x * box.size.y * box.size.z;
+                if (size < bestSize)
+                {
+                    best = name;
+                    bestSize = size;
+                }
+            }
+        }
+        return best;
+    }
+
     static Transform AddGroup(string name, Transform parent)
     {
         var group = new GameObject(name).transform;
@@ -1067,12 +1076,11 @@ public static class MapBuilder
         return group;
     }
 
-    static void CreateNode(Placement placement, Transform parent)
+    static GameObject CreateNode(Placement placement, Transform parent)
     {
         GameObject node;
         if (placement.proxy != null)
         {
-            // Kept as a linked prefab, so editing a proxy updates every map that uses it
             node = (GameObject)PrefabUtility.InstantiatePrefab(placement.proxy, parent);
         }
         else
@@ -1087,8 +1095,6 @@ public static class MapBuilder
 
         if (placement.kind == MapEntryKind.Terminal)
         {
-            // Links the piece to its terminal for showing its state later. A terminal that's
-            // disabled in the scene starts hidden, ready to be shown when the real one is
             node.AddComponent<MapTerminal>().index = placement.index;
         }
 
@@ -1106,7 +1112,6 @@ public static class MapBuilder
 
         if (placement.kind == MapEntryKind.Door)
         {
-            // The door's pieces change color with its state. One that's disabled in the scene starts hidden
             var door = node.AddComponent<MapDoor>();
             door.index = placement.index;
             door.state = placement.doorState;
@@ -1114,8 +1119,8 @@ public static class MapBuilder
             door.pieces = lines != null ? new[] { lines.GetComponent<MeshRenderer>() } : new MeshRenderer[0];
         }
 
-        // A terminal or door that's disabled in the scene starts hidden, ready to be shown when the real one is
         node.SetActive(placement.active);
+        return node;
     }
 
     static Transform AddLines(string name, Transform parent, Mesh lines, Material[] materials)
@@ -1124,13 +1129,12 @@ public static class MapBuilder
         piece.transform.SetParent(parent, false);
         piece.GetComponent<MeshFilter>().sharedMesh = lines;
 
-        // Three materials on a two-part mesh: Unity draws the last part (the faces) once per extra
-        // material, so the faces get both their depth-only pass and their tint
+        // The extra material redraws the faces: depth pass, then tint
         piece.GetComponent<MeshRenderer>().sharedMaterials = materials;
         return piece.transform;
     }
 
-    static void AddLabels(ScanResult scan, Transform group)
+    static void AddLabels(ScanResult scan, Transform group, Dictionary<string, List<TMP_Text>> sectorLabels)
     {
         foreach (LabelPlacement label in scan.labels)
         {
@@ -1141,7 +1145,8 @@ public static class MapBuilder
                 return;
             }
             bool picked = label.font != null;
-            CreateLabel(label, group, font, GetLabelMaterial(font, picked), GetLabelMaskMaterial(font, picked), scan.labelSize, scan.labelColor);
+            GameObject created = CreateLabel(label, group, font, GetLabelMaterial(font, picked), GetLabelMaskMaterial(font, picked), scan.labelSize, scan.labelColor);
+            if (label.sector != "") GetList(sectorLabels, label.sector).Add(created.GetComponent<TMP_Text>());
         }
     }
 
@@ -1150,34 +1155,27 @@ public static class MapBuilder
         return label.font != null ? label.font : GetDefaultLabelFont();
     }
 
-    /// <summary>
-    /// TextMesh Pro's own default font. It's looked up by name, because a project can have more than one
-    /// TMP Settings file (render pipeline samples bring their own), and the one TextMesh Pro picks may
-    /// give a font whose shader can't hide the letter copy or keep lines off the text.
-    /// </summary>
     static TMP_FontAsset GetDefaultLabelFont()
     {
         var font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
         return font != null ? font : TMP_Settings.defaultFontAsset;
     }
 
-    static void CreateLabel(LabelPlacement label, Transform group, TMP_FontAsset font, Material material, Material mask, float size, Color color)
+    static GameObject CreateLabel(LabelPlacement label, Transform group, TMP_FontAsset font, Material material, Material mask, float size, Color color)
     {
         var go = new GameObject(label.text, typeof(RectTransform));
         go.transform.SetParent(group, false);
 
-        // Lying flat so it reads from above until MapFaceCamera turns it toward a camera
         go.transform.SetLocalPositionAndRotation(label.position, Quaternion.Euler(90f, 0f, 0f));
         AddLabelText(go, label.text, font, material, size);
 
-        // The text's own color, as the game's texts are colored, so labels match them
         go.GetComponent<TextMeshPro>().color = color;
         go.SetActive(label.active);
 
-        // The invisible copy that keeps map lines off the letters, moving with the label
         var letters = new GameObject("Letter Mask", typeof(RectTransform));
         letters.transform.SetParent(go.transform, false);
         AddLabelText(letters, label.text, font, mask, size);
+        return go;
     }
 
     static void AddLabelText(GameObject go, string value, TMP_FontAsset font, Material material, float size)
@@ -1187,7 +1185,7 @@ public static class MapBuilder
         text.fontSharedMaterial = material;
         text.richText = false;
         text.text = value;
-        text.fontSize = size * 10f; // TextMesh Pro's 3D text draws font size 10 as one metre
+        text.fontSize = size * 10f; // font size 10 = 1 metre
         text.alignment = TextAlignmentOptions.Bottom;
         text.textWrappingMode = TextWrappingModes.NoWrap;
         text.overflowMode = TextOverflowModes.Overflow;
@@ -1216,10 +1214,6 @@ public static class MapBuilder
         return wire;
     }
 
-    /// <summary>
-    /// Clears out generated files no map uses any more, such as line meshes left by trying other merge
-    /// distances, or label materials for a font no longer picked.
-    /// </summary>
     static void DeleteUnused(string folder, string filter)
     {
         if (!AssetDatabase.IsValidFolder(folder)) return;
@@ -1237,10 +1231,6 @@ public static class MapBuilder
         }
     }
 
-    /// <summary>
-    /// A wireframe cube shared by every room that has no proxy yet. Its faces leave out the top,
-    /// so looking down into a box isn't blocked by a ceiling.
-    /// </summary>
     static Mesh GetBoxMesh()
     {
         Mesh mesh = AssetDatabase.LoadAssetAtPath<Mesh>(BoxMeshPath);
@@ -1260,7 +1250,7 @@ public static class MapBuilder
         }
         Mesh box = MapLines.ToMesh(MapLines.GetHardEdges(cube), new List<Vector3>(vertices), faces);
 
-        // Older maps saved a lines-only box. Updating it in place keeps their reference to it
+        // Updated in place so older maps keep their reference
         if (mesh == null)
         {
             EnsureFolder(GeneratedFolder);
@@ -1273,25 +1263,15 @@ public static class MapBuilder
         return mesh;
     }
 
-    /// <summary>
-    /// Lines, then faces drawn depth-only, then faces tinted. The draw order comes from each material's queue.
-    /// The materials are assets, so their colors and settings can be changed in the Inspector.
-    /// </summary>
     static Material[] GetMaterials(Placement placement)
     {
         return placement.kind == MapEntryKind.Door ? GetDoorMaterials(placement.doorState) : GetMaterials(placement.kind);
     }
 
-    /// <summary>
-    /// A door's lines and fill in its state's color. Like terminals, doors draw in front of rooms,
-    /// so a locked or broken one shows down a hall.
-    /// </summary>
     static Material[] GetDoorMaterials(MapDoorState state)
     {
         Color color = DoorColors[(int)state];
 
-        // Every door is drawn like the walls, but shows through them near the front of the map, so the doors
-        // right in front of the viewer stay readable without every door showing at once. Only the color says its state
         Material lines = GetMaterial($"{DoorFolder}/MapDoorLines {state}.mat", SeeThroughLineShader, created => created.SetColor("_Color", color));
         return new[]
         {
@@ -1301,9 +1281,6 @@ public static class MapBuilder
         };
     }
 
-    /// <summary>
-    /// The line color for a door's state, read from its material when it exists, so the overlay matches the map.
-    /// </summary>
     public static Color GetDoorColor(MapDoorState state)
     {
         Material material = AssetDatabase.LoadAssetAtPath<Material>($"{DoorFolder}/MapDoorLines {state}.mat");
@@ -1335,9 +1312,6 @@ public static class MapBuilder
         };
     }
 
-    /// <summary>
-    /// The line color for a type, read from its material when it exists, so the overlay matches the map.
-    /// </summary>
     public static Color GetLineColor(MapEntryKind kind)
     {
         bool terminal = kind == MapEntryKind.Terminal;
@@ -1346,16 +1320,11 @@ public static class MapBuilder
         return terminal ? TerminalColor : RoomColor;
     }
 
-    // Shared by every color, since it draws nothing you can see
     static Material GetFaceDepthMaterial()
     {
         return GetDepthOnlyMaterial(FaceDepthMaterialPath, FaceDepthQueue);
     }
 
-    /// <summary>
-    /// An invisible material that only records what's in front. Its draw order is part of how the map works,
-    /// so it's set every time, which also updates materials made by older versions.
-    /// </summary>
     static Material GetDepthOnlyMaterial(string path, int queue)
     {
         return KeepQueue(GetMaterial(path, FaceShader, depthOnly =>
@@ -1365,10 +1334,6 @@ public static class MapBuilder
         }), queue);
     }
 
-    /// <summary>
-    /// A faint tint drawn like the rooms' own: only on the nearest face, hidden behind anything in front.
-    /// How it draws is set every time, which also updates older materials.
-    /// </summary>
     static Material GetTintMaterial(string path, Color color)
     {
         Material tint = GetMaterial(path, FaceShader, created => created.SetColor("_Color", color));
@@ -1396,11 +1361,6 @@ public static class MapBuilder
         return KeepFloat(GetFillMaterial(TerminalFaceTintMaterialPath, new Color(TerminalColor.r, TerminalColor.g, TerminalColor.b, TerminalTintAlpha), TerminalFillQueue), DepthDimmedProperty, 0f);
     }
 
-    /// <summary>
-    /// The solid fill that makes terminals and doors stand out. It draws before the rooms record what's in front,
-    /// so it shows through walls, and marks each pixel it fills, so overlapping parts and both sides of a
-    /// piece fill it once, evenly. How it draws is set every time, which also updates older materials.
-    /// </summary>
     static Material GetFillMaterial(string path, Color color, int queue)
     {
         Material fill = GetMaterial(path, FaceShader, created => created.SetColor("_Color", color));
@@ -1426,10 +1386,8 @@ public static class MapBuilder
         return KeepQueue(fill, queue);
     }
 
-    // Terminals and the player are objectives, so they never dim with depth
     const string DepthDimmedProperty = "_DepthDimmed";
 
-    // For material settings that are part of how the map works
     static Material KeepFloat(Material material, string property, float value)
     {
         if (!material.HasProperty(property) || material.GetFloat(property) == value) return material;
@@ -1439,7 +1397,6 @@ public static class MapBuilder
         return material;
     }
 
-    // For materials whose shader is part of how the map works. Updates materials made by older versions, keeping their colors
     static Material KeepShader(Material material, string shaderName)
     {
         Shader shader = Shader.Find(shaderName);
@@ -1450,7 +1407,6 @@ public static class MapBuilder
         return material;
     }
 
-    // For materials whose draw order is part of how the map works. Set every time, which also updates older materials
     static Material KeepQueue(Material material, int queue)
     {
         if (material.renderQueue != queue)
@@ -1462,14 +1418,9 @@ public static class MapBuilder
         return material;
     }
 
-    // Each label material is a copy of its font's material. Remembered here is what each was copied from and
-    // what it looked like after, so it's copied again only when the font or the copy has changed since
+    // Only recopied when the font or the copy changed
     static readonly Dictionary<string, (int font, int copy)> labelMaterialSources = new Dictionary<string, (int font, int copy)>();
 
-    /// <summary>
-    /// The material a label's text draws with. A font picked in the library keeps its own look, glow included,
-    /// so the map matches the rest of the game. TextMesh Pro's default font gets the map's own color.
-    /// </summary>
     static Material GetLabelMaterial(TMP_FontAsset font, bool picked)
     {
         string path = picked ? $"{LabelFolder}/MapLabel {GetFontGuid(font)}.mat" : LabelMaterialPath;
@@ -1477,7 +1428,6 @@ public static class MapBuilder
         {
             if (!picked) text.SetColor(ShaderUtilities.ID_FaceColor, LabelColor);
 
-            // The text itself marks nothing, so its glow isn't clipped off
             text.DisableKeyword("UNITY_UI_ALPHACLIP");
             text.SetFloat(ShaderUtilities.ID_StencilComp, (float)UnityEngine.Rendering.CompareFunction.Always);
             text.SetFloat(ShaderUtilities.ID_StencilOp, (float)UnityEngine.Rendering.StencilOp.Keep);
@@ -1486,18 +1436,12 @@ public static class MapBuilder
         });
     }
 
-    /// <summary>
-    /// An invisible copy of a label's letters, drawn just before the text. It marks the pixels the letters cover,
-    /// so map lines skip them and the text stays readable with the map still showing around it.
-    /// </summary>
     static Material GetLabelMaskMaterial(TMP_FontAsset font, bool picked)
     {
         string path = picked ? $"{LabelFolder}/MapLabel {GetFontGuid(font)} Mask.mat" : LabelMaskMaterialPath;
         return GetFontCopy(path, font, mask =>
         {
-            // Always TextMesh Pro's own text shader, whatever the font's material uses, since a font
-            // can come with a shader that can't draw invisibly or mark the stencil, and would show as
-            // a second copy of the text. Its atlas values are set the way TextMesh Pro sets them for a font
+            // Always TMP's own shader, since some font shaders can't draw invisibly
             mask.shader = Shader.Find("TextMeshPro/Mobile/Distance Field");
             mask.SetTexture(ShaderUtilities.ID_MainTex, font.atlasTexture);
             mask.SetFloat(ShaderUtilities.ID_TextureWidth, font.atlasWidth);
@@ -1506,7 +1450,6 @@ public static class MapBuilder
             mask.SetFloat(ShaderUtilities.ID_WeightNormal, font.normalStyle);
             mask.SetFloat(ShaderUtilities.ID_WeightBold, font.boldStyle);
 
-            // Just the letters and their outline, without glow or shadow, and only where they really are
             mask.DisableKeyword("GLOW_ON");
             mask.DisableKeyword("UNDERLAY_ON");
             mask.DisableKeyword("UNDERLAY_INNER");
@@ -1521,16 +1464,12 @@ public static class MapBuilder
         });
     }
 
-    // Named by the font's GUID, so renaming the font doesn't leave the map pointing at an old copy
+    // Named by GUID so renaming the font is safe
     static string GetFontGuid(TMP_FontAsset font)
     {
         return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(font));
     }
 
-    /// <summary>
-    /// Copies a font's material and sets it up for the map. The font's own material is left alone,
-    /// since other text in the game uses it.
-    /// </summary>
     static Material GetFontCopy(string path, TMP_FontAsset font, System.Action<Material> setUp)
     {
         Material material = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -1568,9 +1507,6 @@ public static class MapBuilder
         return material;
     }
 
-    /// <summary>
-    /// Where a label is now. False when the object it was placed over has been deleted.
-    /// </summary>
     public static bool GetLabelPosition(MapLevel.LabelEntry label, Transform levelRoot, out Vector3 world)
     {
         Transform from = label.anchor != null ? label.anchor.transform : levelRoot;
@@ -1578,12 +1514,9 @@ public static class MapBuilder
         return label.anchor != null || !label.hasAnchor;
     }
 
-    /// <summary>
-    /// Puts a label at a spot, kept relative to its anchor so it follows the anchor around.
-    /// </summary>
     public static void SetLabelPosition(MapLevel.LabelEntry label, Transform levelRoot, Vector3 world)
     {
-        // A deleted anchor still holds a reference, so clear it properly
+        // A deleted anchor still holds a reference
         if (label.anchor == null) label.anchor = null;
 
         Transform from = label.anchor != null ? label.anchor.transform : levelRoot;
@@ -1591,9 +1524,6 @@ public static class MapBuilder
         label.offset = Quaternion.Inverse(from.rotation) * (world - from.position);
     }
 
-    /// <summary>
-    /// Just above the middle of the top of everything drawn under the target.
-    /// </summary>
     public static Vector3 GetLabelSpot(Transform target, Transform levelRoot)
     {
         Vector3 top = TryGetBounds(target, levelRoot, out Bounds bounds)
@@ -1602,9 +1532,6 @@ public static class MapBuilder
         return top + levelRoot.up * LabelGap;
     }
 
-    /// <summary>
-    /// A readable default label for an object, like "Terminal Medbay" for "TerminalMedbay (1)".
-    /// </summary>
     public static string GetLabelText(string objectName)
     {
         string text = Regex.Replace(objectName, @"\s*\(\d+\)$", "").Replace('_', ' ');
@@ -1613,8 +1540,7 @@ public static class MapBuilder
 
     static void CollectLabels(MapLevel level, MapProxyLibrary library, ScanResult result)
     {
-        // Terminals don't get labels from the Place Labels tool, but one set as a label's anchor by hand
-        // starts hidden with its terminal, so it doesn't give away where a hidden terminal is
+        // Keeps a hidden terminal's label hidden
         var terminals = new List<Placement>();
         foreach (Placement placement in result.placements)
         {
@@ -1636,11 +1562,11 @@ public static class MapBuilder
                 continue;
             }
 
-            // Anchored to the terminal or any part of it
             Placement over = label.anchor != null ? terminals.Find(terminal => label.anchor.transform.IsChildOf(terminal.source)) : null;
             result.labels.Add(new LabelPlacement
             {
                 text = text,
+                anchor = label.anchor,
                 position = level.transform.InverseTransformPoint(world),
                 font = library.labelFont,
                 active = over == null || over.active,

@@ -1,23 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Turns meshes into the clean lines the hologram map draws.
-/// </summary>
 public static class MapLines
 {
-    // Faces meeting at a sharper angle than this get a line
     const float HardEdgeAngle = 25f;
 
-    // Vertices closer than this share of a mesh's longest side count as the same point
     const float WeldShare = 0.0005f;
 
-    // Keeps the merge search from crawling along long lines in tiny steps
     const float MinGridCell = 0.02f;
 
-    /// <summary>
-    /// A coarse lookup that finds the points near a position without checking all of them.
-    /// </summary>
     private class PointGrid
     {
         private readonly float cellSize;
@@ -63,16 +54,12 @@ public static class MapLines
         }
     }
 
-    /// <summary>
-    /// Finds a mesh's hard edges and open borders, so flat surfaces don't show their triangles.
-    /// Returns the ends of each line as pairs of points.
-    /// </summary>
     public static List<Vector3> GetHardEdges(Mesh source)
     {
         Vector3[] vertices = source.vertices;
         int[] triangles = source.triangles;
 
-        // Vertices are split along UV seams, so weld them to see which faces really touch
+        // Weld vertices split along UV seams
         Vector3 size = source.bounds.size;
         float cell = Mathf.Max(Mathf.Max(size.x, size.y, size.z) * WeldShare, 0.000001f);
         var welded = new Dictionary<Vector3Int, int>();
@@ -97,7 +84,7 @@ public static class MapLines
             int a = ids[triangles[i]], b = ids[triangles[i + 1]], c = ids[triangles[i + 2]];
             if (a == b || b == c || a == c) continue;
 
-            // Model files can store geometry tiny, and Vector3.normalized gives zero for vectors this small
+            // normalized returns zero for vectors this small
             Vector3 cross = Vector3.Cross(points[b] - points[a], points[c] - points[a]);
             float length = cross.magnitude;
             if (length <= 0f) continue;
@@ -119,11 +106,6 @@ public static class MapLines
         return lines;
     }
 
-    /// <summary>
-    /// Cleans up lines so close geometry reads as one line. Line ends within the distance snap together,
-    /// then long lines break at any point lying along them, so overlapping lines collapse into one.
-    /// This works on the lines and leaves the faces alone, which is what keeps curves intact.
-    /// </summary>
     public static List<Vector3> Merge(List<Vector3> segments, float distance)
     {
         float cellSize = Mathf.Max(distance, MinGridCell);
@@ -141,7 +123,6 @@ public static class MapLines
             if (a != b) edges.Add(GetEdgeKey(a, b));
         }
 
-        // Each point settles at the middle of everything that snapped to it
         var settled = new PointGrid(cellSize);
         for (int i = 0; i < points.Count; i++)
         {
@@ -164,10 +145,6 @@ public static class MapLines
         return lines;
     }
 
-    /// <summary>
-    /// Builds a map mesh: lines as the first part, and faces as the second when there are any.
-    /// The faces hide the lines behind them and draw as a faint surface.
-    /// </summary>
     public static Mesh ToMesh(List<Vector3> lines, List<Vector3> faceVertices = null, List<int> faceTriangles = null)
     {
         var vertices = new List<Vector3>(lines);
@@ -224,9 +201,6 @@ public static class MapLines
         return best;
     }
 
-    /// <summary>
-    /// Breaks a line at every point lying along it. A point sitting on a line means another line overlaps it.
-    /// </summary>
     static void SplitEdge(int a, int b, float distance, float cellSize, List<Vector3> points, PointGrid grid, HashSet<int> nearby, HashSet<(int, int)> split)
     {
         Vector3 from = points[a];
@@ -284,12 +258,10 @@ public static class MapLines
 
     static bool IsHardEdge(List<Vector3> normals, float minDot)
     {
-        // An edge with one face is an open border
         if (normals.Count == 1) return true;
 
         for (int i = 1; i < normals.Count; i++)
         {
-            // Absolute, so the front and back of a thin surface count as the same plane
             if (Mathf.Abs(Vector3.Dot(normals[0], normals[i])) < minDot) return true;
         }
         return false;
