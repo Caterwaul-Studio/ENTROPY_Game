@@ -11,6 +11,8 @@ public class FireScript : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private float distanceAway;
 
+    private int fireCount;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Update()
     {//This is the most basic possible 'optimization' solution just for now, in the future there will be something closer to the audiozones system
@@ -27,5 +29,21 @@ public class FireScript : MonoBehaviour
             for (int i = 0; i < myFireNodes.Count; i++)
                 myFireNodes[i].SetActive(false);
 
+    }
+
+    //Returns the amount of fire nodes this contains
+    public int CheckFireCount() {
+        //Ensures the value is reset
+        fireCount = 0;
+
+        //Iterates through every fire node, incrementing fire count if the fire active variable is true
+        for (int i = 0; i < myFireNodes.Count; i++) {
+            if (myFireNodes[i].GetComponent<FireNodeScript>().fireActive == true) {
+                fireCount++;
+            }
+        }
+
+        //Returns the final count
+        return fireCount;
     }
 }

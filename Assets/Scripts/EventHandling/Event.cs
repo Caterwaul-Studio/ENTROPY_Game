@@ -580,10 +580,14 @@ public class Event : MonoBehaviour
     //Instantiates a fire prefab based on position and rotation passed in. Pass in the .transform of a parent object so the fire is grouped
     public virtual Object InstantiateFire(Vector3 position, Quaternion rotation, Transform parent) {
         //Assigns the fire node from the resources folder. This cannot be done outside the method, otherwise it is null
-        Object fire = Resources.Load<Object>("Prefabs/FireNode");
+        GameObject fire = (GameObject)Resources.Load<Object>("Prefabs/FireNode");
 
         //Instantiate with values
-        return Instantiate(fire, position, rotation, parent);
+        GameObject newFire = Instantiate(fire, position, rotation, parent);
+        //Add fire to the parent's list of fire nodes
+        parent.GetComponent<FireScript>().myFireNodes.Add(newFire);
+
+        return null;
     }
 
     //If you are making your own fire spawning method, include this seeding method:

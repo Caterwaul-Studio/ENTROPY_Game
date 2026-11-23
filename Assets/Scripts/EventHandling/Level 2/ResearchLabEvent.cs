@@ -42,6 +42,15 @@ public class ResearchLabSequence : Event {
     //Boolean for determining if a fire has been started. Used for fire shutter logic
     private bool firesStarted = false;
 
+    [Header("Fire Shutter")]
+    [SerializeField] private DoorScript door;
+    private DoorScript.States originalDoorState;
+
+    [Header("Fire Extinguisher")]
+    [SerializeField] private GameObject extinguisher;
+
+    [Header("Fire Extinguisher")]
+    [SerializeField] private Sparks[] sparks;
 
     //Start is called once before the first execution of Update after the MonoBehaviour is created
     protected override void Start() {
@@ -60,13 +69,19 @@ public class ResearchLabSequence : Event {
         redLightMaterials = hazardMats;
         redLightMeshes = hazardMeshes;
         initRedLightEmissives = hazardInitEmissive;
+
+        //Fire shutter
+        originalDoorState = door.DoorState;
     }
 
     //Update is called once per frame
     protected override void Update() {
-        /* The player has successfully extinguished all the fires */
-        if (firesStarted && fireParent.transform.childCount == 0) {
-            /* The hazard lights turn off and the fire shutter opens again */
+        Debug.Log(fireParent.GetComponent<FireScript>().CheckFireCount());
+
+        /* Checks if the event has started the fires yet to ensure this is not fired too early, as well as if the player
+           has put out all the fires. */
+        if (firesStarted && fireParent.GetComponent<FireScript>().CheckFireCount() == 0) {
+            //The hazard lights turn off and fire shutter opens, allowing the player to progress again
             StartCoroutine(DeactivateRedLights());
             StartCoroutine(OpenFireShutter());
 
@@ -87,28 +102,28 @@ public class ResearchLabSequence : Event {
 
     //Main sequence. Called as a coroutine so pacing can be managed by yielding to the return of other coroutines
     public IEnumerator LabSequence() {
-        Debug.Log("Start Lab Sequence Called.");
-
-        /* The player has successfully rebooted the terminal
-           Power is restored to the lab, but they now see the poor state of it and Dr. Felch */
+        //Power is restored back to the lab, allowing the player to fully see the state of it and Dr. Felch
         yield return StartCoroutine(RestorePower());
 
         /* Dialogue from Alan, says it will run a query */
 
-        /* Short delay as Alan starts the query
-           Alan's query has started a short circuit
-           Sparks fly off of the machinery and a fire starts in the carousel
-           This activates the fire shutter, closing the player in the room, and turns on the hazard lights */
+        //Short delay as Alan runs its query
         yield return new WaitForSeconds(1.0f);
-        StartCoroutine(StartSparks());
+
+        /* Due to the damage sustained by the machinery, Alan's query causes a short circuit. The flying sparks cause a small fire in the
+           lab's carousel, which activates the hazard lights and fire shutter. */
+        StartCoroutine(StartSparks()); /* Empty function */
         StartCoroutine(CloseFireShutter());
         StartCoroutine(ActivateRedLights());
         yield return StartCoroutine(StartFires());
 
+        //Waits for a beat so that the fires started boolean is not activated too early
+        yield return new WaitForSeconds(1.0f);
+
         //Sets fires started to true, the player can now access the completion state of this room
         firesStarted = true;
 
-        /* Fire extinguisher in room is enabled */
+        //Fire extinguisher in room is enabled
         EnableFireExtinguisher();
 
         /* Dialogue from Alan, apologizing for and explaining the short circuit
@@ -121,29 +136,28 @@ public class ResearchLabSequence : Event {
 
     //Function that flickers back on the lights
     private IEnumerator RestorePower() {
-        Debug.Log("Lights Sequence Called.");
-
+        //Sets the established lights group to active
         lightsGroup.SetActive(true);
 
+        //Flickers the lights on based on their already existing values, obtained from them above
         yield return StartCoroutine(FlickerLightsOn(
             lights, initLightIntensities, lightMaterials, initLightEmissives, restoreDuration, restoreFrequency));
     }
 
     //Function that activates the red lights in the room
     private IEnumerator ActivateRedLights() {
-        Debug.Log("Activate Red Lights Called.");
-
+        //Sets the established lights group to active
         redLightsGroup.SetActive(true);
 
+        //Flickers the lights on based on their already existing values, obtained from them above
         yield return StartCoroutine(FlickerLightsOn(
             redLights, initRedLightIntensities, redLightMaterials, initRedLightEmissives, redRestoreDuration, redRestoreFrequency));
-
-        yield return null;
     }
 
-    //Function that deactivates the hazard lights in the room
+    //Function that deactivates the red lights in the room
     private IEnumerator DeactivateRedLights() {
-        Debug.Log("Deactivate Red Lights Called.");
+        //Sets the lights group back to inactive
+        redLightsGroup.SetActive(false);
 
         yield return null;
     }
@@ -156,6 +170,9 @@ public class ResearchLabSequence : Event {
     private IEnumerator StartSparks() {
         Debug.Log("Start Sparks Called.");
 
+        /* Script is not filled out. I tried to use the door sparks, but it looked bad. Could just be me
+           being bad at utilizing particle effects, but it this will sit empty for now */
+
         yield return null;
     }
 
@@ -165,14 +182,16 @@ public class ResearchLabSequence : Event {
 
     //Function that closes the fire shutter, locking the player in the room
     private IEnumerator CloseFireShutter() {
-        Debug.Log("Close Fire Shutter Called.");
+        //Grabs the door reference and sets its state to locked
+        door.SetState(DoorScript.States.Locked);
 
         yield return null;
     }
 
     //Function that opens the fire shutter, allowing the player to continue progressing
     private IEnumerator OpenFireShutter() {
-        Debug.Log("Open Fire Shutter Called.");
+        //Grabs the door state and sets it back to its original state
+        door.SetState(originalDoorState);
 
         yield return null;
     }
@@ -184,10 +203,10 @@ public class ResearchLabSequence : Event {
     //Function that starts fire in the research lab carousel
     private IEnumerator StartFires() {
         /* Calls the event method that instantiates fires in a circular zone for each module in the carousel */
-        InstantiateFireInCircumference(centerPos, spawnPos, 4, 0, 5, fireParent);
-        InstantiateFireInCircumference(centerPos1, spawnPos1, 4, 45, 15, fireParent);
-        InstantiateFireInCircumference(centerPos2, spawnPos2, 4, 0, 5, fireParent);
-        InstantiateFireInCircumference(centerPos3, spawnPos3, 4, 45, 15, fireParent);
+        InstantiateFireInCircumference(centerPos, spawnPos, 1, 0, 180, fireParent);
+        InstantiateFireInCircumference(centerPos1, spawnPos1, 1, 0, 180, fireParent);
+        InstantiateFireInCircumference(centerPos2, spawnPos2, 1, 0, 180, fireParent);
+        InstantiateFireInCircumference(centerPos3, spawnPos3, 1, 0, 180, fireParent);
 
         yield return null;
     }
@@ -195,9 +214,10 @@ public class ResearchLabSequence : Event {
     #endregion
 
     #region Fire Extinguisher
-
+    
+    //Sets the fire extinguisher object to active
     private void EnableFireExtinguisher() {
-
+        extinguisher.SetActive(true);
     }
 
     #endregion
