@@ -58,6 +58,7 @@ Shader "Entropy/HoloMap Faces"
             #pragma fragment Frag
             #pragma multi_compile_instancing
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "HoloMapWristView.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _Color;
@@ -119,6 +120,7 @@ Shader "Entropy/HoloMap Faces"
 
             half4 Frag(Varyings input) : SV_Target
             {
+                NearCut(input.depth, input.positionCS);
                 half4 color = PowerLook(_Color);
                 color.a *= _Fade * DepthDim(input.depth);
                 return color;

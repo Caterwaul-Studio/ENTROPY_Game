@@ -34,6 +34,7 @@ Shader "Entropy/HoloMap Lines XRay"
 
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+    #include "HoloMapWristView.hlsl"
 
     CBUFFER_START(UnityPerMaterial)
         half4 _Color;
@@ -63,7 +64,8 @@ Shader "Entropy/HoloMap Lines XRay"
 
     half DistanceFade(float depth)
     {
-        return _Fade * lerp(1, _FarOpacity, saturate((depth - _FadeStart) / max(_FadeEnd - _FadeStart, 0.001)));
+        half fade = lerp(1, _FarOpacity, saturate((depth - _FadeStart) / max(_FadeEnd - _FadeStart, 0.001)));
+        return _Fade * lerp(fade, 1, _HoloMapWristView);
     }
 
     // The nearest and farthest the map reaches from the camera, and how much its far side dims. Set by MapDoors
@@ -113,6 +115,7 @@ Shader "Entropy/HoloMap Lines XRay"
 
     half4 FragShown(Varyings input) : SV_Target
     {
+        NearCut(input.depth, input.positionCS);
         half4 color = PowerLook(_Color);
         color.a *= DistanceFade(input.depth) * DepthDim(input.depth);
         return color;
@@ -120,12 +123,17 @@ Shader "Entropy/HoloMap Lines XRay"
 
     half4 FragSeeThrough(Varyings input) : SV_Target
     {
+        NearCut(input.depth, input.positionCS);
         float range = (_HoloMapFar - _HoloMapNear) * _XRayShare;
-        if (range <= 0) discard;
-        float fade = 1 - saturate((input.depth - _HoloMapNear) / range);
+        if (range <= 0 && _HoloMapWristView < 0.5) discard;
+        float fade = 1 - saturate((input.depth - _HoloMapNear) / max(range, 0.001));
 
         // Only when the camera is close to the map
         float closeness = 1 - saturate((_HoloMapNear - _SeeThroughNear) / max(_SeeThroughFar - _SeeThroughNear, 0.001));
+
+        // The wrist view shows every door around the player through the walls
+        fade = lerp(fade, 1, _HoloMapWristView);
+        closeness = lerp(closeness, 1, _HoloMapWristView);
         half4 color = PowerLook(_Color);
         color.a *= fade * closeness * _XRayStrength * DistanceFade(input.depth) * DepthDim(input.depth);
         if (color.a <= 0.001) discard;
