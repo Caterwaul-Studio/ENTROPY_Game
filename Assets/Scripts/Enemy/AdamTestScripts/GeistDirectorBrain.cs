@@ -850,6 +850,21 @@ public class GeistDirectorBrain : MonoBehaviour
         return options.Count > 0 ? options[Random.Range(0, options.Count)] : null;
     }
 
+
+    public Waypoint GetRandomWaypointInAOE()
+    {
+        float radius = detectionRadius > 0f ? detectionRadius : defaultDetectionRadius;
+        float sqrRadius = radius * radius;
+
+        List<Waypoint> options = allWaypoints.Where(wp =>
+        wp != CurrentWaypoint &&
+        IsWaypointActive(wp) && 
+        (wp.transform.position - transform.position).sqrMagnitude <= sqrRadius).ToList();
+
+        Debug.Log($"[AOE] f{Time.frameCount} picker: options={options.Count}, radius={radius}, current={(CurrentWaypoint != null ? CurrentWaypoint.name : "NULL")}", this);
+
+        return options.Count > 0 ? options[Random.Range(0, options.Count)] : null;
+    }
     /// <summary>
     /// A* pathfinding hat finds paths to goal waypoint, The InterestPt
     /// </summary>

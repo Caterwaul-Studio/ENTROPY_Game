@@ -5,12 +5,11 @@ using Action = Unity.Behavior.Action;
 using Unity.Properties;
 
 [Serializable, GeneratePropertyBag]
-[NodeDescription(name: "SetRandInterestPt", story: "Set Random [InterestPt]", category: "Action", id: "6b0ab49eefc59419724afe4acc7e2106")]
+[NodeDescription(name: "SetRandInterestPt", story: "Set Random [InterestPt] and flag [NewInterestPt]", category: "Action", id: "6b0ab49eefc59419724afe4acc7e2106")]
 public partial class SetRandInterestPtAction : Action
 {
     [SerializeReference] public BlackboardVariable<Transform> InterestPt;
     [SerializeReference] public BlackboardVariable<bool> NewInterestPt;
-
     protected override Status OnStart()
     {
         GeistDirectorBrain brain = GameObject.GetComponentInParent<GeistDirectorBrain>();

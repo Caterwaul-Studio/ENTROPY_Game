@@ -23,16 +23,15 @@ public partial class MoveToInterestPtAction : Action
             Debug.LogError("GeistDirectorBrain component not found on the Geist GameObject.");
             return Status.Failure;
         }
-
+        Debug.Log($"[AOE] f{Time.frameCount} Move START path={brain.Path.Count}");
         return Status.Running;
     }
 
     protected override Status OnUpdate()
     {
-        if (PlayerInAOE.Value == true)
-            return Status.Failure;
-
-        return brain.Step() ? Status.Success : Status.Running;
+        bool done = brain.Step();
+        if(done) Debug.Log($"[AOE] f{Time.frameCount} Move DONE");
+        return done ? Status.Success : Status.Running;
     }
 
     protected override void OnEnd()
