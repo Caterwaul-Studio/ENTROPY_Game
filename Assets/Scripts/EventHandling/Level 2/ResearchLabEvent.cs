@@ -3,6 +3,9 @@ using System.Collections;
 using UnityEngine;
 
 public class ResearchLabSequence : Event {
+    [Header("Checkpoint")]
+    [SerializeField] private GameObject researchLabCheckpoint;
+
     [Header("Research Lab Lights")]
     //Light group
     [SerializeField] private GameObject lightsGroup;
@@ -76,8 +79,6 @@ public class ResearchLabSequence : Event {
 
     //Update is called once per frame
     protected override void Update() {
-        Debug.Log(fireParent.GetComponent<FireScript>().CheckFireCount());
-
         /* Checks if the event has started the fires yet to ensure this is not fired too early, as well as if the player
            has put out all the fires. */
         if (firesStarted && fireParent.GetComponent<FireScript>().CheckFireCount() == 0) {
@@ -90,7 +91,9 @@ public class ResearchLabSequence : Event {
             //Ensures this only ever runs once
             firesStarted = false;
 
-            /* Update the player's objectives and save state here */
+            //Saves the game and activates the research lab checkpoint once the player has cleared the sequence
+            GlobalSaveManager.SaveGame(true);
+            researchLabCheckpoint.SetActive(true);
         }
     }
 
@@ -128,6 +131,8 @@ public class ResearchLabSequence : Event {
 
         /* Dialogue from Alan, apologizing for and explaining the short circuit
            Tells the player that fire extinguishers are back online */
+
+        GlobalSaveManager.SaveGame(true);
 
         yield return null;
     }
