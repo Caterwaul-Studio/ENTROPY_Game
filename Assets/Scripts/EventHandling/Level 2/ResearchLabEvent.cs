@@ -136,8 +136,8 @@ public class ResearchLabSequence : Event {
 
     //Function that flickers back on the lights
     private IEnumerator RestorePower() {
-        //Sets the established lights group to active
-        lightsGroup.SetActive(true);
+        //Sets the light components and material emissives to active
+        enableLights(lights, lightMaterials, true);
 
         //Flickers the lights on based on their already existing values, obtained from them above
         yield return StartCoroutine(FlickerLightsOn(
@@ -146,8 +146,8 @@ public class ResearchLabSequence : Event {
 
     //Function that activates the red lights in the room
     private IEnumerator ActivateRedLights() {
-        //Sets the established lights group to active
-        redLightsGroup.SetActive(true);
+        //Sets the light components and material emissives to active
+        enableLights(redLights, redLightMaterials, true);
 
         //Flickers the lights on based on their already existing values, obtained from them above
         yield return StartCoroutine(FlickerLightsOn(
@@ -156,8 +156,8 @@ public class ResearchLabSequence : Event {
 
     //Function that deactivates the red lights in the room
     private IEnumerator DeactivateRedLights() {
-        //Sets the lights group back to inactive
-        redLightsGroup.SetActive(false);
+        //Sets the lights and emissives back to inactive
+        enableLights(redLights, redLightMaterials, false);
 
         yield return null;
     }

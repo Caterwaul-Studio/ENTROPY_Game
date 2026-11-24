@@ -332,6 +332,31 @@ public class Event : MonoBehaviour
         }
     }
 
+    //Takes an array of lights and materials, enabling or disabling the light components and material emissives. These should be off in the scene itself
+    public void enableLights(Light[] lights, Material[] mats, bool state) {
+        //On
+        if (state == true) {
+            foreach (Light light in lights) {
+                light.enabled = true;
+            }
+
+            foreach (Material mat in mats) {
+                mat.EnableKeyword("_EMISSION");
+            }
+        }
+
+        //Off
+        if (state == false) {
+            foreach (Light light in lights) {
+                light.enabled = false;
+            }
+
+            foreach (Material mat in mats) {
+                mat.DisableKeyword("_EMISSION");
+            }
+        }
+    }
+
     public static float TargetIntensity(float[] intensities, int i)
     {
         return(intensities != null && i < intensities.Length) ? intensities[i] : 0.0f;
