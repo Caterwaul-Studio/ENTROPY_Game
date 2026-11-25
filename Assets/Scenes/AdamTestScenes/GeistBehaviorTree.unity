@@ -85728,63 +85728,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.975722, y: 1, z: 1}
   m_Center: {x: -0.4878615, y: -0.0000053941276, z: -0.0000035451947}
---- !u!1001 &1093181746
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1841832479}
-    m_Modifications:
-    - target: {fileID: 107771029737482174, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 41.96719
-      objectReference: {fileID: 0}
-    - target: {fileID: 107771029737482174, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 6.96517
-      objectReference: {fileID: 0}
-    - target: {fileID: 107771029737482174, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 79.66808
-      objectReference: {fileID: 0}
-    - target: {fileID: 107771029737482174, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.99995655
-      objectReference: {fileID: 0}
-    - target: {fileID: 107771029737482174, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 107771029737482174, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.0093286475
-      objectReference: {fileID: 0}
-    - target: {fileID: 107771029737482174, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 107771029737482174, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 107771029737482174, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 1.069
-      objectReference: {fileID: 0}
-    - target: {fileID: 107771029737482174, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 887167724497493879, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
-      propertyPath: m_Name
-      value: Alien 3.0-Adam's
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
 --- !u!1 &1096344255
 GameObject:
   m_ObjectHideFlags: 0
@@ -85977,11 +85920,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.9757215, y: 1, z: 1}
   m_Center: {x: -0.48786187, y: 0.0000048106863, z: -0.000012764837}
---- !u!4 &1101178293 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 107771029737482174, guid: 8ed94da16ef16ee43a09f981e546289d, type: 3}
-  m_PrefabInstance: {fileID: 1093181746}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1101854566
 GameObject:
   m_ObjectHideFlags: 0
@@ -147610,8 +147548,7 @@ Transform:
   m_LocalPosition: {x: 1.1229701, y: 0, z: -0.25514984}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1101178293}
+  m_Children: []
   m_Father: {fileID: 1445129501}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1841832481

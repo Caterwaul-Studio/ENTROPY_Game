@@ -8,6 +8,8 @@ using Unity.Properties;
 [NodeDescription(name: "StraightLineChase", story: "Straight Line Chase", category: "Action", id: "48463fd6a0c13733382487744a48d9e8")]
 public partial class StraightLineChaseAction : Action
 {
+    [SerializeReference] public BlackboardVariable<bool> PlayerInLOS;
+    
     private GeistDirectorBrain brain;
     protected override Status OnStart()
     {
@@ -26,6 +28,11 @@ public partial class StraightLineChaseAction : Action
     protected override Status OnUpdate()
     {
         brain.ChaseStep();
+        if(PlayerInLOS != null && PlayerInLOS.Value == false)
+        {
+            return Status.Failure;
+        }
+
         return brain.GrabRangeFlagged ? Status.Success : Status.Running;
     }
 

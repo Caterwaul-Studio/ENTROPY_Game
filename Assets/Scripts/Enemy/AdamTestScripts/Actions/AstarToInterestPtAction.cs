@@ -21,11 +21,11 @@ public partial class AstarToInterestPtAction : Action
         if (brain.PathTarget == InterestPt.Value && brain.Path.Count > 0)
         {
             NewInterestPt.Value = false;
-            Debug.Log($"[AOE] f{Time.frameCount} A* KEEP existing path");
+            //Debug.Log($"[AOE] f{Time.frameCount} A* KEEP existing path");
             return Status.Success;
         }
 
-        Debug.Log($"[AOE] f{Time.frameCount} A* START target={InterestPt.Value.name} path={brain.Path.Count}");
+        //Debug.Log($"[AOE] f{Time.frameCount} A* START target={InterestPt.Value.name} path={brain.Path.Count}");
 
         // Interest pt may be waypoint itself, something near one
         Waypoint goal = InterestPt.Value.GetComponent<Waypoint>();
@@ -38,7 +38,7 @@ public partial class AstarToInterestPtAction : Action
         brain.PathTarget = InterestPt.Value.transform;
         NewInterestPt.Value = false;
 
-        Debug.Log($"[AOE] f{Time.frameCount} A* RESULT {(start != null ? start.name : "NULL")} -> {(goal != null ? goal.name : "NULL")}, path={brain.Path.Count}");
+        //Debug.Log($"[AOE] f{Time.frameCount} A* RESULT {(start != null ? start.name : "NULL")} -> {(goal != null ? goal.name : "NULL")}, path={brain.Path.Count}");
 
         //Empty path with a different goal means unreachable
         if (brain.Path.Count == 0 && start != goal)

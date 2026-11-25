@@ -19,12 +19,12 @@ public partial class SetInterestPtInAoeAction : Action
             Debug.LogError("GeistDirectorBrain not found in parent hierarchy.");
             return Status.Failure;
         }
-        Debug.Log($"[AOE] f{Time.frameCount} Set START path={brain.Path.Count} current={(InterestPt.Value != null ? InterestPt.Value.name : "none")}");
+        //Debug.Log($"[AOE] f{Time.frameCount} Set START path={brain.Path.Count} current={(InterestPt.Value != null ? InterestPt.Value.name : "none")}");
 
         if (brain.Path.Count > 0 && InterestPt.Value != null)
         {
             NewInterestPt.Value = true; // keeps the Pass If in front of Calc A* open; A* will skip the replan
-            Debug.Log($"[AOE] f{Time.frameCount} Set KEEP existing point {InterestPt.Value.name}");
+            //Debug.Log($"[AOE] f{Time.frameCount} Set KEEP existing point {InterestPt.Value.name}");
             return Status.Success;
         }
 
@@ -37,7 +37,7 @@ public partial class SetInterestPtInAoeAction : Action
 
         InterestPt.Value = pick.transform;
         NewInterestPt.Value = true; // opens the Pass If in front of Calc A*
-        Debug.Log($"[AOE] f{Time.frameCount} Set PICKED {pick.name}, flag={NewInterestPt.Value}");
+        //Debug.Log($"[AOE] f{Time.frameCount} Set PICKED {pick.name}, flag={NewInterestPt.Value}");
         return Status.Success;
     }
 }

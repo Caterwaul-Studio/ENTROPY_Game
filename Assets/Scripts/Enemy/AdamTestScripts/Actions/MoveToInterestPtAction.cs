@@ -11,6 +11,7 @@ public partial class MoveToInterestPtAction : Action
     [SerializeReference] public BlackboardVariable<GameObject> Geist;
     [SerializeReference] public BlackboardVariable<Transform> InterestPt;
     [SerializeReference] public BlackboardVariable<bool> PlayerInAOE;
+    [SerializeReference] public BlackboardVariable<bool> NewPlayerInAOE;
 
     private GeistDirectorBrain brain;
 
@@ -23,20 +24,34 @@ public partial class MoveToInterestPtAction : Action
             Debug.LogError("GeistDirectorBrain component not found on the Geist GameObject.");
             return Status.Failure;
         }
-        Debug.Log($"[AOE] f{Time.frameCount} Move START path={brain.Path.Count}");
+        //Debug.Log($"[AOE] f{Time.frameCount} Move START path={brain.Path.Count}");
         return Status.Running;
     }
 
     protected override Status OnUpdate()
     {
+        if (PlayerInAOE != null && PlayerInAOE.Value && NewPlayerInAOE.Value == false)
+        {
+            Debug.Log("AOE triggered");
+            NewPlayerInAOE.Value = true;
+            Debug.Log($"Geist Bailing current path &  AOETriggered {NewPlayerInAOE.Value}");
+            //clear the path
+            brain.Path.Clear();
+            return Status.Failure;
+        }
+
+        Debug.Log("Geist moving on current path");
         bool done = brain.Step();
-        if(done) Debug.Log($"[AOE] f{Time.frameCount} Move DONE");
+        if (done) NewPlayerInAOE.Value = false;
+        Debug.Log($"AOETriggered {NewPlayerInAOE.Value}");
+        //if(done) Debug.Log($"[AOE] f{Time.frameCount} Move DONE");
         return done ? Status.Success : Status.Running;
     }
 
     protected override void OnEnd()
     {
         brain = null;
+        //NewPlayerInAOE.Value = false;
     }
 }
 

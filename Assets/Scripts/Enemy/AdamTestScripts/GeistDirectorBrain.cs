@@ -34,6 +34,7 @@ public class GeistDirectorBrain : MonoBehaviour
 
     private string modeVariableName = "New GeistEnums";
     BlackboardVariable<bool> playerInAOE,
+        newPlayerInAOE,
         playerInLOS,
         playerInGrabRange,
         playerHealthAboveOne,
@@ -67,7 +68,10 @@ public class GeistDirectorBrain : MonoBehaviour
     public float detectionRadius;
     public float defaultDetectionRadius = 10f;
     public float chaseDetectionRadius = 15f;
-    public float detectionDuration = 1.5f; // Time to "spot" player
+    public float playerLocationHintDelay = 5f;
+    private float AOETimer;
+    public bool PlayerLocationHintReady => AOETimer >= playerLocationHintDelay;
+
 
     [Header("Chase")]
     [SerializeField] private float minChaseSpeed = 3f;
@@ -113,6 +117,7 @@ public class GeistDirectorBrain : MonoBehaviour
     void Start()
     {
         geist.GetVariable("PlayerInAOE", out playerInAOE);
+        geist.GetVariable("NewPlayerInAOE", out newPlayerInAOE);
         geist.GetVariable("PlayerInLOS", out playerInLOS);
         geist.GetVariable("PlayerInGrabRange", out playerInGrabRange);
         geist.GetVariable("PlayerHealthAboveOne", out playerHealthAboveOne);
@@ -137,6 +142,10 @@ public class GeistDirectorBrain : MonoBehaviour
 
         bool inAoe = PlayerInAOE();
         if (playerInAOE.Value != inAoe) playerInAOE.Value = inAoe;
+
+        // background hint timer: only runs while the player is in AOE, resets when they leave
+        if (inAoe) AOETimer += Time.deltaTime;
+        else AOETimer = 0f;
 
         bool inLOS = PlayerInLOS(out bool blinded);
         if (playerInLOS.Value != inLOS) playerInLOS.Value = inLOS;
@@ -176,7 +185,7 @@ public class GeistDirectorBrain : MonoBehaviour
 
         RebuildZoneMembership(); //initialize the electrical zones
 
-        Debug.Log($"[GeistBrain] InitializeNavigation: {allWaypoints.Count} waypoints, start = {(CurrentWaypoint != null ? CurrentWaypoint.name : "NONE")}", this);
+        //Debug.Log($"[GeistBrain] InitializeNavigation: {allWaypoints.Count} waypoints, start = {(CurrentWaypoint != null ? CurrentWaypoint.name : "NONE")}", this);
     }
     /// <summary>
     /// the graph's top level switch (ComplexGeisAI / Dormant / Cutscene)
@@ -309,6 +318,18 @@ public class GeistDirectorBrain : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Returns the waypoint nearest the player if the hint timer has finished, otherwise null.
+    /// Consuming the hint restarts the timer.
+    /// </summary>
+    public Waypoint TryConsumePlayerLocationHint()
+    {
+        if (!PlayerLocationHintReady || playerObj == null) return null;
+
+        Waypoint hint = FindClosestWaypoint(playerObj.transform.position);
+        if (hint != null) AOETimer = 0f;
+        return hint;
+    }
 
     #endregion
 
@@ -342,6 +363,10 @@ public class GeistDirectorBrain : MonoBehaviour
             Quaternion look = Quaternion.LookRotation(toPlayer.normalized, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, look, rotationSpeed * Time.deltaTime);
         }
+
+        //recheck lign of sight to see if is lost
+        bool l = PlayerInLOS(out bool geistBlinded);
+        playerInLOS.Value = l;
 
         UpdateCurrentWaypointToClosest();
     }
@@ -414,7 +439,7 @@ public class GeistDirectorBrain : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log($"[GeistBrain] collision with {collision.gameObject.name} (tag {collision.gameObject.tag})", this); // remove once it works
+        //Debug.Log($"[GeistBrain] collision with {collision.gameObject.name} (tag {collision.gameObject.tag})", this); // remove once it works
         HandlePlayerContact(collision.gameObject);
     }
 
@@ -617,7 +642,7 @@ public class GeistDirectorBrain : MonoBehaviour
         if (zone == null || zone.powered == powered) return;
 
         zone.powered = powered;
-        Debug.Log($"[GeistBrain] Zone {key.name} powered = {powered}", this);
+        //Debug.Log($"[GeistBrain] Zone {key.name} powered = {powered}", this);
 
         if (powered)
         {
