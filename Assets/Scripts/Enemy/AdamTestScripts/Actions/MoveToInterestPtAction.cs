@@ -10,6 +10,7 @@ public partial class MoveToInterestPtAction : Action
 {
     [SerializeReference] public BlackboardVariable<GameObject> Geist;
     [SerializeReference] public BlackboardVariable<Transform> InterestPt;
+    [SerializeReference] public BlackboardVariable<bool> NewInterestPt;
     [SerializeReference] public BlackboardVariable<bool> PlayerInAOE;
     [SerializeReference] public BlackboardVariable<bool> NewPlayerInAOE;
 
@@ -30,6 +31,7 @@ public partial class MoveToInterestPtAction : Action
 
     protected override Status OnUpdate()
     {
+        //player detected in AOE for first time, bail out of this path
         if (PlayerInAOE != null && PlayerInAOE.Value && NewPlayerInAOE.Value == false)
         {
             Debug.Log("AOE triggered");
@@ -39,11 +41,21 @@ public partial class MoveToInterestPtAction : Action
             brain.Path.Clear();
             return Status.Failure;
         }
+        //player hint set, bail out of path to follow hint
+        if(brain.AOETimer >= brain.playerLocationHintDelay)
+        {
+            brain.Path.Clear();
+            return Status.Failure;
+        }
 
         Debug.Log("Geist moving on current path");
         bool done = brain.Step();
-        if (done) NewPlayerInAOE.Value = false;
-        Debug.Log($"AOETriggered {NewPlayerInAOE.Value}");
+        if (done)
+        {
+            NewInterestPt.Value = false;
+            NewPlayerInAOE.Value = false;
+        }
+        //Debug.Log($"AOETriggered {NewPlayerInAOE.Value}");
         //if(done) Debug.Log($"[AOE] f{Time.frameCount} Move DONE");
         return done ? Status.Success : Status.Running;
     }

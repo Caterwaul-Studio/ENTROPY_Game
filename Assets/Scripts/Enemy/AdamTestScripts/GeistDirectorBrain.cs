@@ -29,7 +29,6 @@ public class GeistDirectorBrain : MonoBehaviour
     public float coneHalfAngle;
     [SerializeField] public GeistLookAt GeistEyeRig;
     [SerializeField] public float geistEyeRangeMax;
-    [SerializeField] private LayerMask barrierLayer;
     [SerializeField] private string playerTag = "Player";
 
     private string modeVariableName = "New GeistEnums";
@@ -63,20 +62,21 @@ public class GeistDirectorBrain : MonoBehaviour
 
     //ported from EnemyStateMachine
     [Header("Detection Settings")]
+    BlackboardVariable<Transform> lastKnownPlayerPos;
     [SerializeField] private float closeSightDistance = 2f; // point blank, the Geist can't "lose" the player
     public LayerMask detectionMask;
     public float detectionRadius;
     public float defaultDetectionRadius = 10f;
     public float chaseDetectionRadius = 15f;
     public float playerLocationHintDelay = 5f;
-    private float AOETimer;
+    public float AOETimer;
     public bool PlayerLocationHintReady => AOETimer >= playerLocationHintDelay;
 
 
     [Header("Chase")]
     [SerializeField] private float minChaseSpeed = 3f;
     [SerializeField] private float maxChaseSpeed = 6f;
-    [SerializeField] private float maxChaseDistance = 20f;
+    [SerializeField] private float maxChaseDistance = 10f;
 
     [Header("Grab")]
     [SerializeField] private float forceLookDuration = 0.5f;
@@ -130,6 +130,7 @@ public class GeistDirectorBrain : MonoBehaviour
         geist.GetVariable("GeistInPoweredZone", out geistInPoweredZone);
         geist.GetVariable("NewInterestPt", out newInterestPt);
         geist.GetVariable("NewActiveElectricalZone", out newActiveElectricalZone);
+        geist.GetVariable("LastKnownPlayerPos", out lastKnownPlayerPos);
         if (newActiveElectricalZone == null)
             Debug.LogWarning("[GeistBrain] No Transform variable named 'NewElectricalZone' on the blackboard", this);
 
@@ -312,8 +313,17 @@ public class GeistDirectorBrain : MonoBehaviour
                 return false;
             }
         }
-        if (Physics.Raycast(origin, dir, out RaycastHit hit, distToPlayer, barrierLayer, QueryTriggerInteraction.Ignore))
-            return hit.collider.GetComponentInParent<ZeroGravity>() != null;
+        if (Physics.Raycast(origin, dir, out RaycastHit hit, distToPlayer, detectionMask, QueryTriggerInteraction.Ignore))
+        {
+            bool tf = (hit.collider.GetComponentInParent<ZeroGravity>() != null);
+            Debug.Log($"LOS check: {tf}");
+            if (tf)
+            {
+                //update known player Pos so when LOS is lost
+                lastKnownPlayerPos.Value = player.transform;
+                return true;
+            }
+        }
         //return an average of the distances
         return true;
     }
@@ -886,7 +896,7 @@ public class GeistDirectorBrain : MonoBehaviour
         IsWaypointActive(wp) && 
         (wp.transform.position - transform.position).sqrMagnitude <= sqrRadius).ToList();
 
-        Debug.Log($"[AOE] f{Time.frameCount} picker: options={options.Count}, radius={radius}, current={(CurrentWaypoint != null ? CurrentWaypoint.name : "NULL")}", this);
+        //Debug.Log($"[AOE] f{Time.frameCount} picker: options={options.Count}, radius={radius}, current={(CurrentWaypoint != null ? CurrentWaypoint.name : "NULL")}", this);
 
         return options.Count > 0 ? options[Random.Range(0, options.Count)] : null;
     }

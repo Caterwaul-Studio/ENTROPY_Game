@@ -23,10 +23,8 @@ public partial class PlayerLocationHintAction : Action
         InterestPt.Value = hint.transform;
         if (NewInterestPt != null) NewInterestPt.Value = true;
 
-        Debug.Log($"[AOE] f{Time.frameCount} Player hint -> {hint.name}", brain);
+        Debug.Log($"[AOE] f{Time.frameCount} Player hint -> {hint.name} Interest Pt -> {InterestPt.Value.name}", brain);
         return Status.Success;
     }
-
-    protected override Status OnUpdate() => Status.Success;
 }
 

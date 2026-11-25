@@ -325,7 +325,7 @@ MonoBehaviour:
   wayPointGroup: {fileID: 0}
   startingWaypoint: {fileID: 0}
   phasingWaypoints: []
-  moveSpeed: 2
+  moveSpeed: 3
   rotationSpeed: 2.5
   arriveThreshold: 0.5
   closeSightDistance: 2
@@ -335,7 +335,8 @@ MonoBehaviour:
   detectionRadius: 9
   defaultDetectionRadius: 10
   chaseDetectionRadius: 15
-  detectionDuration: 1.5
+  playerLocationHintDelay: 10
+  AOETimer: 0
   minChaseSpeed: 1
   maxChaseSpeed: 2
   maxChaseDistance: 20
@@ -344,6 +345,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   grabWallCheckRadius: 0.5
+  grabCooldown: 5
   minThrowDistance: 5
   throwForce: 20
   grabDuration: 5.5
