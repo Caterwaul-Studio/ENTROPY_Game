@@ -17,7 +17,7 @@ public partial class SavePlayerLastKnownPositionAction : Action
         GeistDirectorBrain brain = GameObject.GetComponent<GeistDirectorBrain>();
         if (brain == null) return Status.Failure;
 
-        if(brain.PlayerInLOS(out bool blinded) == false)
+        if(brain.PlayerInLOS(out bool blinded) == false && LastKnownPlayerPos.Value != null)
         {
             InterestPt.Value = LastKnownPlayerPos.Value;
             NewInterestPt.Value = true;

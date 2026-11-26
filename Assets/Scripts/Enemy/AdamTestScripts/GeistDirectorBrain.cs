@@ -343,6 +343,20 @@ public class GeistDirectorBrain : MonoBehaviour
 
     #endregion
 
+    #region Investigate
+    
+    public Waypoint SetInterestPtNearInvestigatePt()
+    {
+        return null;
+    }
+
+    public void InvestigatePt()
+    {
+
+    }
+
+    #endregion
+
     #region Chasing (some ported from ComplexEnemyAI)
     public bool IsGrabbingPlayer { get; private set; }
     public bool CanGrabPlayer => player != null && persistantManager != null && !IsGrabbingPlayer && Time.time >= nextGrabTime;

@@ -20,9 +20,6 @@ public partial class PlayerInGeistLosCondition : Condition
             return false;
         }
 
-        bool inLOS = brain.PlayerInLOS(out bool blinded);
-        PlayerInLOS.Value = inLOS;
-        GeistBlinded.Value = blinded;
-        return inLOS && !blinded;
+        return PlayerInLOS.Value && !GeistBlinded.Value;
     }
 }
