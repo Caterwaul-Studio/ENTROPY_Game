@@ -18,14 +18,16 @@ public partial class SetRandInterestPtAction : Action
             Debug.LogError("GeistDirectorBrain not found in parent hierarchy.");
             return Status.Failure;
         }
-
-        Waypoint pick = brain.GetRandomWaypoint();
-        if(pick == null)
+        if (InterestPt.Value == null)
         {
-            Debug.LogError("No random waypoint found.");
-            return Status.Failure;
+            Waypoint pick = brain.GetRandomWaypoint();
+            if (pick == null)
+            {
+                Debug.LogError("No random waypoint found.");
+                return Status.Failure;
+            }
+            InterestPt.Value = pick.transform;
         }
-        InterestPt.Value = pick.transform;
         NewInterestPt.Value = true;
         return Status.Success;
     }

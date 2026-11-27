@@ -42,13 +42,13 @@ public partial class MoveToInterestPtAction : Action
             return Status.Failure;
         }
         //player hint set, bail out of path to follow hint
-        if(brain.AOETimer >= brain.playerLocationHintDelay)
+        if(brain.HintTimer >= brain.playerLocationHintDelay)
         {
             brain.Path.Clear();
             return Status.Failure;
         }
 
-        Debug.Log("Geist moving on current path");
+        //Debug.Log("Geist moving on current path");
         bool done = brain.Step();
         if (done)
         {

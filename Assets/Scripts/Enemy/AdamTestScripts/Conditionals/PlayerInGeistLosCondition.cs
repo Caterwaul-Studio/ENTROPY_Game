@@ -9,6 +9,7 @@ public partial class PlayerInGeistLosCondition : Condition
     [SerializeReference] public BlackboardVariable<bool> PlayerInLOS;
     [SerializeReference] public BlackboardVariable<bool> GeistBlinded;
 
+
     private GeistDirectorBrain brain;
     public override bool IsTrue()
     {

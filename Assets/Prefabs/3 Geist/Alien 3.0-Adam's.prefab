@@ -318,14 +318,11 @@ MonoBehaviour:
   coneHalfAngle: 0
   GeistEyeRig: {fileID: 0}
   geistEyeRangeMax: 10
-  barrierLayer:
-    serializedVersion: 2
-    m_Bits: 0
   playerTag: Player
   wayPointGroup: {fileID: 0}
   startingWaypoint: {fileID: 0}
   phasingWaypoints: []
-  moveSpeed: 3
+  moveSpeed: 1
   rotationSpeed: 2.5
   arriveThreshold: 0.5
   closeSightDistance: 2
@@ -335,8 +332,10 @@ MonoBehaviour:
   detectionRadius: 9
   defaultDetectionRadius: 10
   chaseDetectionRadius: 15
-  playerLocationHintDelay: 10
+  playerLocationHintDelay: 30
   AOETimer: 0
+  investigateRadius: 6
+  investigateWaypointCount: 2
   minChaseSpeed: 1
   maxChaseSpeed: 2
   maxChaseDistance: 20

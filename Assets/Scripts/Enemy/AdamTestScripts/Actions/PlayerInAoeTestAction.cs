@@ -17,7 +17,7 @@ public partial class PlayerInAoeTestAction : Action
 
         if (PlayerInAOE.Value)
         {
-            Debug.Log("<color=orange>Player in AOE</color>");
+            //Debug.Log("<color=orange>Player in AOE</color>");
             return Status.Success;
         }
 

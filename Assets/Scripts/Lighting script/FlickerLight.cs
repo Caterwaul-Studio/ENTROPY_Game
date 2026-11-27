@@ -48,7 +48,7 @@ public class FlickerLight : MonoBehaviour
 
     public void EnableLight()
     {
-        Debug.Log(this.GetComponent<Light>().name);
+        //Debug.Log(this.GetComponent<Light>().name);
         this.GetComponent<Light>().enabled = true;
     }
 

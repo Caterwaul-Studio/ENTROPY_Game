@@ -209,7 +209,7 @@ public class FireNodeScript : MonoBehaviour
     private IEnumerator SetPuffs()
     {
         yield return new WaitForSeconds(1f);
-        Debug.Log("fire node start");
+        //Debug.Log("fire node start");
         extinguishNodes = null;
         extinguishNodes = FindObjectsByType<PuffMovement>(FindObjectsSortMode.None);
     }

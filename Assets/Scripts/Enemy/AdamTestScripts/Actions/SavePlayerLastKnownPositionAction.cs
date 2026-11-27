@@ -5,12 +5,11 @@ using Action = Unity.Behavior.Action;
 using Unity.Properties;
 
 [Serializable, GeneratePropertyBag]
-[NodeDescription(name: "SavePlayerLastKnownPosition", story: "[LastKnownPlayerPos] as [InterestPt]", category: "Action", id: "c2f6fbe57fbc6a54337ef8535c216543")]
+[NodeDescription(name: "SavePlayerLastKnownPosition", story: "[LastKnownPlayerPos] as [InvestigatePt]", category: "Action", id: "c2f6fbe57fbc6a54337ef8535c216543")]
 public partial class SavePlayerLastKnownPositionAction : Action
 {
-    [SerializeReference] public BlackboardVariable<Transform> InterestPt;
+    [SerializeReference] public BlackboardVariable<Transform> InvestigatePt;
     [SerializeReference] public BlackboardVariable<Transform> LastKnownPlayerPos;
-    [SerializeReference] public BlackboardVariable<bool> NewInterestPt;
 
     protected override Status OnStart()
     {
@@ -19,8 +18,7 @@ public partial class SavePlayerLastKnownPositionAction : Action
 
         if(brain.PlayerInLOS(out bool blinded) == false && LastKnownPlayerPos.Value != null)
         {
-            InterestPt.Value = LastKnownPlayerPos.Value;
-            NewInterestPt.Value = true;
+            InvestigatePt.Value = LastKnownPlayerPos.Value;
             Debug.Log("Geist going to last known player Pos");
             return Status.Success;
         }

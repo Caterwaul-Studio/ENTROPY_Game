@@ -35,6 +35,7 @@ public class GeistDirectorBrain : MonoBehaviour
     BlackboardVariable<bool> playerInAOE,
         newPlayerInAOE,
         playerInLOS,
+        lostLOSThisFrame,
         playerInGrabRange,
         playerHealthAboveOne,
         playerEnteredPoweredArea,
@@ -69,9 +70,13 @@ public class GeistDirectorBrain : MonoBehaviour
     public float defaultDetectionRadius = 10f;
     public float chaseDetectionRadius = 15f;
     public float playerLocationHintDelay = 5f;
-    public float AOETimer;
-    public bool PlayerLocationHintReady => AOETimer >= playerLocationHintDelay;
+    public float HintTimer;
+    public bool PlayerLocationHintReady => HintTimer >= playerLocationHintDelay;
 
+    [Header("Investigate")]
+    [SerializeField] private float investigateRadius = 6f;
+    [SerializeField] private int investigateWaypointCount = 2;
+    private Transform lastKnownMarker;
 
     [Header("Chase")]
     [SerializeField] private float minChaseSpeed = 3f;
@@ -111,6 +116,7 @@ public class GeistDirectorBrain : MonoBehaviour
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         if (wayPointGroup != null)
             InitializeNavigation(wayPointGroup.GetComponentsInChildren<Waypoint>(), startingWaypoint, false);
+        lastKnownMarker = new GameObject("LastKnownPLayerMarker").transform;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -119,6 +125,7 @@ public class GeistDirectorBrain : MonoBehaviour
         geist.GetVariable("PlayerInAOE", out playerInAOE);
         geist.GetVariable("NewPlayerInAOE", out newPlayerInAOE);
         geist.GetVariable("PlayerInLOS", out playerInLOS);
+        geist.GetVariable("LostLOSThisFrame", out lostLOSThisFrame);
         geist.GetVariable("PlayerInGrabRange", out playerInGrabRange);
         geist.GetVariable("PlayerHealthAboveOne", out playerHealthAboveOne);
         geist.GetVariable("PlayerEnteredPoweredArea", out playerEnteredPoweredArea);
@@ -136,6 +143,11 @@ public class GeistDirectorBrain : MonoBehaviour
 
        
     }
+    private void OnDestroy()
+    {
+        if (lastKnownMarker != null) Destroy(lastKnownMarker.gameObject);
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -144,9 +156,8 @@ public class GeistDirectorBrain : MonoBehaviour
         bool inAoe = PlayerInAOE();
         if (playerInAOE.Value != inAoe) playerInAOE.Value = inAoe;
 
-        // background hint timer: only runs while the player is in AOE, resets when they leave
-        if (inAoe) AOETimer += Time.deltaTime;
-        else AOETimer = 0f;
+        // backgroung hint timer: scale this in editor. Or by difficulty
+        HintTimer += Time.deltaTime;
 
         bool inLOS = PlayerInLOS(out bool blinded);
         if (playerInLOS.Value != inLOS) playerInLOS.Value = inLOS;
@@ -313,19 +324,18 @@ public class GeistDirectorBrain : MonoBehaviour
                 return false;
             }
         }
+        bool seen = true; // nothing in the way
         if (Physics.Raycast(origin, dir, out RaycastHit hit, distToPlayer, detectionMask, QueryTriggerInteraction.Ignore))
+            seen = hit.collider.GetComponentInParent<ZeroGravity>() != null;
+
+        if (seen)
         {
-            bool tf = (hit.collider.GetComponentInParent<ZeroGravity>() != null);
-            Debug.Log($"LOS check: {tf}");
-            if (tf)
-            {
-                //update known player Pos so when LOS is lost
-                lastKnownPlayerPos.Value = player.transform;
-                return true;
-            }
+            RecordLastKnownPlayerPos();
+            //reset the lost this frame bool
+            if(lostLOSThisFrame.Value == true)
+                lostLOSThisFrame.Value = false;
         }
-        //return an average of the distances
-        return true;
+        return seen;
     }
 
     /// <summary>
@@ -337,24 +347,81 @@ public class GeistDirectorBrain : MonoBehaviour
         if (!PlayerLocationHintReady || playerObj == null) return null;
 
         Waypoint hint = FindClosestWaypoint(playerObj.transform.position);
-        if (hint != null) AOETimer = 0f;
+        if (hint != null) HintTimer = 0f;
         return hint;
     }
 
     #endregion
 
     #region Investigate
-    
-    public Waypoint SetInterestPtNearInvestigatePt()
+    private void RecordLastKnownPlayerPos()
     {
-        return null;
+        if (lastKnownMarker == null || player == null) return;
+        lastKnownMarker.position = player.transform.position;
+        if (lastKnownPlayerPos != null && lastKnownPlayerPos.Value != lastKnownMarker)
+            lastKnownPlayerPos.Value = lastKnownMarker;
+    }
+    public void ClearLastKnownPlayerPos()
+    {
+        if (lastKnownPlayerPos != null) lastKnownPlayerPos.Value = null;
+    }
+    /// <summary>
+    /// Builds a Path through the waypoints around a point (closest first), chained with A* legs.
+    /// Returns false if none are reachable.
+    /// </summary>
+    public bool BuildInvestigatePath(Vector3 point)
+    {
+        float sqrR = investigateRadius * investigateRadius;
+
+        List<Waypoint> near = allWaypoints
+            .Where(w => w != null && IsWaypointActive(w) && (w.transform.position - point).sqrMagnitude <= sqrR)
+            .OrderBy(w => (w.transform.position - point).sqrMagnitude)
+            .Take(investigateWaypointCount + 1)
+            .ToList();
+
+        if (near.Count == 0) // nothing in radius: fall back to the single closest active one
+        {
+            Waypoint closest = allWaypoints
+                .Where(w => w != null && IsWaypointActive(w))
+                .OrderBy(w => (w.transform.position - point).sqrMagnitude)
+                .FirstOrDefault();
+            if (closest == null) return false;
+            near.Add(closest);
+        }
+
+        Waypoint from = CurrentWaypoint != null ? CurrentWaypoint : FindClosestWaypoint(transform.position);
+        var route = new List<Waypoint>();
+
+        foreach (Waypoint wp in near)
+        {
+            Queue<Waypoint> leg = FindPath(from, wp);
+            if (leg.Count == 0 && from != wp) continue; // unreachable, skip it
+            route.AddRange(leg);
+            from = wp;
+        }
+
+        Path = new Queue<Waypoint>(route);
+        PathTarget = null; // so the A* node never mistakes this for its own path
+        return route.Count > 0;
     }
 
-    public void InvestigatePt()
+    /// <summary>
+    /// Moves straight toward a point (no waypoints). True once arrived.
+    /// </summary>
+    public bool StepToPoint(Vector3 point)
     {
+        transform.position = Vector3.MoveTowards(transform.position, point, moveSpeed * Time.deltaTime);
 
+        Vector3 dir = point - transform.position;
+        if (dir.sqrMagnitude > 0.001f)
+        {
+            Quaternion rot = Quaternion.LookRotation(dir.normalized, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, rotationSpeed * Time.deltaTime);
+        }
+
+        UpdateCurrentWaypointToClosest();
+        return Vector3.Distance(transform.position, point) < arriveThreshold;
     }
-
     #endregion
 
     #region Chasing (some ported from ComplexEnemyAI)

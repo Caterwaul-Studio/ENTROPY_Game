@@ -11,6 +11,7 @@ public partial class PlayerLocationHintAction : Action
     [SerializeReference] public BlackboardVariable<Transform> InterestPt;
     [SerializeReference] public BlackboardVariable<bool> NewInterestPt;
 
+
     protected override Status OnStart()
     {
         GeistDirectorBrain brain = GameObject.GetComponent<GeistDirectorBrain>();
